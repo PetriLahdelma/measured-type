@@ -8,8 +8,14 @@
  *   node scripts/lint-css.js site.css --rtl             physical sides become HIGH
  *   node scripts/lint-css.js site.css --json
  *
- * Directories are searched for .css and .html files (node_modules and dot
- * folders skipped). Fluid sizes are evaluated, not pattern-matched: each
+ * Directories are searched for .css, .scss, .less, .html, .vue, .svelte,
+ * .astro, .jsx and .tsx files (node_modules, dist, build, coverage, vendor and
+ * dot folders skipped). Sass and Less `//` comments are blanked; components
+ * contribute their <style> blocks; Tailwind classes in class and className
+ * attributes are checked for justify, vw sizes, physical sides, untracked
+ * capitals, px tracking, ch measures and thin or tight reading text. Template
+ * text in components and JSX is code and is not checked for quotes or dashes.
+ * Fluid sizes are evaluated, not pattern-matched: each
  * font-size or size token that uses vw/vi is computed at 200% and 500% zoom on
  * windows from 320 to 2560px.
  *
@@ -166,6 +172,21 @@ const CONTAINER = /prose|article|main|content|container|wrap|page|body|doc|post|
 const SIZE_TOKEN = /size|font|text|fs\b|step|scale|display|hero|h[1-6]|heading|title|type/i;
 const PHYSICAL = /^(margin|padding|border)-(left|right)(-|$)|^(left|right)$|^border-(top|bottom)-(left|right)-radius$/;
 
+// A font size that uses vw/vi, evaluated at zoom: [rule, severity, measured, fix] or null.
+function fluid(v, label) {
+  if (!/\d(vw|vi|vmin|vmax)\b/.test(v) || /var\(/.test(v)) return null;
+  let f = null;
+  try { f = evaluator(v); } catch { return null; }
+  const z = zoomProfile(f);
+  if (z.worst500 < 2) {
+    return ['MT-ZOOM-VW', 'HIGH', `${label} never reaches 2× zoom, even at 500% (${z.worst500.toFixed(2)}×)`, 'clamp(min-rem, rem + vi, max-rem) with a range near 1.4×'];
+  }
+  if (z.range > 1.4) {
+    return ['MT-ZOOM-RANGE', z.range > 2.5 ? 'MEDIUM' : 'LOW', `${label}: range ${z.range.toFixed(2)}×, ${z.at1280.toFixed(2)}× at 200% zoom on 1280px`, 'narrow the range to about 1.4×'];
+  }
+  return null;
+}
+
 function lintCss(blocks, file, opts, out) {
   const decls = blocks.flatMap((b) => b.decls);
   const smallCapsSynthOff = decls.some((d) =>
@@ -186,19 +207,8 @@ function lintCss(blocks, file, opts, out) {
       const rule = `${sel} { ${d.prop}: ${d.value} }`;
 
       const sizeish = d.prop === 'font-size' || (d.prop.startsWith('--') && SIZE_TOKEN.test(d.prop));
-      if (sizeish && /\d(vw|vi|vmin|vmax)\b/.test(v) && !/var\(/.test(v)) {
-        let f = null;
-        try { f = evaluator(v); } catch { /* not a length we can evaluate */ }
-        if (f) {
-          const z = zoomProfile(f);
-          if (z.worst500 < 2) {
-            add('MT-ZOOM-VW', 'HIGH', d, `${rule} never reaches 2× zoom, even at 500% (${z.worst500.toFixed(2)}×)`, 'clamp(min-rem, rem + vi, max-rem) with a range near 1.4×');
-          } else if (z.range > 1.4) {
-            const sev = z.range > 2.5 ? 'MEDIUM' : 'LOW';
-            add('MT-ZOOM-RANGE', sev, d, `${rule}: range ${z.range.toFixed(2)}×, ${z.at1280.toFixed(2)}× at 200% zoom on 1280px`, 'narrow the range to about 1.4×');
-          }
-        }
-      }
+      const fluidHit = sizeish && fluid(v, rule);
+      if (fluidHit) add(fluidHit[0], fluidHit[1], d, fluidHit[2], fluidHit[3]);
       if (d.prop === 'font-size' && isRoot) {
         if (/^[\d.]+px$/.test(v)) add('MT-ROOT-PX', 'HIGH', d, `${rule} overrides the reader's default size`, 'font-size: 100% (or leave it unset)');
         else if (/^[\d.]+%$/.test(v) && parseFloat(v) < 100) add('MT-ROOT-PX', 'LOW', d, `${rule} makes 1rem ${(parseFloat(v) * 0.16).toFixed(1)}px`, 'font-size: 100% with rem tokens');
@@ -283,14 +293,110 @@ function lintHtml(source, file, opts, out) {
   }
 }
 
+// ---------- Sass, Less and single-file components ----------
+
+// Sass and Less `//` comments, blanked so line numbers stay; `url(http://...)` and strings are kept.
+function stripLineComments(text) {
+  let out = '';
+  let quote = null;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quote) {
+      out += c;
+      if (c === quote && text[i - 1] !== '\\') quote = null;
+      continue;
+    }
+    if (c === '"' || c === "'") { quote = c; out += c; continue; }
+    if (c === '/' && text[i + 1] === '/' && text[i - 1] !== ':') {
+      while (i < text.length && text[i] !== '\n') { out += ' '; i++; }
+      if (i < text.length) out += '\n';
+      continue;
+    }
+    out += c;
+  }
+  return out;
+}
+
+// .vue, .svelte and .astro: style blocks and classes only; template text is code, not prose.
+function lintComponent(source, file, opts, out) {
+  const lineAt = (index) => source.slice(0, index).split('\n').length;
+  for (const m of source.matchAll(/<style([^>]*)>([\s\S]*?)<\/style>/gi)) {
+    const css = /lang=["']?(scss|sass|less)/i.test(m[1]) ? stripLineComments(m[2]) : m[2];
+    lintCss(parseCss(css, lineAt(m.index + m[0].indexOf('>') + 1) - 1), file, opts, out);
+  }
+  lintTailwind(source, file, opts, out);
+}
+
+// ---------- Tailwind classes ----------
+
+const READING_TAG = /^(p|li|dd|blockquote|figcaption)$/;
+const CORNER = { tl: 'ss', tr: 'se', bl: 'es', br: 'ee' };
+
+function logicalClass(base) {
+  let m = /^(-?)(m|p|scroll-m|scroll-p)([lr])-(.+)$/.exec(base);
+  if (m) return `${m[1]}${m[2]}${m[3] === 'l' ? 's' : 'e'}-${m[4]}`;
+  if ((m = /^(-?)(left|right)-(.+)$/.exec(base))) return `${m[1]}${m[2] === 'left' ? 'start' : 'end'}-${m[3]}`;
+  if ((m = /^(text|float|clear)-(left|right)$/.exec(base))) return `${m[1]}-${m[2] === 'left' ? 'start' : 'end'}`;
+  if ((m = /^(border|rounded)-([lr])(-.+)?$/.exec(base))) return `${m[1]}-${m[2] === 'l' ? 's' : 'e'}${m[3] || ''}`;
+  if ((m = /^rounded-(tl|tr|bl|br)(-.+)?$/.exec(base))) return `rounded-${CORNER[m[1]]}${m[2] || ''}`;
+  return null;
+}
+
+function lintTailwind(source, file, opts, out) {
+  const lineAt = (index) => source.slice(0, index).split('\n').length;
+  const ATTR = /<([a-zA-Z][\w.-]*)\b[^<]*?\bclass(?:Name)?\s*=\s*(?:"([^"]*)"|'([^']*)'|\{\s*(?:"([^"]*)"|'([^']*)'|`([^`]*)`)\s*\})/g;
+  for (const m of source.matchAll(ATTR)) {
+    const tag = m[1].toLowerCase();
+    const raw = (m[2] ?? m[3] ?? m[4] ?? m[5] ?? m[6] ?? '').split(/\s+/).filter(Boolean);
+    const base = raw.map((c) => c.split(':').pop().replace(/^!/, ''));
+    const has = (c) => base.includes(c);
+    const line = lineAt(m.index + m[0].search(/\bclass(Name)?\s*=/));
+    const add = (rule, severity, measured, fix) => out.push({ rule, severity, file, line, measured, fix });
+    const reading = READING_TAG.test(tag);
+
+    if (has('text-justify') && !has('hyphens-auto')) add('MT-JUSTIFY', 'MEDIUM', `<${tag}> class text-justify without hyphens-auto`, 'text-start, or hyphens-auto on a wide measure');
+    base.forEach((b, i) => {
+      const size = /^text-\[(.+)\]$/.exec(b);
+      const hit = size && fluid(size[1].replace(/_/g, ' '), `<${tag}> class ${raw[i]}`);
+      if (hit) add(...hit);
+      const logical = logicalClass(b);
+      if (logical) add('MT-PHYSICAL', opts.rtl ? 'HIGH' : 'LOW', `<${tag}> class ${raw[i]}`, `${raw[i].replace(b, logical)} (the logical utility)`);
+      const ls = /^tracking-\[(-?[\d.]+)px\]$/.exec(b);
+      if (ls && parseFloat(ls[1]) !== 0) add('MT-LS-PX', 'LOW', `<${tag}> class ${raw[i]}`, `tracking-[${+(parseFloat(ls[1]) / 16).toFixed(3)}em]`);
+      const ch = /^max-w-\[([\d.]+)ch\]$/.exec(b);
+      if (b === 'max-w-prose' || (ch && parseFloat(ch[1]) >= 30)) {
+        add('MT-MEASURE-CH', 'LOW', `<${tag}> class ${raw[i]}${b === 'max-w-prose' ? ' (65ch)' : ''}: 1ch is the width of the zero, not the average letter`, 'count it: node scripts/measure-line.js page.html "selector"');
+      }
+      if (reading && /^font-(thin|extralight|light)$/.test(b)) add('MT-WEIGHT-THIN', 'MEDIUM', `<${tag}> class ${raw[i]} on reading text`, 'font-normal or heavier for reading text');
+      if (reading && /^leading-(none|tight)$/.test(b)) add('MT-LH-TIGHT', 'MEDIUM', `<${tag}> class ${raw[i]} on reading text`, 'leading-relaxed (1.625) or leading-normal (1.5) for body text');
+    });
+    if (has('uppercase') && !base.some((b) => /^tracking-(wide|wider|widest|\[)/.test(b))) {
+      add('MT-CAPS-TRACKING', 'LOW', `<${tag}> class uppercase without tracking`, 'tracking-wide (0.025em) or tracking-[0.06em]');
+    }
+  }
+}
+
 // ---------- files, diff, report ----------
+
+const SOURCES = /\.(css|scss|less|html?|vue|svelte|astro|jsx|tsx)$/i;
+const SKIP_DIRS = new Set(['node_modules', 'dist', 'build', 'coverage', 'vendor']);
 
 function collect(target, files) {
   if (fs.statSync(target).isDirectory()) {
     for (const e of fs.readdirSync(target)) {
-      if (e !== 'node_modules' && !e.startsWith('.')) collect(path.join(target, e), files);
+      if (!SKIP_DIRS.has(e) && !e.startsWith('.')) collect(path.join(target, e), files);
     }
-  } else if (/\.(css|html?)$/i.test(target)) files.push(target);
+  } else if (SOURCES.test(target)) files.push(target);
+}
+
+function lintFile(file, src, opts, out) {
+  if (/\.html?$/i.test(file)) {
+    lintHtml(src, file, opts, out);
+    lintTailwind(src, file, opts, out);
+  } else if (/\.(vue|svelte|astro)$/i.test(file)) lintComponent(src, file, opts, out);
+  else if (/\.(jsx|tsx)$/i.test(file)) lintTailwind(src, file, opts, out);
+  else if (/\.(scss|less)$/i.test(file)) lintCss(parseCss(stripLineComments(src)), file, opts, out);
+  else lintCss(parseCss(src), file, opts, out);
 }
 
 function changedLines(file, ref) {
@@ -310,8 +416,7 @@ function lint(targets, opts = {}) {
   for (const file of files) {
     const src = fs.readFileSync(file, 'utf8');
     const out = [];
-    if (/\.html?$/i.test(file)) lintHtml(src, file, opts, out);
-    else lintCss(parseCss(src), file, opts, out);
+    lintFile(file, src, opts, out);
     if (opts.diff) {
       const changed = changedLines(file, opts.diff);
       findings.push(...out.filter((f) => changed.has(f.line)));

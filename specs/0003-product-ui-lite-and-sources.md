@@ -88,9 +88,12 @@ rule (standard, measured, convention, preference). Rendered checks in
   (`MT-ZOOM-VW`), physical utilities such as `ml-`, `pr-`, `text-left`,
   `float-right` (`MT-PHYSICAL`, with the logical class as the fix),
   `uppercase` without `tracking-` (`MT-CAPS-TRACKING`), `tracking-[Npx]`
-  (`MT-LS-PX`), `max-w-[Nch]` and `max-w-prose` (`MT-MEASURE-CH`), and
-  `font-thin`, `font-extralight` or `font-light` on `p` and `li`
-  (`MT-WEIGHT-THIN`). Each finding has a file and line.
+  (`MT-LS-PX`), `max-w-[Nch]` and `max-w-prose` (`MT-MEASURE-CH`),
+  `font-thin`, `font-extralight` or `font-light` on reading elements (`p`,
+  `li`, `dd`, `blockquote`, `figcaption`; `MT-WEIGHT-THIN`) and
+  `leading-none` or `leading-tight` on the same (`MT-LH-TIGHT`). Variant
+  prefixes (`md:`, `hover:`) and `!` are ignored. Each finding has a file and
+  line.
 
 ## N. Harder evaluation
 
