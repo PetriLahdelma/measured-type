@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: h2h-rtl
+expected_outcome: |
+  One stylesheet that renders correctly in both directions, judged by rendering the page with dir=ltr and dir=rtl.
