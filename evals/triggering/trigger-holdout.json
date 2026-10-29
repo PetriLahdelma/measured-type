@@ -1,0 +1,14 @@
+[
+  {"query": "Our changelog page is hard to read: walls of grey text, tiny headings, lines that span the whole screen. Rework changelog.css.", "should_trigger": true},
+  {"query": "Pick a font pairing and set up the heading and body styles for a new long-form essay site.", "should_trigger": true},
+  {"query": "Arabic users say our checkout summary looks broken: prices and arrows sit on the wrong side. Audit summary.css.", "should_trigger": true},
+  {"query": "Add print styles to the invoice template so it prints cleanly on A4 with sensible headings and no orphaned lines.", "should_trigger": true},
+  {"query": "Our footnotes and captions are the same size as the body text and it all runs together. Fix the CSS for article pages.", "should_trigger": true},
+  {"query": "Make the release notes markdown render nicely: code spans, lists, quotes and dates in Finnish and English.", "should_trigger": true},
+  {"query": "Write a GitHub Action that runs our Vitest suite on every pull request.", "should_trigger": false},
+  {"query": "Convert our brand colors from hex to OKLCH and check their contrast against white.", "should_trigger": false},
+  {"query": "Build a React date picker component with keyboard navigation.", "should_trigger": false},
+  {"query": "Compress the PNG screenshots in docs/images without visible quality loss.", "should_trigger": false},
+  {"query": "Our web fonts are cached for only an hour. Set long cache headers for /fonts in the Next.js config.", "should_trigger": false},
+  {"query": "Write a Node script that counts words per markdown file in the docs folder and prints a table.", "should_trigger": false}
+]
