@@ -1,0 +1,205 @@
+/*
+ * layout.css for essay.html: long-form essay with sidenotes.
+ *
+ * Two measures, each set in the unit of its own text and checked by
+ * counting rendered characters (measure-line.js, Chromium, Georgia):
+ *   essay  1.125rem (18px), 30.5em -> 66 characters per line, range 59-73 (§2.1.2, ideal 66)
+ *   notes  0.875rem (14px), 22em  -> 46 characters per line, range 42-51 (§2.1.2, 40-50 per column)
+ * Georgia's average character is about 0.434em, narrower than the 0.5em
+ * rule of thumb, so 34em would have set 74 characters; 30.5em was measured.
+ *
+ * Wide screens: notes in a column beside the article.
+ * Narrow screens (and zoomed-in wide ones): notes stack after the article,
+ * in source order, still smaller and still marked off from the text.
+ *
+ * Logical properties throughout, so an RTL edition mirrors on its own.
+ */
+
+:root {
+  /* Type sizes (§3.1.1, rem so the reader's default size and zoom scale them). */
+  --body-size: 1.125rem;   /* 18px */
+  --note-size: 0.875rem;   /* 14px, step 1.29x below the body */
+  --title-size: 2rem;      /* 32px */
+
+  /* Leading (§2.2.1): the smaller, shorter note lines need a little less. */
+  --body-leading: 1.55;
+  --note-leading: 1.5;
+
+  /* One body line: the unit for every vertical gap (§2.2.2).
+     rlh would be wrong here: the prose is 18px on a 16px root. */
+  --line: calc(var(--body-size) * var(--body-leading)); /* 27.9px */
+
+  /* Measures, each in em of its own text. */
+  --body-measure: 30.5em;  /* x 18px = 549px = 34.3125rem */
+  --note-measure: 22em;  /* x 14px = 308px = 19.25rem */
+
+  /* Same widths in rem, for the grid on .essay (whose font size is the root). */
+  --body-col: calc(30.5 * var(--body-size));  /* 34.3125rem */
+  --note-pad: calc(0.75 * var(--line));     /* space between the rule and the notes */
+  --note-col: calc(22 * var(--note-size) + var(--note-pad) + 1px);  /* 19.25rem + pad + rule */
+  --gutter: calc(2 * var(--line));          /* 55.8px: near enough to glance, far enough to separate */
+
+  --ink: #1d1c1a;
+  --ink-soft: #4a4844;   /* 8.9:1 on --paper, well above AA for small text */
+  --rule: #d6d2c9;
+  --paper: #fcfbf8;
+
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+body {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  /* Georgia: no kerning table, no onum/smcp features; its default figures
+     are already oldstyle (§3.2.1), so nothing to switch on. Never fake
+     bold, italic or small caps (§2.1.9). */
+  font-synthesis: none;
+  font-kerning: normal;
+}
+
+/* ---------- Page frame ---------- */
+
+.essay {
+  /* Fluid side margin with a rem floor; the column widths below never
+     depend on the viewport, only on the type. */
+  padding-block: calc(2 * var(--line)) calc(3 * var(--line));
+  padding-inline: max(1.25rem, 5vi);
+  margin-inline: auto;
+  /* Stacked: one column, both children share a start edge. */
+  display: grid;
+  grid-template-columns: minmax(0, var(--body-col));
+  justify-content: center;
+  row-gap: calc(2 * var(--line));
+}
+
+/* ---------- Essay text (reading text, §1) ---------- */
+
+.prose {
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  max-inline-size: var(--body-measure);
+  text-align: start;          /* ragged (§2.1.3) */
+  hyphens: manual;            /* 66 characters is wide enough to rag without breaks */
+}
+
+.prose > * {
+  margin-block: 0;
+}
+
+/* Paragraphs: first flush, later ones indented 1em, no space between (§2.3.1-2). */
+.prose p {
+  text-wrap: pretty;          /* avoid one-word last lines (§2.4.8) */
+}
+
+.prose p + p {
+  text-indent: 1em;
+}
+
+/* Title: each line is 1.5 body lines; with one line of space below, the text starts 2.5 lines down, on the beat. */
+.prose h1 {
+  font-size: var(--title-size);
+  font-weight: 700;
+  line-height: calc(1.5 * var(--line));  /* 41.85px, 1.31 at 32px */
+  text-wrap: balance;
+  letter-spacing: normal;
+  margin-block-end: var(--line);
+}
+
+/* ---------- Notes (smaller, own measure) ---------- */
+
+.notes {
+  font-size: var(--note-size);
+  line-height: var(--note-leading);
+  max-inline-size: var(--note-measure);
+  color: var(--ink-soft);
+  text-align: start;
+  /* Narrow column, short lines: allow breaks in long words (§2.4.1). */
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 6 2 3;
+  -webkit-hyphenate-limit-lines: 3;   /* no hyphen ladders, Safari only (§2.4.3) */
+}
+
+.notes > * {
+  margin-block: 0;
+}
+
+/* Notes are separate items, so they are spaced rather than indented:
+   half a body line, enough to read as distinct asides. */
+.notes p + p {
+  margin-block-start: calc(0.5 * var(--line));
+}
+
+.notes p {
+  text-wrap: pretty;
+}
+
+/* Stacked (narrow): a short rule and a line of space set the notes off
+   from the end of the essay. */
+.notes {
+  border-block-start: 1px solid var(--rule);
+  padding-block-start: var(--line);
+}
+
+/* ---------- Wide: notes beside the article ----------
+ *
+ * The breakpoint is in em, so it follows the reader's default font size and
+ * page zoom: two columns need
+ *   34.3rem (essay) + 3.5rem (gutter) + 20.6rem (notes + pad + rule) = 58.4rem,
+ *   plus 2 x 5vi side padding: W = 58.4 + 0.1W, so W = 65em.
+ * Below that the notes column would squeeze the essay under its measure.
+ * At 200% zoom a 1280px window is 640 CSS px (40em), so the notes stack,
+ * and at 400% (320 CSS px) everything reflows to one column (WCAG 1.4.10).
+ */
+@media (min-width: 65em) {
+  .essay {
+    grid-template-columns: minmax(0, var(--body-col)) minmax(0, var(--note-col));
+    column-gap: var(--gutter);
+    row-gap: 0;
+    align-items: start;
+  }
+
+  .notes {
+    /* Start the notes level with the first paragraph of the essay rather
+       than the title: title is one 1.5-line row plus one line of space. */
+    margin-block-start: calc(2.5 * var(--line));
+    border-block-start: 0;
+    padding-block-start: 0;
+    border-inline-start: 1px solid var(--rule);
+    padding-inline-start: var(--note-pad);
+    /* The rule and padding sit inside the column; widen it so the text
+       itself keeps its measure. */
+    max-inline-size: none;
+  }
+
+  .notes > * {
+    max-inline-size: var(--note-measure);
+  }
+}
+
+/* ---------- Print ---------- */
+
+@media print {
+  .essay {
+    padding: 0;
+  }
+
+  .prose p,
+  .notes p {
+    widows: 3;
+    orphans: 3;
+  }
+}

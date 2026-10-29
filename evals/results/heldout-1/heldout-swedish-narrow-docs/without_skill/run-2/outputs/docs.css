@@ -1,0 +1,262 @@
+/*
+ * docs.css: Swedish product documentation, read mostly on phones (320-400px).
+ *
+ * Design decisions
+ * - Body stays at 1rem system-ui (as specified), with a generous 1.5 line height.
+ * - Swedish compounds (Användarbehörighetsinställningar, 32 letters) are wider
+ *   than a 288px column at heading sizes. They are handled in three layers:
+ *     1. hyphens: auto, driven by <html lang="sv">, breaks at real syllables.
+ *     2. hyphenate-limit-chars keeps fragments readable (no 1-2 letter stubs).
+ *     3. overflow-wrap: break-word is the last-resort fallback for engines
+ *        without a Swedish dictionary, so nothing ever overflows the viewport.
+ * - Heading sizes are capped so the h1 compound needs at most one break at 320px.
+ * - Table values (2,5 GB, 1 500 kr, 12 h) use ordinary spaces in the HTML, so the
+ *   value column is nowrap: a number never separates from its unit or its
+ *   thousands group. Values use tabular figures and align right.
+ * - Code blocks scroll inside themselves; the page never scrolls sideways.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --text: #1c1d1f;
+  --text-muted: #55585e;
+  --bg: #ffffff;
+  --surface: #f4f5f7;
+  --border: #d9dce1;
+  --code-text: #1c1d1f;
+  --accent: #0b5cad;
+  --shadow: rgb(0 0 0 / 0.14);
+
+  --gutter: 1rem;
+  --measure: 38rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e7e8ea;
+    --text-muted: #a9adb4;
+    --bg: #121315;
+    --surface: #1d1f22;
+    --border: #34373c;
+    --code-text: #e7e8ea;
+    --accent: #7db4f0;
+    --shadow: rgb(0 0 0 / 0.5);
+  }
+}
+
+/* ---------- Base ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Article column ---------- */
+
+.doc {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding: 1.5rem var(--gutter) 3rem;
+
+  /* Swedish hyphenation for compounds; lang="sv" on <html> selects the dictionary. */
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  /* Body text: only hyphenate real compounds (10+ letters, 4+ on each side),
+     so short words like "Kommandot" are never split. */
+  hyphenate-limit-chars: 10 4 4;
+}
+
+/* ---------- Headings ---------- */
+
+.doc h1,
+.doc h2 {
+  margin: 0;
+  color: var(--text);
+  font-weight: 700;
+  /* Tighter than body text, but loose enough for a hyphen-broken second line. */
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  /* Heading compounds are the widest words on the page; allow breaking them. */
+  hyphenate-limit-chars: 8 4 4;
+  text-wrap: balance;
+}
+
+/*
+ * h1: 1.5rem at 320px, rising to 1.75rem at 400px+.
+ * "Användarbehörighetsinställningar" at 24px bold system-ui is ~400px wide, so
+ * it breaks once (Användarbehörighets-/inställningar) inside the 288px column.
+ */
+.doc h1 {
+  font-size: clamp(1.5rem, 1.1rem + 2vw, 1.75rem);
+  margin-block-end: 1rem;
+}
+
+.doc h2 {
+  font-size: clamp(1.25rem, 1.05rem + 1vw, 1.375rem);
+  margin-block: 2.25rem 0.75rem;
+}
+
+/* ---------- Text ---------- */
+
+.doc p,
+.doc ul,
+.doc ol {
+  margin-block: 0 1rem;
+  /* Left aligned, never justified: justification plus long compounds makes rivers. */
+  text-align: start;
+  text-wrap: pretty;
+}
+
+.doc ul,
+.doc ol {
+  padding-inline-start: 1.25rem;
+}
+
+.doc li + li {
+  margin-block-start: 0.375rem;
+}
+
+.doc li::marker {
+  color: var(--text-muted);
+}
+
+/* ---------- Code ---------- */
+
+.doc code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  /* Monospace looks larger than system-ui at the same size. */
+  font-size: 0.875em;
+  /* Never hyphenate code: a hyphen would change the command. */
+  -webkit-hyphens: none;
+  hyphens: none;
+}
+
+/* Inline code: subtle chip that moves to the next line as one unit.
+   Browsers otherwise break after the hyphens in "--limit", which splits a
+   flag from its dashes. If a command is wider than the column, the chip
+   scrolls inside itself instead of widening the page. */
+.doc :not(pre) > code {
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+  vertical-align: bottom;
+  white-space: nowrap;
+  padding: 0 0.3em;
+  border-radius: 0.25rem;
+  background: var(--surface);
+  color: var(--code-text);
+  line-height: 1.5rem;
+}
+
+/* Block code: scrolls inside its own box, keeps commands intact. */
+.doc pre {
+  margin-block: 0 1.25rem;
+  padding: 0.75rem 1rem;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  /* Scroll hint: an edge shadow appears on the side that has more content,
+     and fades once the reader scrolls to that end. */
+  background:
+    linear-gradient(to right, var(--surface) 30%, transparent) left / 2rem 100% no-repeat local,
+    linear-gradient(to left, var(--surface) 30%, transparent) right / 2rem 100% no-repeat local,
+    linear-gradient(to right, var(--shadow), transparent) left / 0.75rem 100% no-repeat scroll,
+    linear-gradient(to left, var(--shadow), transparent) right / 0.75rem 100% no-repeat scroll,
+    var(--surface);
+  color: var(--code-text);
+  line-height: 1.45;
+  tab-size: 2;
+}
+
+.doc pre code {
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+/* ---------- Settings table ---------- */
+
+.doc table {
+  width: 100%;
+  margin-block: 0 1.5rem;
+  border-collapse: collapse;
+  /* Two columns: label takes the slack, value hugs its content. */
+  table-layout: auto;
+}
+
+.doc th,
+.doc td {
+  padding: 0.625rem 0;
+  border-block-end: 1px solid var(--border);
+  vertical-align: top;
+  text-align: start;
+}
+
+.doc thead th {
+  padding-block-start: 0;
+  border-block-end-width: 2px;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Label column: wraps between words. Every label word (longest is
+   "Inaktivitetsgräns") fits the column whole, so auto hyphenation would only
+   produce stubs like "använ-dare". break-word remains the overflow fallback. */
+.doc th:first-child,
+.doc td:first-child {
+  padding-inline-end: 1rem;
+  -webkit-hyphens: manual;
+  hyphens: manual;
+  overflow-wrap: break-word;
+}
+
+/* Value column: number + unit stay together, figures line up. */
+.doc th:last-child,
+.doc td:last-child {
+  text-align: end;
+  white-space: nowrap;
+  -webkit-hyphens: none;
+  hyphens: none;
+}
+
+.doc td:last-child {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-weight: 600;
+}
+
+/* ---------- Focus and links (future-proofing for linked docs) ---------- */
+
+.doc a {
+  color: var(--accent);
+  text-underline-offset: 0.15em;
+}
+
+.doc a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

@@ -1,0 +1,179 @@
+/*
+  layout.css for essay.html
+  Long-form essay with sidenotes.
+
+  Measure strategy
+  - Each column is sized in `em` of ITS OWN font size, so the line length
+    in characters holds when the type size changes. `ch` is not used:
+    Georgia's zero is about 0.61em wide while its average text glyph is
+    about 0.44em, so 66ch would set roughly 90 characters per line.
+    Prose: 30em at 1.125rem = 540px, measured ~65 characters per line.
+    Notes: 21.5em at 0.875rem = 301px, measured ~44 characters per line
+    (smaller type wants a shorter line, not the same pixel width).
+  - The two-column layout only switches on when both measures plus the gap
+    and the page gutters fit. The breakpoint is in `em`, so it follows the
+    reader's default font size, and browser zoom (which shrinks the CSS
+    viewport) drops back to the stacked layout instead of squeezing columns.
+*/
+
+:root {
+  --text-size: 1.125rem;
+  --note-size: 0.875rem;
+
+  --prose-measure: 30em; /* resolved at --text-size: ~65 characters */
+  --note-measure: 21.5em; /* resolved at --note-size: ~44 characters */
+
+  --title-size: clamp(1.75rem, 1.2rem + 2.4vw, 2.75rem);
+  --note-rule-gap: 1.25rem;
+
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --column-gap: clamp(2rem, 4vw, 3.5rem);
+
+  --ink: #1d1b18;
+  --ink-muted: #4a463f;
+  --paper: #fdfcf9;
+  --rule: #d9d4c9;
+
+  color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e8e4dc;
+    --ink-muted: #b9b3a7;
+    --paper: #171614;
+    --rule: #3a3731;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: var(--text-size);
+  line-height: 1.6;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- Page frame ---------- */
+
+.essay {
+  /* Grid tracks resolve `em` against this element, so it carries the
+     body type size; the note track is converted below. */
+  font-size: var(--text-size);
+  display: grid;
+  grid-template-columns: minmax(0, var(--prose-measure));
+  justify-content: center;
+  row-gap: 3rem;
+  padding-block: clamp(2rem, 6vw, 5rem) clamp(3rem, 8vw, 6rem);
+  padding-inline: var(--gutter);
+}
+
+/* ---------- Main text ---------- */
+
+.prose {
+  min-inline-size: 0;
+  max-inline-size: var(--prose-measure);
+  font-size: var(--text-size);
+  line-height: 1.6;
+  hanging-punctuation: first;
+  overflow-wrap: break-word;
+}
+
+.prose h1 {
+  margin: 0 0 1.25em;
+  font-size: var(--title-size);
+  font-weight: normal;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  max-inline-size: 22ch;
+}
+
+.prose p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.prose p + p {
+  margin-block-start: 1em;
+}
+
+/* ---------- Notes ---------- */
+
+.notes {
+  min-inline-size: 0;
+  max-inline-size: var(--note-measure);
+  font-size: var(--note-size);
+  line-height: 1.5;
+  color: var(--ink-muted);
+  overflow-wrap: break-word;
+
+  /* Stacked (narrow) presentation: set apart from the essay by a rule. */
+  border-block-start: 1px solid var(--rule);
+  padding-block-start: 1.5rem;
+}
+
+.notes p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.notes p + p {
+  margin-block-start: 1em;
+}
+
+/* ---------- Wide screens: notes beside the article ----------
+   Needed width at the default 16px root (vw-based values at 992px):
+     prose 30em @ 18px            540px
+     gap                           40px
+     notes 21.5em @ 14px + rule   322px
+     gutters                       80px
+   total ~ 982px, so switch at 62em (992px at the default size).
+   Zooming to 200% on a 1280px window gives a 640px viewport, which
+   falls back to the stacked layout. */
+
+@media (min-width: 62em) {
+  .essay {
+    grid-template-columns:
+      minmax(0, var(--prose-measure))
+      /* 21.5em at note size, expressed in this element's (body-size) em,
+         plus the rule and its inner gap so the text keeps its measure */
+      minmax(0, calc(var(--note-measure) * 0.875 / 1.125 + var(--note-rule-gap) + 1px));
+    column-gap: var(--column-gap);
+    align-items: start;
+  }
+
+  .notes {
+    /* Line the first note up with the first paragraph, not the title. */
+    /* one-line title: line box (1.15) + bottom margin (1.25em) */
+    margin-block-start: calc(var(--title-size) * 2.4);
+    max-inline-size: none;
+    padding-block-start: 0;
+    padding-inline-start: var(--note-rule-gap);
+    border-block-start: 0;
+    border-inline-start: 1px solid var(--rule);
+  }
+}
+
+@media print {
+  :root {
+    --ink: #000;
+    --ink-muted: #222;
+    --paper: #fff;
+  }
+}

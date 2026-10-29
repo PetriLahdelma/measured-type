@@ -1,0 +1,2 @@
+const { chromium, webkit } = require('playwright'); const path=require('node:path');
+(async()=>{ for (const [n,bt] of [['chromium',chromium],['webkit',webkit]]) { const b=await bt.launch(); const p=await b.newPage({viewport:{width:320,height:900},deviceScaleFactor:2}); await p.goto('file://'+path.resolve('doc.html')); const el=await p.$('h2 + p'); await el.screenshot({path:`test/p-${n}.png`}); await b.close(); }})();

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Användarbehörighetsinställningar</title>
+<link rel="stylesheet" href="docs.css">
+</head>
+<body>
+<article class="doc">
+<h1>Användarbehörighetsinställningar</h1>
+<p>Här beskriver vi hur administratören ändrar användarbehörighetsinställningarna för organisationen. Ändringarna gäller direkt för alla användare i arbetsytan, och säkerhetskopieringsschemat påverkas inte.</p>
+<h2>Lagringsutrymmesbegränsningar</h2>
+<p>Varje arbetsyta har en lagringsutrymmesgräns. När gränsen nås skickar systemet ett meddelande till administratören. Du kan höja gränsen i inställningarna eller ta bort gamla filer. Kommandot <code>workspace storage --limit</code> visar den aktuella gränsen.</p>
+<ul>
+<li>Säkerhetskopieringsschemat körs varje natt.</li>
+<li>Behörighetsförändringar loggas i granskningsloggen.</li>
+</ul>
+<pre><code>workspace permissions --set-default-role=granskare --notify-administrators</code></pre>
+<h2>Standardvärden</h2>
+<table>
+<thead><tr><th>Inställning</th><th>Värde</th></tr></thead>
+<tbody>
+<tr><td>Lagringsutrymme per användare</td><td>2,5 GB</td></tr>
+<tr><td>Månadskostnad per användare</td><td>1 500 kr</td></tr>
+<tr><td>Lagringstid för säkerhetskopior</td><td>30 dagar</td></tr>
+<tr><td>Inaktivitetsgräns för sessioner</td><td>12 h</td></tr>
+</tbody>
+</table>
+</article>
+</body>
+</html>

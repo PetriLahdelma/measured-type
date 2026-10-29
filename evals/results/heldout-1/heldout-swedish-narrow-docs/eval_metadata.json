@@ -1,0 +1,12 @@
+{
+  "eval_name": "heldout-swedish-narrow-docs",
+  "prompt": "Write docs.css for doc.html (it is in the working directory): Swedish product documentation that is mostly read on phones. The page uses system-ui at 1rem. Headings and body text contain long compound words, and there is a settings table with values such as 2,5 GB and 1 500 kr. Make it read well from 320px to 400px wide. Do not edit doc.html. Save docs.css.",
+  "assertions": [
+    "At a 320px viewport, the page has no horizontal scroll (document scrollWidth at most 320)",
+    "Body paragraphs in the article compute hyphens: auto",
+    "Inline code and pre do not hyphenate: they compute hyphens none or manual",
+    "At a 320px viewport, every value cell in the settings table renders on a single line, so no number is split from its unit",
+    "Body paragraphs are not justified (computed text-align is start or left)",
+    "At a 320px viewport, the h1 does not overflow its own box (its scrollWidth is no larger than its clientWidth)"
+  ]
+}

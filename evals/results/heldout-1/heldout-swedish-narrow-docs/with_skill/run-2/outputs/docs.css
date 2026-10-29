@@ -1,0 +1,218 @@
+/*
+ * docs.css: Swedish product documentation, read mostly on phones (320-400px).
+ *
+ * Decisions (Bringhurst section numbers in brackets):
+ * - Body is system-ui at 1rem with unitless leading 1.5 [2.2.1]. One body
+ *   line, --line, is 1.5rem; every vertical gap is a whole, half or quarter
+ *   of it [2.2.2]. Gaps live in top margins only, so nothing collapses.
+ * - Swedish builds long compounds (Användarbehörighetsinställningar). At
+ *   288px of text they cannot fit unbroken, so hyphenation is on for prose
+ *   AND headings, keyed off <html lang="sv"> [2.4.1, 2.4.5], limited to long
+ *   words. overflow-wrap is the last line of defence for strings no
+ *   dictionary knows. Table labels and code never hyphenate.
+ * - Ragged, never justified: narrow measure, sans serif [2.1.3].
+ * - Block paragraphs (space, no indent): docs are skimmed, not read
+ *   continuously [2.3.2].
+ * - Measure: a phone gives about 35-45 characters per line, which is the
+ *   price of the device; 34em caps it on wider screens [2.1.2].
+ * - Figures: system-ui (SF Pro, Roboto, Segoe UI) sets proportional lining
+ *   figures and has no oldstyle set, so prose keeps the default. The table
+ *   switches to tabular lining figures (SF Pro checked: tnum covers 0-9)
+ *   [3.2.1].
+ * - "2,5 GB" and "1 500 kr" arrive with plain spaces; value cells never wrap,
+ *   so a number is never split from its unit or its thousands group [2.4.6].
+ * - Logical properties throughout, so an RTL edition needs no CSS rewrite.
+ */
+
+:root {
+  color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;  /* iOS: no font inflation in landscape */
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: Canvas;
+  color: CanvasText;
+  font-family: system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-kerning: normal;
+  font-synthesis: none;
+}
+
+/* ---------- Reading container ---------- */
+
+.doc {
+  --line: 1.5rem;                  /* 1rem x 1.5: one body line, zoom-safe */
+  --rule: color-mix(in srgb, currentColor 22%, transparent);
+  --tint: color-mix(in srgb, CanvasText 6%, Canvas);
+
+  box-sizing: border-box;
+  max-inline-size: 34em;           /* about 66-70 characters on wide screens */
+  margin-inline: auto;
+  padding-block: var(--line) calc(2 * var(--line));
+  padding-inline: 1rem;            /* 16px gutter: 288px of text at 320px */
+
+  text-align: start;
+  overflow-wrap: break-word;       /* last resort for unknown long strings */
+
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  /* Only words of 10+ letters, 4 before and 4 after the break: stricter
+     than Bringhurst's 2/3 minimum. On a 36-character line 6 2 3 stacked
+     4-5 hyphens in a row in Chromium and split short words (sy-stemet);
+     10 4 4 keeps hyphens for the long compounds that need them [2.4.1]. */
+  hyphenate-limit-chars: 10 4 4;
+  -webkit-hyphenate-limit-before: 4;
+  -webkit-hyphenate-limit-after: 4;
+  -webkit-hyphenate-limit-lines: 2;  /* Safari: no hyphen ladders [2.4.3] */
+}
+
+/* Rhythm: reset UA margins, then space with top margins only. */
+.doc > * { margin-block: 0; }
+.doc > * + * { margin-block-start: var(--line); }
+
+.doc p { text-wrap: pretty; }      /* avoid one-word last lines */
+
+/* ---------- Headings ---------- */
+
+.doc :is(h1, h2) {
+  font-weight: 700;
+  letter-spacing: normal;
+  text-wrap: balance;
+  /* Headings hyphenate too: "Användarbehörighetsinställningar" is about
+     1.8 lines wide at 28px on a 320px phone. Swedish compounds end in their
+     head noun, so a long tail (12+ letters) pushes the break toward the
+     compound joint. Measured in WebKit: "Lagringsutrymmesbegräns-/ningar"
+     becomes "Lagringsutrymmes-/begränsningar" and "Användarbehörighetsin-/
+     ställningar" becomes "Användarbehörighets-/inställningar"; Chromium is
+     unchanged or better. A word with no such break still wraps through
+     overflow-wrap. Exact joints everywhere need &shy; in the HTML. */
+  hyphenate-limit-chars: auto 4 12;
+  -webkit-hyphenate-limit-after: 12;
+}
+
+/* 28px on phones, 32px from about 640px. The range is 1.14x, so zoom still
+   scales it close to 2x. Leading is 1.5 body lines (36px): 1.29 at 28px,
+   1.13 at 32px, with room for the rings and dots on Å, Ä and Ö. */
+.doc h1 {
+  font-size: clamp(1.75rem, 1.5rem + 1.25vi, 2rem);
+  line-height: calc(1.5 * var(--line));
+}
+
+/* 20px on one body line (ratio 1.2). Steps: h1/h2 1.4, h2/body 1.25.
+   1.5 lines above + 1 line + 0.5 below = 3 lines: text after it lands back
+   on the beat however the heading wraps onto whole lines. */
+.doc h2 {
+  font-size: 1.25rem;
+  line-height: var(--line);
+  margin-block-start: calc(1.5 * var(--line));
+}
+
+.doc h2 + * { margin-block-start: calc(0.5 * var(--line)); }
+
+/* ---------- Lists ---------- */
+
+.doc ul {
+  padding-inline-start: 1.25em;
+}
+
+.doc li + li { margin-block-start: calc(0.25 * var(--line)); }
+
+.doc li::marker { color: color-mix(in srgb, currentColor 60%, transparent); }
+
+/* ---------- Code ---------- */
+
+.doc :is(code, pre) {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Roboto Mono", monospace;
+  -webkit-hyphens: manual;
+  hyphens: manual;                 /* a hyphen inside a command changes it */
+  font-variant-ligatures: none;
+}
+
+.doc code {
+  font-size: 0.875em;
+}
+
+.doc :not(pre) > code {
+  /* Never wrap inside a short inline command: engines break after "-",
+     which strands "--" at a line end and reads as two arguments. Keep
+     inline code short; long commands belong in a pre block. */
+  white-space: nowrap;
+  padding-inline: 0.25em;
+  border-radius: 0.25em;
+  background: var(--tint);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;     /* keeps padding when it wraps */
+}
+
+/* Commands wrap instead of scrolling sideways (WCAG 1.4.10 reflow at
+   320px), so nothing hides past the edge of a phone. break-all wraps like a
+   terminal, at the edge of the box, instead of after a "-" (which left a
+   dangling "--" that looks like a separate argument). Continuation lines
+   hang 2ch in, so a wrapped command does not read as two commands.
+   Copying still yields the original single line. */
+.doc pre {
+  padding-block: calc(0.5 * var(--line));
+  padding-inline: 0.75rem;
+  border-radius: 0.375rem;
+  background: var(--tint);
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.doc pre > code {
+  display: block;
+  padding-inline-start: 2ch;
+  text-indent: -2ch;
+  font-size: 0.875rem;
+}
+
+/* ---------- Settings table ---------- */
+
+.doc table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.doc :is(th, td) {
+  padding-block: calc(0.25 * var(--line));
+  padding-inline: 0 0.75rem;
+  border-block-end: 1px solid var(--rule);
+  text-align: start;
+  vertical-align: baseline;        /* value sits on the label's first line */
+}
+
+/* Setting names are labels: whole words, no hyphens. They wrap between
+   words; overflow-wrap: anywhere lets the column shrink if a name ever
+   outgrows the phone. */
+.doc :is(th, td):first-child {
+  -webkit-hyphens: manual;
+  hyphens: manual;
+  overflow-wrap: anywhere;
+}
+
+/* Values: never split "1 500 kr" or "2,5 GB"; end-aligned as a number column. */
+.doc :is(th, td):last-child {
+  padding-inline-end: 0;
+  text-align: end;
+  white-space: nowrap;
+}
+
+.doc thead th {
+  font-weight: 600;
+  border-block-end-width: 2px;
+  border-block-end-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* ---------- Print ---------- */
+
+@media print {
+  .doc { max-inline-size: none; padding: 0; }
+  .doc p { widows: 3; orphans: 3; }
+  .doc h2 { break-after: avoid; }
+  .doc :is(pre, table) { break-inside: avoid; }
+}

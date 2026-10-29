@@ -1,0 +1,194 @@
+/*
+ * layout.css for essay.html
+ *
+ * Two measures, one per type size:
+ *   - prose: Georgia 1.125rem, held to roughly 60-70 characters per line
+ *   - notes: 0.875rem, held to roughly 40-50 characters per line
+ *
+ * Each column is sized in its OWN font's em, so the measure stays right
+ * if either size changes. The grid tracks below repeat those widths in rem
+ * (em in grid-template-columns would resolve against the container's
+ * font size, not the column's), so they are derived from the same tokens.
+ *
+ * Narrow screens (and zoomed-in wide screens): single column, notes after
+ * the article, in source order. The two-column switch uses an em media
+ * query, so browser zoom and user font-size changes move the breakpoint.
+ */
+
+:root {
+  --prose-size: 1.125rem;
+  --notes-size: 0.875rem;
+
+  /* Measures, in each column's own em. */
+  --prose-measure: 30em;   /* about 66 characters of Georgia at 1.125rem */
+  --notes-measure: 22em;   /* about 45 characters at 0.875rem */
+
+  /* The same widths in rem, for the grid tracks. */
+  --prose-track: calc(30 * var(--prose-size));  /* 33.75rem */
+  --notes-track: calc(22 * var(--notes-size));  /* 19.25rem */
+
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --column-gap: 3rem;
+
+  --ink: #1d1b18;
+  --ink-muted: #4f4a43;
+  --paper: #fbfaf7;
+  --rule: #d9d4cb;
+  --accent: #7a3e1d;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e9e5de;
+    --ink-muted: #b9b2a7;
+    --paper: #171614;
+    --rule: #3a3631;
+    --accent: #e0a37c;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: var(--prose-size);
+  line-height: 1.6;
+  font-kerning: normal;
+  font-variant-numeric: oldstyle-nums proportional-nums;
+}
+
+/* ---------- Page frame ---------- */
+
+.essay {
+  display: grid;
+  grid-template-columns: minmax(0, var(--prose-track));
+  justify-content: center;
+  row-gap: 2.5rem;
+  padding-block: clamp(2rem, 6vw, 5rem);
+  padding-inline: var(--gutter);
+}
+
+/* ---------- Main text ---------- */
+
+.prose {
+  max-inline-size: var(--prose-measure);
+  font-size: var(--prose-size);
+  line-height: 1.6;
+  hanging-punctuation: first;
+  min-inline-size: 0;
+}
+
+.prose h1 {
+  margin: 0 0 1.25em;
+  font-size: clamp(1.75rem, 1.2rem + 2.4vw, 2.5rem);
+  font-weight: normal;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.prose p {
+  margin: 0;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+}
+
+/* Book-style paragraphs: indent instead of a blank line. */
+.prose p + p {
+  text-indent: 1.5em;
+}
+
+/* ---------- Notes ---------- */
+
+.notes {
+  max-inline-size: var(--notes-measure);
+  min-inline-size: 0;
+  font-size: var(--notes-size);
+  line-height: 1.5;
+  color: var(--ink-muted);
+  /* Stacked: separate from the essay with a short rule. */
+  padding-block-start: 1.5rem;
+  border-block-start: 1px solid var(--rule);
+}
+
+.notes p {
+  margin: 0;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.notes p + p {
+  margin-block-start: 1em;
+}
+
+/*
+ * When stacked below the essay, the notes may run a little wider than
+ * their side-column measure, but stay shorter than the prose line:
+ * 27em at 0.875rem is about 55 characters.
+ */
+@media (max-width: 61.99em) {
+  .notes {
+    max-inline-size: 27em;
+  }
+}
+
+/* ---------- Wide screens: notes beside the article ---------- */
+
+/*
+ * 62em = 992px at default settings. Needed width:
+ * prose 33.75rem + gap 3rem + notes 19.25rem + 2 x 2.5rem gutters = 61rem.
+ * Zooming to 200% on a 1280px window gives a 40em viewport, which falls
+ * back to the single column.
+ */
+@media (min-width: 62em) {
+  .essay {
+    grid-template-columns:
+      minmax(0, var(--prose-track))
+      minmax(0, var(--notes-track));
+    column-gap: var(--column-gap);
+    align-items: start;
+  }
+
+  .notes {
+    /* Line the first note up with the first paragraph, below the heading. */
+    margin-block-start: 6rem; /* h1 is 40px (clamp max) at this width: 46px line + 50px margin */
+    padding-block-start: 0;
+    padding-inline-start: 1.25rem;
+    border-block-start: 0;
+    border-inline-start: 1px solid var(--rule);
+  }
+}
+
+/* Keep the notes in view while reading, only where they fit the screen. */
+@media (min-width: 62em) and (min-height: 40em) {
+  .notes {
+    position: sticky;
+    top: 2rem;
+  }
+}
+
+@media print {
+  body {
+    background: none;
+    color: #000;
+  }
+
+  .notes {
+    color: #000;
+  }
+}

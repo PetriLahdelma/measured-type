@@ -5,7 +5,7 @@
 </picture></h1>
 
 [![Agent skill: Claude Code and gh skill](https://img.shields.io/badge/agent_skill-Claude_Code_and_gh_skill-20211F)](skills/measured-type/SKILL.md)
-[![Evals: development set, 5 cases](https://img.shields.io/badge/evals-development_set%2C_5_cases-B33A32)](#evidence)
+[![Evals: 5 development and 3 held-out cases](https://img.shields.io/badge/evals-5_dev_%2B_3_held--out_cases-B33A32)](#evidence)
 [![License: CC BY-NC 4.0 text, MIT code](https://img.shields.io/badge/license-CC_BY--NC_4.0_text%2C_MIT_code-61645E)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
@@ -64,10 +64,10 @@ That proves the measuring works. To check that the skill itself loads, ask
 Claude Code *Which measured-type rule covers line length?* The answer should
 cite §2.1.2 and point to `measure-line.js`.
 
-Then ask the way you normally would. The skill's description is written to
-load it whenever the work sets text people read, even when the word typography
-never comes up. That triggering is not benchmarked yet; the evals read the
-skill directly. Prompts it is written for:
+Then ask by name to be sure the skill loads. In a test of twenty prompts
+it loaded on its own reliably for only one of ten typography tasks; a prompt
+that names it (*Use measured-type to …*) loaded it every time. Tasks it is
+written for:
 
 - *Set the article body for our docs in Verdana at 1.125rem, about 66 characters per line.*
 - *Build a type scale for this site that still works at 200% zoom.*
@@ -97,6 +97,24 @@ under a heading collapses into the next element's full-line margin, so the half
 line silently becomes a full one.
 
 ## Proof, not rules of thumb
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/brand/zoom-200-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset=".github/brand/zoom-200-light.png">
+  <img alt="The word Type at 100% and 200% browser zoom on a 1280px window. Body text in fixed rem grows 2.00 times. A fluid hero, clamp(2.5rem, 2.0833rem + 1.8519vw, 3.75rem), written without the skill, grows only 1.58 times. The hero written with the skill, clamp(3.25rem, 2.9167rem + 1.4815vi, 4.25rem), grows 1.71 times." src=".github/brand/zoom-200-light.png" width="100%">
+</picture>
+
+| At 200% zoom on a 1280px window | 100% | 200% | Growth |
+|---|--:|--:|--:|
+| Body text, `1rem` | 16.0px | 32.0px | 2.00× |
+| Hero without the skill | 57.0px | 90.4px | 1.58× |
+| Hero with the skill | 65.6px | 112.3px | 1.71× |
+
+This is the case where the skill and the model differ most. Zoom doubles `rem`
+but halves the CSS viewport, so the viewport term in a fluid size stops
+growing. Without the skill, both benchmark runs shipped heroes like the second
+row; with it, both did the ratio math first and kept the fluid range narrow.
+WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset=".github/brand/measure-66ch-dark.png">
@@ -167,6 +185,15 @@ At weight 450 and optical size 60, the drawn x of Source Serif 4 is 0.453em
 tall. The `OS/2` table's `sxHeight` says 475 units, which matches the outline
 only at the default optical size of 20; at 8 the x stands 0.509em. Position a
 rule from the outline at the optical size in use and it lands on the letter.
+
+### One article, before and after
+
+<img alt="The same article set twice at a 1280px window. Before, with template defaults: 160 characters per line, a heading that grows 1.00 times at 200% zoom, justified text, hyphen-minus for negative numbers and table figures left to the font. After, set with Measured Type: 65 characters per line, 2.00 times, ragged hyphenated text, U+2212 minus signs and declared tabular lining figures." src="examples/editorial/before-after.png" width="100%">
+
+[`examples/editorial/`](examples/editorial/) holds both versions and a table of
+every change with the section it follows: measure, leading, rhythm in whole body
+lines, paragraph marking, figures, small caps, minus signs, hard spaces and
+logical sides.
 
 ## How it works
 
@@ -246,6 +273,27 @@ iteration 1.
 Graders differed slightly between iterations on how literally a review must
 name each property. The benchmark notes list every judgment call.
 
+**Held-out cases.** Three more cases were written after the skill content was
+frozen (tag `content-freeze-1`) and committed before any run: a sidenote layout
+with two measures, an English results table and Swedish docs on a 320px screen.
+With the skill 32/34, without 33/34. Every run, with or without the skill,
+measured its own line lengths and got minus signs, tabular figures, table
+header scopes, Swedish hyphenation and unbreakable table values right. Both
+with-skill misses are literal readings of the pre-registered wording (figures
+aligned by a grid track instead of `text-align`; `hyphens` reset on `code` but
+not on its `pre`); read by intent, both configurations score 34/34. On these
+problems, which nobody wrote answers for in advance, the skill made no
+measurable difference.
+
+**Does it load on its own?** Twenty prompts in
+[`evals/triggering/`](evals/triggering/), each run three times with the skill
+offered and user-level skills switched off. It never loaded for the ten near
+misses (Tailwind setup, a font-renaming script, a logo for a typography
+newsletter). It loaded reliably for one of the ten typography tasks ("Review
+the typography in landing.css") and one time in three for two more. A run
+counts only when opening the skill is the agent's first move, so this is a
+lower bound, but the message is plain: name the skill when you want it.
+
 **Scope.** Gains concentrate in specific cases. A current model without the
 skill already knows most typographic CSS, measures line length on its own when
 it can, reads font files correctly and gets locale number formatting right. The
@@ -260,24 +308,26 @@ tokens more each (iteration 1: 35 seconds and 21k), spent reading the longer
 references and running more checks.
 
 The outputs, grades and timings of every run are in
-[`evals/results/iteration-2/`](evals/results/iteration-2/) and
-[`iteration-1/`](evals/results/iteration-1/).
+[`evals/results/iteration-2/`](evals/results/iteration-2/),
+[`iteration-1/`](evals/results/iteration-1/) and
+[`heldout-1/`](evals/results/heldout-1/).
 
 ## Running the evals
 
 The cases in `evals/` use the layout that `claude plugin eval` and the
 skill-creator workflow read: `prompt.md`, `case.yaml`, one grader file per
-assertion and input files under `files/`. The runs read the skill directly, so
-they measure its content, not whether it triggers. To recheck a committed
-result:
+assertion and input files under `files/`. Cases named `heldout-*` were written
+after `content-freeze-1`. The runs read the skill directly, so they measure its
+content; `evals/triggering/` measures whether it loads, with skill-creator's
+`run_eval.py`. To recheck a committed result:
 
 ```bash
 node skills/measured-type/scripts/measure-line.js --css evals/results/iteration-1/measure-wide-face/with_skill/run-1/outputs/prose.css
 ```
 
-The `ofl-feature-check` outputs reference `fonts/`; copy
-`evals/ofl-feature-check/files/fonts/` next to them first. The results folder
-does not duplicate the font files.
+The `ofl-feature-check` and `heldout-results-table` outputs reference `fonts/`;
+copy the case's `files/fonts/` next to them first. The results folders do not
+duplicate the font files.
 
 ## Support Measured Type
 

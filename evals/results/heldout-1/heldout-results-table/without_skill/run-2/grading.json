@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "In the rendered DOM, every negative change value uses U+2212 MINUS SIGN, never U+002D HYPHEN-MINUS",
+      "passed": true,
+      "evidence": "Rendered Change cells (visible text): \"−1.7%\", \"−1.3pp\", \"−1\", \"+0.5pp\"; negatives start with U+2212. Hidden text: clip-hidden \" percentage points\"."
+    },
+    {
+      "text": "In the rendered DOM, every percentage-point change keeps its number and unit together with U+00A0 or U+202F (no plain U+0020 between the number and pp or percentage points)",
+      "passed": true,
+      "evidence": "No character between number and pp in the visible text (\"−1.3pp\", \"+0.5pp\"; spacing comes from .change-unit margin-left: 0.2em), so no U+0020. The only U+0020 is in the clip-hidden \" percentage points\" span."
+    },
+    {
+      "text": "The numeric cells (Q1, Q2, Q3 and Change) render with tabular lining figures: their computed font-variant-numeric includes neither oldstyle-nums nor proportional-nums",
+      "passed": true,
+      "evidence": "All 16 numeric td compute font-variant-numeric \"lining-nums tabular-nums\" (table rule, plus font-feature-settings \"lnum\" 1, \"tnum\" 1)."
+    },
+    {
+      "text": "The numeric cells and the header cells above them are aligned to the end of their column (computed text-align end or right)",
+      "passed": true,
+      "evidence": "Every numeric td computes text-align \"right\" (.num) and the Q1/Q2/Q3/Change th compute \"right\" (th.num)."
+    },
+    {
+      "text": "An @font-face rule loads fonts/SourceSerif4[opsz,wght].ttf and Chromium renders the numeric cells in Source Serif 4 (not a fallback face)",
+      "passed": true,
+      "evidence": "@font-face src: url(\"fonts/SourceSerif4%5Bopsz,wght%5D.ttf\") format(\"truetype\"); status \"loaded\"; CDP on a tbody td: \"Source Serif 4\" (SourceSerif4Roman-Regular_wght_opsz110000, custom), only face across numeric cells (166 glyphs)."
+    },
+    {
+      "text": "Column headers are th elements with scope=\"col\" and each row's metric is a th with scope=\"row\"",
+      "passed": true,
+      "evidence": "th elements: Metric, Q1, Q2, Q3, Change scope=\"col\"; Revenue (EUR), Operating margin, Headcount, Churn th scope=\"row\"."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1
+  }
+}

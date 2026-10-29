@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quarterly results</title>
+<style>
+  /* Source Serif 4, variable (wght 200–900, opsz 8–60), self-hosted and unmodified.
+     Checked with font-features.py: default figures are already tabular lining;
+     smcp and c2sc are complete; minus (U+2212) and plus share one advance (530). */
+  @font-face {
+    font-family: "Source Serif 4";
+    src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    color-scheme: light dark;
+    --ink: #1d1c1a;
+    --ink-muted: #55524c;      /* 7.4:1 on --paper */
+    --paper: #fbfaf7;
+    --rule: #1d1c1a;
+    --rule-light: #d9d5cc;
+    --row-hover: #f1eee6;
+
+    /* Scale (rem, so the reader's default size and zoom carry through) */
+    --text-s: 0.9375rem;       /* 15px: notes, caption */
+    --text-m: 1.125rem;        /* 18px: reading text and table */
+    --title: clamp(1.875rem, 1.6rem + 1vi, 2.375rem);
+
+    --leading: 1.5;
+    --line: calc(var(--text-m) * var(--leading));   /* one body line */
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8e4dc;
+      --ink-muted: #b3ada2;
+      --paper: #1c1b19;
+      --rule: #e8e4dc;
+      --rule-light: #45423c;
+      --row-hover: #26251f;
+    }
+    body { letter-spacing: 0.005em; }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { font-size: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: var(--text-m);
+    line-height: var(--leading);
+    font-optical-sizing: auto;
+    font-kerning: normal;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  main {
+    max-inline-size: 46rem;
+    margin-inline: auto;
+    padding-block: calc(var(--line) * 2) calc(var(--line) * 3);
+    padding-inline: 1rem;
+  }
+
+  h1 {
+    font-size: var(--title);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-block: 0 calc(var(--line) * 0.5);
+    text-wrap: balance;
+  }
+
+  .lead {
+    max-inline-size: 32em;          /* measured: about 68 characters per line */
+    margin-block: 0 calc(var(--line) * 1.5);
+    font-variant-numeric: oldstyle-nums proportional-nums;
+    text-wrap: pretty;
+  }
+
+  /* ---------- Results table (interface and data text) ---------- */
+
+  .table-wrap {
+    position: relative;             /* contains the visually hidden unit text */
+    overflow-x: auto;               /* data tables may scroll on very narrow screens (WCAG 1.4.10 exception) */
+    margin-inline: -0.25rem;
+    padding-inline: 0.25rem;
+  }
+  .table-wrap:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+  table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: lining-nums tabular-nums;   /* the font's default, stated so a fallback face behaves */
+    border-block: 2px solid var(--rule);
+  }
+
+  /* Caption sits outside the scroll region so it never scrolls out of view */
+  .caption {
+    font-size: var(--text-s);
+    color: var(--ink-muted);
+    margin-block: 0 calc(var(--line) * 0.5);
+  }
+
+  th, td {
+    padding-block: calc(var(--line) * 0.3);
+    padding-inline: 0.75rem 0;
+    vertical-align: baseline;
+  }
+
+  thead th {
+    font-weight: 600;
+    font-variant-caps: all-small-caps;   /* true c2sc + smcp from the font */
+    letter-spacing: 0.06em;
+    border-block-end: 1px solid var(--rule);
+    padding-block: calc(var(--line) * 0.25);
+  }
+
+  th[scope="row"], thead th:first-child {
+    text-align: start;
+    font-weight: 400;
+    padding-inline: 0 0.75rem;
+  }
+  thead th:first-child { font-weight: 600; }
+
+  th[scope="row"] .unit-label { color: var(--ink-muted); }
+
+  /* Row labels stay in view when the table scrolls sideways on a phone */
+  th[scope="row"], thead th:first-child {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    background: var(--paper);
+  }
+
+  .scroll-hint { display: none; }
+
+  tbody tr + tr > * { border-block-start: 1px solid var(--rule-light); }
+  tbody tr:hover > * { background: var(--row-hover); }
+
+  /* Change column: set apart from the quarter values */
+  .col-change { border-inline-start: 1px solid var(--rule-light); padding-inline-start: 1rem; }
+  tr > :has(+ .col-change) { padding-inline-end: 0.75rem; }   /* keep Q3 units off the rule */
+
+  /* Numeric cells: number track (end-aligned, decimal-aligned by a hidden pad)
+     and a unit track of fixed width, so figures and decimal points line up
+     down every column whatever the unit. */
+  .cell {
+    display: grid;
+    grid-template-columns: 1fr var(--unit-w, 1em);
+    white-space: nowrap;
+  }
+  .col-change .cell { --unit-w: 1.5em; }
+  .n { justify-self: end; }
+  .u { justify-self: start; position: relative; }
+  .pad { visibility: hidden; }
+
+  .vh {
+    position: absolute;
+    inline-size: 1px; block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .notes {
+    margin-block: calc(var(--line) * 0.75) 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-s);
+    color: var(--ink-muted);
+    max-inline-size: 38em;
+    font-variant-numeric: oldstyle-nums proportional-nums;
+  }
+  .notes li + li { margin-block-start: calc(var(--line) * 0.25); }
+  .notes abbr { text-decoration: none; }
+
+  @media (max-width: 36em) {
+    th, td { padding-inline-start: 0.625rem; }
+    .col-change { padding-inline-start: 0.75rem; }
+    table { font-size: 1rem; }
+    th[scope="row"], thead th:first-child {
+      padding-inline-end: 0.5rem;
+      border-inline-end: 1px solid var(--rule-light);
+      min-inline-size: 7.5em;
+    }
+    .scroll-hint { display: inline; }
+  }
+
+  @media print {
+    :root { --paper: #fff; --ink: #000; --ink-muted: #333; --row-hover: transparent; }
+    main { padding: 0; max-inline-size: none; }
+    table { break-inside: avoid; }
+    .table-wrap { overflow: visible; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Quarterly results</h1>
+  <p class="lead">Four key metrics for the first three quarters. The change column compares Q3 with Q2, so it shows where the most recent quarter moved.</p>
+
+  <p class="caption" id="results-caption">Key metrics by quarter, with the change from Q2 to Q3<span class="scroll-hint">. Scroll sideways for all quarters.</span></p>
+  <div class="table-wrap" role="region" aria-labelledby="results-caption" tabindex="0">
+    <table id="results" aria-labelledby="results-caption">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <ul class="notes">
+    <li>Change is Q3 against Q2. Revenue change is relative (%); margin and churn changes are in <abbr title="percentage points">pp</abbr> (percentage points); headcount change is in people.</li>
+  </ul>
+</main>
+
+<script>
+(() => {
+  const LOCALE = 'en-GB';
+  const QUARTERS = ['Q1', 'Q2', 'Q3'];
+
+  // unit: '' (plain number), 'percent' (value already in %), 'pp' (percentage points)
+  const RESULTS = [
+    { metric: 'Revenue', unitLabel: 'EUR', values: [1234567, 1310050, 1288400], decimals: 0, unit: '',
+      change: { value: -1.7, decimals: 1, unit: 'percent' } },
+    { metric: 'Operating margin', values: [12.4, 13.1, 11.8], decimals: 1, unit: 'percent',
+      change: { value: -1.3, decimals: 1, unit: 'pp' } },
+    { metric: 'Headcount', values: [48, 52, 51], decimals: 0, unit: '',
+      change: { value: -1, decimals: 0, unit: '' } },
+    { metric: 'Churn', values: [3.2, 2.9, 3.4], decimals: 1, unit: 'percent',
+      change: { value: 0.5, decimals: 1, unit: 'pp' } },
+  ];
+
+  const MINUS = '−';
+
+  function formatNumber(value, decimals, signed) {
+    const s = new Intl.NumberFormat(LOCALE, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+      signDisplay: signed ? 'exceptZero' : 'auto',
+    }).format(value);
+    return s.replace(/[-‐-‒]/g, MINUS);   // real minus sign, same width as plus
+  }
+
+  function el(tag, attrs = {}, ...children) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+    for (const c of children) node.append(c);
+    return node;
+  }
+
+  // Hidden ".0"-style pad so values with fewer decimals keep their decimal point
+  // in line with the rest of the column. Same font, so the width is exact.
+  function pad(decimals, maxDecimals) {
+    if (decimals >= maxDecimals) return '';
+    const text = (decimals === 0 ? '.' : '') + '0'.repeat(maxDecimals - decimals);
+    return el('span', { class: 'pad', 'aria-hidden': 'true' }, text);
+  }
+
+  function unitNode(unit) {
+    const u = el('span', { class: 'u' });
+    if (unit === 'percent') u.append('%');
+    if (unit === 'pp') {
+      u.append(el('span', { 'aria-hidden': 'true' }, ' pp'));
+      u.append(el('span', { class: 'vh' }, ' percentage points'));
+    }
+    return u;
+  }
+
+  function numericCell(tag, text, decimals, maxDecimals, unit, attrs = {}) {
+    const n = el('span', { class: 'n' }, text);
+    const p = pad(decimals, maxDecimals);
+    if (p) n.append(p);
+    return el(tag, attrs, el('span', { class: 'cell' }, n, unitNode(unit)));
+  }
+
+  const table = document.getElementById('results');
+  const maxQDecimals = Math.max(...RESULTS.map(r => r.decimals));
+  const maxChangeDecimals = Math.max(...RESULTS.map(r => r.change.decimals));
+
+  // Header: numeric headers use the same grid so they end where the figures end.
+  const headRow = el('tr', {}, el('th', { scope: 'col' }, 'Metric'));
+  QUARTERS.forEach(q => headRow.append(numericCell('th', q, maxQDecimals, maxQDecimals, '', { scope: 'col' })));
+  headRow.append(numericCell('th', 'Change', maxChangeDecimals, maxChangeDecimals, '', { scope: 'col', class: 'col-change' }));
+  table.tHead.append(headRow);
+
+  for (const row of RESULTS) {
+    const label = el('th', { scope: 'row' }, row.metric);
+    if (row.unitLabel) label.append(' ', el('span', { class: 'unit-label' }, `(${row.unitLabel})`));
+    const tr = el('tr', {}, label);
+    row.values.forEach(v => tr.append(
+      numericCell('td', formatNumber(v, row.decimals, false), row.decimals, maxQDecimals, row.unit)));
+    const c = row.change;
+    tr.append(numericCell('td', formatNumber(c.value, c.decimals, true), c.decimals, maxChangeDecimals, c.unit,
+      { class: 'col-change' }));
+    table.tBodies[0].append(tr);
+  }
+})();
+</script>
+</body>
+</html>

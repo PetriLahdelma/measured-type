@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quarterly Results</title>
+<style>
+  @font-face {
+    font-family: "Source Serif 4";
+    src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype") tech(variations),
+         url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --bg: #fbfaf7;
+    --surface: #ffffff;
+    --text: #1d1c1a;
+    --muted: #5d5a54;
+    --rule: #d9d5cc;
+    --rule-strong: #1d1c1a;
+    --band: #f3f0e9;
+    --focus: #1f5fbf;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161513;
+      --surface: #1e1d1a;
+      --text: #ecebe6;
+      --muted: #aaa69c;
+      --rule: #3b3934;
+      --rule-strong: #ecebe6;
+      --band: #26241f;
+      --focus: #8ab4ff;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161513;
+    --surface: #1e1d1a;
+    --text: #ecebe6;
+    --muted: #aaa69c;
+    --rule: #3b3934;
+    --rule-strong: #ecebe6;
+    --band: #26241f;
+    --focus: #8ab4ff;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-optical-sizing: auto;
+    font-kerning: normal;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+  }
+
+  main {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 3.5rem 1rem 4rem;
+  }
+
+  .eyebrow {
+    margin: 0 0 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    margin: 0 0 0.75rem;
+    font-size: clamp(2rem, 1.4rem + 2.6vw, 2.75rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .lede {
+    margin: 0 0 2.5rem;
+    max-width: 36em;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  /* Table container scrolls sideways on narrow screens instead of the page. */
+  .table-scroll {
+    position: relative;
+    overflow-x: auto;
+    margin: 0 -1rem;
+    padding: 0 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table-scroll:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  table {
+    width: 100%;
+    min-width: 34rem;
+    border-collapse: collapse;
+    /* Lining, tabular figures: every digit has the same advance width,
+       so values line up column by column. */
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  caption {
+    caption-side: top;
+    text-align: left;
+    padding-bottom: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  th, td {
+    padding: 0.625rem 0.75rem;
+    vertical-align: baseline;
+    white-space: nowrap;
+  }
+  th:first-child, td:first-child { padding-left: 0; }
+  th:last-child, td:last-child { padding-right: 0; }
+
+  thead th {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1.5px solid var(--rule-strong);
+    padding-top: 0;
+    text-align: left;
+  }
+  thead th.num { text-align: right; }
+
+  tbody th, tbody td {
+    border-bottom: 1px solid var(--rule);
+  }
+  tbody tr:last-child th, tbody tr:last-child td {
+    border-bottom: 1.5px solid var(--rule-strong);
+  }
+
+  tbody th {
+    text-align: left;
+    font-weight: 500;
+  }
+  .metric-unit {
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* Numeric columns: right aligned, decimal points aligned via fixed slots. */
+  .num { text-align: right; }
+
+  /* Latest quarter, the one the Change column compares against Q2. */
+  .latest { background: var(--band); }
+  thead .latest { color: var(--text); }
+  tbody td.latest { font-weight: 600; }
+
+  .change-col { border-left: 1px solid var(--rule); padding-left: 1rem; }
+
+  /* Number anatomy: [integer][.fraction][unit]. Missing parts keep their
+     width through invisible pseudo-content so decimals stay aligned. */
+  .v-frac:empty::before,
+  .v-unit:empty::before {
+    content: attr(data-pad);
+    visibility: hidden;
+  }
+  .v-unit {
+    display: inline-block;
+    text-align: left;
+    padding-left: 0.08em;
+  }
+  .unit-slot-pct .v-unit { min-width: 0.85em; }
+  .unit-slot-pp .v-unit { min-width: 1.35em; }
+  .v-unit-pp > [aria-hidden] { margin-left: 0.2em; font-size: 0.875em; color: var(--muted); }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .notes {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .notes li + li { margin-top: 0.25rem; }
+
+  noscript p {
+    padding: 1rem;
+    border: 1px solid var(--rule);
+  }
+
+  @media (max-width: 30rem) {
+    main { padding-top: 2.5rem; }
+    body { font-size: 1rem; }
+    th, td { padding-left: 0.5rem; padding-right: 0.5rem; }
+    tbody th { position: sticky; left: 0; background: var(--bg); z-index: 1; }
+  }
+
+  @media print {
+    :root {
+      --bg: #ffffff;
+      --text: #000000;
+      --muted: #444444;
+      --rule: #bbbbbb;
+      --rule-strong: #000000;
+      --band: #f2f2f2;
+    }
+    main { max-width: none; padding: 0; }
+    .table-scroll { overflow: visible; margin: 0; padding: 0; }
+    table { min-width: 0; }
+    .latest { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Client report</p>
+  <h1>Quarterly results</h1>
+  <p class="lede">Key operating figures for the first three quarters. Q3 is highlighted; the Change column compares Q3 with Q2.</p>
+
+  <div class="table-scroll" role="region" aria-labelledby="results-caption" tabindex="0">
+    <table id="results">
+      <caption id="results-caption">Results by quarter, Q1 to Q3</caption>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <ul class="notes">
+    <li>Change: Q3 compared with Q2.</li>
+    <li>pp: percentage points, the absolute difference between two percentages.</li>
+  </ul>
+
+  <noscript>
+    <p>This table is rendered with JavaScript. Revenue (EUR): Q1 1,234,567; Q2 1,310,050; Q3 1,288,400; change &minus;1.7%. Operating margin: 12.4%; 13.1%; 11.8%; change &minus;1.3 percentage points. Headcount: 48; 52; 51; change &minus;1. Churn: 3.2%; 2.9%; 3.4%; change +0.5 percentage points.</p>
+  </noscript>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // Source data. Values are raw numbers; formatting happens at render time.
+  // unit: "" (count or currency amount), "%" (percent) or "pp" (percentage points).
+  var columns = [
+    { key: "metric", label: "Metric" },
+    { key: "q1", label: "Q1" },
+    { key: "q2", label: "Q2" },
+    { key: "q3", label: "Q3", latest: true },
+    { key: "change", label: "Change" }
+  ];
+
+  var rows = [
+    {
+      metric: "Revenue", metricUnit: "EUR",
+      values: { q1: 1234567, q2: 1310050, q3: 1288400 }, unit: "", decimals: 0,
+      change: { value: -1.7, unit: "%", decimals: 1 }
+    },
+    {
+      metric: "Operating margin", metricUnit: "",
+      values: { q1: 12.4, q2: 13.1, q3: 11.8 }, unit: "%", decimals: 1,
+      change: { value: -1.3, unit: "pp", decimals: 1 }
+    },
+    {
+      metric: "Headcount", metricUnit: "",
+      values: { q1: 48, q2: 52, q3: 51 }, unit: "", decimals: 0,
+      change: { value: -1, unit: "", decimals: 0 }
+    },
+    {
+      metric: "Churn", metricUnit: "",
+      values: { q1: 3.2, q2: 2.9, q3: 3.4 }, unit: "%", decimals: 1,
+      change: { value: 0.5, unit: "pp", decimals: 1 }
+    }
+  ];
+
+  var LOCALE = "en-GB";
+  var MINUS = "−";
+
+  // Widest fraction per column, so integers can reserve the same space.
+  function maxDecimals(list) {
+    return list.reduce(function (m, d) { return Math.max(m, d); }, 0);
+  }
+
+  function formatParts(value, decimals, signed) {
+    var fmt = new Intl.NumberFormat(LOCALE, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+      signDisplay: signed ? "exceptZero" : "auto",
+      useGrouping: true
+    });
+    var intPart = "";
+    var fracPart = "";
+    fmt.formatToParts(value).forEach(function (p) {
+      if (p.type === "decimal" || p.type === "fraction") {
+        fracPart += p.value;
+      } else if (p.type === "minusSign") {
+        intPart += MINUS;
+      } else {
+        intPart += p.value;
+      }
+    });
+    return { int: intPart, frac: fracPart };
+  }
+
+  function el(tag, attrs, text) {
+    var node = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) { node.setAttribute(k, attrs[k]); });
+    }
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  // Builds [integer][.fraction][unit] with invisible padding where a part
+  // is missing, so the decimal point sits at the same x in every row.
+  function numberNode(value, decimals, unit, colDecimals, colUnitSlot, signed) {
+    var parts = formatParts(value, decimals, signed);
+    var wrap = document.createDocumentFragment();
+
+    wrap.appendChild(el("span", { "class": "v-int" }, parts.int));
+
+    if (colDecimals > 0) {
+      var frac = el("span", { "class": "v-frac" });
+      if (parts.frac) {
+        frac.textContent = parts.frac;
+      } else {
+        frac.setAttribute("data-pad", "." + "0".repeat(colDecimals));
+        frac.setAttribute("aria-hidden", "true");
+      }
+      wrap.appendChild(frac);
+    }
+
+    if (colUnitSlot) {
+      var u = el("span", { "class": "v-unit", "data-pad": colUnitSlot === "pp" ? "pp" : "%" });
+      if (unit === "%") {
+        u.textContent = "%";
+      } else if (unit === "pp") {
+        u.classList.add("v-unit-pp");
+        u.appendChild(el("span", { "aria-hidden": "true" }, "pp"));
+        u.appendChild(el("span", { "class": "sr-only" }, " percentage points"));
+      } else {
+        u.setAttribute("aria-hidden", "true");
+      }
+      wrap.appendChild(u);
+    }
+    return wrap;
+  }
+
+  function unitSlotFor(units) {
+    if (units.indexOf("pp") !== -1) return "pp";
+    if (units.indexOf("%") !== -1) return "pct";
+    return "";
+  }
+
+  function render() {
+    var table = document.getElementById("results");
+    var thead = table.tHead;
+    var tbody = table.tBodies[0];
+
+    // Column-level formatting decisions.
+    var quarterKeys = columns.filter(function (c) { return /^q\d$/.test(c.key); }).map(function (c) { return c.key; });
+    var colDecimals = maxDecimals(rows.map(function (r) { return r.decimals; }));
+    var colUnit = unitSlotFor(rows.map(function (r) { return r.unit; }));
+    var chgDecimals = maxDecimals(rows.map(function (r) { return r.change.decimals; }));
+    var chgUnit = unitSlotFor(rows.map(function (r) { return r.change.unit; }));
+
+    var headRow = el("tr");
+    columns.forEach(function (c) {
+      var cls = [];
+      if (c.key !== "metric") cls.push("num");
+      if (c.latest) cls.push("latest");
+      if (c.key === "change") cls.push("change-col");
+      var th = el("th", { scope: "col" }, c.label);
+      if (cls.length) th.className = cls.join(" ");
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+
+    rows.forEach(function (r) {
+      var tr = el("tr");
+      var th = el("th", { scope: "row" }, r.metric);
+      if (r.metricUnit) {
+        th.appendChild(document.createTextNode(" "));
+        th.appendChild(el("span", { "class": "metric-unit" }, "(" + r.metricUnit + ")"));
+      }
+      tr.appendChild(th);
+
+      quarterKeys.forEach(function (k) {
+        var col = columns.filter(function (c) { return c.key === k; })[0];
+        var td = el("td", { "class": "num" + (col.latest ? " latest" : "") + (colUnit ? " unit-slot-" + colUnit : "") });
+        td.appendChild(numberNode(r.values[k], r.decimals, r.unit, colDecimals, colUnit, false));
+        tr.appendChild(td);
+      });
+
+      var tdc = el("td", { "class": "num change-col" + (chgUnit ? " unit-slot-" + chgUnit : "") });
+      tdc.appendChild(numberNode(r.change.value, r.change.decimals, r.change.unit, chgDecimals, chgUnit, true));
+      tr.appendChild(tdc);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

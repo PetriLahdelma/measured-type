@@ -1,0 +1,181 @@
+/*
+ * layout.css for essay.html: a long-form essay with a sidenote column.
+ *
+ * Everything is sized in rem (or in em of the element itself), so the reader's
+ * default font size and browser zoom scale the measures together with the
+ * text. Measures below were counted in Chromium with measure-line.js, not
+ * estimated from `ch`.
+ */
+
+:root {
+  /* Body text: Georgia 18px (1.125rem), leading 1.6 for a ~65-character line. */
+  --body-size: 1.125rem;
+  --body-leading: 1.6;
+  --line: calc(var(--body-size) * var(--body-leading)); /* 28.8px: one body line */
+
+  /* Notes: 14px (0.875rem). Four note lines = three body lines (21.6px each),
+     so the note column keeps the same vertical interval as the essay. */
+  --note-size: 0.875rem;
+  --note-line: calc(var(--line) * 0.75);
+
+  /* Measures, stated in rem so the grid can use them directly.
+     Prose: 30em of 18px; notes: 22em of 14px (Georgia averages 0.434em
+     per character including spaces, so 1ch = 0.614em would overshoot). */
+  --prose-measure: calc(var(--body-size) * 30);   /* 540px, measured 65 characters (59-73) */
+  --note-measure: calc(var(--note-size) * 22);    /* 308px, measured 46 characters (42-51) */
+  --column-gap: calc(var(--line) * 2);             /* 57.6px: near enough to glance, far enough to separate */
+  --gutter: 1rem;
+
+  --text: #1d1b18;
+  --text-muted: #4a463f;
+  --rule: #d9d4ca;
+  --page: #fdfcf9;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e6e1d8;
+    --text-muted: #bdb7ab;
+    --rule: #4a463f;
+    --page: #1b1a17;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", serif;
+  font-kerning: normal;
+  font-variant-numeric: oldstyle-nums; /* Georgia's default digits are already text figures */
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* ---------- Page frame: one column by default (phones, 200%+ zoom) ---------- */
+
+.essay {
+  display: grid;
+  grid-template-columns: minmax(0, var(--prose-measure));
+  justify-content: center;
+  row-gap: calc(var(--line) * 2);
+  padding-block: calc(var(--line) * 2) calc(var(--line) * 3);
+  padding-inline: var(--gutter);
+}
+
+/* ---------- Essay text ---------- */
+
+.prose {
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  max-inline-size: 30em; /* same as --prose-measure, in the element's own em */
+  hyphens: manual;
+}
+
+.prose > * {
+  margin-block: 0;
+}
+
+.prose > * + * {
+  margin-block-start: var(--line);
+}
+
+.prose h1 {
+  font-size: 2.25rem;                    /* 36px, 2x body */
+  font-weight: normal;                   /* Georgia ships a real bold, but a light title suits an essay */
+  line-height: calc(var(--line) * 1.5);  /* 43.2px, ratio 1.2 */
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* Title takes 1.5 lines + 1.5 lines below = 3 lines, so the text lands on the beat. */
+.prose h1 + * {
+  margin-block-start: calc(var(--line) * 1.5);
+}
+
+.prose p {
+  text-align: start;
+  text-wrap: pretty;
+}
+
+/* Continuous reading: first paragraph flush, later ones indented, no gap. */
+.prose p + p {
+  margin-block-start: 0;
+  text-indent: 1em;
+}
+
+/* ---------- Notes ---------- */
+
+.notes {
+  font-size: var(--note-size);
+  line-height: calc(1.125 * 1.6 * 0.75 / 0.875); /* unitless 1.543 = 21.6px at 14px */
+  max-inline-size: 22em;                          /* same as --note-measure */
+  color: var(--text-muted);
+  /* A narrow column: break long words rather than leave ragged holes. */
+  hyphens: auto;
+  hyphenate-limit-chars: 6 2 3;
+  -webkit-hyphenate-limit-lines: 3;
+  /* Stacked: a short rule marks where the essay ends and the notes begin. */
+  border-block-start: 1px solid var(--rule);
+  padding-block-start: var(--note-line);
+}
+
+.notes > * {
+  margin-block: 0;
+}
+
+/* Each note is a separate aside: space them by one note line, never indent. */
+.notes > * + * {
+  margin-block-start: var(--note-line);
+}
+
+.notes p {
+  text-align: start;
+  text-wrap: pretty;
+}
+
+/* ---------- Wide screens: notes in their own column ---------- */
+
+/* 540 + 57.6 + 308 + 2 x 16 = 937.6px = 58.6em; 59em leaves a little slack.
+   Media query em is the initial 16px, so zoom moves the breakpoint with the
+   text: at 200% zoom a 1280px window (640 CSS px) is back to one column. */
+@media (min-width: 59em) {
+  .essay {
+    grid-template-columns:
+      minmax(0, var(--prose-measure))
+      minmax(0, var(--note-measure));
+    column-gap: var(--column-gap);
+    align-items: start;
+  }
+
+  .notes {
+    border-block-start: 0;
+    padding-block-start: 0;
+    /* Start the notes level with the first paragraph, under the title:
+       title 1.5 lines + 1.5-line gap = 3 body lines. */
+    margin-block-start: calc(var(--line) * 3);
+  }
+}
+
+@media print {
+  :root {
+    --page: #fff;
+    --text: #000;
+    --text-muted: #222;
+  }
+
+  .prose p,
+  .notes p {
+    widows: 3;
+    orphans: 3;
+  }
+}

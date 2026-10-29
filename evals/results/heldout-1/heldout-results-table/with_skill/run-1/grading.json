@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "In the rendered DOM, every negative change value uses U+2212 MINUS SIGN, never U+002D HYPHEN-MINUS",
+      "passed": true,
+      "evidence": "Rendered Change cells (visible text): \"−1.7%\", \"−1.3 pp\", \"−1\", \"+0.5 pp\"; all three negatives start with U+2212. Hidden text: a visibility:hidden \".0\" pad in the headcount cell."
+    },
+    {
+      "text": "In the rendered DOM, every percentage-point change keeps its number and unit together with U+00A0 or U+202F (no plain U+0020 between the number and pp or percentage points)",
+      "passed": true,
+      "evidence": "Visible text between number and pp is U+00A0 in both pp cells (\"−1.3\\u00A0pp\", \"+0.5\\u00A0pp\"); no U+0020. The clip-hidden screen-reader span \" percentage points\" (.vh) is not visible."
+    },
+    {
+      "text": "The numeric cells (Q1, Q2, Q3 and Change) render with tabular lining figures: their computed font-variant-numeric includes neither oldstyle-nums nor proportional-nums",
+      "passed": true,
+      "evidence": "All 16 numeric td (and every descendant, including the hidden pads) compute font-variant-numeric \"lining-nums tabular-nums\" from table { font-variant-numeric: lining-nums tabular-nums }."
+    },
+    {
+      "text": "The numeric cells and the header cells above them are aligned to the end of their column (computed text-align end or right)",
+      "passed": false,
+      "evidence": "Computed text-align is \"start\" on every numeric td and \"center\" on the Q1/Q2/Q3/Change th. End alignment is done only visually by a grid track (.n justify-self:end; number right edges sit at 571.6/701.5/832.5/965px in every row, header included), not by text-align."
+    },
+    {
+      "text": "An @font-face rule loads fonts/SourceSerif4[opsz,wght].ttf and Chromium renders the numeric cells in Source Serif 4 (not a fallback face)",
+      "passed": true,
+      "evidence": "@font-face src: url(\"fonts/SourceSerif4%5Bopsz,wght%5D.ttf\") format(\"truetype\"), FontFace status \"loaded\"; CDP getPlatformFontsForNode on tbody td text reports only \"Source Serif 4\" (SourceSerif4Roman-Regular_wght_opsz120000, custom font, 258 glyphs), no fallback."
+    },
+    {
+      "text": "Column headers are th elements with scope=\"col\" and each row's metric is a th with scope=\"row\"",
+      "passed": true,
+      "evidence": "th elements: Metric, Q1, Q2, Q3, Change all scope=\"col\" in thead; Revenue (EUR), Operating margin, Headcount, Churn are th scope=\"row\"."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 1,
+    "total": 6,
+    "pass_rate": 0.833
+  }
+}

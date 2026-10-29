@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quarterly results</title>
+<style>
+  /* Self-hosted Source Serif 4 variable font: wght 200-900, opsz 8-60, roman only.
+     Default figures in this file are lining tabular (checked with font-features.py),
+     so the table needs no feature switch; it is still declared to state the intent. */
+  @font-face {
+    font-family: "Source Serif 4";
+    src: url("fonts/SourceSerif4[opsz,wght].ttf") format("truetype-variations"),
+         url("fonts/SourceSerif4[opsz,wght].ttf") format("truetype");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    color-scheme: light dark;
+
+    /* Type scale (rem, so reader settings and zoom scale it) */
+    --size-note: 0.875rem;   /* notes, source line */
+    --size-data: 1rem;       /* table figures */
+    --size-body: 1.125rem;   /* reading text */
+    --size-title: 2.25rem;   /* page title */
+    --leading-body: 1.5;
+    --line: calc(var(--size-body) * var(--leading-body)); /* one body line */
+
+    --ink: #1d1c1a;
+    --ink-muted: #55524c;   /* 7.4:1 on --paper */
+    --paper: #fbfaf7;
+    --rule: #c9c5bc;
+    --rule-strong: #1d1c1a;
+    --row-hover: #f0ede6;
+    --text-weight: 400;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e9e6df;
+      --ink-muted: #b1ada4;
+      --paper: #1b1a18;
+      --rule: #47443f;
+      --rule-strong: #e9e6df;
+      --row-hover: #262522;
+      --text-weight: 370;  /* light on dark reads heavier; thin it slightly */
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e9e6df;
+    --ink-muted: #b1ada4;
+    --paper: #1b1a18;
+    --rule: #47443f;
+    --rule-strong: #e9e6df;
+    --row-hover: #262522;
+    --text-weight: 370;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 100%;
+    font-kerning: normal;
+    font-optical-sizing: auto;
+    font-synthesis: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: var(--size-body);
+    line-height: var(--leading-body);
+    font-weight: var(--text-weight);
+  }
+
+  .report {
+    max-inline-size: 46rem;
+    margin-inline: auto;
+    padding-block: calc(var(--line) * 2) calc(var(--line) * 3);
+    padding-inline: 1rem;
+  }
+
+  /* ---------- Display ---------- */
+  .eyebrow {
+    margin: 0 0 calc(var(--line) * 0.5);
+    font-size: var(--size-note);
+    line-height: var(--line);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;          /* caps get positive tracking (§2.1.6) */
+    font-variant-numeric: lining-nums;
+    color: var(--ink-muted);
+  }
+  h1 {
+    margin: 0 0 var(--line);
+    font-size: var(--size-title);
+    line-height: calc(var(--line) * 1.5); /* a whole number of half lines */
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    text-wrap: balance;
+    font-variant-numeric: lining-nums;
+  }
+
+  /* ---------- Reading text ---------- */
+  .prose {
+    max-inline-size: 32em;           /* measured: about 67 characters at 18px */
+  }
+  .prose p {
+    margin: 0;
+    text-wrap: pretty;
+    hyphens: auto;
+    hyphenate-limit-chars: 6 2 3;
+    font-variant-numeric: oldstyle-nums proportional-nums; /* text figures in prose (§3.2.1) */
+  }
+  .prose p + p { text-indent: 1em; }
+
+  /* ---------- Data table ---------- */
+  .table-wrap {
+    margin-block: calc(var(--line) * 1.5) var(--line);
+    overflow-x: auto;                /* below about 480px the table scrolls inside this region, not the page */
+  }
+  .table-wrap:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+  table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--size-data);
+    line-height: 1.4;
+    font-variant-numeric: lining-nums tabular-nums; /* every digit one width (§3.2.1) */
+  }
+
+  caption {
+    caption-side: top;
+    text-align: start;
+    padding-block-end: calc(var(--line) * 0.5);
+    font-size: var(--size-body);
+    font-weight: 600;
+    line-height: var(--line);
+  }
+
+  th, td {
+    padding-block: 0.625rem;
+    padding-inline: 0.75rem;
+    vertical-align: baseline;
+    white-space: nowrap;
+  }
+  th:first-child, td:first-child { padding-inline-start: 0; }
+  th:last-child,  td:last-child  { padding-inline-end: 0; }
+
+  thead th {
+    font-weight: 600;
+    text-align: end;
+    border-block-end: 1px solid var(--rule-strong);
+    padding-block-start: 0;
+  }
+  thead th.metric { text-align: start; }
+
+  tbody th {
+    text-align: start;
+    font-weight: var(--text-weight);
+    white-space: normal;             /* labels may wrap; figures never do */
+  }
+  tbody td { text-align: end; }
+  tbody tr + tr > * { border-block-start: 1px solid var(--rule); }
+  tbody tr:last-child > * { border-block-end: 1px solid var(--rule-strong); }
+  tbody tr:hover > * { background: var(--row-hover); }
+
+  /* The change column is the answer; separate it from the quarters. */
+  .change { border-inline-start: 1px solid var(--rule); padding-inline-start: 1rem; }
+
+  .unit-label { color: var(--ink-muted); }
+
+  /* Decimal alignment: every cell in a column carries the same number of
+     fraction places; whole numbers get an invisible ".0" so the decimal
+     points line up. Signs (+ and U+2212) share one width in this font. */
+  .num .pad { visibility: hidden; }
+  .num .unit { position: relative; } /* keeps the hidden spoken unit inside the cell */
+  .num .unit {
+    display: inline-block;
+    inline-size: 1.5em;              /* room for the widest unit, a no-break space + "pp" */
+    text-align: start;
+    color: var(--ink-muted);
+  }
+
+  .notes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--size-note);
+    line-height: calc(var(--line) * 0.75);
+    color: var(--ink-muted);
+    font-variant-numeric: oldstyle-nums proportional-nums;
+  }
+  .notes abbr { text-decoration: none; }
+
+  .visually-hidden {
+    position: absolute;
+    inline-size: 1px; block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 30em) {
+    table { font-size: 0.9375rem; }
+    th, td { padding-inline: 0.5rem; }
+    /* The table scrolls sideways inside its region; keep the labels in view. */
+    tbody th, thead th.metric {
+      position: sticky; inset-inline-start: 0; z-index: 1;
+      background: var(--paper);
+      min-inline-size: 6.5em; padding-inline-end: 0.5rem;
+    }
+    .change { padding-inline-start: 0.625rem; }
+    h1 { font-size: 1.875rem; line-height: calc(var(--line) * 1.5); }
+  }
+
+  @media print {
+    :root { --ink: #000; --ink-muted: #333; --paper: #fff; --rule: #999; --rule-strong: #000; --row-hover: transparent; }
+    .report { padding: 0; max-inline-size: none; }
+    table { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main class="report">
+  <p class="eyebrow">Client report</p>
+  <h1>Quarterly results</h1>
+
+  <div class="prose">
+    <p>Revenue and operating margin both peaked in the second quarter and eased in the third. Headcount is broadly flat, while churn rose after an improvement in Q2. The table compares the four key metrics side by side; the last column shows the movement from Q2 to Q3.</p>
+  </div>
+
+  <div class="table-wrap" role="region" aria-labelledby="results-caption" tabindex="0">
+    <table id="results" aria-describedby="results-notes">
+      <caption id="results-caption">Key metrics by quarter</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="metric">Metric</th>
+          <th scope="col">Q1</th>
+          <th scope="col">Q2</th>
+          <th scope="col">Q3</th>
+          <th scope="col" class="change">Change</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <ul class="notes" id="results-notes">
+    <li>Change is Q3 compared with Q2.</li>
+    <li>Percentages in the Change column are relative change; <abbr title="percentage points">pp</abbr> means percentage points (an absolute difference between two rates).</li>
+  </ul>
+  <noscript><p class="notes">This table is generated with JavaScript. Please enable it to see the figures.</p></noscript>
+</main>
+
+<script>
+  "use strict";
+
+  // Source data. Quarter values are raw numbers; units live in `unit`.
+  // `change` is Q3 against Q2, as reported by the client.
+  const results = [
+    { metric: "Revenue",          unit: "EUR", values: [1234567, 1310050, 1288400], decimals: 0,
+      change: { value: -1.7, unit: "%",  spoken: "percent" } },
+    { metric: "Operating margin", unit: "%",   values: [12.4, 13.1, 11.8],          decimals: 1,
+      change: { value: -1.3, unit: "pp", spoken: "percentage points" } },
+    { metric: "Headcount",        unit: null,  values: [48, 52, 51],                decimals: 0,
+      change: { value: -1,   unit: null, spoken: "" } },
+    { metric: "Churn",            unit: "%",   values: [3.2, 2.9, 3.4],             decimals: 1,
+      change: { value: 0.5,  unit: "pp", spoken: "percentage points" } }
+  ];
+
+  const LOCALE = "en-GB";
+  const MINUS = "−"; // typographic minus, same advance as "+" in Source Serif 4
+
+  // Fraction places per column, so every decimal point in a column lines up.
+  const quarterPlaces = Math.max(...results.map(r => r.decimals));
+  const changePlaces = Math.max(...results.map(r => decimalsOf(r.change.value)));
+
+  function decimalsOf(n) {
+    const s = String(n);
+    const i = s.indexOf(".");
+    return i === -1 ? 0 : s.length - i - 1;
+  }
+
+  function el(tag, attrs, ...children) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (k === "class") node.className = v; else node.setAttribute(k, v);
+    }
+    for (const c of children) if (c != null) node.append(c);
+    return node;
+  }
+
+  // Builds  [sign][integer][.fraction | invisible .0][unit]  from Intl parts.
+  function numberNode(value, { places, columnPlaces, signed, unit, spoken }) {
+    const fmt = new Intl.NumberFormat(LOCALE, {
+      minimumFractionDigits: places,
+      maximumFractionDigits: places,
+      signDisplay: signed ? "exceptZero" : "auto"
+    });
+    let sign = "", integer = "", fraction = "";
+    for (const p of fmt.formatToParts(value)) {
+      if (p.type === "minusSign") sign = MINUS;
+      else if (p.type === "plusSign") sign = "+";
+      else if (p.type === "integer" || p.type === "group") integer += p.value;
+      else if (p.type === "decimal" || p.type === "fraction") fraction += p.value;
+    }
+    const span = el("span", { class: "num", "data-value": String(value) });
+    span.append(sign + integer);
+    if (fraction) span.append(fraction);
+    if (columnPlaces > places) {
+      const missing = (places === 0 ? "." : "") + "0".repeat(columnPlaces - places);
+      span.append(el("span", { class: "pad", "aria-hidden": "true" }, missing));
+    }
+    if (unit !== undefined) {
+      const u = el("span", { class: "unit" });
+      if (unit) {
+        // "%" sets solid in English (-1.7%); "pp" is a word, so it gets a no-break space.
+        u.append(el("span", { "aria-hidden": "true" }, (unit === "%" ? "" : "\u00A0") + unit));
+        u.append(el("span", { class: "visually-hidden" }, " " + spoken));
+      }
+      span.append(u);
+    }
+    return span;
+  }
+
+  function render() {
+    const tbody = document.querySelector("#results tbody");
+    const rows = results.map(r => {
+      const label = el("th", { scope: "row" }, r.metric);
+      if (r.unit) {
+        label.append(" ", el("span", { class: "unit-label" }, "(" + r.unit + ")"));
+      }
+      const quarters = r.values.map(v =>
+        el("td", {}, numberNode(v, { places: r.decimals, columnPlaces: quarterPlaces }))
+      );
+      const change = el("td", { class: "change" },
+        numberNode(r.change.value, {
+          places: decimalsOf(r.change.value),
+          columnPlaces: changePlaces,
+          signed: true,
+          unit: r.change.unit,
+          spoken: r.change.spoken
+        })
+      );
+      return el("tr", {}, label, ...quarters, change);
+    });
+    tbody.replaceChildren(...rows);
+  }
+
+  render();
+</script>
+</body>
+</html>

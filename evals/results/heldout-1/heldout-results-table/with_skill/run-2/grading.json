@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "In the rendered DOM, every negative change value uses U+2212 MINUS SIGN, never U+002D HYPHEN-MINUS",
+      "passed": true,
+      "evidence": "Rendered Change cells (visible text): \"−1.7%\", \"−1.3 pp\", \"−1\", \"+0.5 pp\"; negatives start with U+2212. Hidden text: clip-hidden \" percent\"/\" percentage points\" spans and a visibility:hidden \".0\" pad."
+    },
+    {
+      "text": "In the rendered DOM, every percentage-point change keeps its number and unit together with U+00A0 or U+202F (no plain U+0020 between the number and pp or percentage points)",
+      "passed": true,
+      "evidence": "Visible text between number and pp is U+00A0 in both pp cells (source: \"\\u00A0\" + unit); no U+0020. The clip-hidden \" percentage points\" span is not visible."
+    },
+    {
+      "text": "The numeric cells (Q1, Q2, Q3 and Change) render with tabular lining figures: their computed font-variant-numeric includes neither oldstyle-nums nor proportional-nums",
+      "passed": true,
+      "evidence": "All 16 numeric td and descendants compute font-variant-numeric \"lining-nums tabular-nums\" (table { font-variant-numeric: lining-nums tabular-nums })."
+    },
+    {
+      "text": "The numeric cells and the header cells above them are aligned to the end of their column (computed text-align end or right)",
+      "passed": true,
+      "evidence": "Every numeric td computes text-align \"end\" (tbody td { text-align: end }) and the Q1/Q2/Q3/Change th compute \"end\" (thead th { text-align: end })."
+    },
+    {
+      "text": "An @font-face rule loads fonts/SourceSerif4[opsz,wght].ttf and Chromium renders the numeric cells in Source Serif 4 (not a fallback face)",
+      "passed": true,
+      "evidence": "@font-face src: url(\"fonts/SourceSerif4[opsz,wght].ttf\") format(\"truetype-variations\"), same url format(\"truetype\"); status \"loaded\"; CDP getPlatformFontsForNode on a tbody td: \"Source Serif 4\" (SourceSerif4Roman-Regular_wght_opsz100000, custom), only face across all numeric cells (260 glyphs)."
+    },
+    {
+      "text": "Column headers are th elements with scope=\"col\" and each row's metric is a th with scope=\"row\"",
+      "passed": true,
+      "evidence": "th elements: Metric, Q1, Q2, Q3, Change scope=\"col\"; Revenue (EUR), Operating margin (%), Headcount, Churn (%) th scope=\"row\"."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1
+  }
+}

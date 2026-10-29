@@ -1,0 +1,12 @@
+{
+  "eval_name": "heldout-results-table",
+  "prompt": "Build report.html (HTML with embedded CSS and JS) for an English client report: a quarterly results table rendered from a JS data array, set in Source Serif 4 from fonts/SourceSerif4[opsz,wght].ttf (self-hosted; do not modify the font). Columns: Metric, Q1, Q2, Q3, Change. Rows: Revenue (EUR) 1234567, 1310050, 1288400, change -1.7%; Operating margin 12.4%, 13.1%, 11.8%, change -1.3 percentage points; Headcount 48, 52, 51, change -1; Churn 3.2%, 2.9%, 3.4%, change +0.5 percentage points. Make the numbers easy to compare.",
+  "assertions": [
+    "In the rendered DOM, every negative change value uses U+2212 MINUS SIGN, never U+002D HYPHEN-MINUS",
+    "In the rendered DOM, every percentage-point change keeps its number and unit together with U+00A0 or U+202F (no plain U+0020 between the number and pp or percentage points)",
+    "The numeric cells (Q1, Q2, Q3 and Change) render with tabular lining figures: their computed font-variant-numeric includes neither oldstyle-nums nor proportional-nums",
+    "The numeric cells and the header cells above them are aligned to the end of their column (computed text-align end or right)",
+    "An @font-face rule loads fonts/SourceSerif4[opsz,wght].ttf and Chromium renders the numeric cells in Source Serif 4 (not a fallback face)",
+    "Column headers are th elements with scope=\"col\" and each row's metric is a th with scope=\"row\""
+  ]
+}

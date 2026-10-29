@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quarterly Results</title>
+<style>
+  /* Self-hosted variable font: weight 200 to 900, optical size 8 to 60.
+     Brackets in the file name are percent-encoded so every browser resolves the URL. */
+  @font-face {
+    font-family: "Source Serif 4";
+    src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --ink: #1c1b19;
+    --ink-muted: #5d5a54;
+    --rule: #d9d5cc;
+    --rule-strong: #1c1b19;
+    --paper: #fbfaf7;
+    --focus-col: #efece5;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #ecebe7;
+      --ink-muted: #a9a59c;
+      --rule: #3a3833;
+      --rule-strong: #ecebe7;
+      --paper: #171614;
+      --focus-col: #262521;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-optical-sizing: auto;
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    font-kerning: normal;
+  }
+
+  main {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 3.5rem 1rem 4rem;
+  }
+
+  .eyebrow {
+    margin: 0 0 0.5rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-variant-numeric: lining-nums;
+  }
+  h1 {
+    margin: 0 0 0.75rem;
+    font-size: clamp(2rem, 1.4rem + 2.6vw, 2.75rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .lede {
+    margin: 0 0 2.5rem;
+    max-width: 36em;
+    color: var(--ink-muted);
+    text-wrap: pretty;
+  }
+
+  /* Table */
+  .table-wrap {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    /* Tabular lining figures: every digit has the same advance width,
+       so right-aligned columns line up place value by place value. */
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: "lnum" 1, "tnum" 1;
+  }
+  caption {
+    caption-side: top;
+    text-align: left;
+    padding: 0 0 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  th, td {
+    padding: 0.7rem 0.75rem;
+    vertical-align: baseline;
+    white-space: nowrap;
+  }
+  th:first-child, td:first-child { padding-left: 0; }
+  th:last-child, td:last-child { padding-right: 0; }
+
+  thead th {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    letter-spacing: 0.02em;
+    border-bottom: 2px solid var(--rule-strong);
+    padding-top: 0;
+    vertical-align: bottom;
+  }
+  thead .sub {
+    display: block;
+    font-weight: 400;
+    font-size: 0.8125rem;
+    letter-spacing: 0;
+  }
+
+  thead th:first-child { text-align: left; }
+  /* Keep the metric name visible while the figures scroll on narrow screens. */
+  th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--paper);
+  }
+  tbody th {
+    text-align: left;
+    font-weight: 500;
+  }
+  tbody .unit {
+    color: var(--ink-muted);
+    font-weight: 400;
+  }
+  tbody tr { border-bottom: 1px solid var(--rule); }
+  tbody tr:last-child { border-bottom: 2px solid var(--rule-strong); }
+
+  .num { text-align: right; }
+
+  /* Q3 is the reporting quarter: give it a quiet column tint. */
+  .current { background: var(--focus-col); }
+  thead .current { color: var(--ink); }
+
+  /* Change column: number right-aligned, unit in a fixed slot after it,
+     so the digits of -1.7, -1.3, -1 and +0.5 align on the same edge. */
+  .change { padding-left: 1.5rem; }
+  .change-value { display: inline-flex; justify-content: flex-end; align-items: baseline; }
+  .change-unit {
+    display: inline-block;
+    width: 1.6em;
+    margin-left: 0.2em;
+    text-align: left;
+    color: var(--ink-muted);
+  }
+  .change-unit abbr { text-decoration: none; }
+  .visually-hidden {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .notes {
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    max-width: 40em;
+  }
+  .notes li + li { margin-top: 0.25rem; }
+
+  @media (max-width: 30rem) {
+    main { padding-top: 2.5rem; }
+    th, td { padding: 0.6rem 0.5rem; }
+    .change { padding-left: 0.75rem; }
+    body { font-size: 1rem; }
+  }
+
+  @media print {
+    :root { --paper: #fff; --focus-col: #f2f2f2; }
+    main { padding: 0; max-width: none; }
+    .table-wrap { overflow: visible; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Client report, Q1 to Q3</p>
+  <h1>Quarterly results</h1>
+  <p class="lede">Key operating metrics for the first three quarters. The change column compares Q3 with Q2.</p>
+
+  <div class="table-wrap">
+    <table id="results">
+      <caption>Results by quarter</caption>
+      <thead>
+        <tr>
+          <th scope="col">Metric</th>
+          <th scope="col" class="num">Q1</th>
+          <th scope="col" class="num">Q2</th>
+          <th scope="col" class="num current">Q3</th>
+          <th scope="col" class="num change">Change<span class="sub">Q3 vs Q2</span></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <ul class="notes">
+    <li><abbr title="percentage points">pp</abbr> = percentage points, the arithmetic difference between two percentages.</li>
+    <li>Revenue change is the relative change in percent; headcount change is in people.</li>
+  </ul>
+</main>
+
+<script>
+  // Source data. Quarter values are raw numbers; units and precision live on the row,
+  // so every cell in a row is formatted the same way and compares like for like.
+  const results = [
+    {
+      metric: "Revenue",
+      unit: "EUR",
+      decimals: 0,
+      values: [1234567, 1310050, 1288400],
+      change: { value: -1.7, decimals: 1, unit: "%" }
+    },
+    {
+      metric: "Operating margin",
+      unit: "%",
+      decimals: 1,
+      values: [12.4, 13.1, 11.8],
+      change: { value: -1.3, decimals: 1, unit: "pp", unitLabel: "percentage points" }
+    },
+    {
+      metric: "Headcount",
+      unit: "",
+      decimals: 0,
+      values: [48, 52, 51],
+      change: { value: -1, decimals: 0, unit: "" }
+    },
+    {
+      metric: "Churn",
+      unit: "%",
+      decimals: 1,
+      values: [3.2, 2.9, 3.4],
+      change: { value: 0.5, decimals: 1, unit: "pp", unitLabel: "percentage points" }
+    }
+  ];
+
+  const MINUS = "−"; // true minus sign, same width as the plus sign
+
+  function formatNumber(value, decimals) {
+    return new Intl.NumberFormat("en-GB", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    }).format(Math.abs(value));
+  }
+
+  function formatSigned(value, decimals) {
+    const body = formatNumber(value, decimals);
+    if (value > 0) return "+" + body;
+    if (value < 0) return MINUS + body;
+    return body;
+  }
+
+  function el(tag, attrs, children) {
+    const node = document.createElement(tag);
+    for (const [key, val] of Object.entries(attrs || {})) {
+      if (key === "text") node.textContent = val;
+      else node.setAttribute(key, val);
+    }
+    for (const child of children || []) node.append(child);
+    return node;
+  }
+
+  function changeCell(change) {
+    const unitSlot = el("span", { class: "change-unit" });
+    if (change.unit === "pp") {
+      unitSlot.append(
+        el("abbr", { title: change.unitLabel, "aria-hidden": "true", text: "pp" }),
+        el("span", { class: "visually-hidden", text: " " + change.unitLabel })
+      );
+    } else {
+      unitSlot.textContent = change.unit;
+    }
+    return el("td", { class: "num change" }, [
+      el("span", { class: "change-value" }, [
+        el("span", { text: formatSigned(change.value, change.decimals) }),
+        unitSlot
+      ])
+    ]);
+  }
+
+  function render(rows) {
+    const tbody = document.querySelector("#results tbody");
+    const fragment = document.createDocumentFragment();
+
+    for (const row of rows) {
+      const header = el("th", { scope: "row" }, [row.metric]);
+      if (row.unit && row.unit !== "%") {
+        header.append(" ", el("span", { class: "unit", text: "(" + row.unit + ")" }));
+      }
+
+      const cells = row.values.map((value, i) =>
+        el("td", {
+          class: "num" + (i === row.values.length - 1 ? " current" : ""),
+          text: formatNumber(value, row.decimals) + (row.unit === "%" ? "%" : "")
+        })
+      );
+
+      fragment.append(el("tr", {}, [header, ...cells, changeCell(row.change)]));
+    }
+
+    tbody.replaceChildren(fragment);
+  }
+
+  render(results);
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "At a 1440px viewport, full lines of .prose p average between 58 and 74 characters",
+      "passed": true,
+      "evidence": "measure-line .prose p at 1440: avgCharsPerLine 64.9 (28 full lines), inside 58-74."
+    },
+    {
+      "text": "At a 1440px viewport, .notes sits beside .prose (to its right in LTR, overlapping it vertically) and full lines of .notes p average between 25 and 50 characters",
+      "passed": true,
+      "evidence": "At 1440 .notes left 857 >= .prose right 801, vertical ranges overlap; .notes p avgCharsPerLine 43.9, inside 25-50."
+    },
+    {
+      "text": "At a 375px viewport, the page has no horizontal scroll (document scrollWidth at most 375) and .notes sits below .prose",
+      "passed": true,
+      "evidence": "At 375 scrollWidth 375; .notes top 1630.7 >= .prose bottom 1582.7."
+    },
+    {
+      "text": "At 200% zoom on a 1280px window (CSS viewport 640px), the page has no horizontal scroll and full lines of .prose p average between 45 and 75 characters",
+      "passed": true,
+      "evidence": "At 1280 zoom 2 (cssWidth 640) scrollWidth 640; .prose p avgCharsPerLine 64.9, inside 45-75."
+    },
+    {
+      "text": "layout.css sets the .prose and .notes font sizes as fixed rem values (1.125rem and 0.875rem) with no vw or vi term",
+      "passed": true,
+      "evidence": "CSS: .prose font-size var(--text-size) = 1.125rem, .notes font-size var(--note-size) = 0.875rem; vw appears only in --title-size (h1), gutters and padding, not in .prose/.notes sizes."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1
+  }
+}
