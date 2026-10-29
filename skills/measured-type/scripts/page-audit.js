@@ -70,6 +70,60 @@ function pageHelpers() {
         .filter((el) => !(el.tagName === 'BLOCKQUOTE' && el.querySelector('p')))
         .filter((el) => window.__mt.visible(el) && el.textContent.trim().length >= 100);
     },
+    // Any colour the browser computes (oklch, lab, color()) as rgba(), via a 1x1 canvas; null if unreadable.
+    rgba(str) {
+      const mt = window.__mt;
+      const plain = /^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:\s*[,/]\s*([\d.]+%?))?\s*\)$/.exec(str);
+      if (plain) {
+        const a = plain[4] === undefined ? 1 : plain[4].endsWith('%') ? parseFloat(plain[4]) / 100 : parseFloat(plain[4]);
+        return `rgba(${plain[1]}, ${plain[2]}, ${plain[3]}, ${a})`; // exact; the canvas below rounds alpha to 1/255
+      }
+      if (!mt._cv) { mt._cv = document.createElement('canvas'); mt._cv.width = mt._cv.height = 1; mt._cx = mt._cv.getContext('2d', { willReadFrequently: true }); }
+      const g = mt._cx;
+      g.fillStyle = '#010203';
+      g.fillStyle = str;
+      if (g.fillStyle === '#010203' && !/^(#010203|rgb\(1, 2, 3\))$/i.test(str)) return null;
+      g.clearRect(0, 0, 1, 1);
+      g.fillRect(0, 0, 1, 1);
+      const [r, gr, b, a] = g.getImageData(0, 0, 1, 1).data;
+      return `rgba(${r}, ${gr}, ${b}, ${+(a / 255).toFixed(3)})`;
+    },
+    share(el, re) {
+      const letters = (el.textContent.match(/\p{L}/gu) || []).length;
+      return letters ? (el.textContent.match(re) || []).length / letters : 0;
+    },
+    cjk(el) { return window.__mt.share(el, /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu) > 0.5; },
+    latin(el) { return window.__mt.share(el, /\p{Script=Latin}/gu) > 0.5; },
+    // Text colours and their grounds for the contrast check. Disabled controls are exempt (WCAG 1.4.3).
+    // Opacity below the first painted ground fades the text alone; opacity at or above it fades the
+    // ground too, which the ratio cannot express, so that case is reported as not verified.
+    colorSamples() {
+      const mt = window.__mt;
+      return mt.textElements().filter((el) => !el.closest(':disabled, [aria-disabled="true"]')).map((el) => {
+        const cs = getComputedStyle(el);
+        const grounds = [];
+        let image = false;
+        let fade = 1;
+        let fadedGround = false;
+        let found = false;
+        for (let p = el; p; p = p.parentElement) {
+          const s = getComputedStyle(p);
+          const op = parseFloat(s.opacity);
+          if (s.backgroundImage !== 'none') { image = true; break; }
+          const bg = mt.rgba(s.backgroundColor);
+          const painted = bg && !/, 0\)$/.test(bg);
+          if (!found && !painted) { fade *= op; continue; }
+          if (op < 1) fadedGround = true;
+          if (!painted) continue;
+          found = true;
+          grounds.push(bg);
+          if (/, 1\)$/.test(bg)) break;
+        }
+        const fg = mt.rgba(cs.color);
+        const color = fg && fg.replace(/, ([\d.]+)\)$/, (m, a) => `, ${+(parseFloat(a) * fade).toFixed(3)})`);
+        return { path: mt.path(el), color, rawColor: cs.color, grounds, image, fadedGround, size: parseFloat(cs.fontSize), weight: parseInt(cs.fontWeight, 10) };
+      });
+    },
     textElements() {
       return [...document.body.querySelectorAll('*')].filter((el) => window.__mt.directText(el) && window.__mt.visible(el) && !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(el.tagName));
     },
@@ -201,7 +255,7 @@ function bookChecks() {
   const readingStacks = new Map();
   for (const el of reading) {
     const cs = getComputedStyle(el);
-    if (!readingStacks.has(cs.fontFamily)) readingStacks.set(cs.fontFamily, { el, cs });
+    if (mt.latin(el) && !readingStacks.has(cs.fontFamily)) readingStacks.set(cs.fontFamily, { el, cs });
   }
   for (const [family, { el, cs }] of readingStacks) {
     const [I, l, one] = ['I', 'l', '1'].map((ch) => ink(cs, ch));
@@ -249,17 +303,27 @@ function bookChecks() {
   for (const icon of document.querySelectorAll('svg, img')) {
     const parent = icon.parentElement;
     if (!parent || parent.closest('svg') || !mt.visible(icon)) continue;
-    const text = [...parent.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim());
+    let text = [...parent.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim());
+    if (!text) {
+      const label = [icon.nextElementSibling, icon.previousElementSibling].find((e) => e && !e.querySelector('svg, img') && e.textContent.trim());
+      text = label && [...label.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim());
+    }
     if (!text) continue;
-    const pcs = getComputedStyle(parent);
+    const pcs = getComputedStyle(text.parentElement);
     const size = parseFloat(pcs.fontSize);
     const r = icon.getBoundingClientRect();
     if (r.height > 2 * size) continue;
+    // Wrap the label so the probe sits on its baseline even when the parent is a flex or grid row,
+    // where a bare probe would become a flex item of its own.
+    const wrap = document.createElement('span');
+    text.parentElement.insertBefore(wrap, text);
+    wrap.append(text);
     const probe = document.createElement('span');
     probe.style.cssText = 'display: inline-block; width: 0; height: 0';
-    parent.insertBefore(probe, text);
+    wrap.insertBefore(probe, text);
     const baseline = probe.getBoundingClientRect().bottom;
-    probe.remove();
+    wrap.before(text);
+    wrap.remove();
     const cap = ascent(pcs, 'H') * size;
     const offset = (r.top + r.bottom) / 2 - (baseline - cap / 2);
     if (Math.abs(offset) > 1 && once(`icon|${mt.path(icon)}`)) {
@@ -276,7 +340,7 @@ function productChecks() {
   const out = { tabular: [], align: [], caps: [], small: [] };
   const seen = new Set();
   const once = (key) => (seen.has(key) ? false : (seen.add(key), true));
-  const NUM = /^[\s(+\-−–]*\p{Sc}?\s*\d[\d\s.,:'’  ]*(%|‰|\p{Sc}|[kKMB])?\s*\)?$/u;
+  const NUM = /^[\s(+\-−–]*\p{Sc}?\s*\d[\d\s.,:'’  ]*(%|‰|\p{Sc}|[kKMB])?\s*(\p{L}{1,3}|%)?\s*\)?$/u;
   const rowsOf = (t) => (t.tagName === 'TABLE'
     ? [...t.tBodies].flatMap((b) => [...b.rows]).map((r) => [...r.cells])
     : [...t.querySelectorAll('[role=row]')].map((r) => [...r.querySelectorAll('[role=cell], [role=gridcell]')]).filter((c) => c.length));
@@ -289,9 +353,11 @@ function productChecks() {
       if (nums.length < 2 || nums.length < cells.length * 0.6) continue;
       const where = `${mt.path(t)} column ${c + 1}`;
       // L1: draw single glyphs, so a kerning pair such as "11" cannot pass for proportional figures
+      const holder = [...nums[0].querySelectorAll('*')].reverse().find((e) => [...e.childNodes].some((n) => n.nodeType === 3 && /\d/.test(n.textContent))) || nums[0];
+      holder.setAttribute('data-mt-num', String(out.tabular.length));
       const probe = document.createElement('span');
       probe.style.cssText = 'position: absolute; white-space: pre';
-      nums[0].append(probe);
+      holder.append(probe);
       const spread = () => {
         probe.textContent = '1';
         const one = probe.getBoundingClientRect().width;
@@ -306,7 +372,7 @@ function productChecks() {
         fixable = spread() <= 0.02;
       }
       probe.remove();
-      if (diff > 0.02) out.tabular.push({ path: where, diff: diff * 100, fixable, family: getComputedStyle(nums[0]).fontFamily });
+      if (diff > 0.02) out.tabular.push({ path: where, diff: diff * 100, fixable, family: getComputedStyle(holder).fontFamily, num: holder.getAttribute('data-mt-num') });
       // L2: place values line up only when the numbers share an edge at the end
       const rtl = getComputedStyle(nums[0]).direction === 'rtl';
       const lengths = new Set(nums.map((td) => td.textContent.trim().length));
@@ -327,7 +393,8 @@ function productChecks() {
     const allCaps = letters.length >= 4 && letters === letters.toUpperCase() && letters !== letters.toLowerCase() && !el.closest('p, li, dd, blockquote');
     const tracking = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing);
     const p = mt.path(el);
-    if ((cs.textTransform === 'uppercase' || allCaps) && letters.length >= 2 && size < 20 && tracking <= 0 && once(`caps|${p}`)) {
+    const cased = letters.toUpperCase() !== letters.toLowerCase(); // Arabic, CJK and other caseless scripts have no capitals to track
+    if ((cs.textTransform === 'uppercase' || allCaps) && cased && letters.length >= 2 && size < 20 && tracking <= 0 && once(`caps|${p}`)) {
       out.caps.push({ path: p, size, tracking });
     }
     if (size < 12 && !inReading(el) && !['SUP', 'SUB'].includes(el.tagName) && !el.closest('[aria-hidden="true"]') && once(`small|${p}`)) {
@@ -393,15 +460,22 @@ function liteAudit(target) {
   }
   const file = /^file:/i.test(target) ? require('node:url').fileURLToPath(target) : path.resolve(target);
   const html = require('node:fs').readFileSync(file, 'utf8');
+  const unread = [];
   const sheets = [...html.matchAll(/<link\b[^>]*>/gi)]
     .map((m) => m[0])
     .filter((tag) => /rel=["']?stylesheet/i.test(tag))
     .map((tag) => (/href=["']([^"']+)["']/i.exec(tag) || [])[1])
-    .filter((href) => href && !/^([a-z]+:)?\/\//i.test(href))
-    .map((href) => path.resolve(path.dirname(file), href.split(/[?#]/)[0]))
-    .filter((p) => require('node:fs').existsSync(p));
+    .filter(Boolean)
+    .map((href) => {
+      if (/^([a-z]+:)?\/\//i.test(href) || href.startsWith('/')) { unread.push(href); return null; }
+      const p = path.resolve(path.dirname(file), href.split(/[?#]/)[0]);
+      if (!require('node:fs').existsSync(p)) { unread.push(href); return null; }
+      return p;
+    })
+    .filter(Boolean);
   const report = lint([file, ...sheets]);
-  return { ...report, target: file, mode: 'lite', notVerified: [...RENDERED.map((r) => `${r} (lite mode, no browser)`), ...report.notVerified.filter((n) => !/page-audit/.test(n))] };
+  const skipped = unread.map((href) => `stylesheet ${href} (remote, root-relative or missing; lite mode reads local files only)`);
+  return { ...report, target: file, mode: 'lite', notVerified: [...RENDERED.map((r) => `${r} (lite mode, no browser)`), ...skipped, ...report.notVerified.filter((n) => !/page-audit/.test(n))] };
 }
 
 const needsInstall = (err) => /Cannot find module 'playwright'|MT_NO_PLAYWRIGHT|Executable doesn't exist|playwright install/i.test(String(err && err.message));
@@ -415,8 +489,8 @@ async function audit(target, opts = {}) {
   const notVerified = new Set(['Safari and Firefox rendering (Chromium only)']);
   const add = (rule, severity, location, measured, fix) => findings.push({ rule, severity, location, measured, fix });
 
-  const open = async (width, extraCss) => {
-    const page = await browser.newPage({ viewport: { width, height: 900 } });
+  const open = async (width, extraCss, { height = 900, colorScheme } = {}) => {
+    const page = await browser.newPage({ viewport: { width, height }, ...(colorScheme ? { colorScheme } : {}) });
     await page.goto(url, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
     if (extraCss) await page.addStyleTag({ content: extraCss });
@@ -436,25 +510,11 @@ async function audit(target, opts = {}) {
         const m = measureLines(`[data-mt-r="${i}"]`);
         return {
           i, path: mt.path(el), avg: m.avgCharsPerLine, min: m.minCharsPerLine, max: m.maxCharsPerLine, lines: m.fullLines,
-          size: parseFloat(cs.fontSize), align: cs.textAlign, hyphens: cs.hyphens, family: cs.fontFamily,
+          size: parseFloat(cs.fontSize), align: cs.textAlign, hyphens: cs.hyphens, family: cs.fontFamily, cjk: mt.cjk(el),
         };
       });
       const texts = mt.textElements();
-      const colors = texts.map((el) => {
-        const cs = getComputedStyle(el);
-        // Grounds from the text outwards, up to the first opaque one; translucent
-        // layers are laid over it in Node before the ratio is taken.
-        const grounds = [];
-        let image = false;
-        for (let p = el; p; p = p.parentElement) {
-          const s = getComputedStyle(p);
-          if (s.backgroundImage !== 'none') { image = true; break; }
-          if (/rgba\(\d+,\s*\d+,\s*\d+,\s*0\)|transparent/.test(s.backgroundColor)) continue;
-          grounds.push(s.backgroundColor);
-          if (!/rgba\(/.test(s.backgroundColor)) break;
-        }
-        return { path: mt.path(el), color: cs.color, grounds, image, size: parseFloat(cs.fontSize), weight: parseInt(cs.fontWeight, 10) };
-      });
+      const colors = mt.colorSamples();
       const sizes = [...new Set(texts.map((el) => Math.round(parseFloat(getComputedStyle(el).fontSize) * 2) / 2))].sort((a, b) => a - b);
       const runts = [...document.querySelectorAll('h1, h2, h3, h4, h5, h6')].filter(mt.visible).map((h) => {
         const range = document.createRange();
@@ -490,19 +550,22 @@ async function audit(target, opts = {}) {
         const avg = measured.reduce((s, r) => s + r.avg * r.lines, 0) / measured.reduce((s, r) => s + r.lines, 0);
         const lo = Math.min(...measured.map((r) => r.min));
         const hi = Math.max(...measured.map((r) => r.max));
-        if (avg > 75) add('MT-MEASURE-LONG', 'MEDIUM', `${p} at 1280px`, `${avg.toFixed(1)} characters per line (range ${lo}-${hi})`, 'max-inline-size in em, counted to about 66 with measure-line.js');
+        const cjk = rs[0].cjk;
+        if (avg > (cjk ? 40 : 75)) add('MT-MEASURE-LONG', 'MEDIUM', `${p} at 1280px`, `${avg.toFixed(1)} characters per line (range ${lo}-${hi})${cjk ? ', CJK (WCAG 1.4.8 caps it at 40)' : ''}`, cjk ? 'max-inline-size: 35ic' : 'max-inline-size in em, counted to about 66 with measure-line.js');
       }
       const r0 = rs[0];
       if (r0.size < 16) add('MT-SIZE-FLOOR', 'MEDIUM', `${p}`, `${r0.size}px reading text`, `font-size: 1rem or more`);
       if (r0.align === 'justify' && r0.hyphens !== 'auto') add('MT-JUSTIFY', 'MEDIUM', `${p}`, 'justified, hyphens: ' + r0.hyphens, 'text-align: start, or hyphens: auto with limits');
     }
 
+    const contrastFailures = (samples) => {
     const pairs = new Map();
-    for (const c of desk.colors) {
+    for (const c of samples) {
       if (c.image) { notVerified.add('contrast over background images'); continue; }
-      const fg = parseColor(c.color);
+      if (c.fadedGround) { notVerified.add('contrast where opacity fades the text and its ground together'); continue; }
+      const fg = c.color && parseColor(c.color);
       const layers = c.grounds.map(parseColor);
-      if (!fg || layers.some((l) => !l)) continue;
+      if (!fg || layers.some((l) => !l)) { notVerified.add(`contrast of a colour the audit could not read (${c.rawColor})`); continue; }
       const base = layers.length && layers[layers.length - 1].a === 1 ? layers.pop() : { r: 255, g: 255, b: 255, a: 1 };
       const bg = layers.reverse().reduce((under, layer) => over(layer, under), base);
       c.bg = `rgb(${Math.round(bg.r)}, ${Math.round(bg.g)}, ${Math.round(bg.b)})`;
@@ -514,8 +577,20 @@ async function audit(target, opts = {}) {
         if (!pairs.has(key)) pairs.set(key, { c, ratio, need });
       }
     }
-    for (const { c, ratio, need } of pairs.values()) {
-      add('MT-CONTRAST', 'HIGH', `${c.path}`, `${ratio.toFixed(2)}:1 (${c.color} on ${c.bg}, needs ${need}:1)`, 'darken the text or lighten the ground to reach the ratio');
+    return pairs;
+    };
+    const lightFails = contrastFailures(desk.colors);
+    for (const { c, ratio, need } of lightFails.values()) {
+      add('MT-CONTRAST', 'HIGH', `${c.path}`, `${ratio.toFixed(2)}:1 (${c.rawColor} on ${c.bg}, needs ${need}:1)`, 'darken the text or lighten the ground to reach the ratio');
+    }
+    // The same page with prefers-color-scheme: dark; report only what fails there and not here.
+    const darkPage = await open(1280, null, { colorScheme: 'dark' });
+    const darkFails = contrastFailures(await darkPage.evaluate(() => window.__mt.colorSamples()));
+    await darkPage.close();
+    const lightPaths = new Set([...lightFails.values()].map(({ c }) => c.path));
+    for (const { c, ratio, need } of darkFails.values()) {
+      if (lightPaths.has(c.path)) continue;
+      add('MT-CONTRAST', 'HIGH', `${c.path} (dark scheme)`, `${ratio.toFixed(2)}:1 (${c.rawColor} on ${c.bg}, needs ${need}:1)`, 'darken the text or lighten the ground to reach the ratio');
     }
     if (desk.sizes.length > 8) add('MT-SIZE-COUNT', 'LOW', 'page at 1280px', `${desk.sizes.length} text sizes: ${desk.sizes.join(', ')}px`, 'a scale of 5 to 8 named sizes');
     for (const r of desk.runts) {
@@ -587,8 +662,17 @@ async function audit(target, opts = {}) {
     }
 
     const product = await page.evaluate(productChecks);
+    const renderedFace = async (selector) => {
+      try {
+        const { root: doc } = await cdp.send('DOM.getDocument', { depth: -1 });
+        const { nodeId } = await cdp.send('DOM.querySelector', { nodeId: doc.nodeId, selector });
+        if (!nodeId) return null;
+        const { fonts } = await cdp.send('CSS.getPlatformFontsForNode', { nodeId });
+        return fonts.sort((a, b) => b.glyphCount - a.glyphCount)[0]?.familyName || null;
+      } catch { return null; }
+    };
     for (const t of product.tabular) {
-      const face = t.family.split(',')[0].trim().replace(/^["']|["']$/g, '');
+      const face = (await renderedFace(`[data-mt-num="${t.num}"]`)) || t.family.split(',')[0].trim().replace(/^["']|["']$/g, '');
       const fix = t.fixable ? 'font-variant-numeric: lining-nums tabular-nums on the column' : `${face} has no tabular figures: set number columns in a face that has them (check tnum with font-features.py)`;
       add('MT-TABULAR', 'MEDIUM', t.path, `1 and 0 differ by ${t.diff.toFixed(1)}% in width, so digits do not line up`, fix);
     }
@@ -598,7 +682,7 @@ async function audit(target, opts = {}) {
     const cutAt1280 = await page.evaluate(truncatedText);
     for (const t of cutAt1280) add('MT-TRUNCATE', 'LOW', t.path, `"${t.text}" cut at 1280px with no title or accessible name`, 'let it wrap, or put the full text in a title or tooltip that keyboard users can reach');
     await page.close();
-    const zoomed = await open(640);
+    const zoomed = await open(640, null, { height: 450 });
     const known = new Set(cutAt1280.map((t) => t.path));
     for (const t of await zoomed.evaluate(truncatedText)) {
       if (!known.has(t.path)) add('MT-TRUNCATE', 'MEDIUM', t.path, `"${t.text}" fits at 1280px but is cut at 200% zoom (WCAG 1.4.4)`, 'let it wrap at narrow widths instead of truncating');
@@ -633,19 +717,32 @@ async function audit(target, opts = {}) {
       const r = await p.evaluate(() => {
         const vw = document.documentElement.clientWidth;
         const sw = document.documentElement.scrollWidth;
-        if (sw <= vw + 1) return null;
+        if (sw <= vw + 1) {
+          // overflow-x: hidden can keep the page from scrolling while text runs off the edge.
+          const scrolls = (el) => { for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) if (/auto|scroll/.test(getComputedStyle(a).overflowX)) return true; return false; };
+          const cut = window.__mt.textElements().filter((el) => {
+            const cs = getComputedStyle(el);
+            const rect = el.getBoundingClientRect();
+            if (rect.width <= 1 || cs.textOverflow === 'ellipsis' || el.closest('[aria-hidden="true"], [inert]')) return false;
+            return (rect.right > vw + 1 || rect.left < -1) && !scrolls(el);
+          });
+          if (!cut.length) return null;
+          const past = Math.round(Math.max(...cut.map((el) => el.getBoundingClientRect().right - vw)));
+          return { hidden: true, vw, past, culprits: cut.slice(0, 3).map((el) => window.__mt.path(el)) };
+        }
         const wide = [...document.body.querySelectorAll('*')].filter((el) => el.getBoundingClientRect().right > vw + 1 && !(el.parentElement && el.parentElement !== document.body && el.parentElement.getBoundingClientRect().right > vw + 1));
         return { sw, vw, culprits: wide.slice(0, 3).map((el) => window.__mt.path(el)) };
       });
-      if (r) add('MT-REFLOW', 'HIGH', `${r.culprits.join(', ') || 'page'} at ${label}`, `page is ${r.sw}px wide in a ${r.vw}px viewport`, 'max-inline-size instead of fixed widths; let tables scroll inside a wrapper');
+      if (r && r.hidden) add('MT-REFLOW', 'HIGH', `${r.culprits.join(', ')} at ${label}`, `text runs ${r.past}px past the ${r.vw}px viewport; hidden overflow keeps the page from scrolling, so it is cut off`, 'max-inline-size instead of fixed widths; let wide content scroll inside its own container');
+      else if (r) add('MT-REFLOW', 'HIGH', `${r.culprits.join(', ') || 'page'} at ${label}`, `page is ${r.sw}px wide in a ${r.vw}px viewport`, 'max-inline-size instead of fixed widths; let tables scroll inside a wrapper');
       await p.close();
     }
     const tablet = await open(768);
     const short = await tablet.evaluate(() => window.__mt.reading().map((el, i) => {
       el.setAttribute('data-mt-s', i);
       const m = measureLines(`[data-mt-s="${i}"]`);
-      return { path: window.__mt.path(el), avg: m.avgCharsPerLine };
-    }).filter((r) => r.avg && r.avg < 40));
+      return { path: window.__mt.path(el), avg: m.avgCharsPerLine, cjk: window.__mt.cjk(el) };
+    }).filter((r) => r.avg && r.avg < (r.cjk ? 20 : 40)));
     for (const s of short) add('MT-MEASURE-SHORT', 'LOW', `${s.path} at 768px`, `${s.avg} characters per line`, 'widen the column or reduce the size');
     await tablet.close();
 
@@ -653,7 +750,7 @@ async function audit(target, opts = {}) {
     // Every text element must reach 2× by 500% (MT-ZOOM-VW); headings also get the 1.6× house bar.
     // Elements are taken in DOM order without a visibility filter, so the three loads line up.
     const textSizes = async (width) => {
-      const p = await open(width);
+      const p = await open(width, null, { height: Math.round((900 * width) / 1280) });
       const s = await p.evaluate(() => [...document.body.querySelectorAll('*')]
         .filter((el) => window.__mt.directText(el) && !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(el.tagName))
         .map((el) => ({ path: window.__mt.path(el), heading: /^H[1-6]$/.test(el.tagName), size: parseFloat(getComputedStyle(el).fontSize) })));

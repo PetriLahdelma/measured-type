@@ -55,7 +55,7 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 
 | Rule | Severity | Check | Source |
 |---|---|---|---|
-| MT-REFLOW | HIGH | Page scrolls sideways at 320 CSS px (400% zoom of 1280) or at 375px | WCAG 1.4.10, §2.1.2 |
+| MT-REFLOW | HIGH | Page scrolls sideways at 320 CSS px (400% zoom of 1280) or at 375px, or text runs past the edge where hidden overflow stops the scroll | WCAG 1.4.10, §2.1.2 |
 | MT-ZOOM-VW | HIGH | `font-size` from `vw`/`vi` with no `rem`/`em` term, or any rendered text that does not reach 2× by 500% zoom | WCAG 1.4.4, §3.1.1 |
 | MT-VIEWPORT-ZOOM | HIGH | `user-scalable=no` or `maximum-scale` below 2 in the viewport meta | WCAG 1.4.4 |
 | MT-ROOT-PX | HIGH | `font-size` in `px` on `html` or `:root`: overrides the reader's default (a percentage under 100% is LOW) | §3.1.1 |
@@ -77,7 +77,7 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-FFS | LOW | `font-feature-settings` for figures or caps where `font-variant-*` exists | `css-modern.md` |
 | MT-LS-PX | LOW | `letter-spacing` in `px` | §2.1.6 |
 | MT-PHYSICAL | LOW | Physical sides (`margin-left`, `text-align: right`...) in text layout; HIGH with `--rtl`. `left: 50%` with `translate(-50%)` centres and is exempt | `logical-and-language.md` |
-| MT-WIDOWS | LOW | `widows`/`orphans` of 1 or 2 | §2.4.8 |
+| MT-WIDOWS | LOW | `widows`/`orphans` of 1 (2 is the CSS initial value) | §2.4.8 |
 | MT-FONT-DISPLAY | LOW | `@font-face` without `font-display` | `taste.md` |
 | MT-HEADING-RUNT | LOW | A heading's last line is one word | §2.4.8 (convention) |
 | MT-SIZE-COUNT | LOW | More than 8 distinct text sizes on one page | `taste.md` (convention) |
@@ -100,6 +100,12 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-NUM-ALIGN | LOW | A number column of mixed lengths not aligned at the end | convention (`product-ui.md`) |
 | MT-CAPS-TRACKING | LOW | Capitals under 20px with no positive letter-spacing; `text-transform: uppercase` without `letter-spacing` in the source | §2.1.6 (`product-ui.md`) |
 | MT-UI-SIZE | LOW | Interface text under 12px (house floor) | house (`product-ui.md`) |
+
+Anything a check cannot compute is listed under **Not verified**, never passed
+in silence: colours it cannot read, opacity that fades text and ground
+together, container units, indented Sass, class lists built by expressions and
+stylesheets lite mode cannot open. Disabled controls are exempt from
+MT-CONTRAST (WCAG 1.4.3); contrast is also measured in the dark colour scheme.
 
 A rule the tools do not cover (pairing, hierarchy, emphasis, rhythm) still goes
 in the same table under the closest section number, with the kind stated.

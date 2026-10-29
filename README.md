@@ -76,8 +76,10 @@ about 81 characters per line in Verdana at 66ch (estimate from a Chromium calibr
   671.6px at 16px; average character 0.504em, zero 0.636em
 ```
 
-The linter reads CSS, Sass, Less, HTML, the `<style>` blocks of Vue, Svelte
-and Astro files and Tailwind classes in markup and JSX. The estimate comes
+The linter reads CSS, SCSS, Less, HTML, the `<style>` blocks of Vue, Svelte
+and Astro files and literal Tailwind class strings in markup and JSX; what it
+cannot read (indented Sass, class lists built with `cn()` or `clsx()`) it
+lists under Not verified instead of passing. The estimate comes
 from a Chromium calibration of 30 faces and says so. Without a browser,
 `page-audit.js` falls back to a lite mode that lints the page's own
 stylesheets and lists every rendered check it skipped.
@@ -299,7 +301,7 @@ measured value, the CSS fix and a Block or Approve verdict
 | Script | What it measures |
 |---|---|
 | [`page-audit.js`](skills/measured-type/scripts/page-audit.js) | A rendered page at 1280, 768 and 375px and at 200%, 400% and 500% zoom: reflow, characters per line, contrast, the WCAG 1.4.12 spacing override, fonts that fell back, heading zoom growth; and from Latin and Saltz, inline code x-height, kerning switched off, I and l alike, heading order and spacing, the family budget, x-height pairing, thin weights with APCA Lc, hairlines on dark grounds and icon alignment; for dense product UI, tabular figures and end alignment in number columns, tracked capitals, truncated text (also at 200% zoom) and interface text under 12px. `--lite` without a browser |
-| [`lint-css.js`](skills/measured-type/scripts/lint-css.js) | CSS, Sass, Less, HTML, Vue, Svelte, Astro, JSX and Tailwind classes, or only what a pull request changed (`--diff`): fluid sizes evaluated at 200% and 500% zoom, length line-heights, `62.5%` roots, justification, `ch` measures with an estimate for known faces, physical sides (with the logical Tailwind utility), untracked capitals, hyphen-minus and straight quotes. No dependencies |
+| [`lint-css.js`](skills/measured-type/scripts/lint-css.js) | CSS, SCSS, Less, HTML, Vue, Svelte, Astro, JSX and literal Tailwind class strings, or only what a pull request changed (`--diff`): fluid sizes evaluated at 200% and 500% zoom, length line-heights, `62.5%` roots, justification, `ch` measures with an estimate for known faces, physical sides (with the logical Tailwind utility), untracked capitals, hyphen-minus and straight quotes. No dependencies |
 | [`measure-line.js`](skills/measured-type/scripts/measure-line.js) | Characters per line of one selector, graphemes and columns counted correctly |
 | [`estimate-measure.js`](skills/measured-type/scripts/estimate-measure.js) | Characters per line for a face and a width without a browser, from a Chromium calibration (within 6% of the rendered count in the tests) |
 | [`fallback-metrics.py`](skills/measured-type/scripts/fallback-metrics.py) | A metric-matched fallback `@font-face` from the font files, so the web font swaps in without reflow |
@@ -562,7 +564,7 @@ overlap:
 |---|---|---|
 | Asks | Is this value right for a reader? | Is this value one of ours? |
 | Checks | Measure, zoom, contrast, figures, capitals, truncation, font features, rendered in a browser | Spacing values and opt-in type sizes, against your scale or tokens |
-| Reads | CSS, Sass, Less, HTML, components and Tailwind classes | CSS and SCSS through Stylelint, Tailwind class strings through its ESLint companion |
+| Reads | CSS, SCSS, Less, HTML, component style blocks and literal Tailwind class strings | CSS and SCSS through Stylelint, Tailwind class strings through its ESLint companion |
 | Fixes | Explains each finding with its number, source and CSS | Autofixes to the nearest step or token |
 | Runs as | An agent skill with scripts | Stylelint and ESLint rules, an audit CLI and a GitHub Action |
 

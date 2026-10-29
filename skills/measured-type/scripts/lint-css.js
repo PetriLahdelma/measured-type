@@ -29,6 +29,7 @@ const { execFileSync } = require('node:child_process');
 const { estimate, describe } = require('./estimate-measure.js');
 
 const ROOT_PX = 16;
+const VIEW_ASPECT = 900 / 1280; // vh and vb are read against a 1280x900 window
 const ORDER = { HIGH: 0, MEDIUM: 1, LOW: 2 };
 
 // ---------- CSS ----------
@@ -52,7 +53,7 @@ function parseCss(source, lineOffset = 0) {
     const i = raw.indexOf(':');
     if (stack.length && i > 0) {
       const prop = raw.slice(0, i).trim().toLowerCase();
-      if (/^(--)?[-a-z]+$/.test(prop)) {
+      if (/^(--[\w-]+|[-a-z]+)$/.test(prop)) {
         const value = raw.slice(i + 1).trim().replace(/\s*!important$/i, '');
         stack[stack.length - 1].decls.push({ prop, value, line: bufLine });
       }
@@ -114,13 +115,14 @@ function evaluator(value) {
       if (fn[1] === 'min') return (W) => Math.min(...args.map((a) => a(W)));
       return (W) => Math.max(...args.map((a) => a(W)));
     }
-    const num = /^([+-]?(?:\d+\.?\d*|\.\d+))(rem|em|px|vw|vi|vmin|vmax|%)?/.exec(src.slice(pos));
+    const num = /^([+-]?(?:\d+\.?\d*|\.\d+))(rem|em|px|[dsl]?v[wihb]|vmin|vmax|%)?/.exec(src.slice(pos));
     if (!num) fail();
     pos += num[0].length;
     const n = parseFloat(num[1]);
     if (num[2] === 'rem' || num[2] === 'em') return () => n * ROOT_PX;
     if (num[2] === 'px') return () => n;
     if (num[2] === '%') return () => (n / 100) * ROOT_PX;
+    if (num[2] && /v[hb]$/.test(num[2])) return (W) => (n * W * VIEW_ASPECT) / 100;
     if (num[2]) return (W) => (n * W) / 100;
     return () => n;
   }
@@ -174,7 +176,7 @@ const PHYSICAL = /^(margin|padding|border)-(left|right)(-|$)|^(left|right)$|^bor
 
 // A font size that uses vw/vi, evaluated at zoom: [rule, severity, measured, fix] or null.
 function fluid(v, label) {
-  if (!/\d(vw|vi|vmin|vmax)\b/.test(v) || /var\(/.test(v)) return null;
+  if (!/\d([dsl]?v[wihb]|vmin|vmax)\b/.test(v) || /var\(/.test(v)) return null;
   let f = null;
   try { f = evaluator(v); } catch { return null; }
   const z = zoomProfile(f);
@@ -202,12 +204,21 @@ function lintCss(blocks, file, opts, out) {
     }
     const isRoot = /^(html|:root)$/i.test(sel);
     const hyphenated = b.decls.some((d) => /^(-webkit-)?hyphens$/.test(d.prop) && /auto/.test(d.value));
+    // The same value on both physical sides reads the same in either direction.
+    const symmetric = new Set();
+    for (const d of b.decls) {
+      const m = /^(.*?)(left|right)(.*)$/.exec(d.prop);
+      if (!m || !PHYSICAL.test(d.prop)) continue;
+      const twin = b.decls.find((t) => t.prop === `${m[1]}${m[2] === 'left' ? 'right' : 'left'}${m[3]}`);
+      if (twin && twin.value.trim().toLowerCase() === d.value.trim().toLowerCase()) symmetric.add(d);
+    }
     for (const d of b.decls) {
       const v = d.value.toLowerCase();
       const rule = `${sel} { ${d.prop}: ${d.value} }`;
 
       const sizeish = d.prop === 'font-size' || (d.prop.startsWith('--') && SIZE_TOKEN.test(d.prop));
       const fluidHit = sizeish && fluid(v, rule);
+      if (sizeish && /\d(cq[wihb]|cqmin|cqmax)\b/.test(v)) opts.skipped?.push(`container units in ${path.basename(file)}:${d.line} (${d.prop}: ${d.value}) need the container's size; measure with page-audit.js`);
       if (fluidHit) add(fluidHit[0], fluidHit[1], d, fluidHit[2], fluidHit[3]);
       if (d.prop === 'font-size' && isRoot) {
         if (/^[\d.]+px$/.test(v)) add('MT-ROOT-PX', 'HIGH', d, `${rule} overrides the reader's default size`, 'font-size: 100% (or leave it unset)');
@@ -254,11 +265,11 @@ function lintCss(blocks, file, opts, out) {
       // reads the same in either direction.
       const centred = /^(left|right)$/.test(d.prop) && v === '50%' && b.decls.some((t) =>
         (t.prop === 'transform' && /translate(x)?\(\s*-50%/i.test(t.value)) || (t.prop === 'translate' && /^-50%/.test(t.value)));
-      if (!centred && (PHYSICAL.test(d.prop) || (/^(text-align|float)$/.test(d.prop) && /^(left|right)$/.test(v)))) {
+      if (!centred && !symmetric.has(d) && (PHYSICAL.test(d.prop) || (/^(text-align|float)$/.test(d.prop) && /^(left|right)$/.test(v)))) {
         add('MT-PHYSICAL', opts.rtl ? 'HIGH' : 'LOW', d, rule, 'the logical property (margin-inline-start, text-align: start, float: inline-start...)');
       }
-      if (/^(widows|orphans)$/.test(d.prop) && /^[12]$/.test(v)) {
-        add('MT-WIDOWS', 'LOW', d, `${d.prop}: ${d.value} (2 is the initial value)`, `${d.prop}: 3`);
+      if (/^(widows|orphans)$/.test(d.prop) && v === '1') {
+        add('MT-WIDOWS', 'LOW', d, `${d.prop}: 1 leaves a single line stranded (2 is the initial value)`, `${d.prop}: 2 or more`);
       }
     }
   }
@@ -325,7 +336,11 @@ function stripLineComments(text) {
 function lintComponent(source, file, opts, out) {
   const lineAt = (index) => source.slice(0, index).split('\n').length;
   for (const m of source.matchAll(/<style([^>]*)>([\s\S]*?)<\/style>/gi)) {
-    const css = /lang=["']?(scss|sass|less)/i.test(m[1]) ? stripLineComments(m[2]) : m[2];
+    if (/lang=["']?(sass|stylus|styl)\b/i.test(m[1])) {
+      opts.skipped?.push(`${path.basename(file)}: <style${m[1]}> is indented syntax this linter does not read`);
+      continue;
+    }
+    const css = /lang=["']?(scss|less)/i.test(m[1]) ? stripLineComments(m[2]) : m[2];
     lintCss(parseCss(css, lineAt(m.index + m[0].indexOf('>') + 1) - 1), file, opts, out);
   }
   lintTailwind(source, file, opts, out);
@@ -348,6 +363,9 @@ function logicalClass(base) {
 
 function lintTailwind(source, file, opts, out) {
   const lineAt = (index) => source.slice(0, index).split('\n').length;
+  if (/class(?:Name)?=\{\s*(?!["'`]|\s)|class(?:Name)?=\{\s*`[^`]*\$\{|\s:class=|\bclass:[\w-]+=|\b(?:cn|clsx|classnames|classNames|cva|twMerge|twJoin)\(/.test(source)) {
+    opts.skipped?.push(`${path.basename(file)}: class lists built by expressions (cn(), clsx(), template literals, :class, class:) are not read`);
+  }
   const ATTR = /<([a-zA-Z][\w.-]*)\b[^<]*?\bclass(?:Name)?\s*=\s*(?:"([^"]*)"|'([^']*)'|\{\s*(?:"([^"]*)"|'([^']*)'|`([^`]*)`)\s*\})/g;
   for (const m of source.matchAll(ATTR)) {
     const tag = m[1].toLowerCase();
@@ -357,6 +375,11 @@ function lintTailwind(source, file, opts, out) {
     const line = lineAt(m.index + m[0].search(/\bclass(Name)?\s*=/));
     const add = (rule, severity, measured, fix) => out.push({ rule, severity, file, line, measured, fix });
     const reading = READING_TAG.test(tag);
+    // Physical utilities on both sides with the same value, or left-1/2 pulled back by -translate-x-1/2, read the same in either direction.
+    const twinOf = (b) => b.replace(/(^-?(?:m|p|scroll-m|scroll-p))([lr])(-)/, (x, a, side, dash) => `${a}${side === 'l' ? 'r' : 'l'}${dash}`)
+      .replace(/^(-?)(left|right)-/, (x, neg, side) => `${neg}${side === 'left' ? 'right' : 'left'}-`)
+      .replace(/^(border|rounded)-([lr])(-|$)/, (x, a, side, rest) => `${a}-${side === 'l' ? 'r' : 'l'}${rest}`);
+    const neutral = (b) => (twinOf(b) !== b && base.includes(twinOf(b))) || (/^(left|right)-1\/2$/.test(b) && base.some((t) => /^-translate-x-1\/2$/.test(t)));
 
     if (has('text-justify') && !has('hyphens-auto')) add('MT-JUSTIFY', 'MEDIUM', `<${tag}> class text-justify without hyphens-auto`, 'text-start, or hyphens-auto on a wide measure');
     base.forEach((b, i) => {
@@ -364,7 +387,7 @@ function lintTailwind(source, file, opts, out) {
       const hit = size && fluid(size[1].replace(/_/g, ' '), `<${tag}> class ${raw[i]}`);
       if (hit) add(...hit);
       const logical = logicalClass(b);
-      if (logical) add('MT-PHYSICAL', opts.rtl ? 'HIGH' : 'LOW', `<${tag}> class ${raw[i]}`, `${raw[i].replace(b, logical)} (the logical utility)`);
+      if (logical && !neutral(b)) add('MT-PHYSICAL', opts.rtl ? 'HIGH' : 'LOW', `<${tag}> class ${raw[i]}`, `${raw[i].replace(b, logical)} (the logical utility)`);
       const ls = /^tracking-\[(-?[\d.]+)px\]$/.exec(b);
       if (ls && parseFloat(ls[1]) !== 0) add('MT-LS-PX', 'LOW', `<${tag}> class ${raw[i]}`, `tracking-[${+(parseFloat(ls[1]) / 16).toFixed(3)}em]`);
       const ch = /^max-w-\[([\d.]+)ch\]$/.exec(b);
@@ -382,7 +405,7 @@ function lintTailwind(source, file, opts, out) {
 
 // ---------- files, diff, report ----------
 
-const SOURCES = /\.(css|scss|less|html?|vue|svelte|astro|jsx|tsx)$/i;
+const SOURCES = /\.(css|scss|sass|less|html?|vue|svelte|astro|jsx|tsx)$/i;
 const SKIP_DIRS = new Set(['node_modules', 'dist', 'build', 'coverage', 'vendor']);
 
 function collect(target, files) {
@@ -394,7 +417,8 @@ function collect(target, files) {
 }
 
 function lintFile(file, src, opts, out) {
-  if (/\.html?$/i.test(file)) {
+  if (/\.sass$/i.test(file)) opts.skipped?.push(`${path.basename(file)}: indented Sass syntax is not read`);
+  else if (/\.html?$/i.test(file)) {
     lintHtml(src, file, opts, out);
     lintTailwind(src, file, opts, out);
   } else if (/\.(vue|svelte|astro)$/i.test(file)) lintComponent(src, file, opts, out);
@@ -413,7 +437,8 @@ function changedLines(file, ref) {
   return lines;
 }
 
-function lint(targets, opts = {}) {
+function lint(targets, options = {}) {
+  const opts = { ...options, skipped: [] };
   const files = [];
   for (const t of targets) collect(t, files);
   let findings = [];
@@ -432,7 +457,7 @@ function lint(targets, opts = {}) {
     files,
     findings,
     verdict: high ? `Block (${high} HIGH)` : 'Approve',
-    notVerified: ['rendered measure, contrast, reflow and text spacing (run scripts/page-audit.js)'],
+    notVerified: ['rendered measure, contrast, reflow and text spacing (run scripts/page-audit.js)', ...opts.skipped],
   };
 }
 
