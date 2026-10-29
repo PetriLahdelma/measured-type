@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: h2h-zoom-hero
+expected_outcome: |
+  A fluid hero size that still grows with browser zoom, judged by rendering the page at zoom levels; the requested sizes and zoom pull against each other.

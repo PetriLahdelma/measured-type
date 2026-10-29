@@ -34,7 +34,7 @@ function luminance([r, g, b]) {
 }
 
 async function open(browser, file, width, opts = {}) {
-  const page = await browser.newPage({ viewport: { width, height: 900 } });
+  const page = await browser.newPage({ viewport: { width, height: opts.height || 900 } });
   if (opts.blockFonts) await page.route(/\.(ttf|otf|woff2?)(\?.*)?$/i, (r) => r.abort());
   await page.goto(pathToFileURL(file).href, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts.ready);
@@ -396,6 +396,27 @@ async function gradeDashboard(browser, dir) {
   return out;
 }
 
+// ---------- h2h-zoom-hero (spec 0007) ----------
+
+async function gradeZoomHero(browser, dir) {
+  const file = fixedPage(dir, 'hero');
+  const size = async (width, zoomed) => {
+    // Browser zoom on a 1280x900 window: the CSS viewport shrinks in both directions.
+    const q = await open(browser, file, width, zoomed ? { height: Math.round((900 * width) / 1280) } : {});
+    const s = await q.evaluate(() => parseFloat(getComputedStyle(document.querySelector('h1')).fontSize));
+    await q.close();
+    return s;
+  };
+  const [s1280, s640, s256, s360, s1440] = [await size(1280), await size(640, true), await size(256, true), await size(360), await size(1440)];
+  const g200 = (2 * s640) / s1280;
+  const g500 = (5 * s256) / s1280;
+  return [
+    [g500 >= 1.99, `growth ${g500.toFixed(2)}× by 500% zoom (h1 ${s1280}px at 1280, ${s256}px at 256)`],
+    [g200 >= 1.6, `growth ${g200.toFixed(2)}× at 200% zoom (h1 ${s1280}px at 1280, ${s640}px at 640)`],
+    [s360 >= 32 && s360 <= 48 && s1440 >= 60 && s1440 <= 84, `h1 ${s360}px at 360, ${s1440}px at 1440`],
+  ];
+}
+
 // ---------- h2h-measure-ideal ----------
 
 async function gradeMeasureIdeal(browser, dir) {
@@ -422,7 +443,7 @@ async function gradeMeasureIdeal(browser, dir) {
 
 async function main() {
   const [name, outputs] = process.argv.slice(2);
-  const graders = { 'h2h-page-audit': gradePageAudit, 'h2h-font-loading': gradeFontLoading, 'h2h-rtl': gradeRtl, 'h2h-dashboard': gradeDashboard, 'h2h-measure-ideal': gradeMeasureIdeal };
+  const graders = { 'h2h-page-audit': gradePageAudit, 'h2h-font-loading': gradeFontLoading, 'h2h-rtl': gradeRtl, 'h2h-dashboard': gradeDashboard, 'h2h-measure-ideal': gradeMeasureIdeal, 'h2h-zoom-hero': gradeZoomHero };
   if (!graders[name] || !outputs) {
     console.error(`usage: h2h-grade.js <${Object.keys(graders).join('|')}> <outputs-dir>`);
     process.exit(2);
