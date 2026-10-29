@@ -103,6 +103,10 @@ Fixture pages: `scripts/test/audit/`.
   nonzero when the request cannot meet them, naming the failing step.
 - **D5** Its computed sizes match Chromium's computed `font-size` at 360, 640
   and 1440px within 0.1px.
+- **D6** `--fluid-from N` keeps steps below N fixed in `rem` at their
+  large-viewport size, as `rules.md` §3.1.1 advises for body and small
+  headings, and lifts each fluid step's small-viewport size so it stays at
+  least one ratio above the step under it.
 
 ## E. Head-to-head acceptance
 
