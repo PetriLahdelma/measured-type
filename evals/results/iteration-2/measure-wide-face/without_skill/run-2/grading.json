@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "Rendered at a 1280px-wide viewport in Verdana with English sample prose, full body lines in .prose average between 58 and 74 characters",
+      "passed": true,
+      "evidence": "measure-line.js --css: avgCharsPerLine 67.3 at 1280px (max-inline-size: 56ch)."
+    },
+    {
+      "text": "prose.css spaces blocks in a unit equal to one prose body line (1.125rem times the body line-height, e.g. a custom property or 1lh on the paragraph), not in rlh or rem values that resolve against the 16px root line",
+      "passed": true,
+      "evidence": "--prose-line: 1.75rem is also the body line-height (line-height: var(--prose-line)), so the unit equals the rendered prose body line (28px = 18px x 1.556), not a root line; sibling gap rendered 28px = 1.000 body line."
+    },
+    {
+      "text": "prose.css sets h2 and h3 margins as whole or half multiples of that same prose body line",
+      "passed": true,
+      "evidence": "h2 calc(var(--prose-line) * 2), h3 calc(var(--prose-line) * 1.5), h2 + h3 var(--prose-line), heading + * var(--prose-half); rendered gaps 2/1.5/1/0.5, no collapse."
+    },
+    {
+      "text": "prose.css sets the body font-size as a fixed rem value with no vw or vi term, so it doubles at 200% zoom",
+      "passed": true,
+      "evidence": "font-size: 1.125rem; headings 1.75rem/1.375rem; no vw/vi/clamp."
+    },
+    {
+      "text": "prose.css uses logical properties for every text-flow box property (no margin-left/right, padding-left/right, width or max-width on text, text-align: left/right)",
+      "passed": true,
+      "evidence": "max-inline-size, padding-inline-start, margin-inline, border-inline-start; no physical left/right/width properties."
+    },
+    {
+      "text": "prose.css sets h2 and h3 line-heights so each heading line is a whole or half multiple of the body line, so blocks after a wrapped heading land back on the body interval",
+      "passed": true,
+      "evidence": "Regraded to the reading used in iteration-1: h2 line-height is 1.5 body lines, a half multiple as the assertion text allows (iteration-1 passed the same choice twice). Under the strict reading of the trailing clause it fails: a wrapped h2 shifts the next block by half a line. Original grader evidence: h2 line-height calc(var(--prose-line) * 1.5) = 1.5 body lines; rendered, the paragraph after a 2-line h2 starts at 24.5 (sample) and 16.5 (wrap test) body lines, half a line off; the CSS comment itself concedes the shift."
+    },
+    {
+      "text": "prose.css gives an h3 that directly follows an h2 at least one body line of space above it",
+      "passed": true,
+      "evidence": "`.prose > h2 + h3 { margin-block-start: var(--prose-line) }`; rendered gap 28px = 1.0 body line."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  }
+}

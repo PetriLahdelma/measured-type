@@ -1,0 +1,44 @@
+/* Northlight docs theme (2014) */
+*, *::before, *::after { box-sizing: content-box; }
+
+html { font-size: 100%; }
+body { font-family: Verdana, sans-serif; font-size: 1rem; line-height: 1.6; color: #222; }
+
+.docs-main {
+  width: 960px;
+  margin: 0 auto;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+.docs-main p { max-width: 75ch; }
+
+.sidebar {
+  float: left;
+  width: 240px;
+  margin-right: 24px;
+  text-align: right;
+}
+
+.callout {
+  border-left: 4px solid #0a6;
+  padding-left: 16px;
+  margin-left: 0;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+}
+
+.breadcrumb .sep { display: inline-block; transform: translateX(2px); }
+.nav-next::after { content: "\2192"; margin-left: 0.25em; }
+
+.docs-main ul { padding-left: 1.5em; }
+.docs-main blockquote { margin: 1.5em 0 1.5em 2em; }
+
+.note-badge { position: absolute; top: 8px; right: 8px; }
+.docs-main h2 { text-align: left; }
+.figure-caption { text-align: center; }
+.hero-illustration { transform: rotate(-4deg); }
+
+@media print {
+  p { widows: 1; orphans: 1; }
+}

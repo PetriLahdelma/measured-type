@@ -1,0 +1,180 @@
+/*
+ * Documentation article body.
+ * Markup: <article class="prose" lang="en"> with h2, h3, p, ul, blockquote.
+ *
+ * Face: Verdana (system font, no web font). Verdana is wide with a large
+ * x-height, so it wants a little more leading than a text serif and a
+ * shorter box than rules of thumb suggest.
+ *
+ * Measured in Chromium with measure-line.js at 18px (1.125rem on a 16px
+ * default root), Verdana rendered as a system font:
+ *   max-inline-size: 55ch  ->  66 characters per full line
+ *   (for comparison: 66ch gives about 81, 34em about 65).
+ *
+ * :root is left alone, so the reader's default size and zoom scale all of
+ * this. Every size is rem; every vertical gap is a whole or half body line.
+ */
+
+.prose {
+  /* One body line: 18px x 1.6 = 28.8px at the default root size. rlh would
+     be wrong here: the prose is larger than the root, so 1rlh is short. */
+  --body-size: 1.125rem;   /* 18px */
+  --body-leading: 1.6;
+  --line: calc(var(--body-size) * var(--body-leading));
+
+  /* Scale: 18 / 22 / 26px. Steps 1.22x and 1.18x, with bold on headings. */
+  --h3-size: 1.375rem;     /* 22px */
+  --h2-size: 1.625rem;     /* 26px */
+
+  font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+  font-size: var(--body-size);
+  line-height: var(--body-leading);       /* unitless, so children inherit the ratio */
+  font-kerning: normal;
+  font-synthesis: none;                   /* Verdana ships real bold and italic faces */
+
+  /* Measure: about 66 characters. ch tracks whichever face renders, so a
+     fallback for Verdana (absent on Android and most Linux) keeps a similar
+     count. min() lets the box shrink in narrow windows (WCAG 1.4.10). */
+  max-inline-size: min(55ch, 100%);
+  margin-inline: auto;
+
+  text-align: start;                      /* ragged; Verdana does not justify well */
+  overflow-wrap: break-word;              /* long tokens and URLs never force sideways scroll */
+
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  hyphenate-limit-chars: 6 2 3;           /* 6+ letter words, 2 before, 3 after */
+  -webkit-hyphenate-limit-before: 2;
+  -webkit-hyphenate-limit-after: 3;
+  -webkit-hyphenate-limit-lines: 3;       /* no hyphen ladders (Safari) */
+}
+
+/* ---------- Vertical rhythm ----------
+   Each gap lives in exactly one place: the top margin of the later block.
+   No bottom margins anywhere, so nothing collapses into a larger gap. */
+
+.prose > * {
+  margin-block: 0;
+}
+
+.prose > * + * {
+  margin-block-start: var(--line);        /* block paragraphs: one blank line */
+}
+
+/* ---------- Headings ----------
+   Line-height is one body line per heading line, so a heading that wraps
+   stays on the beat. Space above is larger than below, binding the heading
+   to its section:
+     h2: 2.5 above + 1 line + 0.5 below = 4 lines
+     h3: 1.5 above + 1 line + 0.5 below = 3 lines */
+
+.prose > :is(h2, h3) {
+  font-weight: 700;
+  line-height: var(--line);
+  letter-spacing: normal;
+  text-wrap: balance;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
+.prose > h2 {
+  font-size: var(--h2-size);              /* 26px on 28.8px, ratio 1.11 */
+  margin-block-start: calc(2.5 * var(--line));
+}
+
+.prose > h3 {
+  font-size: var(--h3-size);              /* 22px on 28.8px, ratio 1.31 */
+  margin-block-start: calc(1.5 * var(--line));
+}
+
+.prose > h2 + h3 {
+  margin-block-start: var(--line);
+}
+
+.prose > :is(h2, h3) + * {
+  margin-block-start: calc(0.5 * var(--line));
+}
+
+/* The first child sits at the top of the article, without the heading gap. */
+.prose > :first-child {
+  margin-block-start: 0;
+}
+
+/* ---------- Paragraphs ---------- */
+
+.prose p {
+  text-wrap: pretty;                      /* avoid one-word last lines */
+}
+
+/* ---------- Lists ---------- */
+
+.prose ul {
+  padding-inline-start: 1.25em;
+  list-style-position: outside;
+}
+
+.prose li > :is(p, ul) {
+  margin-block: 0;
+}
+
+.prose li > * + *,
+.prose li > ul {
+  margin-block-start: calc(0.5 * var(--line));
+}
+
+/* Items in one list share the body interval; a half line between items
+   would also stay on the beat, but docs lists read better tight. */
+.prose li + li {
+  margin-block-start: 0;
+}
+
+.prose li::marker {
+  color: currentColor;
+}
+
+/* ---------- Block quotations ---------- */
+
+.prose blockquote {
+  margin-inline: 0;
+  padding-inline-start: 1em;
+  border-inline-start: 0.125em solid currentColor;
+}
+
+.prose blockquote > * {
+  margin-block: 0;
+}
+
+.prose blockquote > * + * {
+  margin-block-start: var(--line);
+}
+
+/* ---------- Inline details ---------- */
+
+.prose a {
+  text-decoration-line: underline;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.15em;
+  text-decoration-skip-ink: auto;
+}
+
+.prose :is(code, a[href^="http"]) {
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
+/* ---------- Print ---------- */
+
+@media print {
+  .prose p {
+    widows: 3;
+    orphans: 3;
+  }
+
+  .prose :is(h2, h3) {
+    break-after: avoid;
+  }
+
+  .prose blockquote {
+    break-inside: avoid;
+  }
+}

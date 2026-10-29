@@ -43,4 +43,5 @@
   body line x2, logical properties without an RTL requirement x2, decoration
   left unmirrored x2, all font synthesis off, a full line between h2 and h3).
 - These runs predate the script and wording fixes made after review on
-  29 October 2026 and have not been rerun.
+  29 October 2026. Both configurations were rerun on the fixed skill as
+  iteration-2.

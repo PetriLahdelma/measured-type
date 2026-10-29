@@ -1,0 +1,156 @@
+/* ==========================================================================
+   tokens.css: type and vertical rhythm tokens for a marketing and docs site
+
+   Rationale
+   ---------
+   1. Everything is rem, and :root font-size is left at the reader's default
+      (no px on :root). Browser zoom and the reader's default-size setting
+      both scale the whole system. (WCAG 1.4.4, Bringhurst 3.1.1)
+
+   2. Reading and interface sizes are FIXED rem, so they are exactly 2x at
+      200% zoom: label 12, caption 14, small 16, body 18 (px at a 16px
+      default; the traditional 12 14 16 18 steps).
+
+   3. Fluid sizes (hero, h1, h2) ramp linearly from a 360px to a 1440px
+      viewport with clamp(min-rem, rem + vi, max-rem). The rem term keeps
+      zoom working; the vi term does not grow with zoom, so each range is
+      kept modest (1.18x to 1.31x). Worst case is a 1440px window at 200%
+      zoom (CSS viewport 720px). Measured there, text grows to:
+         hero 1.69x   h1 1.80x   h2 1.80x
+      and every fluid size passes 2x by 250% zoom (all browsers zoom to
+      500%; max/min stays far below the 2.5x limit). WCAG 1.4.4 asks that
+      text CAN reach 200%; it does, with no loss of content, because no
+      token uses a pure vw/vi value. verify-tokens.js measures all of this
+      in Chromium.
+
+   4. h3 and h4 are fixed on purpose. A narrow fluid range on them would
+      squeeze the steps on phones (h4 to h3 would fall toward 1.1x, which
+      reads as a mistake), and h3 must stay under 26.6px to sit on one
+      body line. Adjacent steps are 1.20x or more at both 360px and 1440px:
+         body 18 > h4 21.6 > h3 26 > h2 33..39 > h1 44..52 > hero 52..68
+      (hero to h1 is 1.18x on phones; the hero normally replaces the h1).
+
+   5. One body line (--line = 18px x 1.55 = 27.9px) is the vertical unit.
+      Space tokens are whole or half lines. Heading line-heights are whole
+      body lines (h4, h3: 1; h1: 2) or 1.5 lines (h2, the only size between
+      27 and 43px, where no whole line multiple gives display leading of
+      1.05 to 1.3). A single-line h2 lands back on the beat; each extra
+      wrapped h2 line drifts half a line. The hero sits outside the prose
+      rhythm and takes a unitless 1.05. --line is a custom property, not
+      1rlh, because body text (1.125rem) is not set at the root size.
+
+   6. Tracking: 0 for text sizes (lowercase is fitted by the type designer,
+      Bringhurst 2.1.7); slightly negative as display size grows (starting
+      values, tune per face); +0.08em for the uppercase label (2.1.6).
+      All in em, so tracking scales with the size it belongs to.
+
+   Notes for use
+   - Heading line-height tokens are lengths. That is safe on headings (no
+     larger children inherit them); use unitless tokens everywhere else.
+   - Put each vertical gap in one place (top margins only) so collapsing
+     margins cannot turn a half line into a full one.
+   - Tracking values are starting points: check them on the shipped face.
+   - Uppercase via text-transform, never typed capitals.
+   ========================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------------
+     Font size
+     ------------------------------------------------------------------------ */
+
+  /* Fixed: reading and interface text */
+  --font-size-label: 0.75rem;     /* 12px, uppercase only */
+  --font-size-caption: 0.875rem;  /* 14px */
+  --font-size-small: 1rem;        /* 16px */
+  --font-size-body: 1.125rem;     /* 18px */
+
+  /* Fixed: small headings (1.2x steps) */
+  --font-size-h4: 1.35rem;        /* 21.6px, 1.20x body */
+  --font-size-h3: 1.625rem;       /* 26px,   1.20x h4   */
+
+  /* Fluid: 360px -> 1440px viewport */
+  --font-size-h2: clamp(2.0625rem, 1.9375rem + 0.5556vi, 2.4375rem);   /* 33 -> 39px, 1.18x range */
+  --font-size-h1: clamp(2.75rem, 2.5833rem + 0.7407vi, 3.25rem);       /* 44 -> 52px, 1.18x range */
+  --font-size-hero: clamp(3.25rem, 2.9167rem + 1.4815vi, 4.25rem);     /* 52 -> 68px, 1.31x range */
+
+  /* ------------------------------------------------------------------------
+     Vertical unit: one body line
+     ------------------------------------------------------------------------ */
+  --line-height-body: 1.55;
+  --line: calc(var(--font-size-body) * var(--line-height-body));      /* 27.9px */
+
+  /* ------------------------------------------------------------------------
+     Line height
+     Unitless for text roles; whole or half body lines for headings.
+     ------------------------------------------------------------------------ */
+  --line-height-small: 1.5;       /* 24px   */
+  --line-height-caption: 1.4;     /* 19.6px */
+  --line-height-label: 1.35;      /* 16.2px */
+
+  --line-height-h4: var(--line);                     /* 27.9px: 1.29 at 21.6px          */
+  --line-height-h3: var(--line);                     /* 27.9px: 1.07 at 26px            */
+  --line-height-h2: calc(1.5 * var(--line));         /* 41.85px: 1.27 at 33, 1.07 at 39 */
+  --line-height-h1: calc(2 * var(--line));           /* 55.8px: 1.27 at 44, 1.07 at 52  */
+  --line-height-hero: 1.05;                          /* display, outside prose rhythm   */
+
+  /* ------------------------------------------------------------------------
+     Letter spacing
+     ------------------------------------------------------------------------ */
+  --letter-spacing-body: 0;
+  --letter-spacing-small: 0;
+  --letter-spacing-caption: 0;
+  --letter-spacing-label: 0.08em;   /* uppercase; offset centered labels with margin-inline-end: -0.08em */
+
+  --letter-spacing-h4: 0;
+  --letter-spacing-h3: -0.005em;
+  --letter-spacing-h2: -0.01em;
+  --letter-spacing-h1: -0.015em;
+  --letter-spacing-hero: -0.02em;
+
+  /* ------------------------------------------------------------------------
+     Vertical spacing: multiples of one body line
+     ------------------------------------------------------------------------ */
+  --space-quarter: calc(0.25 * var(--line));   /*   6.975px */
+  --space-half: calc(0.5 * var(--line));       /*  13.95px  */
+  --space-1: var(--line);                      /*  27.9px   */
+  --space-1-5: calc(1.5 * var(--line));        /*  41.85px  */
+  --space-2: calc(2 * var(--line));            /*  55.8px   */
+  --space-3: calc(3 * var(--line));            /*  83.7px   */
+  --space-4: calc(4 * var(--line));            /* 111.6px   */
+  --space-6: calc(6 * var(--line));            /* 167.4px   */
+
+  /* Flow inside prose: space between blocks, above and below headings.
+     Each heading block totals a whole number of lines on one line:
+       h2: 2 + 1.5 + 0.5 = 4    h3: 1.5 + 1 + 0.5 = 3    h4: 1.5 + 1 + 0.5 = 3
+       h1: 2 + 1 = 3 below the page top */
+  --space-flow: var(--space-1);
+  --space-before-h2: var(--space-2);
+  --space-before-h3: var(--space-1-5);
+  --space-before-h4: var(--space-1-5);
+  --space-after-heading: var(--space-half);
+  --space-after-h1: var(--space-1);
+
+  /* Marketing sections: stepped in whole lines, not fluid, so they stay on
+     the beat. The em query responds to zoom and default size changes. */
+  --space-section: var(--space-4);
+}
+
+@media (width >= 64em) {
+  :root {
+    --space-section: var(--space-6);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Usage sketch (not part of the tokens):
+
+   .prose { font-size: var(--font-size-body); line-height: var(--line-height-body); }
+   .prose > * { margin-block: 0; }
+   .prose > * + * { margin-block-start: var(--space-flow); }
+   .prose > h2 { font-size: var(--font-size-h2); line-height: var(--line-height-h2);
+                 letter-spacing: var(--letter-spacing-h2);
+                 margin-block-start: var(--space-before-h2); }
+   .prose > :is(h2, h3, h4) + * { margin-block-start: var(--space-after-heading); }
+   .label { font-size: var(--font-size-label); line-height: var(--line-height-label);
+            letter-spacing: var(--letter-spacing-label); text-transform: uppercase; }
+   -------------------------------------------------------------------------- */

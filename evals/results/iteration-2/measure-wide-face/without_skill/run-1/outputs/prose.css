@@ -1,0 +1,122 @@
+/*
+ * prose.css: documentation article body
+ * Markup: <article class="prose" lang="en"> with h2, h3, p, ul, blockquote.
+ * :root is untouched; all sizes are rem against the browser default root.
+ *
+ * Measure
+ * Verdana is a wide face, so 66ch would NOT give 66 characters per line.
+ * `ch` is the advance of "0", which in Verdana is 0.636em, while the average
+ * advance of running English text (spaces included) is about 0.522em
+ * (measured from Verdana.ttf hmtx over sample prose). That ratio is 0.82, so
+ * 66 characters need 66 x 0.82 = 54ch. At 1.125rem (18px) this is about
+ * 618px, or roughly 65 to 67 characters per line.
+ *
+ * Rhythm
+ * One line of body text (1.125rem x 1.6 = 1.8rem, 28.8px) is the rhythm unit.
+ * Every line-height and every vertical margin is a whole or half multiple of
+ * it, so blocks and headings always land back on the same grid.
+ */
+
+.prose {
+  --prose-font-size: 1.125rem;
+  --prose-leading: 1.6;
+  --rhythm: calc(var(--prose-font-size) * var(--prose-leading)); /* 1.8rem */
+  --rhythm-half: calc(var(--rhythm) / 2);
+
+  font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+  font-size: var(--prose-font-size);
+  line-height: var(--rhythm);
+  font-kerning: normal;
+  max-inline-size: 54ch;
+  margin-inline: auto;
+  overflow-wrap: break-word;
+}
+
+/* Reset, then space blocks with a single start margin so nothing collapses
+   unpredictably and every gap is a rhythm multiple. */
+.prose :where(h2, h3, p, ul, blockquote) {
+  margin-block: 0;
+}
+
+.prose > * + * {
+  margin-block-start: var(--rhythm);
+}
+
+/* Body copy */
+.prose p {
+  text-wrap: pretty;
+  hyphens: manual;
+}
+
+/* Headings: tighter ratio, but line boxes stay on the grid.
+   h2: 2rem on a 1.5-unit line (2.7rem, ratio 1.35)
+   h3: 1.40625rem on a 1-unit line (1.8rem, ratio 1.28) */
+.prose h2,
+.prose h3 {
+  font-weight: 700;
+  text-wrap: balance;
+  letter-spacing: -0.01em; /* Verdana is loosely tracked; tighten at display sizes */
+}
+
+.prose h2 {
+  font-size: 2rem;
+  line-height: calc(var(--rhythm) * 1.5);
+}
+
+.prose h3 {
+  font-size: 1.40625rem;
+  line-height: var(--rhythm);
+}
+
+/* Space below a heading is smaller than above it, so it binds to its section.
+   Order matters: the before-heading rules come last and win ties. */
+.prose > h2 + *,
+.prose > h3 + * {
+  margin-block-start: var(--rhythm-half);
+}
+
+.prose > * + h2 {
+  margin-block-start: calc(var(--rhythm) * 2);
+}
+
+.prose > * + h3 {
+  margin-block-start: calc(var(--rhythm) * 1.5);
+}
+
+.prose > h2 + h3 {
+  margin-block-start: var(--rhythm);
+}
+
+/* Lists */
+.prose ul {
+  padding-inline-start: 1.5em;
+  list-style-type: disc;
+}
+
+.prose li {
+  margin-block: 0;
+  padding-inline-start: 0.25em;
+}
+
+.prose li + li {
+  margin-block-start: var(--rhythm-half);
+}
+
+.prose li > :where(p, ul) {
+  margin-block: 0;
+}
+
+.prose li > * + * {
+  margin-block-start: var(--rhythm-half);
+}
+
+/* Blockquote: inline border and padding only, so the vertical grid is kept. */
+.prose blockquote {
+  padding-inline-start: 1.25em;
+  border-inline-start: 0.1875rem solid color-mix(in srgb, currentColor 35%, transparent);
+  font-style: italic;
+}
+
+.prose blockquote > * + * {
+  margin-block-start: var(--rhythm);
+}

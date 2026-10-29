@@ -1,0 +1,344 @@
+/*
+ * article.css: long-form case studies
+ * Markup: <article class="prose" lang="en"> with p, h2, h3, em, abbr,
+ * a results <table> and an uppercase .eyebrow label.
+ *
+ * Feature choices were checked against the actual font files (fontTools
+ * dump of GSUB/GPOS, fvar and OS/2). See notes.md for the reasoning.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Fonts                                                               */
+/* ------------------------------------------------------------------ */
+
+/* Source Serif 4: wght 200-900, opsz 8-60 (default 20). */
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Outfit: wght 100-900, upright only (no italic file exists). */
+@font-face {
+  font-family: "Outfit";
+  src: url("fonts/Outfit%5Bwght%5D.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * Metric-matched fallbacks, so the swap from the local font to the web
+ * font does not reflow the article. Values come from the hmtx widths of a
+ * running-text sample and the hhea/typo metrics of each file.
+ *   Source Serif 4 vs Georgia: width ratio 1.016, asc 1.036, desc 0.335
+ *   Outfit vs Arial:           width ratio 0.977, asc 1.000, desc 0.260
+ */
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia");
+  size-adjust: 101.6%;
+  ascent-override: 102%;
+  descent-override: 33%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-style: italic;
+  size-adjust: 101.6%;
+  ascent-override: 102%;
+  descent-override: 33%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Outfit Fallback";
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 97.7%;
+  ascent-override: 102.3%;
+  descent-override: 26.6%;
+  line-gap-override: 0%;
+}
+
+/* ------------------------------------------------------------------ */
+/* Article tokens                                                      */
+/* ------------------------------------------------------------------ */
+
+.prose {
+  --prose-serif: "Source Serif 4", "Source Serif 4 Fallback", Georgia, serif;
+  --prose-sans: "Outfit", "Outfit Fallback", Arial, sans-serif;
+
+  --prose-size: clamp(1.0625rem, 0.98rem + 0.35vw, 1.25rem); /* 17-20px */
+  --prose-leading: 1.6;
+  --prose-measure: 66ch;
+  --prose-space: calc(var(--prose-leading) * 1em);
+
+  --prose-ink: currentColor;
+  --prose-muted: color-mix(in srgb, currentColor 68%, transparent);
+  --prose-rule: color-mix(in srgb, currentColor 18%, transparent);
+  --prose-rule-strong: color-mix(in srgb, currentColor 55%, transparent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Body text: Source Serif 4                                           */
+/* ------------------------------------------------------------------ */
+
+.prose {
+  font-family: var(--prose-serif);
+  font-size: var(--prose-size);
+  font-weight: 400;
+  line-height: var(--prose-leading);
+  max-inline-size: var(--prose-measure);
+  margin-inline: auto;
+
+  /* opsz follows font-size: 17-20px body lands at opsz 17-20, the
+     design's text range, and smaller/larger text adapts on its own. */
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  /* liga = fi fl ff ffi ffl ft fft. No dlig/hlig worth enabling. */
+  font-variant-ligatures: common-ligatures no-discretionary-ligatures;
+
+  /* Default figures in this font are tabular lining (all 500 units).
+     In running prose use proportional oldstyle (onum + pnum) so years
+     and percentages sit in the text instead of shouting. */
+  font-variant-numeric: oldstyle-nums proportional-nums;
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-synthesis: none;
+}
+
+.prose p {
+  margin-block: 0 var(--prose-space);
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 7 3 3;
+  text-wrap: pretty;
+  hanging-punctuation: first allow-end;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+/*
+ * Acronyms (WCAG, SAP, API).
+ * The roman has real small caps: c2sc (346 glyphs) and smcp (355, incl.
+ * small-cap figures). all-small-caps applies both, so "WCAG" becomes
+ * four small caps at x-height-plus instead of a shouting cap block.
+ * Small caps need a little air: +0.05em tracking.
+ */
+.prose abbr {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+}
+
+.prose abbr[title] {
+  cursor: help;
+}
+
+/*
+ * Acronyms inside an italic passage.
+ * The italic file has NO smcp and NO c2sc. Left alone, browsers would
+ * synthesize small caps by shrinking capitals (thin, wrong weight), or,
+ * with synthesis off, print full capitals. Instead build the small caps
+ * deliberately from the italic's own capitals:
+ *   - 0.82em = the roman small-cap height (550) / cap height (670),
+ *     so roman and italic acronyms match in height;
+ *   - font-optical-sizing picks a lower opsz for the smaller size, which
+ *     sturdies the strokes, and a small wght bump closes the remaining
+ *     colour gap that scaled-down capitals always show.
+ */
+.prose em abbr,
+.prose i abbr {
+  font-variant-caps: normal;
+  font-size: 0.82em;
+  font-weight: 460;
+  letter-spacing: 0.06em;
+}
+
+.prose strong {
+  font-weight: 650;
+}
+
+/* ------------------------------------------------------------------ */
+/* Headings: Outfit                                                    */
+/* ------------------------------------------------------------------ */
+
+.prose h2,
+.prose h3 {
+  font-family: var(--prose-sans);
+  font-kerning: normal;
+  /* Outfit's liga holds fi, fl, ff, fj, tt plus wordmark ligatures for
+     lowercase "outfit/outfitted/outfitter". The f-ligatures are worth
+     keeping, and the wordmarks fire only on lowercase "outfit", which
+     case-study headings do not use; see notes.md if that changes. */
+  font-variant-ligatures: common-ligatures no-discretionary-ligatures;
+  /* Outfit's default figures are already proportional lining. */
+  font-variant-numeric: normal;
+  hyphens: manual;
+  text-wrap: balance;
+  font-synthesis: none;
+}
+
+.prose h2 {
+  font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+  margin-block: calc(var(--prose-space) * 2) calc(var(--prose-space) * 0.5);
+}
+
+.prose h3 {
+  font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  font-weight: 550;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  margin-block: calc(var(--prose-space) * 1.5) calc(var(--prose-space) * 0.35);
+}
+
+.prose h2 + h3 {
+  margin-block-start: calc(var(--prose-space) * 0.75);
+}
+
+/* Outfit has no italic. Rather than a faux oblique, emphasis inside a
+   heading borrows the real Source Serif 4 italic. */
+.prose h2 em,
+.prose h3 em {
+  font-family: var(--prose-serif);
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Acronyms in headings: Outfit has no smcp/c2sc and no case feature, so
+   keep full capitals with a touch of tracking. */
+.prose h2 abbr,
+.prose h3 abbr {
+  font-variant-caps: normal;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: 0.02em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Eyebrow label: Outfit, uppercase                                    */
+/* ------------------------------------------------------------------ */
+
+.prose .eyebrow {
+  display: block;
+  font-family: var(--prose-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-transform: uppercase;
+  /* Outfit has no case or cpsp feature, so capital spacing is manual. */
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums; /* "03 / 07" style counters */
+  font-synthesis: none;
+  color: var(--prose-muted);
+  margin-block: 0 calc(var(--prose-space) * 0.5);
+}
+
+.prose .eyebrow + h2 {
+  margin-block-start: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Results table: Outfit with tabular figures                          */
+/* ------------------------------------------------------------------ */
+
+.prose table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  margin-block: var(--prose-space) calc(var(--prose-space) * 1.25);
+  font-family: var(--prose-sans);
+  font-size: 0.9375em;
+  line-height: 1.35;
+  font-weight: 400;
+  /* tnum swaps all ten digits to 590-unit .tf forms, so columns align.
+     Outfit has only lining figures (no onum), which suits a table. */
+  font-variant-numeric: tabular-nums lining-nums;
+  font-kerning: normal;
+  font-synthesis: none;
+}
+
+.prose caption {
+  caption-side: top;
+  text-align: start;
+  font-family: var(--prose-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--prose-muted);
+  padding-block-end: 0.5em;
+}
+
+.prose th,
+.prose td {
+  padding: 0.55em 0.75em;
+  border-block-end: 1px solid var(--prose-rule);
+  vertical-align: baseline;
+  text-align: start;
+}
+
+.prose th:first-child,
+.prose td:first-child {
+  padding-inline-start: 0;
+}
+
+.prose th:last-child,
+.prose td:last-child {
+  padding-inline-end: 0;
+}
+
+/* Number columns: every column after the label column, right-aligned so
+   the tabular digits line up by place value. */
+.prose th:not(:first-child),
+.prose td:not(:first-child) {
+  text-align: end;
+}
+
+.prose thead th {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--prose-muted);
+  border-block-end-color: var(--prose-rule-strong);
+  vertical-align: bottom;
+}
+
+.prose tbody th {
+  font-weight: 500;
+}
+
+.prose tbody td {
+  font-weight: 500;
+}
+
+/* Acronyms in the table: Outfit has no small caps; plain capitals. */
+.prose table abbr {
+  font-variant-caps: normal;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 30rem) {
+  .prose table {
+    display: block;
+    overflow-x: auto;
+  }
+}

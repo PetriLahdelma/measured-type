@@ -1,0 +1,165 @@
+/*
+ * prose.css: documentation article body
+ * Markup: <article class="prose" lang="en"> with h2, h3, p, ul, blockquote.
+ * :root is left alone, so 1rem is the reader's default size (16px unless
+ * they changed it). All rules are scoped to .prose so nothing leaks into UI.
+ *
+ * Face: Verdana (system). Checked with font-features.py: roman, bold, italic
+ * and bold italic all exist as real files; no onum, tnum, smcp, c2sc or case
+ * features, and the default figures are already tabular lining. So no
+ * font-variant-* switches here (they would do nothing), and font-synthesis
+ * is off because every style we use is a real face.
+ */
+
+.prose {
+  /* One body line is the unit for every vertical gap (§2.2.2).
+     rlh would be wrong: the prose is 1.125rem, not the root size. */
+  --body-size: 1.125rem;                                   /* 18px */
+  --body-leading: 1.6;                                     /* Verdana: big x-height, dark color, 66-char measure */
+  --line: calc(var(--body-size) * var(--body-leading));    /* 28.8px */
+
+  /* Measure (§2.1.2). Verdana is wide: its zero is 0.64em, so 66ch would set
+     about 81 characters. 34.5em measured 66.1 characters per full line (range 60-71) in
+     Chromium at 18px (scripts/measure-line.js). em keeps the count stable
+     under zoom; max-inline-size lets the box shrink on narrow screens. */
+  max-inline-size: 34.5em;
+  margin-inline: auto;
+
+  font-family: Verdana, Geneva, "DejaVu Sans", sans-serif;
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  font-kerning: normal;
+  font-synthesis: none;
+  text-align: start;                 /* ragged; Verdana is a sans (§2.1.3) */
+
+  /* Hyphenation with Bringhurst's minimums (§2.4.1); needs lang="en". */
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  hyphenate-limit-chars: 6 2 3;
+  -webkit-hyphenate-limit-before: 2;
+  -webkit-hyphenate-limit-after: 3;
+  -webkit-hyphenate-limit-lines: 3;  /* Safari only (§2.4.3) */
+  overflow-wrap: break-word;         /* long URLs and identifiers in docs */
+}
+
+/* ---- Vertical rhythm ------------------------------------------------------
+ * Every gap lives in exactly one place: the top margin of the later block.
+ * No bottom margins, so nothing collapses into a larger gap than intended.
+ */
+.prose > * {
+  margin-block: 0;
+}
+
+.prose > * + * {
+  margin-block-start: var(--line);   /* block paragraphs: one blank line */
+}
+
+/* Headings: each heading line is exactly one body line, so a wrapped heading
+ * stays on the beat. Sizes: h2 24px, h3 20px (h2/h3 = 1.2); h3 is set apart
+ * from 18px body by bold weight as well as size.
+ *   h2: 2.5 above + 1 per line + 0.5 below = 4 lines
+ *   h3: 1.5 above + 1 per line + 0.5 below = 3 lines
+ * so the text after either heading lands back on the body interval.
+ * text-box trimming is deliberately not used: it would remove a fraction of
+ * a line from the heading box and push following text off the interval.
+ */
+.prose > :is(h2, h3) {
+  font-weight: 700;
+  line-height: var(--line);          /* h2 28.8/24 = 1.2; h3 28.8/20 = 1.44 */
+  letter-spacing: normal;            /* lowercase stays untracked (§2.1.7) */
+  text-wrap: balance;
+  -webkit-hyphens: manual;
+  hyphens: manual;
+}
+
+.prose > h2 {
+  font-size: 1.5rem;                 /* 24px */
+  margin-block-start: calc(2.5 * var(--line));
+}
+
+.prose > h3 {
+  font-size: 1.25rem;                /* 20px */
+  margin-block-start: calc(1.5 * var(--line));
+}
+
+/* More space above a heading than below binds it to its section. */
+.prose > :is(h2, h3) + :not(h2, h3) {
+  margin-block-start: calc(0.5 * var(--line));
+}
+
+/* h3 directly under an h2: one line between them. The pair still totals
+   whole lines: 2.5 + 1 (h2) + 1 + 1 (h3) + 0.5 = 6. */
+.prose > h2 + h3 {
+  margin-block-start: var(--line);
+}
+
+/* A heading opening the article needs no space above it. */
+.prose > :is(h2, h3):first-child {
+  margin-block-start: 0;
+}
+
+/* ---- Paragraphs ----------------------------------------------------------
+ * Docs are skimmed, so paragraphs are marked by space, never also indented
+ * (§2.3.2).
+ */
+.prose p {
+  text-indent: 0;
+  text-wrap: pretty;                 /* avoid one-word last lines (§2.4.8) */
+}
+
+/* ---- Lists ----------------------------------------------------------------
+ * Bullets hang outside the text block; item text sits on the same lines as
+ * the paragraphs. Items are separated by line breaks only, so every item
+ * stays on the beat.
+ */
+.prose ul {
+  padding-inline-start: 1.25em;
+  list-style-position: outside;
+}
+
+.prose li {
+  margin-block: 0;
+  text-wrap: pretty;
+}
+
+.prose li > :is(ul, p) {
+  margin-block: 0;
+}
+
+.prose li::marker {
+  color: currentColor;
+}
+
+/* ---- Block quotations (§2.3.3) -------------------------------------------
+ * Distinct by indent and a rule on the start edge; same size and leading as
+ * the body, so the gaps around it (one line, from the sibling rule) keep the
+ * main text on the beat. Logical properties throughout, so RTL mirrors.
+ */
+.prose blockquote {
+  margin-inline: 1.25em 0;
+  padding-inline-start: 1em;
+  border-inline-start: 2px solid currentColor;
+  font-style: italic;                /* real Verdana Italic */
+}
+
+.prose blockquote > * {
+  margin-block: 0;
+}
+
+.prose blockquote > * + * {
+  margin-block-start: var(--line);
+}
+
+/* ---- Links in text --------------------------------------------------------*/
+.prose a {
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: from-font;
+  text-decoration-skip-ink: auto;
+}
+
+/* ---- Print ----------------------------------------------------------------*/
+@media print {
+  .prose p { widows: 3; orphans: 3; }
+  .prose :is(h2, h3) { break-after: avoid; }
+  .prose blockquote { break-inside: avoid; }
+}

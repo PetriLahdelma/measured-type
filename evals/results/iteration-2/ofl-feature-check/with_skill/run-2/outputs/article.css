@@ -1,0 +1,232 @@
+/* ==========================================================================
+   article.css: long-form case studies
+   Markup: <article class="prose" lang="en"> with p, h2, h3, em, abbr,
+   a small results table and a .eyebrow label.
+   Feature choices are based on what the shipped files contain
+   (checked with font-features.py); see notes.md.
+   ========================================================================== */
+
+/* --- Faces --------------------------------------------------------------
+   Unmodified variable TTFs, served as is. Weight ranges are declared so the
+   browser maps font-weight onto the wght axis (Outfit's default instance
+   is Thin, so an undeclared range is easy to misread). Brackets in the
+   file names are percent-encoded so the URLs are valid everywhere.
+   ------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("fonts/Outfit%5Bwght%5D.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- Container, measure and the body line -------------------------------- */
+
+.prose {
+  --font-text: "Source Serif 4", Charter, "Bitstream Charter", "Sitka Text",
+    Cambria, Georgia, serif;
+  --font-ui: "Outfit", "Avenir Next", Avenir, "Segoe UI", system-ui, sans-serif;
+
+  /* Scale (rem, so reader settings and zoom scale it). Steps: 14, 16, 18,
+     22, 26 px at the default root size; every heading step is >= 1.18x. */
+  --text-label: 0.875rem;  /* eyebrow */
+  --text-data: 1rem;       /* results table */
+  --text-body: 1.125rem;   /* reading text */
+  --text-h3: 1.375rem;
+  --text-h2: 1.625rem;
+
+  --body-leading: 1.55;
+  --line: calc(var(--text-body) * var(--body-leading)); /* 18 x 1.55 = 27.9px */
+
+  --rule: color-mix(in srgb, currentColor 22%, transparent);
+
+  /* Measured, not guessed: 32em (576px at 18px) sets 66-69 characters per
+     full line of Source Serif 4 at opsz 18 in Chromium, the same at 200%
+     zoom. The rule-of-thumb 34em gives 72-73. See notes.md. */
+  max-inline-size: 32em;
+  margin-inline: auto;
+
+  font-family: var(--font-text);
+  font-size: var(--text-body);
+  line-height: var(--body-leading);
+  font-weight: 400;
+  font-kerning: normal;
+  font-optical-sizing: auto;          /* opsz follows the size: 18 here */
+  font-synthesis: none;               /* no fake bold, italic or small caps */
+  font-variant-numeric: oldstyle-nums proportional-nums; /* roman and italic both have onum + pnum; the default digits are tabular lining */
+
+  text-align: start;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
+  -webkit-hyphenate-limit-before: 3;
+  -webkit-hyphenate-limit-after: 3;
+  -webkit-hyphenate-limit-lines: 3;
+  overflow-wrap: break-word;           /* long URLs or tokens never force sideways scroll */
+}
+
+/* Vertical rhythm: every gap lives in one place, as a top margin, in steps
+   of the body line. No bottom margins, so nothing collapses unexpectedly. */
+.prose > * { margin-block: 0; }
+.prose > * + * { margin-block-start: var(--line); }
+
+/* --- Paragraphs ----------------------------------------------------------
+   Block paragraphs (one blank line), no indent: case studies are scanned as
+   much as read. Never both. */
+.prose p { text-wrap: pretty; }
+
+/* --- Headings (Outfit) ---------------------------------------------------
+   Line-height is one body line, so a heading that wraps stays on the beat.
+   h2 = 2.5 + 1 + 0.5 = 4 lines, h3 = 1.5 + 1 + 0.5 = 3 lines (one line
+   each when unwrapped), so the text after either returns to the interval. */
+.prose :is(h2, h3) {
+  font-family: var(--font-ui);
+  line-height: var(--line);
+  font-variant-numeric: lining-nums proportional-nums; /* Outfit's default figures already are; stated for clarity */
+  font-variant-caps: normal;  /* Outfit has no smcp/c2sc: acronyms stay full caps */
+  -webkit-hyphens: manual;
+  hyphens: manual;
+  text-wrap: balance;
+}
+
+.prose > h2 {
+  font-size: var(--text-h2);    /* 26px on 27.9px: ratio 1.07 */
+  font-weight: 600;
+  letter-spacing: -0.01em;      /* slight tightening at display size */
+  margin-block-start: calc(2.5 * var(--line));
+}
+
+.prose > h3 {
+  font-size: var(--text-h3);    /* 22px on 27.9px: ratio 1.27 */
+  font-weight: 600;
+  margin-block-start: calc(1.5 * var(--line));
+}
+
+.prose > :is(h2, h3) + * { margin-block-start: calc(0.5 * var(--line)); }
+.prose > h2 + h3 { margin-block-start: var(--line); }
+
+/* --- Eyebrow (Outfit, uppercase) -----------------------------------------
+   text-transform keeps the real casing in the DOM. Caps get +8% tracking;
+   word-spacing opens with it. Outfit has no `case` feature, so none is
+   requested. One body line tall, so it sits on the beat; above a heading
+   it takes over the heading's space and the pair stays a whole number of
+   lines (2.5 + 1 + 1 + 0.5 = 5 for an h2). */
+.prose .eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--text-label);
+  font-weight: 600;
+  line-height: var(--line);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  word-spacing: 0.08em;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-variant-caps: normal;
+  -webkit-hyphens: manual;
+  hyphens: manual;
+}
+
+.prose > * + .eyebrow:has(+ h2) { margin-block-start: calc(2.5 * var(--line)); }
+.prose > * + .eyebrow:has(+ h3) { margin-block-start: calc(1.5 * var(--line)); }
+.prose > .eyebrow + :is(h2, h3) { margin-block-start: 0; }
+
+/* --- Emphasis and acronyms ---------------------------------------------- */
+
+.prose em { font-style: italic; }   /* the real italic file */
+
+/* Acronyms in running text: true small caps from the roman (c2sc + smcp,
+   ~350 glyphs each, A-Z and accented capitals covered), spaced 5%. */
+.prose abbr {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.05em;
+  text-decoration: none;            /* the small caps are the marking */
+}
+
+/* The italic file has neither smcp nor c2sc. With font-synthesis: none a
+   browser would leave the letters alone anyway; resetting here makes that
+   explicit and gives the full caps the lighter tracking caps want in text.
+   Emphasis is kept: no upright small caps inside an italic passage. */
+.prose em abbr {
+  font-variant-caps: normal;
+  letter-spacing: 0.03em;
+}
+
+/* Outside running text, acronyms match their surroundings. */
+.prose :is(h2, h3, .eyebrow, table) abbr {
+  font-variant-caps: normal;
+  letter-spacing: inherit;
+}
+
+/* --- Results table (Outfit, tabular figures) ----------------------------
+   Outfit's default figures are proportional lining; its tnum covers 0-9,
+   so columns of numbers align. Every row (and the caption) is exactly one
+   body line: the rules are drawn with an inset shadow, which takes no
+   space, so the table is a whole number of lines for any row count and
+   the text after it returns to the interval. */
+.prose table {
+  font-family: var(--font-ui);
+  font-size: var(--text-data);
+  line-height: var(--line);         /* 16px on 27.9px: an open ledger row */
+  font-variant-numeric: lining-nums tabular-nums;
+  font-variant-caps: normal;
+  border-collapse: separate;
+  border-spacing: 0;
+  /* Natural width: numbers stay close to their labels instead of being
+     pushed to the far edge of the measure. */
+  max-inline-size: 100%;
+  -webkit-hyphens: manual;
+  hyphens: manual;
+}
+
+.prose :is(th, td) {
+  padding-block: 0;
+  padding-inline: 2em 0;            /* gutter before each number column */
+  box-shadow: inset 0 -1px 0 var(--rule);
+  text-align: end;                  /* numbers align on their last digit */
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.prose :is(th, td):first-child {
+  padding-inline-start: 0;
+  text-align: start;                /* row labels read from the start edge */
+  white-space: normal;
+}
+
+.prose thead th {
+  font-weight: 600;
+  box-shadow: inset 0 -1px 0 currentColor;
+}
+
+.prose tbody th { font-weight: 400; }
+
+.prose caption {
+  caption-side: top;
+  text-align: start;
+  font-weight: 400;                 /* the header row carries the weight */
+}
+
+/* --- Print ---------------------------------------------------------------- */
+
+@media print {
+  .prose { max-inline-size: none; }
+  .prose p { widows: 3; orphans: 3; }
+  .prose :is(h2, h3, .eyebrow) { break-after: avoid; }
+  .prose table { break-inside: avoid; }
+}

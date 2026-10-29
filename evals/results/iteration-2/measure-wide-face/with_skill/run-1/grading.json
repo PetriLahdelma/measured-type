@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "Rendered at a 1280px-wide viewport in Verdana with English sample prose, full body lines in .prose average between 58 and 74 characters",
+      "passed": true,
+      "evidence": "measure-line.js --css: avgCharsPerLine 66.0 at 1280px (max-inline-size: min(55ch, 100%))."
+    },
+    {
+      "text": "prose.css spaces blocks in a unit equal to one prose body line (1.125rem times the body line-height, e.g. a custom property or 1lh on the paragraph), not in rlh or rem values that resolve against the 16px root line",
+      "passed": true,
+      "evidence": "--line: calc(var(--body-size) * var(--body-leading)) = 1.125rem x 1.6; `.prose > * + * { margin-block-start: var(--line) }`; rendered p-to-ul/blockquote gaps 28.8px = 1.000 body line."
+    },
+    {
+      "text": "prose.css sets h2 and h3 margins as whole or half multiples of that same prose body line",
+      "passed": true,
+      "evidence": "h2 calc(2.5 * var(--line)), h3 calc(1.5 * var(--line)), h2 + h3 var(--line), heading + * calc(0.5 * var(--line)); no bottom margins, rendered gaps 2.5/1.5/1/0.5 lines, no collapse."
+    },
+    {
+      "text": "prose.css sets the body font-size as a fixed rem value with no vw or vi term, so it doubles at 200% zoom",
+      "passed": true,
+      "evidence": "--body-size: 1.125rem, font-size: var(--body-size); headings 1.375rem/1.625rem; no vw/vi/clamp."
+    },
+    {
+      "text": "prose.css uses logical properties for every text-flow box property (no margin-left/right, padding-left/right, width or max-width on text, text-align: left/right)",
+      "passed": true,
+      "evidence": "Uses max-inline-size, margin-inline, padding-inline-start, border-inline-start, text-align: start; grep finds no physical left/right/width properties."
+    },
+    {
+      "text": "prose.css sets h2 and h3 line-heights so each heading line is a whole or half multiple of the body line, so blocks after a wrapped heading land back on the body interval",
+      "passed": true,
+      "evidence": "`:is(h2, h3) { line-height: var(--line) }`, rendered line box 28.8px = 1.00 body line; after 1/2/3/4-line h2 the next block top lands at 6/16/27/39 body lines."
+    },
+    {
+      "text": "prose.css gives an h3 that directly follows an h2 at least one body line of space above it",
+      "passed": true,
+      "evidence": "`.prose > h2 + h3 { margin-block-start: var(--line) }`; rendered gap h2 bottom to h3 top 28.8px = 1.0 body line."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1
+  }
+}

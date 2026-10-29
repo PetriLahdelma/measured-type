@@ -1,0 +1,135 @@
+/*
+ * prose.css: documentation article body
+ * Markup: <article class="prose" lang="en"> with h2, h3, p, ul, blockquote.
+ *
+ * Measure
+ *   Verdana is a wide face. Measured in Chromium at 18px (1.125rem on the
+ *   default 16px root): average English character = 0.516em, "0" = 0.636em.
+ *   So 1ch is about 1.23 average characters, and 66 characters need about
+ *   34-35em, not 66ch (66ch would give roughly 81 characters per line).
+ *   Wrapping real paragraphs at 56ch (about 35.6em, 641px) with
+ *   text-wrap: pretty averaged 66.7 characters per full line (55ch gave
+ *   64.8, 57ch gave 69.0). ch is used so the measure follows the
+ *   fallback face if Verdana is missing.
+ *
+ * Rhythm
+ *   One baseline unit: --prose-line = 1.75rem (28px, line-height 1.556 for
+ *   18px body text; Verdana's tall x-height wants generous leading).
+ *   Every line-height and vertical margin is a whole or half multiple of
+ *   it, in rem so headings with larger font sizes stay on the same grid.
+ *   Spacing is applied with margin-block-start only (no collapsing to
+ *   reason about). A one-line h2 occupies 1.5 lines, so the half-line gap
+ *   under it lands the next block back on the grid; an h2 that wraps to
+ *   two lines shifts later content by half a line, which is the accepted
+ *   trade for not setting 28px type on a 56px line.
+ */
+
+.prose {
+  --prose-line: 1.75rem;              /* 28px baseline unit */
+  --prose-half: calc(var(--prose-line) / 2); /* 14px */
+
+  max-inline-size: 56ch;              /* about 66 characters of Verdana */
+  font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+  font-size: 1.125rem;                /* 18px on the default root */
+  line-height: var(--prose-line);
+  font-kerning: normal;
+  overflow-wrap: break-word;
+  hyphens: manual;
+}
+
+/* Reset block margins, then space siblings by one line. */
+.prose > *,
+.prose blockquote > * {
+  margin-block: 0;
+}
+
+.prose > * + * {
+  margin-block-start: var(--prose-line);
+}
+
+/* Headings
+ * h2: 28px type on a 42px line (1.5 lines).  2 lines above + 0.5 below
+ *     = 4 lines total for a one-line heading, so the following text
+ *     returns to the grid.
+ * h3: 22px type on a 28px line (1 line).     1.5 lines above + 0.5 below
+ *     = 3 lines total.
+ * Verdana has no semibold; 700 is its only heavier weight.
+ */
+.prose h2,
+.prose h3 {
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+.prose h2 {
+  font-size: 1.75rem;
+  line-height: calc(var(--prose-line) * 1.5);
+  letter-spacing: -0.01em;
+}
+
+.prose h3 {
+  font-size: 1.375rem;
+  line-height: var(--prose-line);
+}
+
+.prose > * + h2 {
+  margin-block-start: calc(var(--prose-line) * 2);
+}
+
+.prose > * + h3 {
+  margin-block-start: calc(var(--prose-line) * 1.5);
+}
+
+/* Pull content tight to the heading it belongs to. */
+.prose > h2 + *,
+.prose > h3 + * {
+  margin-block-start: var(--prose-half);
+}
+
+/* h3 directly under h2: one full line keeps the h3 and the text after it
+ * on the grid (h2 1.5 + gap 1 + h3 1 + gap 0.5 = 4 lines). */
+.prose > h2 + h3 {
+  margin-block-start: var(--prose-line);
+}
+
+/* Paragraphs */
+.prose p {
+  text-wrap: pretty;
+}
+
+/* Lists: items share the paragraph line-height, no extra gap, so the list
+ * stays on the grid; the list as a whole gets the normal block space. */
+.prose ul {
+  padding-inline-start: 1.5em;
+}
+
+.prose li {
+  margin-block: 0;
+  padding-inline-start: 0.25em;
+}
+
+.prose li::marker {
+  color: currentColor;
+}
+
+/* Blockquote: indented with a rule, same size and line-height as body so
+ * it stays on the grid; inner paragraphs are spaced like top-level ones. */
+.prose blockquote {
+  margin-inline: 0;
+  padding-inline-start: calc(1.25em - 4px);
+  border-inline-start: 4px solid currentColor;
+  font-style: italic;
+}
+
+.prose blockquote > * + * {
+  margin-block-start: var(--prose-line);
+}
+
+/* No stray space at the edges of the article. */
+.prose > :first-child {
+  margin-block-start: 0;
+}
+
+.prose > :last-child {
+  margin-block-end: 0;
+}

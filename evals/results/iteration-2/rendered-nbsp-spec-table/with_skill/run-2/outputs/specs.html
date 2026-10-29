@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laptop specs</title>
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --surface: #ffffff;
+    --text: #1b1b1a;
+    --muted: #5e5c57;
+    --rule: #e3e0da;
+    --rule-strong: #c9c5bd;
+    --accent: #1d4ed8;
+    --accent-text: #ffffff;
+
+    --size-body: 1rem;
+    --size-small: 0.875rem;
+    --size-title: 1.75rem;
+    --leading: 1.5;
+    --line: calc(var(--size-body) * var(--leading)); /* one body line = 1.5rem */
+
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141413;
+      --surface: #1c1c1b;
+      --text: #ecebe7;
+      --muted: #a5a29b;
+      --rule: #2f2e2b;
+      --rule-strong: #46443f;
+      --accent: #8fb0ff;
+      --accent-text: #0f1530;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: var(--size-body);
+    line-height: var(--leading);
+    font-kerning: normal;
+    font-synthesis: none;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  main {
+    max-inline-size: 48rem;
+    margin-inline: auto;
+    padding-block: calc(var(--line) * 2);
+    padding-inline: 1rem;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: calc(var(--line) / 2) 1rem;
+    margin-block-end: var(--line);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: var(--size-title);
+    line-height: calc(var(--line) * 1.5); /* 2.25rem: whole half-lines keep the beat */
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  /* Language switch: a segmented pair of toggle buttons */
+  .lang-switch {
+    display: inline-flex;
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    padding: 2px;
+    background: var(--surface);
+  }
+  .lang-switch button {
+    font: inherit;
+    font-size: var(--size-small);
+    line-height: 1.25rem;
+    min-block-size: 2.25rem;
+    padding-inline: 0.875rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .lang-switch button[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600;
+  }
+  .lang-switch button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* The table scrolls inside its own box at very narrow widths,
+     so the page itself never scrolls sideways (WCAG 1.4.10 data-table exception). */
+  .table-wrap {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 0.5rem;
+  }
+
+  table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: lining-nums tabular-nums; /* §3.2.1: tabular lining figures in tables */
+  }
+
+  caption {
+    caption-side: bottom;
+    text-align: start;
+    padding-block: calc(var(--line) / 2);
+    padding-inline: 1rem;
+    font-size: var(--size-small);
+    line-height: 1.25rem;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  th, td {
+    padding-block: calc(var(--line) / 2 - 1px);
+    padding-inline: 1rem;
+    border-block-end: 1px solid var(--rule);
+    vertical-align: baseline;
+  }
+  tbody tr:last-child th,
+  tbody tr:last-child td { border-block-end: 0; }
+
+  thead th {
+    font-weight: 600;
+    text-align: end;
+    border-block-end-color: var(--rule-strong);
+    white-space: nowrap;
+  }
+  thead th:first-child { text-align: start; }
+
+  tbody th {
+    font-weight: 400;
+    text-align: start;
+    color: var(--muted);
+  }
+
+  td {
+    text-align: end;
+    white-space: nowrap; /* §2.4.6: belt and braces with the no-break spaces */
+  }
+
+  tr.price td { font-weight: 600; }
+
+  /* Keep the row labels in view when the table scrolls on a phone */
+  tbody th, thead th:first-child {
+    position: sticky;
+    inset-inline-start: 0;
+    background: var(--surface);
+  }
+  @media (max-width: 30rem) {
+    th, td { padding-inline: 0.625rem; }
+    caption { padding-inline: 0.625rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 id="title">Compare laptops</h1>
+    <div class="lang-switch" role="group" aria-labelledby="lang-label">
+      <span id="lang-label" hidden>Language</span>
+      <button type="button" data-lang="en" lang="en" aria-pressed="true">English</button>
+      <button type="button" data-lang="fi" lang="fi" aria-pressed="false">Suomi</button>
+    </div>
+  </header>
+
+  <div class="table-wrap" role="region" aria-labelledby="title" tabindex="0">
+    <table>
+      <caption id="caption"></caption>
+      <thead><tr id="head"></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+(() => {
+  const NBSP = ' ';
+
+  /* Data: raw numbers only. Formatting happens per locale at render time. */
+  const models = [
+    { name: 'Aero 13',   weight: 1.24, battery: 52,   storage: { value: 512, unit: 'GB' }, display: 13.6, life: 18, price: 1299 },
+    { name: 'Studio 15', weight: 1.55, battery: 72,   storage: { value: 1,   unit: 'TB' }, display: 15.3, life: 15, price: 1899 },
+    { name: 'Pro 16',    weight: 2.1,  battery: 99.5, storage: { value: 2,   unit: 'TB' }, display: 16.2, life: 22, price: 2799 }
+  ];
+
+  /* Copy and unit labels per language. Unit labels live here rather than in
+     Intl `style: 'unit'`: that style emits a plain space, and in Finnish it
+     would print Gt/Tt where Finnish retail writes GB/TB. */
+  const strings = {
+    en: {
+      locale: 'en-GB',
+      docTitle: 'Laptop specs',
+      title: 'Compare laptops',
+      langLabel: 'Language',
+      spec: 'Specification',
+      caption: 'Battery life as quoted by the manufacturer. Prices include VAT.',
+      rows: {
+        weight: 'Weight', battery: 'Battery', storage: 'Storage',
+        display: 'Display', life: 'Battery life', price: 'Price'
+      },
+      units: { kg: 'kg', Wh: 'Wh', GB: 'GB', TB: 'TB', inch: ['', 'in'], h: 'h' },
+      upTo: 'up to'
+    },
+    fi: {
+      locale: 'fi-FI',
+      docTitle: 'Kannettavien tekniset tiedot',
+      title: 'Vertaa kannettavia',
+      langLabel: 'Kieli',
+      spec: 'Ominaisuus',
+      caption: 'Akunkesto valmistajan ilmoittama. Hinnat sisältävät arvonlisäveron.',
+      rows: {
+        weight: 'Paino', battery: 'Akku', storage: 'Tallennustila',
+        display: 'Näyttö', life: 'Akunkesto', price: 'Hinta'
+      },
+      /* Finnish writes the inch mark (double prime) closed up: 13,6″ */
+      units: { kg: 'kg', Wh: 'Wh', GB: 'GB', TB: 'TB', inch: ['″', null], h: 'h' },
+      upTo: 'jopa'
+    }
+  };
+
+  /* number + unit, bound with a no-break space (§2.4.6) */
+  function withUnit(n, unit, nf) {
+    return nf.format(n) + NBSP + unit;
+  }
+
+  function render(lang) {
+    const t = strings[lang];
+    const nf = new Intl.NumberFormat(t.locale, { maximumFractionDigits: 2 });
+    /* Intl currency output already uses U+00A0 (fi: "1 299 €"); en: "€1,299" */
+    const cur = new Intl.NumberFormat(t.locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+
+    const inch = (n) => {
+      const [closed, spaced] = t.units.inch;
+      return spaced ? withUnit(n, spaced, nf) : nf.format(n) + closed;
+    };
+
+    const rows = [
+      ['weight',  m => withUnit(m.weight, t.units.kg, nf)],
+      ['battery', m => withUnit(m.battery, t.units.Wh, nf)],
+      ['storage', m => withUnit(m.storage.value, t.units[m.storage.unit], nf)],
+      ['display', m => inch(m.display)],
+      /* bind the qualifier to its number too: "up to 18 h", "jopa 18 h" */
+      ['life',    m => t.upTo.replace(/ /g, NBSP) + NBSP + withUnit(m.life, t.units.h, nf)],
+      ['price',   m => cur.format(m.price)]
+    ];
+
+    document.documentElement.lang = lang;
+    document.title = t.docTitle;
+    document.getElementById('title').textContent = t.title;
+    document.getElementById('lang-label').textContent = t.langLabel;
+    document.getElementById('caption').textContent = t.caption;
+
+    const head = document.getElementById('head');
+    head.replaceChildren();
+    const corner = document.createElement('th');
+    corner.scope = 'col';
+    corner.textContent = t.spec;
+    head.append(corner);
+    for (const m of models) {
+      const th = document.createElement('th');
+      th.scope = 'col';
+      th.textContent = m.name.replace(/ /g, NBSP); /* keep "Aero 13" together */
+      head.append(th);
+    }
+
+    const body = document.getElementById('body');
+    body.replaceChildren();
+    for (const [key, fmt] of rows) {
+      const tr = document.createElement('tr');
+      if (key === 'price') tr.className = 'price';
+      const th = document.createElement('th');
+      th.scope = 'row';
+      th.textContent = t.rows[key];
+      tr.append(th);
+      for (const m of models) {
+        const td = document.createElement('td');
+        td.textContent = fmt(m);
+        tr.append(td);
+      }
+      body.append(tr);
+    }
+
+    for (const b of document.querySelectorAll('.lang-switch button')) {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+    }
+    try { localStorage.setItem('specs-lang', lang); } catch (e) { /* storage unavailable */ }
+  }
+
+  document.querySelector('.lang-switch').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-lang]');
+    if (b) render(b.dataset.lang);
+  });
+
+  let initial = 'en';
+  try {
+    const saved = localStorage.getItem('specs-lang');
+    if (saved && strings[saved]) initial = saved;
+  } catch (e) { /* storage unavailable */ }
+  render(initial);
+})();
+</script>
+</body>
+</html>

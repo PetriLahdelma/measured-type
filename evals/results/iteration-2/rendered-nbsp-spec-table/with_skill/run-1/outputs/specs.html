@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laptop specs</title>
+<style>
+  :root {
+    --text: #1d1f22;
+    --muted: #5b6068;
+    --rule: #d9dce1;
+    --rule-strong: #1d1f22;
+    --surface: #ffffff;
+    --accent: #1f4fd1;
+    --accent-ink: #ffffff;
+    --body: 1rem;
+    --small: 0.875rem;
+    --h1: 1.75rem;
+    --leading: 1.5;
+    --line: calc(var(--body) * var(--leading)); /* one body line, 24px at default size */
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text: #e8eaed;
+      --muted: #a3a8b0;
+      --rule: #3a3e45;
+      --rule-strong: #e8eaed;
+      --surface: #16181b;
+      --accent: #8fb0ff;
+      --accent-ink: #0d1530;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--surface);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: var(--body);
+    line-height: var(--leading);
+    font-kerning: normal;
+    font-synthesis: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  main {
+    max-inline-size: 48rem;
+    margin-inline: auto;
+    padding-block: calc(var(--line) * 2);
+    padding-inline: 1rem;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: calc(var(--line) / 2) 1rem;
+    margin-block-end: var(--line);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: var(--h1);
+    line-height: calc(var(--line) * 1.5); /* a whole number of half-lines keeps the beat */
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  /* Language switch: a two-option segmented control */
+  .lang-switch {
+    display: inline-flex;
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    padding: 2px;
+  }
+  .lang-switch button {
+    font: inherit;
+    font-size: var(--small);
+    line-height: 1.5;
+    letter-spacing: 0.06em;           /* caps get positive tracking (§2.1.6) */
+    text-transform: uppercase;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    padding-block: 0.25rem;
+    padding-inline: 0.875rem;
+    min-block-size: 2.25rem;
+    cursor: pointer;
+  }
+  .lang-switch button[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .lang-switch button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Interface/data text: no paragraph rules, lining tabular figures (§3.2.1) */
+  .table-wrap {
+    overflow-x: auto;                 /* last resort only; the narrow layout fits at 320px */
+    margin-inline: -0.25rem;
+    padding-inline: 0.25rem;
+  }
+
+  table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  caption {
+    caption-side: bottom;
+    text-align: start;
+    color: var(--muted);
+    font-size: var(--small);
+    line-height: var(--line);
+    padding-block-start: calc(var(--line) / 2);
+    text-wrap: pretty;
+  }
+
+  th, td {
+    padding-block: calc(var(--line) / 2 - 1px);
+    padding-inline: 0.5rem;
+    border-block-end: 1px solid var(--rule);
+    vertical-align: baseline;
+  }
+  th:first-child, td:first-child { padding-inline-start: 0; }
+  th:last-child, td:last-child { padding-inline-end: 0; }
+
+  thead th {
+    border-block-end: 2px solid var(--rule-strong);
+    font-weight: 650;
+    text-align: end;
+  }
+  thead th:first-child { text-align: start; }
+
+  tbody th {
+    text-align: start;
+    font-weight: 500;
+    hyphens: auto;                    /* long Finnish compounds in narrow columns (§2.4.5) */
+    hyphenate-limit-chars: 6 2 3;
+    overflow-wrap: break-word;
+  }
+
+  td {
+    text-align: end;                  /* numbers set flush to the end edge, logical */
+    white-space: nowrap;              /* belt and braces next to the no-break spaces (§2.4.6) */
+  }
+
+  tbody tr:last-child th,
+  tbody tr:last-child td {
+    font-weight: 650;
+    border-block-end: 2px solid var(--rule-strong);
+  }
+
+  /* Narrow screens: each spec becomes a label line over a three-value grid,
+     so the values never need sideways scrolling (WCAG 1.4.10). Explicit ARIA
+     roles set in the script keep table semantics when display changes. */
+  @media (max-width: 34rem) {
+    table { display: flex; flex-direction: column; }
+    thead, tbody { display: block; }
+    tr {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: 0.75rem;
+      border-block-end: 1px solid var(--rule);
+    }
+    th, td { padding-inline: 0; border-block-end: 0; }
+    thead tr { border-block-end: 2px solid var(--rule-strong); }
+    thead th { border-block-end: 0; }
+    thead th:first-child {
+      position: absolute; inline-size: 1px; block-size: 1px;
+      overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+    }
+    tbody th[scope="row"] {
+      grid-column: 1 / -1;
+      padding-block-end: 0;
+      color: var(--muted);
+      font-size: var(--small);
+      line-height: var(--line);
+    }
+    tbody td { padding-block-start: 0; }
+    tbody tr:last-child { border-block-end: 2px solid var(--rule-strong); }
+    tbody tr:last-child th, tbody tr:last-child td { border-block-end: 0; }
+    caption { display: block; order: 1; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 id="title"></h1>
+    <div class="lang-switch" role="group" id="lang-group">
+      <button type="button" data-lang="en" lang="en">EN</button>
+      <button type="button" data-lang="fi" lang="fi">FI</button>
+    </div>
+  </header>
+
+  <div class="table-wrap">
+    <table id="specs" role="table" aria-labelledby="title" aria-describedby="caption">
+      <caption id="caption"></caption>
+      <thead role="rowgroup"><tr id="head-row" role="row"></tr></thead>
+      <tbody id="body" role="rowgroup"></tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  // Raw values only. Formatting is done per locale at render time.
+  const DATA = {
+    models: [
+      { id: 'vire13', name: 'Vire 13' },
+      { id: 'vire15', name: 'Vire 15' },
+      { id: 'vire16', name: 'Vire 16 Pro' }
+    ],
+    specs: [
+      { key: 'weight',      unit: 'kg',   values: [1.24, 1.55, 2.1] },
+      { key: 'battery',     unit: 'Wh',   values: [52, 72, 99.5] },
+      { key: 'storage',     unit: 'byte', values: [512e9, 1e12, 2e12] },
+      { key: 'display',     unit: 'inch', values: [13.6, 15.3, 16.2] },
+      { key: 'batteryLife', unit: 'hour', values: [18, 15, 22], qualifier: 'upTo' },
+      { key: 'price',       unit: 'EUR',  values: [1299, 1899, 2799] }
+    ]
+  };
+
+  // Labels and unit suffixes live in the translation strings, so the house
+  // style decides them. Each suffix carries its own joiner: a no-break space
+  // before an abbreviation (1,24 kg), none before the inch mark (13,6″).
+  // Finnish uses Gt/Tt and the inch mark, which also keeps the narrow layout
+  // from overflowing; "tuumaa" did not fit three columns at 320px.
+  const STRINGS = {
+    en: {
+      locale: 'en-GB',
+      title: 'Compare laptops',
+      caption: 'Battery life is the manufacturer’s figure for video playback. Prices include VAT.',
+      switchLabel: 'Language',
+      spec: 'Specification',
+      labels: {
+        weight: 'Weight', battery: 'Battery', storage: 'Storage',
+        display: 'Display', batteryLife: 'Battery life', price: 'Price'
+      },
+      units: { kg: '\u00A0kg', Wh: '\u00A0Wh', GB: '\u00A0GB', TB: '\u00A0TB', inch: '\u00A0in', hour: '\u00A0h' },
+      upTo: 'up to'
+    },
+    fi: {
+      locale: 'fi-FI',
+      title: 'Vertaa kannettavia',
+      caption: 'Akunkesto on valmistajan ilmoittama videotoiston kesto. Hinnat sisältävät arvonlisäveron.',
+      switchLabel: 'Kieli',
+      spec: 'Ominaisuus',
+      labels: {
+        weight: 'Paino', battery: 'Akku', storage: 'Tallennustila',
+        display: 'Näyttö', batteryLife: 'Akunkesto', price: 'Hinta'
+      },
+      units: { kg: '\u00A0kg', Wh: '\u00A0Wh', GB: '\u00A0Gt', TB: '\u00A0Tt', inch: '\u2033', hour: '\u00A0h' },
+      upTo: 'jopa'
+    }
+  };
+
+  const NBSP = ' ';
+  // Intl output can contain plain spaces (unit style) or U+202F (some locales);
+  // normalise every internal space to one no-break space so nothing splits.
+  const bind = (s) => s.replace(/[  ]/g, NBSP);
+
+  function formatValue(spec, value, t) {
+    const loc = t.locale;
+    let out;
+    if (spec.unit === 'EUR') {
+      out = new Intl.NumberFormat(loc, {
+        style: 'currency', currency: 'EUR', maximumFractionDigits: 0
+      }).format(value);                        // en-GB "€1,299", fi "1 299 €"
+    } else if (spec.unit === 'byte') {
+      const tb = value >= 1e12;
+      const n = tb ? value / 1e12 : value / 1e9;
+      out = new Intl.NumberFormat(loc).format(n) + (tb ? t.units.TB : t.units.GB);
+    } else {
+      const n = new Intl.NumberFormat(loc, { maximumFractionDigits: 2 }).format(value);
+      out = n + t.units[spec.unit];            // decimal comma in Finnish: 1,24 kg
+    }
+    if (spec.qualifier) out = t[spec.qualifier] + NBSP + out; // "jopa 18 h", never a stranded "jopa"
+    return bind(out);
+  }
+
+  function el(tag, attrs, text) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) node.setAttribute(k, v);
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  function render(lang) {
+    const t = STRINGS[lang] || STRINGS.en;
+    document.documentElement.lang = lang;     // drives hyphenation, quotes, screen-reader voice
+    document.title = t.title;
+    document.getElementById('title').textContent = t.title;
+    document.getElementById('caption').textContent = t.caption;
+    document.getElementById('lang-group').setAttribute('aria-label', t.switchLabel);
+
+    const head = document.getElementById('head-row');
+    head.replaceChildren(
+      el('th', { scope: 'col', role: 'columnheader' }, t.spec),
+      ...DATA.models.map((m) => el('th', { scope: 'col', role: 'columnheader' }, m.name))
+    );
+
+    const body = document.getElementById('body');
+    body.replaceChildren(...DATA.specs.map((spec) => {
+      const tr = el('tr', { 'data-spec': spec.key, role: 'row' });
+      tr.append(el('th', { scope: 'row', role: 'rowheader' }, t.labels[spec.key]));
+      spec.values.forEach((v) => tr.append(el('td', { role: 'cell' }, formatValue(spec, v, t))));
+      return tr;
+    }));
+
+    document.querySelectorAll('.lang-switch button').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+    });
+    try { localStorage.setItem('specs-lang', lang); } catch (_) { /* storage unavailable */ }
+  }
+
+  document.getElementById('lang-group').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-lang]');
+    if (btn) render(btn.dataset.lang);
+  });
+
+  let initial = 'en';
+  try {
+    const saved = localStorage.getItem('specs-lang');
+    if (saved && STRINGS[saved]) initial = saved;
+    else if (/^fi\b/i.test(navigator.language || '')) initial = 'fi';
+  } catch (_) { /* storage unavailable */ }
+  render(initial);
+})();
+</script>
+</body>
+</html>

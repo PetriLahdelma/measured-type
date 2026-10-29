@@ -1,0 +1,75 @@
+{
+  "expectations": [
+    {
+      "text": "review.md names .docs-main width, margin: 0 auto, padding-left and padding-right and gives logical replacements (inline-size or max-inline-size, margin-inline: auto, padding-inline)",
+      "passed": true,
+      "evidence": "L7-12 names `width: 960px` with padding-left/padding-right; fix `max-inline-size: 960px; margin-inline: auto; padding-inline: 32px;`."
+    },
+    {
+      "text": "review.md names .sidebar float: left, margin-right and text-align: right and replaces them with float: inline-start, margin-inline-end and text-align: end",
+      "passed": true,
+      "evidence": "L15-20 names float: left, margin-right, text-align: right; fix float: inline-start, margin-inline-end: 24px, text-align: end."
+    },
+    {
+      "text": "review.md names .callout border-left, padding-left, margin-left and both left border radii and replaces them with border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius and border-end-start-radius",
+      "passed": true,
+      "evidence": "L22-29 maps radii explicitly ('was border-top-left-radius' -> border-start-start-radius etc.) plus border-inline-start, padding-inline-start, margin-inline-start."
+    },
+    {
+      "text": "review.md names the ul padding-left and the blockquote's left margin and replaces them with padding-inline-start and margin-inline-start (with margin-block for the vertical part)",
+      "passed": true,
+      "evidence": "L34 `padding-inline-start: 1.5em`; L35 `margin-block: 1.5em; margin-inline: 2em 0;`."
+    },
+    {
+      "text": "review.md names .note-badge right: 8px, the h2 text-align: left and the ::after margin-left and replaces them with inset-inline-end, text-align: start and margin-inline-start",
+      "passed": true,
+      "evidence": "L37 `inset-inline-end: 8px`; L38 `text-align: start` (or delete); L32 `margin-inline-start: 0.25em`."
+    },
+    {
+      "text": "review.md says the right arrow (\\2192) and the breadcrumb translateX need mirroring in RTL (for example via :dir(rtl))",
+      "passed": true,
+      "evidence": "L32 swaps to `\\2190` under `.nav-next:dir(rtl)::after`; L31 says the translateX nudge goes the wrong way and replaces it with `position: relative; inset-inline-start: 2px`."
+    },
+    {
+      "text": "review.md leaves the box-shadow offset and rotate(-4deg) physical, or explicitly classes them as decorative and not to convert",
+      "passed": false,
+      "evidence": "Corrected stylesheet mirrors the shadow (`.callout:dir(rtl) { --shadow-x: -2px; }`) instead of leaving it physical; rotate is kept but the shadow is converted."
+    },
+    {
+      "text": "review.md explains that 75ch in Verdana gives well over 75 characters because ch is the width of the zero, and recommends an em-based or measured measure",
+      "passed": false,
+      "evidence": "Says ch is the width of '0' and to check visually, but never states 75ch in Verdana gives well over 75 characters (rendered 91.6); keeps `max-inline-size: 75ch`."
+    },
+    {
+      "text": "review.md states that with content-box sizing .docs-main occupies 1024px in total (960px plus two 32px paddings)",
+      "passed": true,
+      "evidence": "Table: '.docs-main width ... 1024px (content-box plus 64px padding)'."
+    },
+    {
+      "text": "review.md flags widows: 1 and orphans: 1 as allowing single stranded lines and recommends 2 or more",
+      "passed": true,
+      "evidence": "'A value of 1 explicitly allows a single stranded line'; fix `widows: 2; orphans: 2;` or 3."
+    },
+    {
+      "text": "review.md warns against letterspacing Arabic text (letter-spacing breaks joining)",
+      "passed": true,
+      "evidence": "'Never add letter-spacing or text-transform to Arabic. Tracking breaks the joins between connected letters.'"
+    },
+    {
+      "text": "review.md explains that the browser's default padding-inline-start (40px) stays on the right in RTL when ul uses padding-left, so the list is indented on both sides",
+      "passed": true,
+      "evidence": "L34: 'The browser default for lists is padding-inline-start: 40px, which in RTL maps to the right... 40px of padding on the right and 24px on the left.'"
+    },
+    {
+      "text": "review.md proposes no invalid CSS and no transform that would double-mirror a Bidi_Mirrored glyph",
+      "passed": false,
+      "evidence": "CSS is valid, but L31 says '`>` used as an arrow... do not [mirror] and need explicit handling (see L32)', i.e. a glyph swap; `>` is Bidi_Mirrored (unicodedata.mirrored('>') = 1), so that swap would double-mirror it."
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 3,
+    "total": 13,
+    "pass_rate": 0.769
+  }
+}

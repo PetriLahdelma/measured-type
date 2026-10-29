@@ -1,0 +1,247 @@
+/*
+ * article.css: long-form case studies
+ * Markup: <article class="prose" lang="en"> with p, h2, h3, em, abbr,
+ * a results <table> and an uppercase .eyebrow label.
+ *
+ * Feature decisions come from the font files themselves (see notes.md):
+ *   Source Serif 4 roman   onum pnum smcp c2sc case liga kern; default digits tabular lining
+ *   Source Serif 4 italic  onum pnum case liga kern; NO smcp / c2sc
+ *   Outfit                 tnum pnum liga dlig ss01 kern; NO onum, case, smcp; default digits proportional lining
+ */
+
+/* ---------- Fonts ---------- */
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4%5Bopsz%2Cwght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic%5Bopsz%2Cwght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("fonts/Outfit%5Bwght%5D.ttf") format("truetype");
+  font-weight: 100 900; /* the file's default instance is Thin (100); declare the range */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- Container, measure, rhythm ---------- */
+
+.prose {
+  /* Colors: swap for the site's tokens. All pairs meet AA on the ground. */
+  --prose-ink: #1f1d1a;
+  --prose-muted: #5c574f;   /* 7.2:1 on #fff; dark pair 7.3:1 on #161513 */
+  --prose-rule: #d9d4cc;
+
+  --font-text: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-ui: "Outfit", system-ui, sans-serif;
+
+  /* Scale, ratio about 1.2 (sizes in rem so reader settings and zoom apply) */
+  --size-label: 0.8125rem;  /* 13px eyebrow */
+  --size-data: 1rem;        /* 16px table */
+  --size-body: 1.125rem;    /* 18px reading text */
+  --size-h3: 1.375rem;      /* 22px, 1.22 x body */
+  --size-h2: 1.625rem;      /* 26px, 1.18 x h3 */
+
+  --leading: 1.6;
+  --line: calc(var(--size-body) * var(--leading)); /* one body line: 28.8px at default size */
+
+  max-inline-size: 31em;  /* measured: about 67 characters per line, see notes.md */
+  margin-inline: auto;
+
+  color: var(--prose-ink);
+  font-family: var(--font-text);
+  font-size: var(--size-body);
+  line-height: var(--leading);
+  font-weight: 400;
+  font-kerning: normal;
+  font-optical-sizing: auto;          /* opsz 8-60 follows the size */
+  font-synthesis: none;               /* no fake bold, italic or small caps */
+  font-variant-numeric: oldstyle-nums proportional-nums; /* default digits are tabular lining */
+  text-align: start;
+
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  /* 4 after, not 3: Chromium counts trailing punctuation, so 3 allowed "earli-er." */
+  hyphenate-limit-chars: 6 3 4;
+  -webkit-hyphenate-limit-before: 3;
+  -webkit-hyphenate-limit-after: 3;
+  -webkit-hyphenate-limit-lines: 2;
+}
+
+/* Every gap lives in one place: the top margin of the later block. */
+.prose > * {
+  margin-block: 0;
+}
+
+.prose > * + * {
+  margin-block-start: var(--line);
+}
+
+.prose p {
+  text-wrap: pretty;
+}
+
+/* ---------- Headings (Outfit) ---------- */
+
+.prose :is(h2, h3) {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-variant-numeric: normal;  /* Outfit has no onum; keep its proportional lining digits */
+  line-height: var(--line);      /* each heading line is one body line, so wraps stay on the beat */
+  text-wrap: balance;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
+.prose h2 {
+  font-size: var(--size-h2);     /* line 28.8 / 26 = 1.11 */
+  letter-spacing: -0.01em;
+}
+
+.prose h3 {
+  font-size: var(--size-h3);     /* line 28.8 / 22 = 1.31 */
+}
+
+/* h2: 2.5 + 1 + 0.5 = 4 lines; h3: 1.5 + 1 + 0.5 = 3 lines. Text after either returns on the beat. */
+.prose > h2 {
+  margin-block-start: calc(2.5 * var(--line));
+}
+
+.prose > h3 {
+  margin-block-start: calc(1.5 * var(--line));
+}
+
+.prose > h2 + h3 {
+  margin-block-start: var(--line);
+}
+
+.prose > :is(h2, h3) + * {
+  margin-block-start: calc(0.5 * var(--line));
+}
+
+/* ---------- Eyebrow (Outfit, uppercase) ---------- */
+
+.prose .eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--size-label);
+  font-weight: 600;
+  font-variant-numeric: normal;
+  line-height: var(--line);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  word-spacing: 0.08em;
+  color: var(--prose-muted);
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
+/* An eyebrow takes over the section break of the heading it labels:
+   2.5 + 1 (eyebrow) + 1 (h2) + 0.5 = 5 lines. */
+.prose > .eyebrow:not(:first-child) {
+  margin-block-start: calc(2.5 * var(--line));
+}
+
+.prose > .eyebrow + :is(h2, h3) {
+  margin-block-start: 0;
+}
+
+/* ---------- Emphasis and acronyms ---------- */
+
+.prose em {
+  font-style: italic;  /* the real italic file */
+}
+
+/* Roman has true small caps (smcp + c2sc, about 350 glyphs each). */
+.prose abbr {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+}
+
+/* The italic has no smcp/c2sc. Keep the italic and set full capitals
+   rather than shrunken ones (font-synthesis: none already forbids fakes). */
+.prose :is(em, i) abbr {
+  font-variant-caps: normal;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Results table (Outfit) ---------- */
+
+.prose table {
+  border-collapse: collapse;
+  max-inline-size: 100%;
+  font-family: var(--font-ui);
+  font-size: var(--size-data);
+  line-height: calc(0.75 * var(--line));        /* 21.6px = 1.35 at 16px, for labels that wrap */
+  font-variant-numeric: lining-nums tabular-nums; /* Outfit's tnum aligns the columns */
+}
+
+.prose caption {
+  caption-side: top;
+  text-align: start;
+  font-size: var(--size-label);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--prose-muted);
+  padding-block-end: calc(0.75 * var(--line));   /* caption = 0.75 + 0.75 = 1.5 lines */
+}
+
+.prose :is(th, td) {
+  padding-block: calc(0.375 * var(--line));     /* one-line row = 0.75 + 0.75 = 1.5 body lines */
+  padding-inline: 0 1.5em;
+  vertical-align: baseline;
+  text-align: end;
+  white-space: nowrap;
+  /* hairline that takes no layout space, so rows stay on the interval */
+  box-shadow: inset 0 -1px 0 var(--prose-rule);
+}
+
+.prose :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+/* Labels: header row and the first column read as text */
+.prose :is(th, td):first-child {
+  text-align: start;
+  white-space: normal;
+}
+
+.prose th {
+  font-weight: 600;
+}
+
+.prose thead th {
+  font-weight: 500;
+  color: var(--prose-muted);
+  box-shadow: inset 0 -1px 0 var(--prose-ink);
+}
+
+/* ---------- Dark theme ---------- */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .prose {
+    --prose-ink: #e9e5de;
+    --prose-muted: #aaa398;
+    --prose-rule: #3d3a35;
+    font-weight: 380;          /* light-on-dark reads heavier; the wght axis allows a small step */
+  }
+}
+
+:root[data-theme="dark"] .prose {
+  --prose-ink: #e9e5de;
+  --prose-muted: #aaa398;
+  --prose-rule: #3d3a35;
+  font-weight: 380;
+}

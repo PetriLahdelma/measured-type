@@ -1,0 +1,61 @@
+
+Viewport 360px
+  label     12.00px  lh  16.20px (1.350)  ls 0.96px
+  caption   14.00px  lh  19.60px (1.400)  ls normal
+  small     16.00px  lh  24.00px (1.500)  ls normal
+  body      18.00px  lh  27.90px (1.550)  ls normal
+  h4        21.60px  lh  27.90px (1.292)  ls normal
+  h3        26.00px  lh  27.90px (1.073)  ls -0.13px
+  h2        33.00px  lh  41.85px (1.268)  ls -0.330002px
+  h1        44.00px  lh  55.80px (1.268)  ls -0.66px
+  hero      52.00px  lh  54.60px (1.050)  ls -1.04001px
+PASS  360px h4/body = 1.200 (floor 1.15)
+PASS  360px h3/h4 = 1.204 (floor 1.15)
+PASS  360px h2/h3 = 1.269 (floor 1.15)
+PASS  360px h1/h2 = 1.333 (floor 1.15)
+PASS  360px hero/h1 = 1.182 (floor 1.15)
+PASS  360px h4 leading ratio 1.292 in 1.05..1.3
+PASS  360px h3 leading ratio 1.073 in 1.05..1.3
+PASS  360px h2 leading ratio 1.268 in 1.05..1.3
+PASS  360px h1 leading ratio 1.268 in 1.05..1.3
+PASS  360px text after h2/h3/h4 lands on the body line: 4.999, 8.998, 12.997 lines
+
+Viewport 1440px
+  label     12.00px  lh  16.20px (1.350)  ls 0.96px
+  caption   14.00px  lh  19.60px (1.400)  ls normal
+  small     16.00px  lh  24.00px (1.500)  ls normal
+  body      18.00px  lh  27.90px (1.550)  ls normal
+  h4        21.60px  lh  27.90px (1.292)  ls normal
+  h3        26.00px  lh  27.90px (1.073)  ls -0.13px
+  h2        39.00px  lh  41.85px (1.073)  ls -0.39px
+  h1        52.00px  lh  55.80px (1.073)  ls -0.779983px
+  hero      68.00px  lh  71.40px (1.050)  ls -1.36px
+PASS  1440px h4/body = 1.200 (floor 1.15)
+PASS  1440px h3/h4 = 1.204 (floor 1.15)
+PASS  1440px h2/h3 = 1.500 (floor 1.15)
+PASS  1440px h1/h2 = 1.333 (floor 1.15)
+PASS  1440px hero/h1 = 1.308 (floor 1.15)
+PASS  1440px h4 leading ratio 1.292 in 1.05..1.3
+PASS  1440px h3 leading ratio 1.073 in 1.05..1.3
+PASS  1440px h2 leading ratio 1.073 in 1.05..1.3
+PASS  1440px h1 leading ratio 1.073 in 1.05..1.3
+PASS  1440px text after h2/h3/h4 lands on the body line: 4.999, 8.998, 12.997 lines
+
+200% zoom, worst window per role
+PASS  label: exactly 2.000x at 200% on every window
+PASS  caption: exactly 2.000x at 200% on every window
+PASS  small: exactly 2.000x at 200% on every window
+PASS  body: exactly 2.000x at 200% on every window
+PASS  h4: exactly 2.000x at 200% on every window
+PASS  h3: exactly 2.000x at 200% on every window
+PASS  h2: 1.795x at 200% on the worst window (1440px), target >= 1.6
+PASS  h1: 1.795x at 200% on the worst window (1440px), target >= 1.6
+PASS  hero: 1.686x at 200% on the worst window (1440px), target >= 1.6
+PASS  h2: reaches 2x at 230% zoom on a 1440px window (browsers allow 500%)
+PASS  h1: reaches 2x at 230% zoom on a 1440px window (browsers allow 500%)
+PASS  hero: reaches 2x at 250% zoom on a 1440px window (browsers allow 500%)
+PASS  h2: max/min 1.182 (<= 1.4 keeps zoom close to 2x; hard limit 2.5)
+PASS  h1: max/min 1.182 (<= 1.4 keeps zoom close to 2x; hard limit 2.5)
+PASS  hero: max/min 1.308 (<= 1.4 keeps zoom close to 2x; hard limit 2.5)
+
+ALL PASS

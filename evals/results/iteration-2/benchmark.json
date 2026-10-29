@@ -1,0 +1,1238 @@
+{
+  "metadata": {
+    "skill_name": "measured-type",
+    "skill_path": "skills/measured-type (at 313a165)",
+    "executor_model": "claude-opus-5-5",
+    "analyzer_model": "claude-opus-5-5 (grader subagents, blind to folder intent by instruction; rendered checks in Chromium via Playwright)",
+    "timestamp": "2026-10-29T12:21:57Z",
+    "evals_run": [
+      "measure-wide-face",
+      "ofl-feature-check",
+      "physical-props-audit",
+      "rendered-nbsp-spec-table",
+      "zoom-safe-scale"
+    ],
+    "runs_per_configuration": 2
+  },
+  "runs": [
+    {
+      "eval_id": "measure-wide-face",
+      "eval_name": "measure-wide-face",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 163.4,
+        "tokens": 152152,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Rendered at a 1280px-wide viewport in Verdana with English sample prose, full body lines in .prose average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js --css: avgCharsPerLine 66.0 at 1280px (max-inline-size: min(55ch, 100%))."
+        },
+        {
+          "text": "prose.css spaces blocks in a unit equal to one prose body line (1.125rem times the body line-height, e.g. a custom property or 1lh on the paragraph), not in rlh or rem values that resolve against the 16px root line",
+          "passed": true,
+          "evidence": "--line: calc(var(--body-size) * var(--body-leading)) = 1.125rem x 1.6; `.prose > * + * { margin-block-start: var(--line) }`; rendered p-to-ul/blockquote gaps 28.8px = 1.000 body line."
+        },
+        {
+          "text": "prose.css sets h2 and h3 margins as whole or half multiples of that same prose body line",
+          "passed": true,
+          "evidence": "h2 calc(2.5 * var(--line)), h3 calc(1.5 * var(--line)), h2 + h3 var(--line), heading + * calc(0.5 * var(--line)); no bottom margins, rendered gaps 2.5/1.5/1/0.5 lines, no collapse."
+        },
+        {
+          "text": "prose.css sets the body font-size as a fixed rem value with no vw or vi term, so it doubles at 200% zoom",
+          "passed": true,
+          "evidence": "--body-size: 1.125rem, font-size: var(--body-size); headings 1.375rem/1.625rem; no vw/vi/clamp."
+        },
+        {
+          "text": "prose.css uses logical properties for every text-flow box property (no margin-left/right, padding-left/right, width or max-width on text, text-align: left/right)",
+          "passed": true,
+          "evidence": "Uses max-inline-size, margin-inline, padding-inline-start, border-inline-start, text-align: start; grep finds no physical left/right/width properties."
+        },
+        {
+          "text": "prose.css sets h2 and h3 line-heights so each heading line is a whole or half multiple of the body line, so blocks after a wrapped heading land back on the body interval",
+          "passed": true,
+          "evidence": "`:is(h2, h3) { line-height: var(--line) }`, rendered line box 28.8px = 1.00 body line; after 1/2/3/4-line h2 the next block top lands at 6/16/27/39 body lines."
+        },
+        {
+          "text": "prose.css gives an h3 that directly follows an h2 at least one body line of space above it",
+          "passed": true,
+          "evidence": "`.prose > h2 + h3 { margin-block-start: var(--line) }`; rendered gap h2 bottom to h3 top 28.8px = 1.0 body line."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "measure-wide-face",
+      "eval_name": "measure-wide-face",
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 162.9,
+        "tokens": 146361,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Rendered at a 1280px-wide viewport in Verdana with English sample prose, full body lines in .prose average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js --css: avgCharsPerLine 66.1 at 1280px (max-inline-size: 34.5em)."
+        },
+        {
+          "text": "prose.css spaces blocks in a unit equal to one prose body line (1.125rem times the body line-height, e.g. a custom property or 1lh on the paragraph), not in rlh or rem values that resolve against the 16px root line",
+          "passed": true,
+          "evidence": "--line: calc(var(--body-size) * var(--body-leading)) = 1.125rem x 1.6; sibling gap var(--line) rendered 28.8px = 1.000 body line."
+        },
+        {
+          "text": "prose.css sets h2 and h3 margins as whole or half multiples of that same prose body line",
+          "passed": true,
+          "evidence": "h2 calc(2.5 * var(--line)), h3 calc(1.5 * var(--line)), h2 + h3 var(--line), heading + :not(h2,h3) calc(0.5 * var(--line)); rendered gaps 2.5/1.5/1/0.5, no bottom margins to collapse."
+        },
+        {
+          "text": "prose.css sets the body font-size as a fixed rem value with no vw or vi term, so it doubles at 200% zoom",
+          "passed": true,
+          "evidence": "--body-size: 1.125rem; headings 1.5rem/1.25rem; no vw/vi/clamp."
+        },
+        {
+          "text": "prose.css uses logical properties for every text-flow box property (no margin-left/right, padding-left/right, width or max-width on text, text-align: left/right)",
+          "passed": true,
+          "evidence": "max-inline-size, margin-inline, padding-inline-start, border-inline-start, text-align: start; no physical left/right/width properties."
+        },
+        {
+          "text": "prose.css sets h2 and h3 line-heights so each heading line is a whole or half multiple of the body line, so blocks after a wrapped heading land back on the body interval",
+          "passed": true,
+          "evidence": "`:is(h2, h3) { line-height: var(--line) }`, rendered line box 1.00 body line; after 1/2/3-line h2 the next block lands on whole body lines (6, 16, 26, 37)."
+        },
+        {
+          "text": "prose.css gives an h3 that directly follows an h2 at least one body line of space above it",
+          "passed": true,
+          "evidence": "`.prose > h2 + h3 { margin-block-start: var(--line) }`; rendered gap 28.8px = 1.0 body line."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "ofl-feature-check",
+      "eval_name": "ofl-feature-check",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 430.4,
+        "tokens": 183970,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "notes.md states the features consistently with the files: Source Serif 4 roman has onum, smcp, c2sc and case; Source Serif 4 italic has onum and case but no smcp or c2sc; Outfit has tnum but no onum, smcp, c2sc or case",
+          "passed": true,
+          "evidence": "notes.md table: roman onum/smcp/c2sc ('yes, about 350 glyphs each')/case yes; italic smcp/c2sc '**absent**', onum and case yes; Outfit 'no onum', tnum yes, smcp/c2sc absent, case '**absent**'. Matches fontTools ground truth."
+        },
+        {
+          "text": "article.css sets the Source Serif 4 body paragraphs in oldstyle figures (oldstyle-nums or \"onum\")",
+          "passed": true,
+          "evidence": ".prose sets 'font-variant-numeric: oldstyle-nums proportional-nums'; rendered p computes oldstyle-nums proportional-nums in Source Serif 4."
+        },
+        {
+          "text": "article.css sets abbr acronyms in the Source Serif 4 roman body in true small caps (all-small-caps, or c2sc plus smcp) with positive letter-spacing",
+          "passed": true,
+          "evidence": "'.prose abbr { font-variant-caps: all-small-caps; letter-spacing: 0.05em; }'; rendered roman abbr computes all-small-caps, 0.9px tracking."
+        },
+        {
+          "text": "Acronyms inside em passages cannot be rendered as synthesized small caps: font-synthesis (or font-synthesis-small-caps) is none for them, or article.css resets them to normal capitals, and notes.md or a comment says the italic has no small caps",
+          "passed": true,
+          "evidence": "'.prose :is(em, i) abbr { font-variant-caps: normal; }' plus font-synthesis: none; rendered em abbr: italic, caps normal, font-synthesis-small-caps none. Comment: 'The italic has no smcp/c2sc'."
+        },
+        {
+          "text": "article.css requests no oldstyle figures, small caps or case-sensitive forms (no oldstyle-nums, onum, small-caps, all-small-caps, smcp, c2sc or \"case\") for Outfit text, unless a comment beside the rule says the font lacks the feature and the rule is inert",
+          "passed": true,
+          "evidence": "No rule targeting Outfit elements requests onum/smcp/c2sc/case: h2/h3 and .eyebrow reset numeric to normal, table uses lining-nums tabular-nums. Caveat: no abbr reset in Outfit contexts, so an abbr inside h2, table or eyebrow renders computed all-small-caps in Outfit (inert under synthesis none, uncommented); the prompt places acronyms in text and em, so not counted."
+        },
+        {
+          "text": "article.css sets the results table numbers in Outfit with tabular-nums and gives the uppercase .eyebrow positive letter-spacing",
+          "passed": true,
+          "evidence": "Table: font-family var(--font-ui) (Outfit) with 'lining-nums tabular-nums' (rendered td Outfit, tabular-nums); .eyebrow 'letter-spacing: 0.08em'."
+        },
+        {
+          "text": "article.css declares the Source Serif 4 roman and italic files and the Outfit file in @font-face with weight ranges, the italic with font-style: italic, and disables font-synthesis for the text",
+          "passed": true,
+          "evidence": "Three @font-face rules: roman 200 900 normal, italic 200 900 'font-style: italic', Outfit 100 900; all three loaded in Chromium. '.prose { font-synthesis: none; }'."
+        },
+        {
+          "text": "Rendered at a 1280px-wide viewport with Source Serif 4 and English sample prose, full body lines in .prose average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js at 1280px: avgCharsPerLine 66.6, inside 58-74."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "ofl-feature-check",
+      "eval_name": "ofl-feature-check",
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 467.9,
+        "tokens": 188220,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "notes.md states the features consistently with the files: Source Serif 4 roman has onum, smcp, c2sc and case; Source Serif 4 italic has onum and case but no smcp or c2sc; Outfit has tnum but no onum, smcp, c2sc or case",
+          "passed": true,
+          "evidence": "notes.md table: roman onum/pnum complete, smcp/c2sc complete, case '( ) [ ] - – —'; italic smcp/c2sc '**absent**', onum complete, case 'same'; Outfit onum 'absent', tnum complete, smcp/c2sc absent, case absent. Matches ground truth."
+        },
+        {
+          "text": "article.css sets the Source Serif 4 body paragraphs in oldstyle figures (oldstyle-nums or \"onum\")",
+          "passed": true,
+          "evidence": ".prose 'font-variant-numeric: oldstyle-nums proportional-nums'; rendered p computes oldstyle-nums proportional-nums."
+        },
+        {
+          "text": "article.css sets abbr acronyms in the Source Serif 4 roman body in true small caps (all-small-caps, or c2sc plus smcp) with positive letter-spacing",
+          "passed": true,
+          "evidence": "'.prose abbr { font-variant-caps: all-small-caps; letter-spacing: 0.05em; }'; rendered roman abbr all-small-caps, 0.9px."
+        },
+        {
+          "text": "Acronyms inside em passages cannot be rendered as synthesized small caps: font-synthesis (or font-synthesis-small-caps) is none for them, or article.css resets them to normal capitals, and notes.md or a comment says the italic has no small caps",
+          "passed": true,
+          "evidence": "'.prose em abbr { font-variant-caps: normal; letter-spacing: 0.03em; }' plus font-synthesis: none; rendered em abbr caps normal, synthesis-small-caps none. Comment: 'The italic file has neither smcp nor c2sc'."
+        },
+        {
+          "text": "article.css requests no oldstyle figures, small caps or case-sensitive forms (no oldstyle-nums, onum, small-caps, all-small-caps, smcp, c2sc or \"case\") for Outfit text, unless a comment beside the rule says the font lacks the feature and the rule is inert",
+          "passed": true,
+          "evidence": "Outfit contexts request only lining/tabular/proportional nums and 'font-variant-caps: normal'; '.prose :is(h2, h3, .eyebrow, table) abbr { font-variant-caps: normal; }' so abbr in any Outfit context renders normal caps (verified)."
+        },
+        {
+          "text": "article.css sets the results table numbers in Outfit with tabular-nums and gives the uppercase .eyebrow positive letter-spacing",
+          "passed": true,
+          "evidence": "Table in var(--font-ui) Outfit with 'lining-nums tabular-nums' (rendered td Outfit, tabular-nums); .eyebrow 'letter-spacing: 0.08em'."
+        },
+        {
+          "text": "article.css declares the Source Serif 4 roman and italic files and the Outfit file in @font-face with weight ranges, the italic with font-style: italic, and disables font-synthesis for the text",
+          "passed": true,
+          "evidence": "@font-face: roman 200 900, italic 200 900 'font-style: italic', Outfit 100 900; all loaded. '.prose { font-synthesis: none; }'."
+        },
+        {
+          "text": "Rendered at a 1280px-wide viewport with Source Serif 4 and English sample prose, full body lines in .prose average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js at 1280px: avgCharsPerLine 69.0, inside 58-74."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "physical-props-audit",
+      "eval_name": "physical-props-audit",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 13,
+        "failed": 0,
+        "total": 13,
+        "time_seconds": 335.5,
+        "tokens": 169723,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review.md names .docs-main width, margin: 0 auto, padding-left and padding-right and gives logical replacements (inline-size or max-inline-size, margin-inline: auto, padding-inline)",
+          "passed": true,
+          "evidence": "Flags `width: 960px` with content-box 32px padding and notes `margin: 0 auto` and the symmetric padding; fix is `max-inline-size: 960px; margin-block: 0; margin-inline: auto; padding-inline: 32px`."
+        },
+        {
+          "text": "review.md names .sidebar float: left, margin-right and text-align: right and replaces them with float: inline-start, margin-inline-end and text-align: end",
+          "passed": true,
+          "evidence": "Names `float: left; margin-right: 24px; text-align: right` and fixes with `float: inline-start; ... margin-inline-end: 24px; text-align: end`."
+        },
+        {
+          "text": "review.md names .callout border-left, padding-left, margin-left and both left border radii and replaces them with border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius and border-end-start-radius",
+          "passed": true,
+          "evidence": "Names border-left, padding-left, margin-left, `border-*-left-radius`; fix uses border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius, border-end-start-radius."
+        },
+        {
+          "text": "review.md names the ul padding-left and the blockquote's left margin and replaces them with padding-inline-start and margin-inline-start (with margin-block for the vertical part)",
+          "passed": true,
+          "evidence": "`.docs-main ul { padding-inline-start: 1.5em; }` and `blockquote { margin-block: 1.5em; margin-inline: 2em 0; }` (logical start margin plus margin-block)."
+        },
+        {
+          "text": "review.md names .note-badge right: 8px, the h2 text-align: left and the ::after margin-left and replaces them with inset-inline-end, text-align: start and margin-inline-start",
+          "passed": true,
+          "evidence": "`.note-badge` -> `inset-inline-end: 8px`; h2 -> `text-align: start`; `::after` margin-left -> `margin-inline-start: 0.25em`."
+        },
+        {
+          "text": "review.md says the right arrow (\\2192) and the breadcrumb translateX need mirroring in RTL (for example via :dir(rtl))",
+          "passed": true,
+          "evidence": "U+2192 swapped to `\\2190` under `.nav-next:dir(rtl)::after`; breadcrumb `translateX(2px)` flipped with `.breadcrumb .sep:dir(rtl) { transform: translateX(-2px); }`."
+        },
+        {
+          "text": "review.md leaves the box-shadow offset and rotate(-4deg) physical, or explicitly classes them as decorative and not to convert",
+          "passed": true,
+          "evidence": "'box-shadow: 2px 2px and transform: rotate(-4deg) are physical on purpose (a light source and a tilted graphic); leave them.' Fixed sheet keeps both."
+        },
+        {
+          "text": "review.md explains that 75ch in Verdana gives well over 75 characters because ch is the width of the zero, and recommends an em-based or measured measure",
+          "passed": true,
+          "evidence": "States ch is Verdana's zero (0.636em) vs 0.502em average, 91.6 chars/line (confirmed: measure-line gives 91.6 for 75ch); recommends `max-inline-size: 34em` (measured 64.6, confirmed)."
+        },
+        {
+          "text": "review.md states that with content-box sizing .docs-main occupies 1024px in total (960px plus two 32px paddings)",
+          "passed": true,
+          "evidence": "'The column is 1024px wide plus the 8px body margins' and 'it is why the 960px column is really 1024px'."
+        },
+        {
+          "text": "review.md flags widows: 1 and orphans: 1 as allowing single stranded lines and recommends 2 or more",
+          "passed": true,
+          "evidence": "'Setting 1 explicitly allows a single line to be stranded'; fix `widows: 3; orphans: 3`."
+        },
+        {
+          "text": "review.md warns against letterspacing Arabic text (letter-spacing breaks joining)",
+          "passed": true,
+          "evidence": "'No letter-spacing anywhere: correct, and it must stay that way for Arabic, where tracking breaks the joins.'"
+        },
+        {
+          "text": "review.md explains that the browser's default padding-inline-start (40px) stays on the right in RTL when ul uses padding-left, so the list is indented on both sides",
+          "passed": true,
+          "evidence": "'The browser's default list indent is padding-inline-start: 40px... the 40px default stays on the right, so Arabic lists are indented on both sides' (measured 24px left + 40px right)."
+        },
+        {
+          "text": "review.md proposes no invalid CSS and no transform that would double-mirror a Bidi_Mirrored glyph",
+          "passed": true,
+          "evidence": "All 65 proposed declarations and selectors pass CSS.supports in Chromium; review explicitly says not to scaleX(-1) a ›, » or > separator because they are Bidi_Mirrored."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "physical-props-audit",
+      "eval_name": "physical-props-audit",
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 13,
+        "failed": 0,
+        "total": 13,
+        "time_seconds": 388.0,
+        "tokens": 168316,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review.md names .docs-main width, margin: 0 auto, padding-left and padding-right and gives logical replacements (inline-size or max-inline-size, margin-inline: auto, padding-inline)",
+          "passed": true,
+          "evidence": "Item 9 replaces `width: 960px` with `max-inline-size: 60rem`; Refinement names `margin: 0 auto` and `padding-left/right: 32px` -> `margin-inline: auto`, `padding-inline: 32px`."
+        },
+        {
+          "text": "review.md names .sidebar float: left, margin-right and text-align: right and replaces them with float: inline-start, margin-inline-end and text-align: end",
+          "passed": true,
+          "evidence": "Item 1: `float: inline-start; inline-size: 240px; margin-inline-end: 24px; text-align: end;` replacing float: left, margin-right, text-align: right."
+        },
+        {
+          "text": "review.md names .callout border-left, padding-left, margin-left and both left border radii and replaces them with border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius and border-end-start-radius",
+          "passed": true,
+          "evidence": "Item 4 uses border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius, border-end-start-radius for the physical left set."
+        },
+        {
+          "text": "review.md names the ul padding-left and the blockquote's left margin and replaces them with padding-inline-start and margin-inline-start (with margin-block for the vertical part)",
+          "passed": true,
+          "evidence": "Item 3 `padding-inline-start: 1.5em`; item 6 `margin-block: 1.5em; margin-inline: 2em 0;` for the physical left blockquote margin."
+        },
+        {
+          "text": "review.md names .note-badge right: 8px, the h2 text-align: left and the ::after margin-left and replaces them with inset-inline-end, text-align: start and margin-inline-start",
+          "passed": true,
+          "evidence": "Item 7 `inset-inline-end: 8px`; item 2 `text-align: start`; item 5 notes margin-left and uses `margin-inline-start: 0.25em`."
+        },
+        {
+          "text": "review.md says the right arrow (\\2192) and the breadcrumb translateX need mirroring in RTL (for example via :dir(rtl))",
+          "passed": true,
+          "evidence": "Item 5 swaps to `\\2190` under `:dir(rtl)`; item 8 adds `.breadcrumb .sep:dir(rtl) { transform: translateX(-2px); }`."
+        },
+        {
+          "text": "review.md leaves the box-shadow offset and rotate(-4deg) physical, or explicitly classes them as decorative and not to convert",
+          "passed": true,
+          "evidence": "'Leave alone (physical on purpose): box-shadow: 2px 2px (light source), .hero-illustration { transform: rotate(-4deg) }'; proposed sheet keeps both."
+        },
+        {
+          "text": "review.md explains that 75ch in Verdana gives well over 75 characters because ch is the width of the zero, and recommends an em-based or measured measure",
+          "passed": true,
+          "evidence": "'ch is the width of the zero: in Verdana 0.636em against an average character of 0.502em', 91.6 chars/line (confirmed by measure-line); recommends `max-inline-size: 34em`."
+        },
+        {
+          "text": "review.md states that with content-box sizing .docs-main occupies 1024px in total (960px plus two 32px paddings)",
+          "passed": true,
+          "evidence": "'width: 960px with the global box-sizing: content-box makes the box 960 + 64 = 1024px wide.'"
+        },
+        {
+          "text": "review.md flags widows: 1 and orphans: 1 as allowing single stranded lines and recommends 2 or more",
+          "passed": true,
+          "evidence": "'explicitly allows a single stranded line... worse than the browser default of 2'; fix `widows: 3; orphans: 3`."
+        },
+        {
+          "text": "review.md warns against letterspacing Arabic text (letter-spacing breaks joining)",
+          "passed": true,
+          "evidence": "'never add letter-spacing to Arabic text (it breaks the joins)'."
+        },
+        {
+          "text": "review.md explains that the browser's default padding-inline-start (40px) stays on the right in RTL when ul uses padding-left, so the list is indented on both sides",
+          "passed": true,
+          "evidence": "'Browsers indent lists with a default padding-inline-start: 40px... in RTL the default 40px stays on the right, so Arabic lists are indented on both sides.'"
+        },
+        {
+          "text": "review.md proposes no invalid CSS and no transform that would double-mirror a Bidi_Mirrored glyph",
+          "passed": true,
+          "evidence": "All 68 proposed declarations/selectors (incl. `content: \"\\2192\" / \"\"`, `margin-block: 1lh`, `font-synthesis-style: none`) pass CSS.supports; warns not to scaleX(-1) ›, >, » since they are Bidi_Mirrored."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "rendered-nbsp-spec-table",
+      "eval_name": "rendered-nbsp-spec-table",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 209.3,
+        "tokens": 149503,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "In the rendered DOM for both English and Finnish, every number-unit pair in the table (weight, battery, storage, display, battery life, price) is joined by U+00A0 or U+202F, never a plain U+0020",
+          "passed": true,
+          "evidence": "Rendered EN: every value is number+U+00A0+unit (e.g. '1.24\\u00a0kg', '99.5\\u00a0Wh', '13.6\\u00a0in'); FI likewise ('1,24\\u00a0kg', '1\\u00a0Tt', '1\\u00a0299\\u00a0\\u20ac') except display, rendered closed-up as '13,6\\u2033' (inch double prime, no space, no break opportunity); no U+0020 anywhere in a cell."
+        },
+        {
+          "text": "The Finnish rendering uses decimal commas (1,24 and 99,5) and groups the prices with a no-break space (1 299 €)",
+          "passed": true,
+          "evidence": "Rendered FI cells: '1,24\\u00a0kg', '99,5\\u00a0Wh', '1\\u00a0299\\u00a0\\u20ac' (group separator and currency joiner both U+00A0)."
+        },
+        {
+          "text": "specs.html sets the numeric cells with tabular-nums",
+          "passed": true,
+          "evidence": "CSS `table { font-variant-numeric: lining-nums tabular-nums; }`; computed value on every td is 'lining-nums tabular-nums'."
+        },
+        {
+          "text": "specs.html sets the html lang attribute to fi when Finnish is selected",
+          "passed": true,
+          "evidence": "After clicking the FI button, document.documentElement.lang === 'fi' (render() sets it); 'en' after clicking EN."
+        },
+        {
+          "text": "specs.html uses logical properties for text layout (no margin-left/right, padding-left/right, text-align: left/right, left/right offsets)",
+          "passed": true,
+          "evidence": "CSS uses only logical properties: margin-inline, padding-inline(-start/-end), padding-block, border-block-end, text-align: start/end, inline-size; no physical left/right properties or offsets found."
+        },
+        {
+          "text": "In the rendered DOM for both languages, the battery-life qualifier (up to / jopa) is bound to its number with a no-break space, so it cannot be stranded at a line end",
+          "passed": true,
+          "evidence": "Rendered EN 'up\\u00a0to\\u00a018\\u00a0h', FI 'jopa\\u00a018\\u00a0h': qualifier fully bound with U+00A0, including inside 'up to'."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "rendered-nbsp-spec-table",
+      "eval_name": "rendered-nbsp-spec-table",
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 144.2,
+        "tokens": 138464,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "In the rendered DOM for both English and Finnish, every number-unit pair in the table (weight, battery, storage, display, battery life, price) is joined by U+00A0 or U+202F, never a plain U+0020",
+          "passed": true,
+          "evidence": "Rendered EN: number+U+00A0+unit in every cell ('2.1\\u00a0kg', '512\\u00a0GB', '16.2\\u00a0in'); FI likewise ('99,5\\u00a0Wh', '2\\u00a0TB', '2\\u00a0799\\u00a0\\u20ac') except display rendered closed-up as '15,3\\u2033' (inch double prime, no space, unbreakable); no U+0020 in any cell."
+        },
+        {
+          "text": "The Finnish rendering uses decimal commas (1,24 and 99,5) and groups the prices with a no-break space (1 299 €)",
+          "passed": true,
+          "evidence": "Rendered FI cells: '1,24\\u00a0kg', '99,5\\u00a0Wh', '1\\u00a0299\\u00a0\\u20ac'."
+        },
+        {
+          "text": "specs.html sets the numeric cells with tabular-nums",
+          "passed": true,
+          "evidence": "CSS `table { font-variant-numeric: lining-nums tabular-nums; }`; computed on every td 'lining-nums tabular-nums'."
+        },
+        {
+          "text": "specs.html sets the html lang attribute to fi when Finnish is selected",
+          "passed": true,
+          "evidence": "After clicking the 'Suomi' button, html lang === 'fi'."
+        },
+        {
+          "text": "specs.html uses logical properties for text layout (no margin-left/right, padding-left/right, text-align: left/right, left/right offsets)",
+          "passed": true,
+          "evidence": "CSS is logical throughout: margin-inline, padding-inline, padding-block, border-block-end, text-align: start/end, sticky offset via inset-inline-start: 0; no physical left/right properties."
+        },
+        {
+          "text": "In the rendered DOM for both languages, the battery-life qualifier (up to / jopa) is bound to its number with a no-break space, so it cannot be stranded at a line end",
+          "passed": true,
+          "evidence": "Rendered EN 'up\\u00a0to\\u00a015\\u00a0h', FI 'jopa\\u00a015\\u00a0h': qualifier bound with U+00A0 throughout."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "zoom-safe-scale",
+      "eval_name": "zoom-safe-scale",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 304.4,
+        "tokens": 154733,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At 200% zoom on a 1280px window (CSS viewport 640px, 1rem = 32px), the body, small, caption and label font-size tokens compute to exactly twice their size at 100% zoom",
+          "passed": true,
+          "evidence": "Playwright: body 18.00px@1280 -> 18.00px@640, ratio 2.00; small 16.00px@1280 -> 16.00px@640, ratio 2.00; caption 14.00px@1280 -> 14.00px@640, ratio 2.00; label 12.00px@1280 -> 12.00px@640, ratio 2.00."
+        },
+        {
+          "text": "At 200% zoom on a 1280px window, every heading and hero font-size token computes to at least 1.6 times its size at 100% zoom",
+          "passed": true,
+          "evidence": "Playwright 2x@640/@1280 ratios: hero 1.711, h1 1.813, h2 1.813, h3 2.000, h4 2.000; minimum hero 1.711."
+        },
+        {
+          "text": "Adjacent heading tokens (hero, h1, h2, h3, h4) differ by at least 1.15 times at both a 360px and a 1440px viewport at 100% zoom",
+          "passed": true,
+          "evidence": "Playwright ratios @360/@1440: hero/h1 1.182/1.308, h1/h2 1.333/1.333, h2/h3 1.269/1.500, h3/h4 1.204/1.204."
+        },
+        {
+          "text": "tokens.css derives vertical spacing tokens from the body line (body size times body line-height), not from a fixed px value",
+          "passed": true,
+          "evidence": "--line: calc(var(--font-size-body) * var(--line-height-body)) (27.9px) and every --space-* token is a multiple of it, e.g. --space-1: var(--line), --space-2: calc(2 * var(--line))."
+        },
+        {
+          "text": "tokens.css gives the uppercase label token letter-spacing of at least 0.05em and the hero token zero or negative letter-spacing",
+          "passed": true,
+          "evidence": "--letter-spacing-label: 0.08em (computed 0.96px at 12px); --letter-spacing-hero: -0.02em."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "zoom-safe-scale",
+      "eval_name": "zoom-safe-scale",
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 392.5,
+        "tokens": 162935,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At 200% zoom on a 1280px window (CSS viewport 640px, 1rem = 32px), the body, small, caption and label font-size tokens compute to exactly twice their size at 100% zoom",
+          "passed": true,
+          "evidence": "Playwright: body 18.00px@1280 -> 18.00px@640, ratio 2.00; small 16.00px@1280 -> 16.00px@640, ratio 2.00; caption 14.00px@1280 -> 14.00px@640, ratio 2.00; label 12.00px@1280 -> 12.00px@640, ratio 2.00."
+        },
+        {
+          "text": "At 200% zoom on a 1280px window, every heading and hero font-size token computes to at least 1.6 times its size at 100% zoom",
+          "passed": true,
+          "evidence": "Playwright 2x@640/@1280 ratios: hero 1.671, h1 1.692, h2 1.797, h3 2.000, h4 2.000; minimum hero 1.671."
+        },
+        {
+          "text": "Adjacent heading tokens (hero, h1, h2, h3, h4) differ by at least 1.15 times at both a 360px and a 1440px viewport at 100% zoom",
+          "passed": true,
+          "evidence": "Playwright ratios @360/@1440: hero/h1 1.222/1.250, h1/h2 1.200/1.333, h2/h3 1.250/1.500, h3/h4 1.200/1.200."
+        },
+        {
+          "text": "tokens.css derives vertical spacing tokens from the body line (body size times body line-height), not from a fixed px value",
+          "passed": true,
+          "evidence": "--line: calc(var(--font-size-body) * var(--line-height-body)) (27px) and --space-0-25 through --space-6 are calc(n * var(--line)); section gap is rounded to var(--line)."
+        },
+        {
+          "text": "tokens.css gives the uppercase label token letter-spacing of at least 0.05em and the hero token zero or negative letter-spacing",
+          "passed": true,
+          "evidence": "--letter-spacing-label: 0.08em (computed 0.96px at 12px); --letter-spacing-hero: -0.02em."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "measure-wide-face",
+      "eval_name": "measure-wide-face",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 110.8,
+        "tokens": 119875,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Rendered at a 1280px-wide viewport in Verdana with English sample prose, full body lines in .prose average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js --css: avgCharsPerLine 64.9 at 1280px (max-inline-size: 54ch)."
+        },
+        {
+          "text": "prose.css spaces blocks in a unit equal to one prose body line (1.125rem times the body line-height, e.g. a custom property or 1lh on the paragraph), not in rlh or rem values that resolve against the 16px root line",
+          "passed": true,
+          "evidence": "--rhythm: calc(var(--prose-font-size) * var(--prose-leading)) = 1.125rem x 1.6; `.prose > * + * { margin-block-start: var(--rhythm) }` rendered 28.8px = 1.000 body line."
+        },
+        {
+          "text": "prose.css sets h2 and h3 margins as whole or half multiples of that same prose body line",
+          "passed": true,
+          "evidence": "h2 calc(var(--rhythm) * 2), h3 calc(var(--rhythm) * 1.5), h2 + h3 var(--rhythm), heading + * var(--rhythm-half); rendered gaps 2/1.5/1/0.5, margin-block-end 0 so no collapse."
+        },
+        {
+          "text": "prose.css sets the body font-size as a fixed rem value with no vw or vi term, so it doubles at 200% zoom",
+          "passed": true,
+          "evidence": "--prose-font-size: 1.125rem; headings 2rem/1.40625rem; no vw/vi/clamp."
+        },
+        {
+          "text": "prose.css uses logical properties for every text-flow box property (no margin-left/right, padding-left/right, width or max-width on text, text-align: left/right)",
+          "passed": true,
+          "evidence": "max-inline-size, margin-inline, padding-inline-start, border-inline-start; no physical left/right/width or text-align left/right."
+        },
+        {
+          "text": "prose.css sets h2 and h3 line-heights so each heading line is a whole or half multiple of the body line, so blocks after a wrapped heading land back on the body interval",
+          "passed": true,
+          "evidence": "Regraded to the reading used in iteration-1: h2 line-height is 1.5 body lines, a half multiple as the assertion text allows (iteration-1 passed the same choice twice). Under the strict reading of the trailing clause it fails: a wrapped h2 shifts the next block by half a line. Original grader evidence: h2 line-height calc(var(--rhythm) * 1.5) = 1.5 body lines per heading line; rendered, a 2-line h2 is 3 lines tall and the next block lands at 16.5 body lines (half a line off the interval), staying off-grid afterwards."
+        },
+        {
+          "text": "prose.css gives an h3 that directly follows an h2 at least one body line of space above it",
+          "passed": true,
+          "evidence": "`.prose > h2 + h3 { margin-block-start: var(--rhythm) }` (specificity 0,1,2 beats `* + h3`); rendered gap 28.8px = 1.0 body line."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "measure-wide-face",
+      "eval_name": "measure-wide-face",
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 142.2,
+        "tokens": 122948,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Rendered at a 1280px-wide viewport in Verdana with English sample prose, full body lines in .prose average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js --css: avgCharsPerLine 67.3 at 1280px (max-inline-size: 56ch)."
+        },
+        {
+          "text": "prose.css spaces blocks in a unit equal to one prose body line (1.125rem times the body line-height, e.g. a custom property or 1lh on the paragraph), not in rlh or rem values that resolve against the 16px root line",
+          "passed": true,
+          "evidence": "--prose-line: 1.75rem is also the body line-height (line-height: var(--prose-line)), so the unit equals the rendered prose body line (28px = 18px x 1.556), not a root line; sibling gap rendered 28px = 1.000 body line."
+        },
+        {
+          "text": "prose.css sets h2 and h3 margins as whole or half multiples of that same prose body line",
+          "passed": true,
+          "evidence": "h2 calc(var(--prose-line) * 2), h3 calc(var(--prose-line) * 1.5), h2 + h3 var(--prose-line), heading + * var(--prose-half); rendered gaps 2/1.5/1/0.5, no collapse."
+        },
+        {
+          "text": "prose.css sets the body font-size as a fixed rem value with no vw or vi term, so it doubles at 200% zoom",
+          "passed": true,
+          "evidence": "font-size: 1.125rem; headings 1.75rem/1.375rem; no vw/vi/clamp."
+        },
+        {
+          "text": "prose.css uses logical properties for every text-flow box property (no margin-left/right, padding-left/right, width or max-width on text, text-align: left/right)",
+          "passed": true,
+          "evidence": "max-inline-size, padding-inline-start, margin-inline, border-inline-start; no physical left/right/width properties."
+        },
+        {
+          "text": "prose.css sets h2 and h3 line-heights so each heading line is a whole or half multiple of the body line, so blocks after a wrapped heading land back on the body interval",
+          "passed": true,
+          "evidence": "Regraded to the reading used in iteration-1: h2 line-height is 1.5 body lines, a half multiple as the assertion text allows (iteration-1 passed the same choice twice). Under the strict reading of the trailing clause it fails: a wrapped h2 shifts the next block by half a line. Original grader evidence: h2 line-height calc(var(--prose-line) * 1.5) = 1.5 body lines; rendered, the paragraph after a 2-line h2 starts at 24.5 (sample) and 16.5 (wrap test) body lines, half a line off; the CSS comment itself concedes the shift."
+        },
+        {
+          "text": "prose.css gives an h3 that directly follows an h2 at least one body line of space above it",
+          "passed": true,
+          "evidence": "`.prose > h2 + h3 { margin-block-start: var(--prose-line) }`; rendered gap 28px = 1.0 body line."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "ofl-feature-check",
+      "eval_name": "ofl-feature-check",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 504.9,
+        "tokens": 151270,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "notes.md states the features consistently with the files: Source Serif 4 roman has onum, smcp, c2sc and case; Source Serif 4 italic has onum and case but no smcp or c2sc; Outfit has tnum but no onum, smcp, c2sc or case",
+          "passed": true,
+          "evidence": "notes.md table: roman small caps 'yes (355 / 346 glyphs)', onum, case yes; italic small caps '**no**', figures 'same' (onum), case yes; Outfit small caps 'no', 'tnum only' figures, case '**no**'. Consistent with ground truth."
+        },
+        {
+          "text": "article.css sets the Source Serif 4 body paragraphs in oldstyle figures (oldstyle-nums or \"onum\")",
+          "passed": true,
+          "evidence": ".prose 'font-variant-numeric: oldstyle-nums proportional-nums'; rendered p computes oldstyle-nums proportional-nums."
+        },
+        {
+          "text": "article.css sets abbr acronyms in the Source Serif 4 roman body in true small caps (all-small-caps, or c2sc plus smcp) with positive letter-spacing",
+          "passed": true,
+          "evidence": "'.prose abbr { font-variant-caps: all-small-caps; letter-spacing: 0.05em; }'; rendered roman abbr all-small-caps, 1px."
+        },
+        {
+          "text": "Acronyms inside em passages cannot be rendered as synthesized small caps: font-synthesis (or font-synthesis-small-caps) is none for them, or article.css resets them to normal capitals, and notes.md or a comment says the italic has no small caps",
+          "passed": true,
+          "evidence": "'.prose em abbr, .prose i abbr { font-variant-caps: normal; font-size: 0.82em; ... }' and font-synthesis: none; rendered em abbr caps normal, synthesis-small-caps none; comment 'The italic file has NO smcp and NO c2sc'. Note: it deliberately sets scaled-down capitals (16.4px vs 20px text), hand-built not browser-synthesized."
+        },
+        {
+          "text": "article.css requests no oldstyle figures, small caps or case-sensitive forms (no oldstyle-nums, onum, small-caps, all-small-caps, smcp, c2sc or \"case\") for Outfit text, unless a comment beside the rule says the font lacks the feature and the rule is inert",
+          "passed": true,
+          "evidence": "Outfit rules request no onum/smcp/c2sc/case: headings numeric normal, eyebrow 'tabular-nums', table 'tabular-nums lining-nums'; h2/h3 and table abbr reset to normal. Caveat: abbr inside .eyebrow would compute all-small-caps in Outfit (uncommented); not counted."
+        },
+        {
+          "text": "article.css sets the results table numbers in Outfit with tabular-nums and gives the uppercase .eyebrow positive letter-spacing",
+          "passed": true,
+          "evidence": "Table in var(--prose-sans) Outfit with 'tabular-nums lining-nums' (rendered td Outfit); .eyebrow 'letter-spacing: 0.1em'."
+        },
+        {
+          "text": "article.css declares the Source Serif 4 roman and italic files and the Outfit file in @font-face with weight ranges, the italic with font-style: italic, and disables font-synthesis for the text",
+          "passed": true,
+          "evidence": "@font-face: roman 200 900, italic 200 900 'font-style: italic', Outfit 100 900 (plus metric fallbacks); all loaded. '.prose { font-synthesis: none; }'."
+        },
+        {
+          "text": "Rendered at a 1280px-wide viewport with Source Serif 4 and English sample prose, full body lines in .prose average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js at 1280px: avgCharsPerLine 72.1, inside 58-74."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "ofl-feature-check",
+      "eval_name": "ofl-feature-check",
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 250.6,
+        "tokens": 148150,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "notes.md states the features consistently with the files: Source Serif 4 roman has onum, smcp, c2sc and case; Source Serif 4 italic has onum and case but no smcp or c2sc; Outfit has tnum but no onum, smcp, c2sc or case",
+          "passed": true,
+          "evidence": "notes.md table: roman has smcp, c2sc, onum, case; italic has onum, case, '**smcp, c2sc**' not present; Outfit has tnum, not present 'case, smcp, onum, lnum', and eyebrow note 'no small caps'. Consistent with ground truth."
+        },
+        {
+          "text": "article.css sets the Source Serif 4 body paragraphs in oldstyle figures (oldstyle-nums or \"onum\")",
+          "passed": true,
+          "evidence": ".prose 'font-variant-numeric: oldstyle-nums proportional-nums'; rendered p computes oldstyle-nums proportional-nums."
+        },
+        {
+          "text": "article.css sets abbr acronyms in the Source Serif 4 roman body in true small caps (all-small-caps, or c2sc plus smcp) with positive letter-spacing",
+          "passed": true,
+          "evidence": "'.prose abbr { font-variant-caps: all-small-caps; letter-spacing: 0.04em; }'; rendered roman abbr all-small-caps, 0.79px."
+        },
+        {
+          "text": "Acronyms inside em passages cannot be rendered as synthesized small caps: font-synthesis (or font-synthesis-small-caps) is none for them, or article.css resets them to normal capitals, and notes.md or a comment says the italic has no small caps",
+          "passed": true,
+          "evidence": "'.prose em abbr, .prose i abbr { font-variant-caps: normal; }' plus font-synthesis: none; rendered em abbr caps normal, synthesis-small-caps none. Comment: 'the Italic file has no small caps'."
+        },
+        {
+          "text": "article.css requests no oldstyle figures, small caps or case-sensitive forms (no oldstyle-nums, onum, small-caps, all-small-caps, smcp, c2sc or \"case\") for Outfit text, unless a comment beside the rule says the font lacks the feature and the rule is inert",
+          "passed": true,
+          "evidence": "Outfit rules request no onum/smcp/c2sc/case: headings numeric normal, eyebrow 'lining-nums proportional-nums', table 'tabular-nums lining-nums'; h2/h3 abbr reset. Caveat: abbr in table or .eyebrow would compute all-small-caps in Outfit (uncommented); not counted."
+        },
+        {
+          "text": "article.css sets the results table numbers in Outfit with tabular-nums and gives the uppercase .eyebrow positive letter-spacing",
+          "passed": true,
+          "evidence": "Table in var(--prose-sans) Outfit with 'tabular-nums lining-nums' (rendered td Outfit); .eyebrow 'letter-spacing: 0.1em'."
+        },
+        {
+          "text": "article.css declares the Source Serif 4 roman and italic files and the Outfit file in @font-face with weight ranges, the italic with font-style: italic, and disables font-synthesis for the text",
+          "passed": true,
+          "evidence": "@font-face: roman 200 900, italic 200 900 'font-style: italic', Outfit 100 900; all loaded. '.prose { font-synthesis: none; }'."
+        },
+        {
+          "text": "Rendered at a 1280px-wide viewport with Source Serif 4 and English sample prose, full body lines in .prose average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js at 1280px: avgCharsPerLine 72.1, inside 58-74."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "physical-props-audit",
+      "eval_name": "physical-props-audit",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.846,
+        "passed": 11,
+        "failed": 2,
+        "total": 13,
+        "time_seconds": 190.2,
+        "tokens": 129152,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review.md names .docs-main width, margin: 0 auto, padding-left and padding-right and gives logical replacements (inline-size or max-inline-size, margin-inline: auto, padding-inline)",
+          "passed": true,
+          "evidence": "Finding 10 names padding-left/right -> `padding-inline: 32px` and says use `margin-inline: auto` for the centering; finding 16 replaces `width: 960px` with `max-inline-size: 960px`."
+        },
+        {
+          "text": "review.md names .sidebar float: left, margin-right and text-align: right and replaces them with float: inline-start, margin-inline-end and text-align: end",
+          "passed": true,
+          "evidence": "Finding 1: `float: inline-start; inline-size: 240px; margin-inline-end: 24px; text-align: end;`."
+        },
+        {
+          "text": "review.md names .callout border-left, padding-left, margin-left and both left border radii and replaces them with border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius and border-end-start-radius",
+          "passed": true,
+          "evidence": "Finding 2 quotes the physical set and fixes with border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius, border-end-start-radius."
+        },
+        {
+          "text": "review.md names the ul padding-left and the blockquote's left margin and replaces them with padding-inline-start and margin-inline-start (with margin-block for the vertical part)",
+          "passed": true,
+          "evidence": "Finding 8 `padding-inline-start: 1.5em`; finding 9 `margin-block: 1.5em; margin-inline: 2em 0;` for the left blockquote margin."
+        },
+        {
+          "text": "review.md names .note-badge right: 8px, the h2 text-align: left and the ::after margin-left and replaces them with inset-inline-end, text-align: start and margin-inline-start",
+          "passed": true,
+          "evidence": "Finding 7 `inset-inline-end: 8px`; finding 6 `text-align: start`; finding 4 replaces margin-left with `margin-inline-start: 0.25em`."
+        },
+        {
+          "text": "review.md says the right arrow (\\2192) and the breadcrumb translateX need mirroring in RTL (for example via :dir(rtl))",
+          "passed": true,
+          "evidence": "Finding 4 swaps the arrow to `\\2190` under `:dir(rtl)`; finding 5 says translateX nudges the wrong way in RTL and replaces it with a logical `margin-inline-start: 2px`."
+        },
+        {
+          "text": "review.md leaves the box-shadow offset and rotate(-4deg) physical, or explicitly classes them as decorative and not to convert",
+          "passed": false,
+          "evidence": "Converts both: revised sheet mirrors the shadow (`.callout:dir(rtl) { --callout-shadow-x: -2px; }`) and the tilt (`.hero-illustration:dir(rtl) { --hero-tilt: 4deg; }`)."
+        },
+        {
+          "text": "review.md explains that 75ch in Verdana gives well over 75 characters because ch is the width of the zero, and recommends an em-based or measured measure",
+          "passed": false,
+          "evidence": "Explains ch is the width of '0' (75ch = 763px) but never says it yields well over 75 characters; keeps `max-inline-size: 75ch` for Latin and suggests 65ch to 70ch, em only for Arabic (rendered 75ch is 91.6 chars)."
+        },
+        {
+          "text": "review.md states that with content-box sizing .docs-main occupies 1024px in total (960px plus two 32px paddings)",
+          "passed": true,
+          "evidence": "Finding 16: 'Measured: .docs-main renders 1024px wide (960 plus 2 x 32 padding)'."
+        },
+        {
+          "text": "review.md flags widows: 1 and orphans: 1 as allowing single stranded lines and recommends 2 or more",
+          "passed": true,
+          "evidence": "Finding 15: '1 means a single stranded line is fine'; fix `widows: 2; orphans: 2;` or 3."
+        },
+        {
+          "text": "review.md warns against letterspacing Arabic text (letter-spacing breaks joining)",
+          "passed": true,
+          "evidence": "'Never add letter-spacing or text-transform to Arabic. Letter-spacing breaks the joins between connected letters.'"
+        },
+        {
+          "text": "review.md explains that the browser's default padding-inline-start (40px) stays on the right in RTL when ul uses padding-left, so the list is indented on both sides",
+          "passed": true,
+          "evidence": "Finding 8: default `padding-inline-start: 40px` maps to the right in RTL while padding-left adds 24px on the left (measured 24px left, 40px right)."
+        },
+        {
+          "text": "review.md proposes no invalid CSS and no transform that would double-mirror a Bidi_Mirrored glyph",
+          "passed": true,
+          "evidence": "All proposed declarations pass CSS.supports (the only flags were prose/quoted-original extraction artifacts); says › and > mirror automatically and only arrows/SVG need scaleX(-1), so no double-mirroring."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "physical-props-audit",
+      "eval_name": "physical-props-audit",
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 0.769,
+        "passed": 10,
+        "failed": 3,
+        "total": 13,
+        "time_seconds": 179.2,
+        "tokens": 127224,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "review.md names .docs-main width, margin: 0 auto, padding-left and padding-right and gives logical replacements (inline-size or max-inline-size, margin-inline: auto, padding-inline)",
+          "passed": true,
+          "evidence": "L7-12 names `width: 960px` with padding-left/padding-right; fix `max-inline-size: 960px; margin-inline: auto; padding-inline: 32px;`."
+        },
+        {
+          "text": "review.md names .sidebar float: left, margin-right and text-align: right and replaces them with float: inline-start, margin-inline-end and text-align: end",
+          "passed": true,
+          "evidence": "L15-20 names float: left, margin-right, text-align: right; fix float: inline-start, margin-inline-end: 24px, text-align: end."
+        },
+        {
+          "text": "review.md names .callout border-left, padding-left, margin-left and both left border radii and replaces them with border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius and border-end-start-radius",
+          "passed": true,
+          "evidence": "L22-29 maps radii explicitly ('was border-top-left-radius' -> border-start-start-radius etc.) plus border-inline-start, padding-inline-start, margin-inline-start."
+        },
+        {
+          "text": "review.md names the ul padding-left and the blockquote's left margin and replaces them with padding-inline-start and margin-inline-start (with margin-block for the vertical part)",
+          "passed": true,
+          "evidence": "L34 `padding-inline-start: 1.5em`; L35 `margin-block: 1.5em; margin-inline: 2em 0;`."
+        },
+        {
+          "text": "review.md names .note-badge right: 8px, the h2 text-align: left and the ::after margin-left and replaces them with inset-inline-end, text-align: start and margin-inline-start",
+          "passed": true,
+          "evidence": "L37 `inset-inline-end: 8px`; L38 `text-align: start` (or delete); L32 `margin-inline-start: 0.25em`."
+        },
+        {
+          "text": "review.md says the right arrow (\\2192) and the breadcrumb translateX need mirroring in RTL (for example via :dir(rtl))",
+          "passed": true,
+          "evidence": "L32 swaps to `\\2190` under `.nav-next:dir(rtl)::after`; L31 says the translateX nudge goes the wrong way and replaces it with `position: relative; inset-inline-start: 2px`."
+        },
+        {
+          "text": "review.md leaves the box-shadow offset and rotate(-4deg) physical, or explicitly classes them as decorative and not to convert",
+          "passed": false,
+          "evidence": "Corrected stylesheet mirrors the shadow (`.callout:dir(rtl) { --shadow-x: -2px; }`) instead of leaving it physical; rotate is kept but the shadow is converted."
+        },
+        {
+          "text": "review.md explains that 75ch in Verdana gives well over 75 characters because ch is the width of the zero, and recommends an em-based or measured measure",
+          "passed": false,
+          "evidence": "Says ch is the width of '0' and to check visually, but never states 75ch in Verdana gives well over 75 characters (rendered 91.6); keeps `max-inline-size: 75ch`."
+        },
+        {
+          "text": "review.md states that with content-box sizing .docs-main occupies 1024px in total (960px plus two 32px paddings)",
+          "passed": true,
+          "evidence": "Table: '.docs-main width ... 1024px (content-box plus 64px padding)'."
+        },
+        {
+          "text": "review.md flags widows: 1 and orphans: 1 as allowing single stranded lines and recommends 2 or more",
+          "passed": true,
+          "evidence": "'A value of 1 explicitly allows a single stranded line'; fix `widows: 2; orphans: 2;` or 3."
+        },
+        {
+          "text": "review.md warns against letterspacing Arabic text (letter-spacing breaks joining)",
+          "passed": true,
+          "evidence": "'Never add letter-spacing or text-transform to Arabic. Tracking breaks the joins between connected letters.'"
+        },
+        {
+          "text": "review.md explains that the browser's default padding-inline-start (40px) stays on the right in RTL when ul uses padding-left, so the list is indented on both sides",
+          "passed": true,
+          "evidence": "L34: 'The browser default for lists is padding-inline-start: 40px, which in RTL maps to the right... 40px of padding on the right and 24px on the left.'"
+        },
+        {
+          "text": "review.md proposes no invalid CSS and no transform that would double-mirror a Bidi_Mirrored glyph",
+          "passed": false,
+          "evidence": "CSS is valid, but L31 says '`>` used as an arrow... do not [mirror] and need explicit handling (see L32)', i.e. a glyph swap; `>` is Bidi_Mirrored (unicodedata.mirrored('>') = 1), so that swap would double-mirror it."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "rendered-nbsp-spec-table",
+      "eval_name": "rendered-nbsp-spec-table",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.667,
+        "passed": 4,
+        "failed": 2,
+        "total": 6,
+        "time_seconds": 116.2,
+        "tokens": 124519,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "In the rendered DOM for both English and Finnish, every number-unit pair in the table (weight, battery, storage, display, battery life, price) is joined by U+00A0 or U+202F, never a plain U+0020",
+          "passed": true,
+          "evidence": "Rendered EN and FI: every number-unit pair joined by U+00A0 ('1.24\\u00a0kg', '13,6\\u00a0tuumaa', '1\\u00a0Tt', '1\\u00a0899\\u00a0\\u20ac'); no U+0020 between a number and its unit."
+        },
+        {
+          "text": "The Finnish rendering uses decimal commas (1,24 and 99,5) and groups the prices with a no-break space (1 299 €)",
+          "passed": true,
+          "evidence": "Rendered FI cells: '1,24\\u00a0kg', '99,5\\u00a0Wh', '1\\u00a0299\\u00a0\\u20ac'."
+        },
+        {
+          "text": "specs.html sets the numeric cells with tabular-nums",
+          "passed": true,
+          "evidence": "CSS `table { font-variant-numeric: tabular-nums lining-nums; }`; computed on every td 'lining-nums tabular-nums'."
+        },
+        {
+          "text": "specs.html sets the html lang attribute to fi when Finnish is selected",
+          "passed": true,
+          "evidence": "After clicking the 'Suomi' button, html lang === 'fi' (render() sets documentElement.lang)."
+        },
+        {
+          "text": "specs.html uses logical properties for text layout (no margin-left/right, padding-left/right, text-align: left/right, left/right offsets)",
+          "passed": false,
+          "evidence": "Physical properties in text layout: `thead th { text-align: right; }`, `thead th:first-child { text-align: left; }`, `tbody td { text-align: right; }`, sticky `left: 0;`, plus margin-bottom/border-bottom."
+        },
+        {
+          "text": "In the rendered DOM for both languages, the battery-life qualifier (up to / jopa) is bound to its number with a no-break space, so it cannot be stranded at a line end",
+          "passed": false,
+          "evidence": "Rendered EN cell is 'up\\u0020to\\u00a018\\u00a0h': the qualifier itself contains a plain U+0020, so 'up' can be stranded at a line end (only 'to' is bound to the number); FI 'jopa\\u00a018\\u00a0h' is fine."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "rendered-nbsp-spec-table",
+      "eval_name": "rendered-nbsp-spec-table",
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 0.833,
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "time_seconds": 110.3,
+        "tokens": 120198,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "In the rendered DOM for both English and Finnish, every number-unit pair in the table (weight, battery, storage, display, battery life, price) is joined by U+00A0 or U+202F, never a plain U+0020",
+          "passed": true,
+          "evidence": "Rendered EN and FI: every number-unit pair joined by U+00A0 ('99.5\\u00a0Wh', '16,2\\u00a0tuumaa', '512\\u00a0Gt', '2\\u00a0799\\u00a0\\u20ac'); no U+0020."
+        },
+        {
+          "text": "The Finnish rendering uses decimal commas (1,24 and 99,5) and groups the prices with a no-break space (1 299 €)",
+          "passed": true,
+          "evidence": "Rendered FI cells: '1,24\\u00a0kg', '99,5\\u00a0Wh', '1\\u00a0299\\u00a0\\u20ac'."
+        },
+        {
+          "text": "specs.html sets the numeric cells with tabular-nums",
+          "passed": true,
+          "evidence": "CSS `table { font-variant-numeric: tabular-nums lining-nums; }`; computed on every td 'lining-nums tabular-nums'."
+        },
+        {
+          "text": "specs.html sets the html lang attribute to fi when Finnish is selected",
+          "passed": true,
+          "evidence": "After clicking the 'Suomi' button, html lang === 'fi'."
+        },
+        {
+          "text": "specs.html uses logical properties for text layout (no margin-left/right, padding-left/right, text-align: left/right, left/right offsets)",
+          "passed": false,
+          "evidence": "Physical properties in text layout: `caption { text-align: left; }`, `thead th { text-align: right; }`, `tbody th { text-align: left; }`, `td { text-align: right; }`, plus margin-bottom/border-top."
+        },
+        {
+          "text": "In the rendered DOM for both languages, the battery-life qualifier (up to / jopa) is bound to its number with a no-break space, so it cannot be stranded at a line end",
+          "passed": true,
+          "evidence": "Rendered EN 'up\\u00a0to\\u00a018\\u00a0h', FI 'jopa\\u00a018\\u00a0h': qualifier bound with U+00A0 throughout."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "zoom-safe-scale",
+      "eval_name": "zoom-safe-scale",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6,
+        "passed": 3,
+        "failed": 2,
+        "total": 5,
+        "time_seconds": 181.6,
+        "tokens": 126560,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At 200% zoom on a 1280px window (CSS viewport 640px, 1rem = 32px), the body, small, caption and label font-size tokens compute to exactly twice their size at 100% zoom",
+          "passed": true,
+          "evidence": "Playwright: body 16.00px@1280 -> 16.00px@640, ratio 2.00; small 14.00px@1280 -> 14.00px@640, ratio 2.00; caption 13.00px@1280 -> 13.00px@640, ratio 2.00; label 12.00px@1280 -> 12.00px@640, ratio 2.00."
+        },
+        {
+          "text": "At 200% zoom on a 1280px window, every heading and hero font-size token computes to at least 1.6 times its size at 100% zoom",
+          "passed": false,
+          "evidence": "Playwright 2x@640/@1280 ratios: hero 1.584, h1 1.663, h2 1.711, h3 1.765, h4 1.880; hero below 1.6 (--font-size-hero 57.04px -> 90.37px)."
+        },
+        {
+          "text": "Adjacent heading tokens (hero, h1, h2, h3, h4) differ by at least 1.15 times at both a 360px and a 1440px viewport at 100% zoom",
+          "passed": true,
+          "evidence": "Playwright ratios @360/@1440: hero/h1 1.250/1.364, h1/h2 1.231/1.294, h2/h3 1.238/1.308, h3/h4 1.167/1.300."
+        },
+        {
+          "text": "tokens.css derives vertical spacing tokens from the body line (body size times body line-height), not from a fixed px value",
+          "passed": false,
+          "evidence": "Spacing is a fixed rem scale (--space-3xs: 0.25rem ... --space-2xl: 4rem, \"4px base\"), em flow tokens (--flow-space: 1em) and fluid clamp() sections; nothing references body size x line-height."
+        },
+        {
+          "text": "tokens.css gives the uppercase label token letter-spacing of at least 0.05em and the hero token zero or negative letter-spacing",
+          "passed": true,
+          "evidence": "--letter-spacing-label: 0.08em (computed 0.96px at 12px); --letter-spacing-hero: -0.02em."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "zoom-safe-scale",
+      "eval_name": "zoom-safe-scale",
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 0.4,
+        "passed": 2,
+        "failed": 3,
+        "total": 5,
+        "time_seconds": 218.6,
+        "tokens": 129086,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At 200% zoom on a 1280px window (CSS viewport 640px, 1rem = 32px), the body, small, caption and label font-size tokens compute to exactly twice their size at 100% zoom",
+          "passed": true,
+          "evidence": "Playwright: body 16.00px@1280 -> 16.00px@640, ratio 2.00; small 14.00px@1280 -> 14.00px@640, ratio 2.00; caption 13.00px@1280 -> 13.00px@640, ratio 2.00; label 12.00px@1280 -> 12.00px@640, ratio 2.00."
+        },
+        {
+          "text": "At 200% zoom on a 1280px window, every heading and hero font-size token computes to at least 1.6 times its size at 100% zoom",
+          "passed": false,
+          "evidence": "Playwright 2x@640/@1280 ratios: hero 1.584, h1 1.584, h2 1.692, h3 1.797, h4 1.880; hero, h1 below 1.6 (--font-size-display 57.04px -> 90.37px)."
+        },
+        {
+          "text": "Adjacent heading tokens (hero, h1, h2, h3, h4) differ by at least 1.15 times at both a 360px and a 1440px viewport at 100% zoom",
+          "passed": false,
+          "evidence": "Playwright ratios @360/@1440: hero/h1 1.250/1.250, h1/h2 1.333/1.500, h2/h3 1.200/1.333, h3/h4 1.111/1.200; h3/h4 below 1.15 at 360px (20.00px / 18.00px)."
+        },
+        {
+          "text": "tokens.css derives vertical spacing tokens from the body line (body size times body line-height), not from a fixed px value",
+          "passed": false,
+          "evidence": "Spacing is a fixed rem step scale (--space-1: 0.25rem ... --space-9: 6rem, \"4px base\") plus clamp() sections; nothing is derived from body size x line-height."
+        },
+        {
+          "text": "tokens.css gives the uppercase label token letter-spacing of at least 0.05em and the hero token zero or negative letter-spacing",
+          "passed": true,
+          "evidence": "--letter-spacing-label: 0.08em (computed 0.96px at 12px); --letter-spacing-display: -0.025em."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1,
+        "max": 1
+      },
+      "time_seconds": {
+        "mean": 299.85,
+        "stddev": 121.4406,
+        "min": 144.2,
+        "max": 467.9
+      },
+      "tokens": {
+        "mean": 161437.7,
+        "stddev": 16234.077,
+        "min": 138464,
+        "max": 188220
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.8115,
+        "stddev": 0.2056,
+        "min": 0.4,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 200.46,
+        "stddev": 116.9527,
+        "min": 110.3,
+        "max": 504.9
+      },
+      "tokens": {
+        "mean": 129898.2,
+        "stddev": 10960.4995,
+        "min": 119875,
+        "max": 151270
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.19",
+      "time_seconds": "+99.4",
+      "tokens": "+31540"
+    }
+  },
+  "notes": [
+    "Pooled over all assertions: with skill 78/78 (100%), without 65/78 (83.3%). The headline 100% vs 81% is the mean of per-run pass rates.",
+    "Per case (pooled, 2 runs each): zoom-safe-scale 10/10 vs 5/10; physical-props-audit 26/26 vs 21/26; rendered-nbsp-spec-table 12/12 vs 9/12; ofl-feature-check 16/16 vs 16/16; measure-wide-face 14/14 vs 14/14.",
+    "Skill version: skills/measured-type at commit 313a165, after the review fixes. Same prompts, assertions, grader brief and model as iteration-1. Baselines were rerun too; the skill was staged without the evals folder so with-skill runs could not read graders.",
+    "The 13 baseline misses: 3 errors a reader would see (both audits kept 75ch in Verdana, 91.6 chars/line, without saying it overshoots; one audit said the '>' character needs an explicit RTL swap, which would mirror a Bidi_Mirrored glyph twice), 1 content-portability requirement (plain space inside 'up to' while nowrap kept the page from breaking) and 9 conventions or house thresholds (1.6x zoom bar x2, 1.15x step floor x1, spacing from the body line x2, logical properties without an RTL requirement x2, decoration left unmirrored x2).",
+    "zoom-safe-scale: both baseline heroes reached 1.584x at 200% zoom, just under the 1.6x house bar; both pass the max/min <= 2.5 heuristic. With the skill, both runs kept h3/h4 fixed and fluid ranges at or under 1.36x (1.67-1.81x at 200% zoom).",
+    "measure-wide-face no longer separates the two: every run landed at 64.9-67.3 chars/line. Assertion 6 ('whole or half multiple ... so blocks after a wrapped heading land back on the interval') is internally ambiguous. The grader failed both baselines for 1.5-line h2s that drift half a line when wrapped; they were regraded to pass to match iteration-1, which passed the same choice twice. Under the strict reading the baselines score 12/14; in iteration-1 the with-skill run-1 and baseline run-2 would also have failed. The fixed skill now states the whole-multiple rule outright, so this assertion is an answer key.",
+    "ofl-feature-check no longer separates the two: all four runs read the files and got every feature right. Grader judgment calls: an abbr placed inside Outfit text would still get all-small-caps in three runs (no visible effect with synthesis off; the prompt puts acronyms in body text); one baseline hand-sized italic capitals (0.82em) instead of leaving full caps. Both passed.",
+    "Grading differences from iteration-1: the physical-props grader accepted naming 'margin: 0 auto' and the padding pair by description; iteration-1 failed a with-skill run for not naming them. The nbsp grader passed a closed-up 13,6″ (no space at all) as not breakable.",
+    "Cost: with skill +99 s and +32k tokens per run on average, up from +35 s and +21k in iteration-1. The with-skill runs read the longer references and ran more verification scripts.",
+    "Variance: n=2 per configuration. Treat one-assertion differences as noise. Stable signals across both iterations: the zoom case (house bar plus step floor plus spacing) and the RTL audit (decoration, the 75ch overshoot)."
+  ]
+}

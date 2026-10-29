@@ -1,0 +1,117 @@
+
+360px window, 100%: label 12.00, caption 14.00, small 16.00, body 18.00, h4 20.00, h3 24.00, h2 30.00, h1 36.00, hero 44.00
+  label -> caption: 1.167
+  caption -> small: 1.143
+  small -> body: 1.125
+  body -> h4: 1.111
+  h4 -> h3: 1.200
+PASS 360px h4->h3 step 1.200 >= 1.2
+  h3 -> h2: 1.250
+PASS 360px h3->h2 step 1.250 >= 1.2
+  h2 -> h1: 1.200
+PASS 360px h2->h1 step 1.200 >= 1.2
+  h1 -> hero: 1.222
+PASS 360px h1->hero step 1.222 >= 1.2
+PASS 360px h4 leading ratio 1.350 in 1.05-1.35
+PASS 360px h3 leading ratio 1.125 in 1.05-1.35
+PASS 360px h2 leading ratio 1.350 in 1.05-1.35
+PASS 360px --space-0-25 = 6.75px = 0.250 lines
+PASS 360px --space-0-5 = 13.50px = 0.500 lines
+PASS 360px --space-1 = 27.00px = 1.000 lines
+PASS 360px --space-1-5 = 40.50px = 1.500 lines
+PASS 360px --space-2 = 54.00px = 2.000 lines
+PASS 360px --space-3 = 81.00px = 3.000 lines
+PASS 360px --space-4 = 108.00px = 4.000 lines
+PASS 360px --space-6 = 162.00px = 6.000 lines
+PASS 360px --space-section = 81.00px = 3.000 lines
+
+1440px window, 100%: label 12.00, caption 14.00, small 16.00, body 18.00, h4 20.00, h3 24.00, h2 36.00, h1 48.00, hero 60.00
+  label -> caption: 1.167
+  caption -> small: 1.143
+  small -> body: 1.125
+  body -> h4: 1.111
+  h4 -> h3: 1.200
+PASS 1440px h4->h3 step 1.200 >= 1.2
+  h3 -> h2: 1.500
+PASS 1440px h3->h2 step 1.500 >= 1.2
+  h2 -> h1: 1.333
+PASS 1440px h2->h1 step 1.333 >= 1.2
+  h1 -> hero: 1.250
+PASS 1440px h1->hero step 1.250 >= 1.2
+PASS 1440px h4 leading ratio 1.350 in 1.05-1.35
+PASS 1440px h3 leading ratio 1.125 in 1.05-1.35
+PASS 1440px h2 leading ratio 1.125 in 1.05-1.35
+PASS 1440px --space-0-25 = 6.75px = 0.250 lines
+PASS 1440px --space-0-5 = 13.50px = 0.500 lines
+PASS 1440px --space-1 = 27.00px = 1.000 lines
+PASS 1440px --space-1-5 = 40.50px = 1.500 lines
+PASS 1440px --space-2 = 54.00px = 2.000 lines
+PASS 1440px --space-3 = 81.00px = 3.000 lines
+PASS 1440px --space-4 = 108.00px = 4.000 lines
+PASS 1440px --space-6 = 162.00px = 6.000 lines
+PASS 1440px --space-section = 135.00px = 5.000 lines
+
+Zoom ratios (device px at zoom / device px at 100%)
+PASS 360px 200% label = 2.000x
+PASS 360px 200% caption = 2.000x
+PASS 360px 200% small = 2.000x
+PASS 360px 200% body = 2.000x
+PASS 360px 200% h4 = 2.000x
+PASS 360px 200% h3 = 2.000x
+  360px window @200%: h2 2.000, h1 2.000, hero 2.000
+PASS 768px 200% label = 2.000x
+PASS 768px 200% caption = 2.000x
+PASS 768px 200% small = 2.000x
+PASS 768px 200% body = 2.000x
+PASS 768px 200% h4 = 2.000x
+PASS 768px 200% h3 = 2.000x
+  768px window @200%: h2 1.868, h1 1.789, hero 1.773
+PASS 1024px 200% label = 2.000x
+PASS 1024px 200% caption = 2.000x
+PASS 1024px 200% small = 2.000x
+PASS 1024px 200% body = 2.000x
+PASS 1024px 200% h4 = 2.000x
+PASS 1024px 200% h3 = 2.000x
+  1024px window @200%: h2 1.831, h1 1.738, hero 1.718
+PASS 1280px 200% label = 2.000x
+PASS 1280px 200% caption = 2.000x
+PASS 1280px 200% small = 2.000x
+PASS 1280px 200% body = 2.000x
+PASS 1280px 200% h4 = 2.000x
+PASS 1280px 200% h3 = 2.000x
+  1280px window @200%: h2 1.797, h1 1.692, hero 1.671
+PASS 1440px 200% label = 2.000x
+PASS 1440px 200% caption = 2.000x
+PASS 1440px 200% small = 2.000x
+PASS 1440px 200% body = 2.000x
+PASS 1440px 200% h4 = 2.000x
+PASS 1440px 200% h3 = 2.000x
+  1440px window @200%: h2 1.778, h1 1.667, hero 1.644
+PASS 1680px 200% label = 2.000x
+PASS 1680px 200% caption = 2.000x
+PASS 1680px 200% small = 2.000x
+PASS 1680px 200% body = 2.000x
+PASS 1680px 200% h4 = 2.000x
+PASS 1680px 200% h3 = 2.000x
+  1680px window @200%: h2 1.815, h1 1.722, hero 1.704
+PASS 1920px 200% label = 2.000x
+PASS 1920px 200% caption = 2.000x
+PASS 1920px 200% small = 2.000x
+PASS 1920px 200% body = 2.000x
+PASS 1920px 200% h4 = 2.000x
+PASS 1920px 200% h3 = 2.000x
+  1920px window @200%: h2 1.852, h1 1.778, hero 1.763
+  worst 200% ratio h2: 1.778x
+  worst 200% ratio h1: 1.667x
+  worst 200% ratio hero: 1.644x
+  1440px window @200%: h2 1.778x, h1 1.667x, hero 1.644x
+  1440px window @250%: h2 2.167x, h1 2.000x, hero 1.967x
+  1440px window @300%: h2 2.556x, h1 2.333x, hero 2.289x
+  1440px window @400%: h2 3.333x, h1 3.000x, hero 2.933x
+  1440px window @500%: h2 4.167x, h1 3.750x, hero 3.667x
+PASS 1440px @500% h2 reaches 2x
+PASS 1440px @500% h1 reaches 2x
+PASS 1440px @500% hero reaches 2x
+PASS 320 CSS px viewport: "Documentation" at hero size is 276.6px wide, box 288px (system-ui; recheck with the real face)
+
+All checks passed

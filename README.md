@@ -10,7 +10,7 @@
 [![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
 
-**[Install](#install)**&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[View the evaluations](evals/results/iteration-1/benchmark.md)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
+**[Install](#install)**&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[View the evaluations](evals/results/iteration-2/benchmark.md)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
 
 Measured Type brings typographic judgment into a coding agent's workflow, with
 tools for checking the parts that can be measured. It is for design engineers,
@@ -76,17 +76,19 @@ skill directly. Prompts it is written for:
 
 ## What it catches
 
-Each row is a finding from the committed benchmark, in the words the skill
-uses to report it. The right column says whether the baseline's miss was an
-error a reader would see or a convention the skill teaches.
+Each row is a finding from the committed benchmark (iteration 2, run on the
+current skill), in the words the skill uses to report it. The right column says
+whether the baseline's miss was an error a reader would see or a convention the
+skill teaches.
 
 | Observation | In the benchmark |
 |---|---|
-| **The heading grows too little under zoom.** A `clamp()` with a viewport term does not double when the reader zooms to 200%. | Without the skill, both runs let the hero grow only 1.44× at 200% zoom, under the grader's 1.6× bar. That bar is this project's, not WCAG's: 1.4.4 sets no ratio, and both heroes pass the common max ÷ min ≤ 2.5 heuristic. With the skill, both runs did the ratio math first and cleared it. |
-| **`75ch` in Verdana is not 75 characters.** `1ch` is the width of the zero, which is wider than the average letter. | Both runs without the skill knew that `1ch` is the zero. Neither counted: they kept measures that render 86 and 92 characters per line. A reader would see this one. |
-| **The shadow is decoration, not direction.** An RTL audit converts text flow and leaves decorative offsets alone. | Both runs without the skill mirrored a decorative `box-shadow` and `rotate()`. Whether decoration mirrors is a design call; the skill's answer is no. |
+| **The heading grows too little under zoom.** A `clamp()` with a viewport term does not double when the reader zooms to 200%. | Without the skill, both runs let the hero grow only 1.58× at 200% zoom, under the grader's 1.6× bar. That bar is this project's, not WCAG's: 1.4.4 sets no ratio and both heroes pass the common max ÷ min ≤ 2.5 heuristic. With the skill, both runs did the ratio math first and reached 1.67× and 1.71×. |
+| **`75ch` in Verdana is not 75 characters.** `1ch` is the width of the zero, which is wider than the average letter. | Both runs without the skill knew that `1ch` is the zero. Neither counted: both kept `75ch` for the Latin text, which renders 92 characters per line. A reader would see this one. |
+| **`>` already mirrors.** Bidi-mirrored characters flip by themselves in right-to-left text; swapping them as well flips them back. | One run without the skill said `>` used as an arrow needs an explicit RTL swap, which would point it the wrong way again. A reader would see this one too. |
+| **The shadow is decoration, not direction.** An RTL audit converts text flow and leaves decorative offsets alone. | Both runs without the skill mirrored the decorative `box-shadow`, one the `rotate()` as well. Whether decoration mirrors is a design call; the skill's answer is no. |
 | **The qualifier can break from its number.** "up to 18 h" needs hard spaces in two places, not one. | One run without the skill left a plain space inside "up to". Its `white-space: nowrap` kept the page from breaking there; the hard space keeps the phrase together wherever the text is reused. |
-| **The italic file has no small-cap substitutions.** A feature tag in the roman says nothing about the italic. | All four runs caught this; the bundled script makes it a one-command check instead of a careful reading. |
+| **The italic file has no small-cap substitutions.** A feature tag in the roman says nothing about the italic. | All eight runs across both iterations caught this; the bundled script makes it a one-command check instead of a careful reading. |
 
 The references also cover traps the benchmark does not test: `rlh` is the body
 line only when the body is set at the root size; `Intl.NumberFormat` with
@@ -200,54 +202,66 @@ Open the part that answers the question in front of you.
 ## Evidence
 
 **Method.** Five eval cases, each run twice with the skill and twice without it,
-on Claude Opus 5.5 on 29 October 2026. Graders read only the files each run
-produced. Rendered claims (line length, zoom ratios, the characters in the DOM)
-were measured in Chromium, not read off the source.
+on Claude Opus 5.5. Iteration 1 ran on 29 October 2026; iteration 2 reran both
+configurations the same day on the skill as fixed after review (commit
+`313a165`), with the same prompts, assertions, grader brief and model. Graders
+read only the files each run produced. Rendered claims (line length, zoom
+ratios, the characters in the DOM) were measured in Chromium, not read off the
+source.
 
 **A development set, not a held-out test.** The references were written while
 these cases existed and contain worked answers for some of them: the three
 faces measured at 18px, the italic without small caps, `jopa 18 h` and the
-list-indent trap. The results show that the skill's content reaches the agent
-and changes its output; they do not show how it does on problems nobody wrote
-down in advance. The runs also predate the script and wording fixes made on
-29 October 2026 after review, and have not been rerun.
+list-indent trap. The review fixes added one more: the rhythm section now
+states the whole-line heading rule that a measure-wide-face assertion checks.
+The results show that the skill's content reaches the agent and changes its
+output; they do not show how it does on problems nobody wrote down in advance.
 
-| Case | With skill | Without | What decides it |
-|---|--:|--:|---|
-| zoom-safe-scale | 10/10 | 4/10 | Hero at 1.6× or more at 200% zoom (a house bar); h3 and h4 still 1.15× apart at 360px; spacing from the body line |
-| rendered-nbsp-spec-table | 12/12 | 9/12 | Logical properties; "up to" bound to its number |
-| physical-props-audit | 25/26 | 22/26 | Decorative shadow and rotation left physical; `75ch` in Verdana named as 92 characters |
-| ofl-feature-check | 16/16 | 15/16 | All font synthesis disabled, not only small caps |
-| measure-wide-face | 14/14 | 13/14 | An h3 after an h2 spaced a full body line |
-| **All assertions** | **77/78** | **63/78** | Mean per-run pass rate 99% against 77% |
+| Case | With skill | Without | Iteration 1 | What decides it |
+|---|--:|--:|--:|---|
+| zoom-safe-scale | 10/10 | 5/10 | 10/10 vs 4/10 | Hero at 1.6× or more at 200% zoom (a house bar); h3 and h4 still 1.15× apart at 360px; spacing from the body line |
+| physical-props-audit | 26/26 | 21/26 | 25/26 vs 22/26 | Decoration left physical; `75ch` in Verdana named as 92 characters; no double mirroring |
+| rendered-nbsp-spec-table | 12/12 | 9/12 | 12/12 vs 9/12 | Logical properties; "up to" bound to its number |
+| ofl-feature-check | 16/16 | 16/16 | 16/16 vs 15/16 | No longer separates: every run read the font files correctly |
+| measure-wide-face | 14/14 | 14/14 | 14/14 vs 13/14 | No longer separates: every run measured Verdana itself |
+| **All assertions** | **78/78** | **65/78** | **77/78 vs 63/78** | Mean per-run pass rate 100% against 81% (iteration 1: 99% against 77%) |
 
-**What the 15 baseline misses are.** Two are errors a reader would see: both
-audits kept a `ch` measure that renders 86 and 92 characters. One is a content
-requirement the page did not show: the plain space in "up to" that CSS already
-kept from breaking. The other twelve are conventions and house thresholds the
-skill teaches: the 1.6× zoom bar and the 1.15× step floor, spacing tokens
-derived from the body line, logical properties on a page with no RTL
-requirement, decoration left unmirrored, every kind of font synthesis off and
-a full body line between an h2 and an h3. They are deliberate positions and
-the graders hold them strictly; another careful typographer could choose
-differently on several.
+**What the 13 baseline misses are.** Three are errors a reader would see: both
+audits kept a `75ch` measure that renders 92 characters and one proposed a
+swap that would mirror `>` twice. One is a content requirement the page did
+not show: the plain space in "up to" that CSS already kept from breaking. The
+other nine are conventions and house thresholds the skill teaches: the 1.6×
+zoom bar, the 1.15× step floor, spacing tokens derived from the body line,
+logical properties on a page with no RTL requirement and decoration left
+unmirrored. They are deliberate positions and the graders hold them strictly;
+another careful typographer could choose differently on several. Iteration
+1's 15 misses split into 2 visible errors, 1 content requirement and 12
+conventions.
+
+**Grading caveats.** One measure-wide-face assertion reads two ways ("whole or
+half" lines, yet wrapped headings must land on the interval). Iteration 2 was
+graded the way iteration 1 was; the strict reading would take a point from
+both baselines in iteration 2 and from one run of each configuration in
+iteration 1.
+Graders differed slightly between iterations on how literally a review must
+name each property. The benchmark notes list every judgment call.
 
 **Scope.** Gains concentrate in specific cases. A current model without the
 skill already knows most typographic CSS, measures line length on its own when
-it can and gets locale number formatting right. The skill earns its place where
-the model would otherwise trust a formula: fluid type under zoom (the largest
-gap, measured against the house bar and matching an earlier run of the same
-case), RTL audits that convert text
-flow without touching decoration and small details such as binding a
-qualifier to its number. On line length alone the baseline now measures Verdana
-correctly by itself, so that case no longer separates the two. With two runs
-per configuration, treat a one-assertion difference as noise.
+it can, reads font files correctly and gets locale number formatting right. The
+skill earns its place where the model would otherwise trust a formula: fluid
+type under zoom (the largest gap in both iterations, measured against the
+house bar), RTL audits that convert text flow without touching decoration and
+small details such as binding a qualifier to its number. With two runs per
+configuration, treat a one-assertion difference as noise.
 
-**Cost.** Runs with the skill took about 35 seconds and 21k tokens more each,
-spent reading references and running the scripts.
+**Cost.** In iteration 2, runs with the skill took about 100 seconds and 32k
+tokens more each (iteration 1: 35 seconds and 21k), spent reading the longer
+references and running more checks.
 
 The outputs, grades and timings of every run are in
-[`evals/results/`](evals/results/iteration-1/).
+[`evals/results/iteration-2/`](evals/results/iteration-2/) and
+[`iteration-1/`](evals/results/iteration-1/).
 
 ## Running the evals
 

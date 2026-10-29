@@ -1,0 +1,115 @@
+/* ==========================================================================
+   tokens.css: type and vertical rhythm for a marketing + docs site
+
+   RATIONALE
+   1. Everything is rem or em, never px or bare vw. rem follows both browser
+      zoom and the user's default font-size setting; em keeps letter-spacing
+      proportional to whatever size the text ends up at.
+
+   2. Reading text is not fluid. Body, small, caption and label are fixed rem,
+      so at 200% browser zoom they render at exactly 2x, at every window
+      width. This is the text WCAG 1.4.4 matters most for.
+
+   3. Headings are fluid between a 360px and a 1440px viewport using
+      clamp(min, rem + vw, max). Two zoom facts drive the numbers:
+        - Browser zoom shrinks the CSS viewport, so the vw part of a fluid
+          size does not grow when the user zooms. Only the rem part does.
+          Pure vw type cannot be zoomed at all; every token here has a rem
+          floor, a rem intercept and a rem ceiling.
+        - Because of that, no viewport-fluid size can double at exactly
+          200% zoom from every window width (a 1440px window zoomed to 200%
+          becomes a 720px CSS viewport, where the heading is smaller). The
+          scale is therefore built so the shortfall is small and bounded:
+            * max / min is capped at 1.5 for every heading, which means a
+              2x enlargement is always reachable by 300% zoom (Safari's
+              ceiling; Chrome and Firefox go to 500%).
+            * At 200% zoom every heading still renders at 1.55x or more of
+              its 100% size, worst case, and exactly 2x for windows at or
+              below 360px or at or above 2880px.
+            * Below 360px and above 1440px sizes are pure rem, so they scale
+              linearly with zoom.
+      Measured in Chromium (see the zoom table at the bottom of this file).
+
+   4. Line-height is unitless so it scales with the font and survives the
+      WCAG 1.4.12 text-spacing override. Large type gets tighter leading and
+      slight negative tracking; small and uppercase text gets looser tracking.
+
+   5. Vertical spacing is a rem step scale (4px base) plus fluid section
+      spacing. Section spacing is allowed to shrink under zoom on purpose:
+      less dead space at 400% zoom helps WCAG 1.4.10 reflow.
+   ========================================================================== */
+
+:root {
+  /* ---- Font size: reading text (fixed rem, exact 2x at 200% zoom) ------- */
+  --font-size-body: 1rem;           /* 16px */
+  --font-size-small: 0.875rem;      /* 14px */
+  --font-size-caption: 0.8125rem;   /* 13px */
+  --font-size-label: 0.75rem;       /* 12px, uppercase only */
+
+  /* ---- Font size: headings (fluid 360px to 1440px, max/min <= 1.5) ----- */
+  /*                               min @360px          slope               max @1440px */
+  --font-size-display: clamp(2.5rem,   2.0833rem + 1.8519vw, 3.75rem); /* 40 to 60px */
+  --font-size-h1:      clamp(2rem,     1.6667rem + 1.4815vw, 3rem);    /* 32 to 48px */
+  --font-size-h2:      clamp(1.5rem,   1.3333rem + 0.7407vw, 2rem);    /* 24 to 32px */
+  --font-size-h3:      clamp(1.25rem,  1.1667rem + 0.3704vw, 1.5rem);  /* 20 to 24px */
+  --font-size-h4:      clamp(1.125rem, 1.0833rem + 0.1852vw, 1.25rem); /* 18 to 20px */
+
+  /* ---- Line height (unitless) ------------------------------------------ */
+  --line-height-display: 1.05;
+  --line-height-h1: 1.1;
+  --line-height-h2: 1.2;
+  --line-height-h3: 1.3;
+  --line-height-h4: 1.35;
+  --line-height-body: 1.6;
+  --line-height-small: 1.5;
+  --line-height-caption: 1.4;
+  --line-height-label: 1.3;
+
+  /* ---- Letter spacing (em, scales with the rendered size) -------------- */
+  --letter-spacing-display: -0.025em;
+  --letter-spacing-h1: -0.02em;
+  --letter-spacing-h2: -0.015em;
+  --letter-spacing-h3: -0.01em;
+  --letter-spacing-h4: -0.005em;
+  --letter-spacing-body: 0em;
+  --letter-spacing-small: 0.005em;
+  --letter-spacing-caption: 0.01em;
+  --letter-spacing-label: 0.08em;   /* pair with text-transform: uppercase */
+
+  /* ---- Vertical spacing: step scale (rem, 4px base) -------------------- */
+  --space-0: 0;
+  --space-1: 0.25rem;   /*  4px */
+  --space-2: 0.5rem;    /*  8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.5rem;    /* 24px */
+  --space-6: 2rem;      /* 32px */
+  --space-7: 3rem;      /* 48px */
+  --space-8: 4rem;      /* 64px */
+  --space-9: 6rem;      /* 96px */
+
+  /* ---- Vertical spacing: fluid layout (360px to 1440px) ---------------- */
+  --space-section:    clamp(3rem, 2rem + 4.4444vw, 6rem);       /* 48 to 96px */
+  --space-section-sm: clamp(2rem, 1.3333rem + 2.9630vw, 4rem);  /* 32 to 64px */
+
+  /* ---- Vertical spacing: semantic flow (prose and docs) ---------------- */
+  --space-flow-paragraph: var(--space-4);      /* between paragraphs, lists */
+  --space-flow-heading-before: var(--space-6); /* above h2 to h4 in prose */
+  --space-flow-heading-after: var(--space-3);  /* heading to its first paragraph */
+  --space-flow-label-after: var(--space-2);    /* eyebrow label to heading */
+  --space-flow-caption-before: var(--space-2); /* figure to caption */
+}
+
+/* --------------------------------------------------------------------------
+   Zoom verification, Chromium (zoom emulated as CSS viewport W/z at DPR z).
+   Rendered size at 200% zoom divided by size at 100%, worst window width
+   between 320px and 3840px:
+     body, small, caption, label   2.00x  (all widths)
+     display 40 to 60px            1.56x  (2x reached by 280% zoom)
+     h1      32 to 48px            1.56x  (2x reached by 280% zoom)
+     h2      24 to 32px            1.67x  (2x reached by 250% zoom)
+     h3      20 to 24px            1.78x  (2x reached by 230% zoom)
+     h4      18 to 20px            1.87x  (2x reached by 220% zoom)
+   Rule for changing the scale: keep every fluid max/min at 1.5 or lower and
+   keep a non-zero rem intercept, or the 300% (Safari) guarantee breaks.
+   -------------------------------------------------------------------------- */

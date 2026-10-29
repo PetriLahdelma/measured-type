@@ -1,0 +1,133 @@
+/* ==========================================================================
+   Type and vertical rhythm tokens: marketing and docs site
+   ==========================================================================
+
+   Rationale
+   - Every size is rem (or rem + vi inside clamp), never px or bare vw, so the
+     reader's default font size and browser zoom scale the whole system
+     (WCAG 1.4.4, Bringhurst 3.1.1). :root font-size is left alone.
+   - Reading and interface sizes (label 12, caption 14, small 16, body 18,
+     h4 20, h3 24 px at the default 16px root) are fixed rem: they become
+     exactly 2x at 200% zoom. They follow the traditional scale.
+   - Hero, h1 and h2 are fluid from a 360px to a 1440px viewport. Each range
+     is kept at 1.36x or less because zoom doubles the rem part but not the
+     vi part. Measured worst case (a 1440px window at 200% zoom): hero 1.64x,
+     h1 1.67x, h2 1.78x (2x exactly below a 720px window). On that window
+     h1 and h2 reach 2x at 250% zoom and hero at 300% (2.29x); max/min stays
+     under 2.5, so 500% zoom always gives 2x or more on any window.
+   - h3 and h4 stay fixed on purpose: fluid ranges this narrow would squeeze
+     them against their neighbours on phones. Adjacent heading steps are
+     1.2x or more at both 360px and 1440px.
+   - One body line (--line = 18px x 1.5 = 27px) is the vertical unit. Body is
+     larger than the root, so rlh would be wrong; --line is a rem calc and
+     stays zoom-safe. Every spacing token is a whole or half line, h3 and h4
+     sit on one line and h2 on one and a half (single-line headings return
+     the text to the beat). Hero and h1 are display text with unitless
+     leading; the gap after them comes from a line-based token.
+   - Leading tightens and tracking moves slightly negative as size grows;
+     the uppercase label gets +0.08em (Bringhurst 2.1.6). Lowercase text
+     sizes keep normal tracking (2.1.7). Display tracking values are starting
+     points: tune them per face on real words.
+   - Line-heights are unitless except the grid-locked headings, which have
+     no larger children to inherit a length. Nothing here fixes a box height,
+     so WCAG 1.4.12 text-spacing overrides still reflow.
+   ========================================================================== */
+
+:root {
+  /* ---- Body line: the vertical unit -------------------------------------- */
+  --font-size-body: 1.125rem;          /* 18px */
+  --line-height-body: 1.5;
+  --letter-spacing-body: normal;
+  --line: calc(var(--font-size-body) * var(--line-height-body)); /* 1.6875rem = 27px */
+
+  /* ---- Reading and interface sizes (fixed rem, exact 2x at 200% zoom) ---- */
+  --font-size-small: 1rem;             /* 16px: secondary copy, nav, UI text */
+  --line-height-small: 1.5;            /* 24px */
+  --letter-spacing-small: normal;
+
+  --font-size-caption: 0.875rem;       /* 14px: figure captions, footnotes, meta */
+  --line-height-caption: 1.4;          /* 19.6px */
+  --letter-spacing-caption: 0.01em;    /* preference: a touch open at small size */
+
+  --font-size-label: 0.75rem;          /* 12px: uppercase eyebrows, tags, table heads */
+  --line-height-label: 1.3333;         /* 16px */
+  --letter-spacing-label: 0.08em;      /* caps need 5-10% (2.1.6); pair with text-transform: uppercase */
+
+  /* ---- Headings: fixed ---------------------------------------------------- */
+  --font-size-h4: 1.25rem;             /* 20px, 1.11x body; separate it by weight */
+  --line-height-h4: var(--line);       /* 27px, ratio 1.35 */
+  --letter-spacing-h4: normal;
+
+  --font-size-h3: 1.5rem;              /* 24px, 1.2x h4 */
+  --line-height-h3: var(--line);       /* 27px, ratio 1.125 */
+  --letter-spacing-h3: -0.005em;
+
+  /* ---- Headings and display: fluid 360px -> 1440px ----------------------- */
+  /* preferred = intercept rem + slope vi, solved through (360, min) and (1440, max) */
+
+  /* h2: 30px -> 36px (1.2x range); 1.25x h3 at 360px, 1.5x at 1440px */
+  --font-size-h2: clamp(1.875rem, 1.75rem + 0.5556vi, 2.25rem);
+  --line-height-h2: calc(1.5 * var(--line)); /* 40.5px: ratio 1.35 at 30px, 1.125 at 36px */
+  --letter-spacing-h2: -0.01em;
+
+  /* h1: 36px -> 48px (1.33x range); 1.2x h2 at 360px, 1.33x at 1440px */
+  --font-size-h1: clamp(2.25rem, 2rem + 1.1111vi, 3rem);
+  --line-height-h1: 1.1;
+  --letter-spacing-h1: -0.015em;
+
+  /* hero: 44px -> 60px (1.36x range); 1.22x h1 at 360px, 1.25x at 1440px */
+  --font-size-hero: clamp(2.75rem, 2.4167rem + 1.4815vi, 3.75rem);
+  --line-height-hero: 1.05;
+  --letter-spacing-hero: -0.02em;
+
+  /* ---- Vertical spacing: multiples of one body line ----------------------- */
+  --space-0-25: calc(0.25 * var(--line)); /*  6.75px: inside components only */
+  --space-0-5:  calc(0.5 * var(--line));  /* 13.5px */
+  --space-1:    var(--line);              /* 27px: default gap between blocks */
+  --space-1-5:  calc(1.5 * var(--line));  /* 40.5px */
+  --space-2:    calc(2 * var(--line));    /* 54px */
+  --space-3:    calc(3 * var(--line));    /* 81px */
+  --space-4:    calc(4 * var(--line));    /* 108px */
+  --space-6:    calc(6 * var(--line));    /* 162px */
+
+  /* Block roles. Put each gap in one place (top margins only) so adjacent
+     margins never collapse into the larger one. */
+  --space-block: var(--space-1);          /* p, ul, figure, pre after a sibling */
+  --space-paragraph: var(--space-1);      /* or 0 when paragraphs indent 1em (2.3.2), never both */
+
+  /* Heading in-flow totals: before + one heading line + after = whole lines */
+  --space-before-h2: var(--space-2);      /* 2 + 1.5 + 0.5 = 4 lines */
+  --space-after-h2: var(--space-0-5);
+  --space-before-h3: var(--space-1-5);    /* 1.5 + 1 + 0.5 = 3 lines */
+  --space-after-h3: var(--space-0-5);
+  --space-before-h4: var(--space-1-5);    /* 1.5 + 1 + 0.5 = 3 lines; size alone separates it from h3 */
+  --space-after-h4: var(--space-0-5);
+  --space-after-display: var(--space-1);  /* under hero and h1 */
+
+  /* Page sections. Fallback: a fixed 4 lines. */
+  --space-section: var(--space-4);        /* 108px */
+}
+
+/* Fluid section gap 3 -> 5 lines (81px -> 135px, 360px -> 1440px), snapped
+   to whole lines with round() so the rhythm survives the ramp. Gated because
+   an unsupported round() would make every margin using it compute to 0. */
+@supports (inline-size: round(1px, 1px)) {
+  :root {
+    --space-section: round(
+      clamp(var(--space-3), 3.9375rem + 5vi, calc(5 * var(--line))),
+      var(--line)
+    );
+  }
+}
+
+/* Usage sketch (not part of the tokens):
+   .prose        { font-size: var(--font-size-body); line-height: var(--line-height-body); }
+   .prose > *    { margin-block: 0; }
+   .prose > * + * { margin-block-start: var(--space-block); }
+   .prose > h2   { font-size: var(--font-size-h2); line-height: var(--line-height-h2);
+                   letter-spacing: var(--letter-spacing-h2); margin-block-start: var(--space-before-h2); }
+   .prose > h2 + * { margin-block-start: var(--space-after-h2); }
+   .eyebrow      { font-size: var(--font-size-label); line-height: var(--line-height-label);
+                   letter-spacing: var(--letter-spacing-label); text-transform: uppercase; }
+   Headings and labels also want text-wrap: balance and, where supported,
+   text-box: trim-both cap alphabetic. */
