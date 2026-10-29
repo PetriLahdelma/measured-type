@@ -239,7 +239,8 @@ Richard Rutter's [webtypography.net](https://webtypography.net), which is
 published under that license. Scripts are MIT. The test fonts are under the
 SIL Open Font License. The Measured Type name and the artwork in
 `.github/brand/` identify this project and are not licensed for other use.
-See [LICENSE](LICENSE).
+See [LICENSE](LICENSE); the skill folder carries its own copy of the notices,
+so an installed skill keeps them.
 
 The rules follow Robert Bringhurst's
 [*The Elements of Typographic Style*](https://www.amazon.com/dp/0881792128) and

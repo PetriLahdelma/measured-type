@@ -14,6 +14,7 @@ description: >-
   features. Also for "make this more readable", "fix the typography",
   line-height or max-width questions and multilingual or RTL layout, even
   when the word typography never appears. Not for drawing letterforms.
+license: Text CC BY-NC 4.0 (adapts webtypography.net by Richard Rutter); scripts MIT. See LICENSE.
 ---
 
 # Measured type
