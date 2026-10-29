@@ -212,4 +212,5 @@ and no decorative effects standing in for hierarchy.
 Sources: Robert Bringhurst, *The Elements of Typographic Style*; Richard
 Rutter, *The Elements of Typographic Style Applied to the Web*
 (webtypography.net, CC BY-NC 4.0), whose rule order this skill follows. Rules
-are paraphrased and the CSS is rewritten for current browsers.
+are paraphrased and the CSS is rewritten for current browsers. This is an
+independent project, not affiliated with or endorsed by either author.

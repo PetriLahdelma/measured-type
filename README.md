@@ -304,3 +304,8 @@ the rule order of webtypography.net. They are paraphrased and the CSS is
 rewritten for current browsers. The skill is a working translation, not a
 substitute: if it is useful to you, buy the book. The wordmark is set in Source Serif 4 by Adobe; the
 brand's interface type is IBM Plex. Both are released under the OFL.
+
+Measured Type is an independent project. It is not affiliated with, endorsed
+by or sponsored by Robert Bringhurst, Richard Rutter, webtypography.net or the
+publishers of *The Elements of Typographic Style*; their names appear only to
+credit the sources.
