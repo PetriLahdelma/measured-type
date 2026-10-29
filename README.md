@@ -22,8 +22,8 @@ further: when a claim can be checked, it is checked in a browser or against the
 font file. The number goes into the answer.
 
 <p>
-  <img alt="Illustration: a light reading page on a desktop display. The measured type wordmark sits above the headline Reading is a rhythm, set large in a serif with rhythm in italic, followed by two short paragraphs and a margin note reading 01, On reading." src=".github/brand/reading-page-desktop.jpg" width="64%">
-  <img alt="Illustration: the same identity on a tablet in dark mode. Paper-coloured serif type on near-black reads Every line, considered, with considered in italic, above two short paragraphs and the caption Measured Type, Reading specimen." src=".github/brand/reading-page-tablet-dark.jpg" width="32%">
+  <img alt="Illustration: a light reading page on a desktop display. The measured type wordmark sits above the headline Reading is a rhythm, set large in a serif with rhythm in italic, followed by two short paragraphs and a margin note reading 01, On reading." src=".github/brand/reading-page-desktop.jpg" width="63.9%">
+  <img alt="Illustration: the same identity on a tablet in dark mode. Paper-coloured serif type on near-black reads Every line, considered, with considered in italic, above two short paragraphs and the caption Measured Type, Reading specimen." src=".github/brand/reading-page-tablet-dark.jpg" width="34.1%">
 </p>
 <sub>Illustrations of the identity, not measurements. The measured evidence starts at
 <a href="#proof-not-rules-of-thumb">Proof, not rules of thumb</a>.</sub>
