@@ -250,7 +250,11 @@ function lintCss(blocks, file, opts, out) {
       if (d.prop === 'letter-spacing' && /^-?[\d.]+px$/.test(v) && parseFloat(v) !== 0) {
         add('MT-LS-PX', 'LOW', d, rule, 'the same value in em');
       }
-      if (PHYSICAL.test(d.prop) || (/^(text-align|float)$/.test(d.prop) && /^(left|right)$/.test(v))) {
+      // left/right: 50% pulled back by translate(-50%) centres the box, which
+      // reads the same in either direction.
+      const centred = /^(left|right)$/.test(d.prop) && v === '50%' && b.decls.some((t) =>
+        (t.prop === 'transform' && /translate(x)?\(\s*-50%/i.test(t.value)) || (t.prop === 'translate' && /^-50%/.test(t.value)));
+      if (!centred && (PHYSICAL.test(d.prop) || (/^(text-align|float)$/.test(d.prop) && /^(left|right)$/.test(v)))) {
         add('MT-PHYSICAL', opts.rtl ? 'HIGH' : 'LOW', d, rule, 'the logical property (margin-inline-start, text-align: start, float: inline-start...)');
       }
       if (/^(widows|orphans)$/.test(d.prop) && /^[12]$/.test(v)) {

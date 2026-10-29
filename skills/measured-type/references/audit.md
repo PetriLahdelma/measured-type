@@ -59,8 +59,8 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-ZOOM-VW | HIGH | `font-size` from `vw`/`vi` with no `rem`/`em` term: cannot grow with zoom | WCAG 1.4.4, §3.1.1 |
 | MT-VIEWPORT-ZOOM | HIGH | `user-scalable=no` or `maximum-scale` below 2 in the viewport meta | WCAG 1.4.4 |
 | MT-ROOT-PX | HIGH | `font-size` in `px` on `html` or `:root`: overrides the reader's default (a percentage under 100% is LOW) | §3.1.1 |
-| MT-CONTRAST | HIGH | Text contrast under 4.5:1 (3:1 for 24px, or 18.66px bold) | WCAG 1.4.3 |
-| MT-TEXT-SPACING | HIGH | Text clipped or overflowing its box under the 1.4.12 spacing override | WCAG 1.4.12 |
+| MT-CONTRAST | HIGH | Text contrast under 4.5:1 (3:1 for 24px, or 18.66px bold), translucent grounds laid over what is beneath them | WCAG 1.4.3 |
+| MT-TEXT-SPACING | HIGH | Text the 1.4.12 spacing override pushes out of its box (boxes that already clip, such as screen-reader text or a closed panel, are hidden by design) | WCAG 1.4.12 |
 | MT-MEASURE-LONG | MEDIUM | Reading text averages over 75 characters per full line | §2.1.2 (measured) |
 | MT-LH-LENGTH | MEDIUM | `line-height` as a length on an element that has children | §2.2.1 |
 | MT-LH-TIGHT | MEDIUM | Unitless `line-height` under 1.3 on body text | §2.2.1 |
@@ -76,7 +76,7 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-MEASURE-SHORT | LOW | Reading text under 40 characters per line on a viewport 768px or wider | §2.1.2 |
 | MT-FFS | LOW | `font-feature-settings` for figures or caps where `font-variant-*` exists | `css-modern.md` |
 | MT-LS-PX | LOW | `letter-spacing` in `px` | §2.1.6 |
-| MT-PHYSICAL | LOW | Physical sides (`margin-left`, `text-align: right`...) in text layout; HIGH with `--rtl` | `logical-and-language.md` |
+| MT-PHYSICAL | LOW | Physical sides (`margin-left`, `text-align: right`...) in text layout; HIGH with `--rtl`. `left: 50%` with `translate(-50%)` centres and is exempt | `logical-and-language.md` |
 | MT-WIDOWS | LOW | `widows`/`orphans` of 1 or 2 | §2.4.8 |
 | MT-FONT-DISPLAY | LOW | `@font-face` without `font-display` | `taste.md` |
 | MT-HEADING-RUNT | LOW | A heading's last line is one word | §2.4.8 (convention) |

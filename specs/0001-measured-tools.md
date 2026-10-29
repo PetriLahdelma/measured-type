@@ -47,6 +47,8 @@ Fixture: `scripts/test/lint/`. Every check below is a test.
   file sets small-caps synthesis to none.
 - **B11** `font-feature-settings: "tnum"` is MT-FFS LOW.
 - **B12** `margin-left` is MT-PHYSICAL LOW, HIGH with `--rtl`.
+- **B12b** `left: 50%` pulled back by `translate(-50%)` centres the box and
+  is not MT-PHYSICAL; `left: 50%` alone, or `left: 1rem` with a translate, is.
 - **B13** `widows: 1` is MT-WIDOWS LOW.
 - **B14** `@font-face` without `font-display` is MT-FONT-DISPLAY LOW.
 - **B15** HTML: `user-scalable=no` is MT-VIEWPORT-ZOOM HIGH; text `-12%` is
@@ -70,8 +72,14 @@ Fixture pages: `scripts/test/audit/`.
 - **C2** A full-width paragraph at 1280px is MT-MEASURE-LONG MEDIUM with the
   measured characters per line in the finding.
 - **C3** `#999` text on white is MT-CONTRAST HIGH with the ratio; `#333` is not.
+- **C3b** A translucent ground is laid over the grounds beneath it before the
+  ratio is taken: dark code on an 8% tint over white passes; `#777` on a 30%
+  black veil over white is HIGH at about 2.1:1.
 - **C4** A fixed-height `overflow: hidden` text box that clips under the WCAG
   1.4.12 override is MT-TEXT-SPACING HIGH.
+- **C4b** A box that already clips its text without the override (screen-reader
+  text, a closed accordion panel, a spam trap) is hidden by design and is not
+  MT-TEXT-SPACING.
 - **C5** A web font whose file is missing is MT-FONT-FALLBACK MEDIUM, naming
   the face that rendered.
 - **C6** A 14px paragraph is MT-SIZE-FLOOR MEDIUM.

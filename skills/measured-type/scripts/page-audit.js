@@ -349,6 +349,8 @@ function truncatedText() {
   }).map((el) => ({ path: mt.path(el), text: el.textContent.trim().replace(/\s+/g, ' ').slice(0, 48) }));
 }
 
+const SPACING_CSS = '* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } p { margin-block-end: 2em !important; }';
+
 function parseColor(s) {
   const m = /rgba?\(([^)]+)\)/.exec(s);
   if (!m) return null;
@@ -440,14 +442,18 @@ async function audit(target, opts = {}) {
       const texts = mt.textElements();
       const colors = texts.map((el) => {
         const cs = getComputedStyle(el);
-        let bg = null;
+        // Grounds from the text outwards, up to the first opaque one; translucent
+        // layers are laid over it in Node before the ratio is taken.
+        const grounds = [];
         let image = false;
         for (let p = el; p; p = p.parentElement) {
           const s = getComputedStyle(p);
           if (s.backgroundImage !== 'none') { image = true; break; }
-          if (!/rgba\(\d+,\s*\d+,\s*\d+,\s*0\)|transparent/.test(s.backgroundColor)) { bg = s.backgroundColor; break; }
+          if (/rgba\(\d+,\s*\d+,\s*\d+,\s*0\)|transparent/.test(s.backgroundColor)) continue;
+          grounds.push(s.backgroundColor);
+          if (!/rgba\(/.test(s.backgroundColor)) break;
         }
-        return { path: mt.path(el), color: cs.color, bg: bg || 'rgb(255, 255, 255)', image, size: parseFloat(cs.fontSize), weight: parseInt(cs.fontWeight, 10) };
+        return { path: mt.path(el), color: cs.color, grounds, image, size: parseFloat(cs.fontSize), weight: parseInt(cs.fontWeight, 10) };
       });
       const sizes = [...new Set(texts.map((el) => Math.round(parseFloat(getComputedStyle(el).fontSize) * 2) / 2))].sort((a, b) => a - b);
       const runts = [...document.querySelectorAll('h1, h2, h3, h4, h5, h6')].filter(mt.visible).map((h) => {
@@ -495,8 +501,11 @@ async function audit(target, opts = {}) {
     for (const c of desk.colors) {
       if (c.image) { notVerified.add('contrast over background images'); continue; }
       const fg = parseColor(c.color);
-      const bg = parseColor(c.bg);
-      if (!fg || !bg) continue;
+      const layers = c.grounds.map(parseColor);
+      if (!fg || layers.some((l) => !l)) continue;
+      const base = layers.length && layers[layers.length - 1].a === 1 ? layers.pop() : { r: 255, g: 255, b: 255, a: 1 };
+      const bg = layers.reverse().reduce((under, layer) => over(layer, under), base);
+      c.bg = `rgb(${Math.round(bg.r)}, ${Math.round(bg.g)}, ${Math.round(bg.b)})`;
       const ratio = contrast(over(fg, bg), bg);
       const large = c.size >= 24 || (c.size >= 18.66 && c.weight >= 700);
       const need = large ? 3 : 4.5;
@@ -597,12 +606,24 @@ async function audit(target, opts = {}) {
     await zoomed.close();
 
     // ---- text spacing override (WCAG 1.4.12)
-    const spacing = await open(1280, '* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } p { margin-block-end: 2em !important; }');
-    const clipped = await spacing.evaluate(() => [...document.body.querySelectorAll('*')].filter((el) => {
+    const spacing = await open(1280);
+    // A box that already clips its text without the override (screen-reader
+    // text, a closed accordion panel, a spam trap) is hidden by design; only
+    // boxes the override itself makes overflow count against 1.4.12.
+    const overflows = () => [...document.body.querySelectorAll('*')].filter((el) => {
       const cs = getComputedStyle(el);
       const hides = /hidden|clip/.test(cs.overflowX + cs.overflowY);
       return hides && el.textContent.trim() && (el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1);
-    }).map((el) => ({ path: window.__mt.path(el), over: Math.max(el.scrollHeight - el.clientHeight, el.scrollWidth - el.clientWidth) })));
+    });
+    await spacing.evaluate(`window.__mtOverflows = ${overflows.toString()}`);
+    const clipped = await spacing.evaluate((css) => {
+      const before = new Set(window.__mtOverflows());
+      const style = document.createElement('style');
+      style.textContent = css;
+      document.head.append(style);
+      return window.__mtOverflows().filter((el) => !before.has(el))
+        .map((el) => ({ path: window.__mt.path(el), over: Math.max(el.scrollHeight - el.clientHeight, el.scrollWidth - el.clientWidth) }));
+    }, SPACING_CSS);
     for (const c of clipped) add('MT-TEXT-SPACING', 'HIGH', `${c.path} under the 1.4.12 override`, `${c.over}px of text clipped`, 'remove the fixed height or overflow: hidden on text boxes');
     await spacing.close();
 

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spacing, already hidden</title>
+<style>
+body { margin: 0; padding: 1rem; font: 18px/1.5 Georgia, serif; color: #222; background: #fff; }
+.sr-only { position: absolute; block-size: 1px; inline-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.panel { max-inline-size: 34em; block-size: 0; overflow: hidden; }
+.trap { position: absolute; inset-inline-start: -10000px; inline-size: 1px; block-size: 1px; overflow: hidden; }
+</style>
+</head>
+<body>
+<p>Visible text that has room to grow under the WCAG text-spacing override.</p>
+<span class="sr-only">Screen-reader text is clipped on purpose, with or without the override, so it hides nothing extra.</span>
+<div class="panel" id="faq-1"><p>A closed accordion panel is collapsed by design; opening it is how a reader gets the text.</p></div>
+<div class="trap"><label>Leave this field empty <input name="website"></label></div>
+</body>
+</html>
