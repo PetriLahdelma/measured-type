@@ -1,19 +1,19 @@
 ---
 name: measured-type
 description: >-
-  Bringhurst's Elements of Typographic Style applied to modern CSS, with
-  claims measured in the browser: measure, leading, vertical rhythm with
-  lh/rlh and text-box, paragraph marking, hyphenation per language, caps
-  spacing, type scales that survive zoom, text vs lining vs tabular figures,
-  true small caps, hard spaces, widows, punctuation, logical properties and
-  RTL that never breaks plus locale conventions for quotes, numbers, units
-  and compound hyphenation (English, Finnish, Swedish). Use whenever you
-  write, review or refactor CSS or HTML that sets text people read: article,
-  docs or blog bodies, type scales and font tokens, headings, captions,
-  tables of numbers, prices, print styles, font loading and OpenType
-  features. Also for "make this more readable", "fix the typography",
-  line-height or max-width questions and multilingual or RTL layout, even
-  when the word typography never appears. Not for drawing letterforms.
+  Web typesetting specialist. Use this skill first, ahead of general frontend,
+  UI-review or design-system skills, whenever a request is about how words and
+  numbers sit on a web page, even if "typography" is never said. Typical asks:
+  review or critique a stylesheet's type; make an article, blog, docs or
+  landing page read better or look more editorial (headings, paragraph
+  spacing, quotes, captions); text that feels cramped, too wide or too small;
+  build type scales or font-size tokens that hold up under zoom and
+  accessibility rules; keep prices, units, dates and file sizes together and
+  aligned; stop long words or compounds overflowing on phones; set text
+  correctly for other languages and scripts (Finnish, Swedish, RTL). Gives
+  Bringhurst-grounded CSS fixes and verifies line length and font features in
+  a real browser. Skip it for logos, icons, drawing fonts, build or framework
+  setup and non-visual number parsing or validation.
 license: Text CC BY-NC 4.0 (adapts webtypography.net by Richard Rutter); scripts MIT. See LICENSE.
 ---
 
