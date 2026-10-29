@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laptop Specs</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --text: #1b1b1a;
+    --muted: #63635e;
+    --line: #e2e1dc;
+    --accent: #2f5bd3;
+    --accent-ink: #ffffff;
+    --zebra: #fafaf8;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413;
+      --surface: #1c1c1b;
+      --text: #ecebe6;
+      --muted: #a3a29b;
+      --line: #33332f;
+      --accent: #8aa8ff;
+      --accent-ink: #10131c;
+      --zebra: #20201e;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413;
+    --surface: #1c1c1b;
+    --text: #ecebe6;
+    --muted: #a3a29b;
+    --line: #33332f;
+    --accent: #8aa8ff;
+    --accent-ink: #10131c;
+    --zebra: #20201e;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 3rem 1rem 4rem;
+  }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-bottom: 1.5rem;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .lede { margin: 0.375rem 0 0; color: var(--muted); }
+
+  /* Language switch: a two-button segmented control */
+  .lang {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+    background: var(--surface);
+  }
+  .lang button {
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.375rem 0.875rem;
+    min-height: 2.25rem;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .lang button[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .lang button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  caption {
+    text-align: start;
+    padding: 0.875rem 1rem 0;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  th, td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--line);
+    text-align: end;
+    vertical-align: baseline;
+  }
+  tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:nth-child(even) { background: var(--zebra); }
+  thead th {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  thead th:first-child { text-align: start; }
+  /* Keep the spec label visible when the table scrolls sideways on phones */
+  tr > :first-child { position: sticky; left: 0; background: var(--surface); }
+  tbody tr:nth-child(even) > :first-child { background: var(--zebra); }
+  th[scope="row"] {
+    text-align: start;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  /* Values never break between number, separators and unit. The
+     formatter also emits no-break spaces, so this is a second guard. */
+  td { white-space: nowrap; }
+  .price td { font-weight: 700; }
+
+  .note { margin-top: 1rem; color: var(--muted); font-size: 0.8125rem; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1 id="title"></h1>
+      <p class="lede" id="lede"></p>
+    </div>
+    <div class="lang" role="group" id="langGroup">
+      <button type="button" data-lang="en" lang="en">English</button>
+      <button type="button" data-lang="fi" lang="fi">Suomi</button>
+    </div>
+  </header>
+
+  <div class="table-wrap">
+    <table id="specs">
+      <caption id="caption"></caption>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="note" id="note"></p>
+</main>
+
+<script>
+  // ---- Data: raw numbers only. Formatting happens per locale at render. ----
+  // `dp` = decimals to show, so 2.1 stays "2.1" and 1.24 stays "1.24".
+  const DATA = {
+    models: [
+      { id: "aero13",   name: "Aero 13" },
+      { id: "studio15", name: "Studio 15" },
+      { id: "titan16",  name: "Titan 16" }
+    ],
+    specs: [
+      { key: "weight",      unit: "kg",   values: [1.24, 1.55, 2.1],  dp: [2, 2, 1] },
+      { key: "battery",     unit: "Wh",   values: [52, 72, 99.5],     dp: [0, 0, 1] },
+      { key: "storage",     unit: "byte", values: [512, 1024, 2048] }, // GB
+      { key: "display",     unit: "inch", values: [13.6, 15.3, 16.2], dp: [1, 1, 1] },
+      { key: "batteryLife", unit: "h",    values: [18, 15, 22],       upTo: true },
+      { key: "price",       unit: "EUR",  values: [1299, 1899, 2799] }
+    ]
+  };
+
+  const NBSP = " ";
+
+  const I18N = {
+    en: {
+      locale: "en-US",
+      title: "Compare laptops",
+      lede: "Three models, side by side.",
+      caption: "Technical specifications",
+      groupLabel: "Language",
+      spec: "Specification",
+      note: "Battery life is the manufacturer's estimate. Prices include VAT.",
+      labels: {
+        weight: "Weight",
+        battery: "Battery capacity",
+        storage: "Storage",
+        display: "Display size",
+        batteryLife: "Battery life",
+        price: "Price"
+      },
+      units: { kg: "kg", Wh: "Wh", GB: "GB", TB: "TB", inch: "in", h: "h" },
+      inchJoin: NBSP,              // "13.6 in"
+      upTo: (v) => "Up to" + NBSP + v
+    },
+    fi: {
+      locale: "fi-FI",
+      title: "Vertaa kannettavia",
+      lede: "Kolme mallia rinnakkain.",
+      caption: "Tekniset tiedot",
+      groupLabel: "Kieli",
+      spec: "Ominaisuus",
+      note: "Akunkesto on valmistajan arvio. Hinnat sisältävät arvonlisäveron.",
+      labels: {
+        weight: "Paino",
+        battery: "Akun kapasiteetti",
+        storage: "Tallennustila",
+        display: "Näytön koko",
+        batteryLife: "Akunkesto",
+        price: "Hinta"
+      },
+      // Finnish: gigatavu = Gt, teratavu = Tt; screen size written 13,6″
+      units: { kg: "kg", Wh: "Wh", GB: "Gt", TB: "Tt", inch: "″", h: "h" },
+      inchJoin: "",                // "13,6″" (no space before the inch mark)
+      upTo: (v) => "jopa" + NBSP + v
+    }
+  };
+
+  // Cache formatters per locale + precision.
+  const fmtCache = new Map();
+  function num(locale, value, dp) {
+    const key = locale + "|" + dp;
+    if (!fmtCache.has(key)) {
+      fmtCache.set(key, new Intl.NumberFormat(locale, {
+        minimumFractionDigits: dp,
+        maximumFractionDigits: dp,
+        useGrouping: true
+      }));
+    }
+    return fmtCache.get(key).format(value);
+  }
+
+  // Normalise every space Intl may emit (U+0020, U+202F) to U+00A0 so a
+  // value like "1 299 €" can never wrap and reads the same in all browsers.
+  function glue(s) {
+    return s.replace(/[   ]/g, NBSP);
+  }
+
+  function formatValue(spec, i, t) {
+    const v = spec.values[i];
+    const dp = spec.dp ? spec.dp[i] : 0;
+    const L = t.locale;
+    let out;
+    switch (spec.unit) {
+      case "EUR":
+        out = new Intl.NumberFormat(L, {
+          style: "currency", currency: "EUR",
+          minimumFractionDigits: 0, maximumFractionDigits: 0
+        }).format(v);                       // en "€1,299"  fi "1 299 €"
+        break;
+      case "byte":                          // value stored in GB
+        out = v >= 1024
+          ? num(L, v / 1024, 0) + NBSP + t.units.TB
+          : num(L, v, 0) + NBSP + t.units.GB;
+        break;
+      case "inch":
+        out = num(L, v, dp) + t.inchJoin + t.units.inch;
+        break;
+      default:
+        out = num(L, v, dp) + NBSP + t.units[spec.unit];
+    }
+    if (spec.upTo) out = t.upTo(out);
+    return glue(out);
+  }
+
+  function render(lang) {
+    const t = I18N[lang];
+    document.documentElement.lang = lang;
+    document.title = t.title;
+    document.getElementById("title").textContent = t.title;
+    document.getElementById("lede").textContent = t.lede;
+    document.getElementById("caption").textContent = t.caption;
+    document.getElementById("note").textContent = t.note;
+    document.getElementById("langGroup").setAttribute("aria-label", t.groupLabel);
+
+    const thead = document.querySelector("#specs thead");
+    const tbody = document.querySelector("#specs tbody");
+    thead.replaceChildren();
+    tbody.replaceChildren();
+
+    const hr = document.createElement("tr");
+    const corner = document.createElement("th");
+    corner.scope = "col";
+    corner.textContent = t.spec;
+    hr.append(corner);
+    for (const m of DATA.models) {
+      const th = document.createElement("th");
+      th.scope = "col";
+      th.textContent = m.name;
+      hr.append(th);
+    }
+    thead.append(hr);
+
+    for (const spec of DATA.specs) {
+      const tr = document.createElement("tr");
+      tr.className = spec.key === "price" ? "price" : "";
+      const th = document.createElement("th");
+      th.scope = "row";
+      th.textContent = t.labels[spec.key];
+      tr.append(th);
+      DATA.models.forEach((_, i) => {
+        const td = document.createElement("td");
+        td.textContent = formatValue(spec, i, t);
+        tr.append(td);
+      });
+      tbody.append(tr);
+    }
+
+    for (const b of document.querySelectorAll(".lang button")) {
+      b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+    }
+    try { localStorage.setItem("specs-lang", lang); } catch (e) {}
+  }
+
+  document.getElementById("langGroup").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-lang]");
+    if (b) render(b.dataset.lang);
+  });
+
+  let initial = "en";
+  try {
+    const saved = localStorage.getItem("specs-lang");
+    if (saved && I18N[saved]) initial = saved;
+  } catch (e) {}
+  render(initial);
+</script>
+</body>
+</html>

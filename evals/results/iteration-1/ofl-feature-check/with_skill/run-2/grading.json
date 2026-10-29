@@ -1,0 +1,50 @@
+{
+  "expectations": [
+    {
+      "text": "notes.md states the features consistently with the files: Source Serif 4 roman has onum, smcp, c2sc and case; Source Serif 4 italic has onum and case but no smcp or c2sc; Outfit has tnum but no onum, smcp, c2sc or case",
+      "passed": true,
+      "evidence": "notes.md table: onum yes / yes / **absent**; smcp/c2sc 355/346 roman, **absent** italic and Outfit; case yes / yes / **absent**; Outfit tnum yes. Matches the files."
+    },
+    {
+      "text": "article.css sets the Source Serif 4 body paragraphs in oldstyle figures (oldstyle-nums or \"onum\")",
+      "passed": true,
+      "evidence": "`.prose { font-variant-numeric: oldstyle-nums proportional-nums; }`; rendered p computes `oldstyle-nums proportional-nums`."
+    },
+    {
+      "text": "article.css sets abbr acronyms in the Source Serif 4 roman body in true small caps (all-small-caps, or c2sc plus smcp) with positive letter-spacing",
+      "passed": true,
+      "evidence": "`.prose abbr { font-variant-caps: all-small-caps; letter-spacing: 0.05em; }`; rendered roman abbr computes all-small-caps, 0.9px."
+    },
+    {
+      "text": "Acronyms inside em passages cannot be rendered as synthesized small caps: font-synthesis (or font-synthesis-small-caps) is none for them, or article.css resets them to normal capitals, and notes.md or a comment says the italic has no small caps",
+      "passed": true,
+      "evidence": "`.prose :is(em, i, cite) abbr { font-variant-caps: normal; }` plus `font-synthesis: none`; rendered em abbr computes caps normal, synthesis-small-caps none; comment: \"The italic has NO smcp or c2sc\"."
+    },
+    {
+      "text": "article.css requests no oldstyle figures, small caps or case-sensitive forms (no oldstyle-nums, onum, small-caps, all-small-caps, smcp, c2sc or \"case\") for Outfit text, unless a comment beside the rule says the font lacks the feature and the rule is inert",
+      "passed": true,
+      "evidence": "h2/h3, .eyebrow, table reset `font-variant-numeric: normal`, number cells only `tabular-nums`, Outfit abbr reset to caps normal; rendered Outfit elements show no onum/small caps."
+    },
+    {
+      "text": "article.css sets the results table numbers in Outfit with tabular-nums and gives the uppercase .eyebrow positive letter-spacing",
+      "passed": true,
+      "evidence": "`.prose :is(th, td):not(:first-child) { font-variant-numeric: tabular-nums; }` inside the Outfit table (td computes tabular-nums); `.eyebrow { letter-spacing: 0.1em; }`."
+    },
+    {
+      "text": "article.css declares the Source Serif 4 roman and italic files and the Outfit file in @font-face with weight ranges, the italic with font-style: italic, and disables font-synthesis for the text",
+      "passed": true,
+      "evidence": "Three @font-face rules with weight ranges 200 900 / 200 900 / 100 900, italic `font-style: italic`; `.prose { font-synthesis: none; }`. All three faces loaded."
+    },
+    {
+      "text": "Rendered at a 1280px-wide viewport with Source Serif 4 and English sample prose, full body lines in .prose average between 58 and 74 characters",
+      "passed": true,
+      "evidence": "measure-line.js at 1280px: avgCharsPerLine 66.3, inside 58-74."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  }
+}

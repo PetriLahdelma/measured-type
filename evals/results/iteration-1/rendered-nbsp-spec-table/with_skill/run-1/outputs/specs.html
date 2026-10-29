@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laptop comparison</title>
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --surface: #ffffff;
+    --text: #1c1b19;
+    --muted: #5f5c56;
+    --rule: #dedad3;
+    --rule-strong: #1c1b19;
+    --accent: #1f4fd1;
+    --accent-text: #ffffff;
+
+    --size-small: 0.875rem;
+    --size-body: 1rem;
+    --size-title: 1.5rem;
+    --leading-body: 1.5;
+    --line: calc(var(--size-body) * var(--leading-body)); /* one body line = 1.5rem */
+
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514;
+      --surface: #1d1d1b;
+      --text: #ecebe7;
+      --muted: #a9a59d;
+      --rule: #3a3936;
+      --rule-strong: #ecebe7;
+      --accent: #8fb0ff;
+      --accent-text: #10131a;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: var(--size-body);
+    line-height: var(--leading-body);
+    font-kerning: normal;
+    font-synthesis: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  main {
+    max-inline-size: 52rem;
+    margin-inline: auto;
+    padding-block: calc(var(--line) * 2);
+    padding-inline: 1rem;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--line) 1rem;
+    margin-block-end: var(--line);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: var(--size-title);
+    line-height: 1.2;
+    font-weight: 650;
+    text-wrap: balance;
+  }
+
+  /* Language switch: a labelled group of two toggle buttons */
+  .lang-switch {
+    display: inline-flex;
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    padding: 2px;
+  }
+  .lang-switch button {
+    font: inherit;
+    font-size: var(--size-small);
+    line-height: 1.25;
+    color: var(--text);
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    padding-block: 0.375rem;
+    padding-inline: 0.875rem;
+    min-block-size: 2.25rem;
+    cursor: pointer;
+  }
+  .lang-switch button[aria-pressed="true"] {
+    background: var(--text);
+    color: var(--bg);
+  }
+  .lang-switch button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Table: interface and data text, so lining tabular figures, no prose rules */
+  .table-wrap {
+    overflow-x: auto;          /* fallback */
+    overflow-inline: auto;
+    background: var(--surface);
+    border-block: 2px solid var(--rule-strong);
+  }
+  .table-wrap:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  /* The caption names the table for assistive tech; the visible note sits
+     outside the scroller so it wraps at the viewport, not the table width. */
+  caption {
+    position: absolute;
+    inline-size: 1px; block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .note {
+    margin-block: calc(var(--line) / 2) 0;
+    font-size: var(--size-small);
+    line-height: 1.45;
+    color: var(--muted);
+    max-inline-size: 34em;
+    text-wrap: pretty;
+  }
+
+  th, td {
+    padding-block: calc(var(--line) / 2);
+    padding-inline: 0.75rem;
+    border-block-end: 1px solid var(--rule);
+    vertical-align: baseline;
+  }
+  tbody tr:last-child th,
+  tbody tr:last-child td { border-block-end: 0; }
+
+  thead th {
+    text-align: end;
+    font-weight: 650;
+    white-space: nowrap;
+    border-block-end: 1px solid var(--rule-strong);
+  }
+  thead th:first-child { text-align: start; }
+
+  tbody th {
+    text-align: start;
+    font-weight: 500;
+    color: var(--muted);
+    hyphens: auto;                 /* Finnish compounds on narrow screens */
+    -webkit-hyphens: auto;
+    hyphenate-limit-chars: 6 2 3;
+    overflow-wrap: break-word;
+  }
+
+  /* Values: end-aligned, never broken between number, unit or qualifier */
+  tbody td {
+    text-align: end;
+    white-space: nowrap;
+  }
+
+  tr.price td { font-weight: 650; }
+
+  th:first-child, td:first-child { padding-inline-start: 0.5rem; }
+  th:last-child,  td:last-child  { padding-inline-end: 0.5rem; }
+
+  @media (max-width: 30rem) {
+    th, td { padding-inline: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 id="title">Laptop comparison</h1>
+    <div class="lang-switch" role="group" id="lang-group" aria-label="Language">
+      <button type="button" lang="en" data-lang="en" aria-pressed="true">English</button>
+      <button type="button" lang="fi" data-lang="fi" aria-pressed="false">Suomi</button>
+    </div>
+  </header>
+
+  <div class="table-wrap" role="region" aria-labelledby="title" tabindex="0">
+    <table id="specs">
+      <caption id="caption"></caption>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="note" id="note" aria-hidden="true"></p>
+</main>
+
+<script>
+  /* ---- Data: raw numbers only; formatting happens per locale at render ---- */
+  const MODELS = [
+    { id: 'aero13',   name: 'Aero 13'   },
+    { id: 'studio15', name: 'Studio 15' },
+    { id: 'pro16',    name: 'Pro 16'    }
+  ];
+
+  const SPECS = [
+    { key: 'weight',      kind: 'unit',     unit: 'kg',      values: [1.24, 1.55, 2.1] },
+    { key: 'battery',     kind: 'unit',     unit: 'Wh',      values: [52, 72, 99.5] },
+    { key: 'storage',     kind: 'storage',                   values: [{ n: 512, u: 'GB' }, { n: 1, u: 'TB' }, { n: 2, u: 'TB' }] },
+    { key: 'display',     kind: 'unit',     unit: 'inch',    values: [13.6, 15.3, 16.2] },
+    { key: 'batteryLife', kind: 'upTo',     unit: 'hour',    values: [18, 15, 22] },
+    { key: 'price',       kind: 'currency', currency: 'EUR', values: [1299, 1899, 2799] }
+  ];
+
+  /* ---- Copy and unit labels per language ----
+     Unit labels live here instead of Intl style:'unit', because that output
+     joins number and unit with a plain (breakable) space and gives Finnish
+     "Gt"/"Tt" where Finnish retail style writes GB/TB. */
+  const STRINGS = {
+    en: {
+      locale: 'en-GB',
+      docTitle: 'Laptop comparison',
+      title: 'Laptop comparison',
+      langGroup: 'Language',
+      caption: 'Specifications of three laptop models. Prices in euros.',
+      specHeader: 'Specification',
+      labels: {
+        weight: 'Weight',
+        battery: 'Battery capacity',
+        storage: 'Storage',
+        display: 'Display size',
+        batteryLife: 'Battery life',
+        price: 'Price'
+      },
+      units: { kg: 'kg', Wh: 'Wh', GB: 'GB', TB: 'TB', inch: 'in', hour: 'h' },
+      upTo: 'up to'
+    },
+    fi: {
+      locale: 'fi-FI',
+      docTitle: 'Kannettavien vertailu',
+      title: 'Kannettavien vertailu',
+      langGroup: 'Kieli',
+      caption: 'Kolmen kannettavan tietokoneen tekniset tiedot. Hinnat euroina.',
+      specHeader: 'Ominaisuus',
+      labels: {
+        weight: 'Paino',
+        battery: 'Akun kapasiteetti',
+        storage: 'Tallennustila',
+        display: 'Näytön koko',
+        batteryLife: 'Akunkesto',
+        price: 'Hinta'
+      },
+      units: { kg: 'kg', Wh: 'Wh', GB: 'GB', TB: 'TB', inch: 'tuumaa', hour: 'h' },
+      upTo: 'jopa'
+    }
+  };
+
+  const NBSP = ' ';
+  /* Bind every space inside a short expression ("up to 18 h", "1 299 €") */
+  const bind = (s) => s.replace(/[   ]/g, NBSP);
+
+  function formatValue(spec, v, t) {
+    const num = new Intl.NumberFormat(t.locale, { maximumFractionDigits: 2 });
+    switch (spec.kind) {
+      case 'unit':
+        return bind(num.format(v) + ' ' + t.units[spec.unit]);
+      case 'storage':
+        return bind(num.format(v.n) + ' ' + t.units[v.u]);
+      case 'upTo':
+        return bind(t.upTo + ' ' + num.format(v) + ' ' + t.units[spec.unit]);
+      case 'currency':
+        /* Intl puts the symbol and its space where the locale wants them:
+           en "€1,299", fi "1 299 €" (grouping and symbol space are no-break) */
+        return bind(new Intl.NumberFormat(t.locale, {
+          style: 'currency', currency: spec.currency,
+          minimumFractionDigits: 0, maximumFractionDigits: 0
+        }).format(v));
+    }
+  }
+
+  function el(tag, attrs, text) {
+    const node = document.createElement(tag);
+    for (const [k, val] of Object.entries(attrs || {})) node.setAttribute(k, val);
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  function render(lang) {
+    const t = STRINGS[lang] || STRINGS.en;
+    document.documentElement.lang = lang;
+    document.title = t.docTitle;
+    document.getElementById('title').textContent = t.title;
+    document.getElementById('lang-group').setAttribute('aria-label', t.langGroup);
+    document.getElementById('caption').textContent = t.caption;
+    document.getElementById('note').textContent = t.caption;
+
+    const thead = document.querySelector('#specs thead');
+    const tbody = document.querySelector('#specs tbody');
+
+    const headRow = el('tr');
+    headRow.append(el('th', { scope: 'col' }, t.specHeader));
+    MODELS.forEach((m) => headRow.append(el('th', { scope: 'col' }, m.name)));
+    thead.replaceChildren(headRow);
+
+    const rows = SPECS.map((spec) => {
+      const tr = el('tr', { class: spec.key === 'price' ? 'price' : '' });
+      tr.append(el('th', { scope: 'row' }, t.labels[spec.key]));
+      spec.values.forEach((v) => tr.append(el('td', null, formatValue(spec, v, t))));
+      return tr;
+    });
+    tbody.replaceChildren(...rows);
+
+    document.querySelectorAll('.lang-switch button').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+    });
+
+    try { localStorage.setItem('specs-lang', lang); } catch (e) { /* storage unavailable */ }
+  }
+
+  document.querySelectorAll('.lang-switch button').forEach((b) => {
+    b.addEventListener('click', () => render(b.dataset.lang));
+  });
+
+  let initial = 'en';
+  try {
+    const saved = localStorage.getItem('specs-lang');
+    if (saved && STRINGS[saved]) initial = saved;
+    else if ((navigator.language || '').toLowerCase().startsWith('fi')) initial = 'fi';
+  } catch (e) { /* storage unavailable */ }
+  render(initial);
+</script>
+</body>
+</html>

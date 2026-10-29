@@ -1,0 +1,75 @@
+{
+  "expectations": [
+    {
+      "text": "review.md names .docs-main width, margin: 0 auto, padding-left and padding-right and gives logical replacements (inline-size or max-inline-size, margin-inline: auto, padding-inline)",
+      "passed": true,
+      "evidence": "Finding 11 quotes width: 960px; margin: 0 auto; padding-left/right; fix inline-size: 100%; max-inline-size: 960px; margin-inline: auto; padding-inline: 32px."
+    },
+    {
+      "text": "review.md names .sidebar float: left, margin-right and text-align: right and replaces them with float: inline-start, margin-inline-end and text-align: end",
+      "passed": true,
+      "evidence": "Finding 2 names float/margin-right/text-align: right; fix float: inline-start; margin-inline-end: 24px; text-align: end."
+    },
+    {
+      "text": "review.md names .callout border-left, padding-left, margin-left and both left border radii and replaces them with border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius and border-end-start-radius",
+      "passed": true,
+      "evidence": "Finding 3 names all five; fix border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius, border-end-start-radius."
+    },
+    {
+      "text": "review.md names the ul padding-left and the blockquote's left margin and replaces them with padding-inline-start and margin-inline-start (with margin-block for the vertical part)",
+      "passed": true,
+      "evidence": "ul -> padding-inline-start: 1.5em; blockquote -> margin-block: 1.5em; margin-inline: 2em 0."
+    },
+    {
+      "text": "review.md names .note-badge right: 8px, the h2 text-align: left and the ::after margin-left and replaces them with inset-inline-end, text-align: start and margin-inline-start",
+      "passed": true,
+      "evidence": "note-badge -> inset-inline-end: 8px; h2 -> text-align: start; ::after -> margin-inline-start: 0.25em."
+    },
+    {
+      "text": "review.md says the right arrow (\\2192) and the breadcrumb translateX need mirroring in RTL (for example via :dir(rtl))",
+      "passed": true,
+      "evidence": ".nav-next:dir(rtl)::after { content: \"\\2190\" / \"\"; } and .breadcrumb .sep:dir(rtl) { translate: -2px 0; }."
+    },
+    {
+      "text": "review.md leaves the box-shadow offset and rotate(-4deg) physical, or explicitly classes them as decorative and not to convert",
+      "passed": false,
+      "evidence": "Converts both: '.callout:dir(rtl) { --callout-shadow-x: -2px; }' and '.hero-illustration:dir(rtl) { rotate: 4deg; }'."
+    },
+    {
+      "text": "review.md explains that 75ch in Verdana gives well over 75 characters because ch is the width of the zero, and recommends an em-based or measured measure",
+      "passed": false,
+      "evidence": "Says ch is Verdana's '0' and '75ch is closer to 48em, already on the long side', but never states it gives well over 75 characters (measured 91.6) and recommends 70ch for Latin (measured 85.7 chars)."
+    },
+    {
+      "text": "review.md states that with content-box sizing .docs-main occupies 1024px in total (960px plus two 32px paddings)",
+      "passed": true,
+      "evidence": "'With content-box, the padding is added to the 960 px width. Measured: .docs-main renders 1024 px wide'."
+    },
+    {
+      "text": "review.md flags widows: 1 and orphans: 1 as allowing single stranded lines and recommends 2 or more",
+      "passed": true,
+      "evidence": "'Setting them to 1 explicitly allows a single line... to be stranded'; fix widows: 2; orphans: 2."
+    },
+    {
+      "text": "review.md warns against letterspacing Arabic text (letter-spacing breaks joining)",
+      "passed": true,
+      "evidence": "'Never letter-space Arabic. Any letter-spacing breaks cursive joining.'"
+    },
+    {
+      "text": "review.md explains that the browser's default padding-inline-start (40px) stays on the right in RTL when ul uses padding-left, so the list is indented on both sides",
+      "passed": true,
+      "evidence": "'In RTL the UA default resolves to the right, so it survives... Lists end up indented on both sides'."
+    },
+    {
+      "text": "review.md proposes no invalid CSS and no transform that would double-mirror a Bidi_Mirrored glyph",
+      "passed": true,
+      "evidence": "Every property/value and selector in the review's CSS blocks and inline fixes passed Chromium CSS.supports / insertRule (only prose ellipses and the @font-face descriptor font-display were flagged). Arrow swapped to U+2190; quotes uses logical « » (no pre-swap); scale: -1 1 only for an SVG chevron."
+    }
+  ],
+  "summary": {
+    "passed": 11,
+    "failed": 2,
+    "total": 13,
+    "pass_rate": 0.846
+  }
+}

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: ofl-feature-check
+expected_outcome: |
+  Font decisions grounded in the actual font files: oldstyle figures and true small caps for the Source Serif 4 roman body, no small caps expected from its italic (it has none), no oldstyle figures, small caps or case-sensitive forms requested from Outfit (it has none of them), tabular figures in the table, tracking on the caps label, real italics declared and synthesis disabled, and a measured line length.
+context:
+  scaffold_script: place-files.sh

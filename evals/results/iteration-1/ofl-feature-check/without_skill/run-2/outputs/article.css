@@ -1,0 +1,230 @@
+/* ==========================================================================
+   article.css: long-form case studies
+   Markup: <article class="prose" lang="en"> with p, h2, h3, em, abbr,
+   a results table and an uppercase .eyebrow label.
+
+   Fonts (self-hosted, variable, read from the files themselves):
+   - Source Serif 4 roman   opsz 8-60, wght 200-900; has smcp, c2sc, onum, pnum, tnum, case, frac
+   - Source Serif 4 italic  opsz 8-60, wght 200-900; NO smcp/c2sc (no small caps at all)
+   - Outfit                 wght 100-900; lining figures only, proportional by default,
+                            has tnum; NO smcp/c2sc, NO case, NO onum
+   See notes.md for the reasoning behind each feature decision.
+   ========================================================================== */
+
+/* ---------- Font faces ---------------------------------------------------- */
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4[opsz,wght].ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic[opsz,wght].ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("fonts/Outfit[wght].ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- Article body -------------------------------------------------- */
+
+.prose {
+  --prose-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --prose-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --prose-rule: color-mix(in srgb, currentColor 18%, transparent);
+  --prose-rule-strong: color-mix(in srgb, currentColor 55%, transparent);
+
+  max-inline-size: 64ch;
+  font-family: var(--prose-serif);
+  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem); /* 17-19px */
+  font-weight: 400;
+  line-height: 1.6;
+
+  /* opsz follows font-size automatically: ~17-19 at body size, lower in
+     the table caption, higher if a lead paragraph is set larger.
+     Never pin opsz with font-variation-settings; it would freeze it. */
+  font-optical-sizing: auto;
+  font-kerning: normal;
+
+  /* None of the three fonts has a real slanted/bold fallback problem
+     (italic is a true file, weight is an axis), but two lack small caps.
+     Forbid the browser from faking small caps, bold or oblique. */
+  font-synthesis: none;
+
+  hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
+  hanging-punctuation: first allow-end;
+  overflow-wrap: break-word;
+}
+
+/* Vertical rhythm, kept at zero specificity so the site can override it. */
+:where(.prose) > :where(*) {
+  margin-block: 0;
+}
+
+:where(.prose) > :where(* + *) {
+  margin-block-start: 1.25em;
+}
+
+/* Running text: oldstyle proportional figures. Source Serif 4 ships
+   tabular lining figures as the default, which look like capitals in a
+   sentence and space "1,180" too loosely. onum + pnum sit at x-height
+   and match the small-cap acronyms below. */
+.prose p,
+.prose li {
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  text-wrap: pretty;
+}
+
+.prose strong,
+.prose b {
+  font-weight: 650; /* wght axis: a touch under Bold, enough contrast on the serif */
+}
+
+/* ---------- Acronyms ------------------------------------------------------ */
+
+/* Upright serif: real small caps from the font (c2sc for the capitals in
+   WCAG / SAP / API, smcp for any lowercase). Slight tracking because
+   small caps are drawn for words, not for being spaced like caps. */
+.prose abbr {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+/* Italic passage: Source Serif 4 Italic has no small-cap glyphs. Without
+   this rule the browser would shrink the capitals into thin, too-small
+   fake small caps. Keep full italic caps and give them a hair of space. */
+.prose :is(em, i, cite, dfn) abbr {
+  font-variant-caps: normal;
+  letter-spacing: 0.02em;
+}
+
+/* Outfit (headings, eyebrow, table) has no small caps either.
+   Acronyms there stay as the font's own capitals. */
+.prose :is(h1, h2, h3, h4, .eyebrow, table) abbr {
+  font-variant-caps: normal;
+  letter-spacing: inherit;
+}
+
+/* ---------- Headings (Outfit) --------------------------------------------- */
+
+.prose :is(h1, h2, h3, h4) {
+  font-family: var(--prose-sans);
+  font-variant-numeric: normal; /* do not inherit onum; Outfit has lining figures only */
+  font-variant-ligatures: common-ligatures; /* fi, fl, ff, tt; leave dlig off */
+  text-wrap: balance;
+  hyphens: manual;
+}
+
+.prose h2 {
+  font-size: clamp(1.625rem, 1.3rem + 1.2vw, 2.125rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+  margin-block-start: 2.25em;
+}
+
+.prose h3 {
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.4375rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  margin-block-start: 1.9em;
+}
+
+/* Pull the paragraph that follows a heading closer to it. */
+:where(.prose) :where(h2, h3) + :where(*) {
+  margin-block-start: 0.6em;
+}
+
+/* ---------- Eyebrow label (Outfit, uppercase) ------------------------------ */
+
+.prose .eyebrow {
+  font-family: var(--prose-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-transform: uppercase;
+  /* Outfit has no `case` feature, so caps spacing is done by hand. */
+  letter-spacing: 0.1em;
+  font-variant-numeric: normal;
+  hyphens: manual;
+  color: var(--prose-eyebrow-color, inherit);
+}
+
+/* The eyebrow labels what follows it, so it hugs the next element,
+   including a heading that otherwise opens with a large top margin. */
+.prose .eyebrow + * {
+  margin-block-start: 0.5rem;
+}
+
+.prose > :first-child {
+  margin-block-start: 0;
+}
+
+/* ---------- Results table (Outfit) ----------------------------------------- */
+
+.prose table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-family: var(--prose-sans);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  /* Outfit's default figures are proportional (zero 659 units, one 321).
+     tnum swaps in its equal-width .tf set so columns of numbers align. */
+  font-variant-numeric: lining-nums tabular-nums;
+  hyphens: manual;
+  margin-block-start: 2em;
+}
+
+.prose caption {
+  caption-side: top;
+  text-align: start;
+  font-weight: 600;
+  padding-block-end: 0.6em;
+}
+
+.prose th,
+.prose td {
+  padding: 0.55em 0.75em;
+  border-block-end: 1px solid var(--prose-rule);
+  text-align: start;
+  vertical-align: baseline;
+}
+
+.prose th:first-child,
+.prose td:first-child {
+  padding-inline-start: 0;
+}
+
+.prose th:last-child,
+.prose td:last-child {
+  padding-inline-end: 0;
+}
+
+.prose thead th {
+  font-weight: 600;
+  border-block-end-color: var(--prose-rule-strong);
+}
+
+.prose tbody th {
+  font-weight: 500;
+}
+
+/* Every column after the label column holds numbers: right-align so the
+   tabular digits line up by place value. */
+.prose :is(th, td):not(:first-child) {
+  text-align: end;
+}

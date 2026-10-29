@@ -1,0 +1,241 @@
+/*
+ * article.css: long-form case studies
+ * Markup: <article class="prose" lang="en"> with p, h2, h3, em, abbr,
+ * a results table and an uppercase .eyebrow label.
+ *
+ * Every OpenType feature switched on below was confirmed in the served files
+ * with font-features.py (see notes.md). Features a file lacks are not
+ * requested, because a missing feature cannot be switched on.
+ */
+
+/* ---------- Fonts ------------------------------------------------------- */
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4[opsz,wght].ttf") format("truetype");
+  font-weight: 200 900;      /* the file's wght range */
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic[opsz,wght].ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;        /* real italic, never a slanted roman */
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("fonts/Outfit[wght].ttf") format("truetype");
+  font-weight: 100 900;      /* file defaults to Thin (100): declare the range */
+  font-style: normal;        /* Outfit ships no italic */
+  font-display: swap;
+}
+
+/* ---------- Reading text ------------------------------------------------ */
+
+.prose {
+  /* Scale: 13 / 16 / 18 / 24 / 32 px at a 16px root (rem, zoom-safe). */
+  --text-label: 0.8125rem;   /* eyebrow, caption */
+  --text-data: 1rem;         /* results table */
+  --body-size: 1.125rem;     /* reading text */
+  --title-s: 1.5rem;         /* h3, 1.33x body */
+  --title-m: 2rem;           /* h2, 1.33x h3 */
+  --body-leading: 1.6;
+  --line: calc(var(--body-size) * var(--body-leading));   /* one body line: 28.8px */
+
+  --sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  font-weight: 400;
+  font-optical-sizing: auto;          /* opsz 8-60 follows the rendered size */
+  font-kerning: normal;               /* GPOS kern in all three files */
+  font-synthesis: none;               /* no fake bold, italic or small caps */
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  /* Source Serif 4 defaults to tabular lining figures (every digit 500 units);
+     onum + pnum give proportional text figures in roman and italic alike. */
+
+  max-inline-size: 31em;              /* measured in Chromium: ~66 characters per line at 18px */
+  margin-inline: auto;
+  text-align: start;
+
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  hyphenate-limit-chars: 6 2 3;
+  -webkit-hyphenate-limit-before: 2;
+  -webkit-hyphenate-limit-after: 3;
+  -webkit-hyphenate-limit-lines: 3;
+}
+
+/* Vertical rhythm: every gap is a whole or half body line, and each gap is
+   set in exactly one place (top margins only) so nothing collapses. */
+.prose > * {
+  margin-block: 0;
+}
+
+.prose > * + * {
+  margin-block-start: var(--line);
+}
+
+/* Paragraphs: first one flush, later ones indented, never also spaced. */
+.prose p {
+  text-wrap: pretty;
+}
+
+.prose > p + p {
+  margin-block-start: 0;
+  text-indent: 1em;
+}
+
+/* ---------- Acronyms ---------------------------------------------------- */
+
+/* Roman has real small caps: c2sc 346 glyphs, smcp 355 (A-Z, a-z, accents,
+   figures). all-small-caps maps the capitals of WCAG, SAP, API through c2sc. */
+.prose abbr {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.05em;
+  margin-inline-end: -0.05em;          /* cancel tracking after the last letter */
+  text-decoration: none;               /* drop the UA dotted underline on abbr[title] */
+}
+
+/* The italic has NO smcp or c2sc. Rather than let the browser shrink
+   capitals (font-synthesis is already none), set acronyms inside an
+   italic passage as true italic full capitals, lightly spaced, so the
+   emphasis stays unbroken. */
+.prose :is(em, i, cite) abbr {
+  font-variant-caps: normal;
+  letter-spacing: 0.04em;
+  margin-inline-end: -0.04em;
+}
+
+/* Outfit has no small caps at all: acronyms in headings, labels and the
+   table stay full caps at that context's own tracking. */
+.prose :is(h2, h3, .eyebrow, table) abbr {
+  font-variant-caps: normal;
+  letter-spacing: inherit;
+  margin-inline-end: 0;
+}
+
+/* ---------- Headings (Outfit) ------------------------------------------ */
+
+.prose :is(h2, h3) {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-variant-numeric: normal;        /* Outfit figures are lining by default; it has no onum */
+  hyphens: manual;
+  text-wrap: balance;
+}
+
+/* h2: 32px on 1.25 lines (36px, ratio 1.125), 2 lines above, 0.75 below,
+   so a one-line h2 with its gaps fills exactly 4 body lines. */
+.prose > h2 {
+  font-size: var(--title-m);
+  line-height: calc(1.25 * var(--line));
+  letter-spacing: -0.01em;             /* slight tightening at display size, lowercase only */
+  margin-block-start: calc(2 * var(--line));
+}
+
+.prose > h2 + * {
+  margin-block-start: calc(0.75 * var(--line));
+}
+
+/* h3: 24px on one body line (28.8px, ratio 1.2), 1.5 lines above,
+   0.5 below: a one-line h3 with its gaps fills 3 body lines. */
+.prose > h3 {
+  font-size: var(--title-s);
+  line-height: var(--line);
+  margin-block-start: calc(1.5 * var(--line));
+}
+
+.prose > h3 + * {
+  margin-block-start: calc(0.5 * var(--line));
+}
+
+.prose > h2 + h3 {
+  margin-block-start: var(--line);
+}
+
+/* Italic is not available in Outfit; with font-synthesis: none an em in a
+   heading stays upright rather than becoming a slanted fake. */
+
+/* ---------- Eyebrow ---------------------------------------------------- */
+
+.prose .eyebrow {
+  font-family: var(--sans);
+  font-size: var(--text-label);
+  font-weight: 600;                    /* heavier to hold up at the small size */
+  line-height: var(--line);            /* one body line, so it stays on the beat */
+  text-transform: uppercase;           /* real casing stays in the source */
+  letter-spacing: 0.1em;               /* caps need +5-10% tracking */
+  word-spacing: 0.05em;                /* tracked caps need wider word gaps too */
+  font-variant-numeric: normal;
+  hyphens: manual;
+  /* Outfit has no `case` feature, so hyphens and parentheses in the label
+     stay at lowercase height; keep labels to words. */
+}
+
+.prose > * + .eyebrow {
+  margin-block-start: calc(2 * var(--line));   /* starts a section like an h2 */
+}
+
+.prose > .eyebrow + :is(h2, h3) {
+  margin-block-start: 0;                        /* label binds to its heading */
+}
+
+/* ---------- Results table (Outfit, tabular figures) -------------------- */
+
+.prose table {
+  /* Auto width keeps the figures close to their labels instead of
+     stranding them at the far edge of the measure. */
+  border-collapse: collapse;
+  font-family: var(--sans);
+  font-size: var(--text-data);
+  line-height: 1.4;
+  hyphens: manual;
+  font-variant-numeric: normal;        /* labels keep Outfit's proportional figures */
+}
+
+.prose caption {
+  caption-side: top;
+  text-align: start;
+  font-size: var(--text-label);
+  padding-block-end: calc(0.25 * var(--line));
+}
+
+.prose :is(th, td) {
+  padding-block: calc(0.25 * var(--line));
+  padding-inline: 0;
+  vertical-align: baseline;
+  text-align: start;
+}
+
+/* Number columns: Outfit's default figures are proportional lining; its
+   tnum (all ten digits) gives them one width so the column aligns on the
+   last digit. Outfit has no lnum or onum, and needs neither. Applied only
+   here, so "a11y" in a label is not set in wide tabular ones. */
+.prose :is(th, td):not(:first-child) {
+  text-align: end;
+  padding-inline-start: 2em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;                 /* keep "24 ms", "+18 %" on one line */
+}
+
+.prose thead th {
+  font-weight: 600;
+  vertical-align: bottom;
+  border-block-end: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+}
+
+.prose tbody th {
+  font-weight: 400;
+}
+
+.prose tbody tr + tr > * {
+  border-block-start: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+}
+
+/* A paragraph after the table opens flush (only p + p is indented). */

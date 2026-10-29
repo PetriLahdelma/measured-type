@@ -1,0 +1,11 @@
+{
+  "eval_name": "zoom-safe-scale",
+  "prompt": "Create tokens.css for a responsive marketing and docs site: font-size, line-height and letter-spacing tokens for body, small, caption, uppercase label, h1 to h4 and a hero display size, plus vertical spacing tokens. Headings should be fluid between 360px and 1440px viewports, and the system must meet WCAG 1.4.4 at 200% browser zoom. Put a short rationale at the top.",
+  "assertions": [
+    "At 200% zoom on a 1280px window (CSS viewport 640px, 1rem = 32px), the body, small, caption and label font-size tokens compute to exactly twice their size at 100% zoom",
+    "At 200% zoom on a 1280px window, every heading and hero font-size token computes to at least 1.6 times its size at 100% zoom",
+    "Adjacent heading tokens (hero, h1, h2, h3, h4) differ by at least 1.15 times at both a 360px and a 1440px viewport at 100% zoom",
+    "tokens.css derives vertical spacing tokens from the body line (body size times body line-height), not from a fixed px value",
+    "tokens.css gives the uppercase label token letter-spacing of at least 0.05em and the hero token zero or negative letter-spacing"
+  ]
+}

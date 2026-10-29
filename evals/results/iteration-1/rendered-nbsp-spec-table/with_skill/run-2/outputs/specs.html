@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compare models</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #fbfaf8;
+    --surface: #ffffff;
+    --text: #1b1b1a;
+    --muted: #5d5b57;
+    --rule: #dcd9d3;
+    --rule-strong: #1b1b1a;
+    --accent: #1f4fd1;
+    --accent-text: #ffffff;
+    --focus: #1f4fd1;
+
+    /* Type scale (rem, so reader settings and zoom scale it) */
+    --size-small: 0.875rem;
+    --size-body: 1rem;
+    --size-h1: clamp(1.75rem, 1.5rem + 1vi, 2.25rem);
+
+    /* One body line: 16px x 1.5 = 24px; every gap is a whole or half step */
+    --leading: 1.5;
+    --line: calc(var(--size-body) * var(--leading));
+    --half: calc(var(--line) / 2);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413;
+      --surface: #1c1c1a;
+      --text: #ecebe7;
+      --muted: #a8a59e;
+      --rule: #3a3936;
+      --rule-strong: #ecebe7;
+      --accent: #8fb0ff;
+      --accent-text: #0e1220;
+      --focus: #8fb0ff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413;
+    --surface: #1c1c1a;
+    --text: #ecebe7;
+    --muted: #a8a59e;
+    --rule: #3a3936;
+    --rule-strong: #ecebe7;
+    --accent: #8fb0ff;
+    --accent-text: #0e1220;
+    --focus: #8fb0ff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: var(--size-body);
+    line-height: var(--leading);
+    font-kerning: normal;
+    font-synthesis: none;            /* never fake bold, italic or small caps */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  main {
+    max-inline-size: 48rem;
+    margin-inline: auto;
+    padding-block: calc(var(--line) * 2);
+    padding-inline: 1rem;
+  }
+
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--half) var(--line);
+    margin-block-end: var(--line);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: var(--size-h1);
+    line-height: 1.15;
+    font-weight: 650;
+    letter-spacing: -0.01em;          /* display size only; text stays at normal */
+    text-wrap: balance;
+  }
+
+  /* Language switch: two pressed-state buttons in one group */
+  .lang-switch {
+    display: inline-flex;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.1875rem;
+    background: var(--surface);
+  }
+  .lang-switch button {
+    font: inherit;
+    font-size: var(--size-small);
+    line-height: 1.25;
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    padding-block: 0.375rem;
+    padding-inline: 0.875rem;
+    min-block-size: 2.25rem;
+    cursor: pointer;
+  }
+  .lang-switch button[aria-pressed="true"] {
+    color: var(--accent-text);
+    background: var(--accent);
+  }
+  .lang-switch button:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  /* Scroll container so the table never forces horizontal page scroll */
+  .table-scroll {
+    overflow-x: auto;
+    overflow-inline: auto;
+    border-block-start: 2px solid var(--rule-strong);
+    border-block-end: 1px solid var(--rule);
+  }
+  .table-scroll:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 4px;
+  }
+
+  table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    /* Data, not prose: lining tabular figures so numbers line up (§3.2.1) */
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  /* Table description sits outside the scroller so it never scrolls away */
+  .table-desc {
+    margin-block: 0;
+    padding-block-end: var(--half);
+    color: var(--muted);
+    font-size: var(--size-small);
+    line-height: var(--leading);
+    text-wrap: pretty;
+  }
+
+  th, td {
+    padding-block: calc(var(--half) - 1px) var(--half);
+    padding-inline: 0.75rem;
+    border-block-start: 1px solid var(--rule);
+    vertical-align: baseline;
+  }
+  th:first-child { padding-inline-start: 0; }
+  th:last-child, td:last-child { padding-inline-end: 0; }
+
+  thead th {
+    border-block-start: 0;
+    font-weight: 650;
+    text-align: end;
+    white-space: nowrap;
+  }
+  thead th:first-child { text-align: start; }
+
+  tbody th {
+    text-align: start;
+    font-weight: 500;
+    color: var(--muted);
+    hyphens: auto;                     /* Finnish compounds in narrow layouts */
+    hyphenate-limit-chars: 6 2 3;
+    min-inline-size: 7rem;
+  }
+
+  /* Numeric cells: end-aligned, number and unit never split (§2.4.6) */
+  td {
+    text-align: end;
+    white-space: nowrap;
+  }
+
+  tr.is-price th, tr.is-price td {
+    border-block-start: 1px solid var(--rule-strong);
+  }
+  tr.is-price td { font-weight: 650; }
+
+  .sr-only {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 30rem) {
+    th, td { padding-inline: 0.5rem; }
+    tbody th {
+      position: sticky;
+      inset-inline-start: 0;
+      background: var(--bg);
+      z-index: 1;
+      min-inline-size: 6.5rem;
+    }
+  }
+
+  @media print {
+    :root { --bg: #fff; --text: #000; --muted: #333; --rule: #999; --rule-strong: #000; }
+    .lang-switch { display: none; }
+    table { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 id="title">Compare models</h1>
+    <div class="lang-switch" role="group" id="lang-group" aria-label="Language">
+      <button type="button" data-lang="en" lang="en" aria-pressed="true">English</button>
+      <button type="button" data-lang="fi" lang="fi" aria-pressed="false">Suomi</button>
+    </div>
+  </header>
+
+  <p class="table-desc" id="caption"></p>
+  <div class="table-scroll" role="region" aria-labelledby="caption" tabindex="0">
+    <table id="specs" aria-labelledby="caption">
+      <thead><tr></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const NBSP = ' ';
+
+  /* Data: raw numbers plus a unit key. Formatting happens per locale at render. */
+  const SPECS = {
+    models: [
+      { id: 'lumo-13', name: 'Lumo 13' },
+      { id: 'lumo-15', name: 'Lumo 15' },
+      { id: 'lumo-16', name: 'Lumo 16' }
+    ],
+    rows: [
+      { key: 'weight',      unit: 'kg',      values: [1.24, 1.55, 2.1] },
+      { key: 'battery',     unit: 'Wh',      values: [52, 72, 99.5] },
+      { key: 'storage',     unit: 'storage', values: [{ v: 512, u: 'GB' }, { v: 1, u: 'TB' }, { v: 2, u: 'TB' }] },
+      { key: 'display',     unit: 'in',      values: [13.6, 15.3, 16.2] },
+      { key: 'batteryLife', unit: 'h',       values: [18, 15, 22], qualifier: 'upTo' },
+      { key: 'price',       unit: 'EUR',     values: [1299, 1899, 2799], currency: true }
+    ]
+  };
+
+  /* Copy and unit labels per language. Unit labels live here rather than in
+     Intl `style: 'unit'`, which gives "hr" in English and "t" in Finnish and
+     joins with a plain space. Finnish storage units follow CLDR (Gt, Tt). */
+  const STRINGS = {
+    en: {
+      intl: 'en',
+      docTitle: 'Compare models',
+      title: 'Compare models',
+      caption: 'Specifications of three laptop models',
+      langGroup: 'Language',
+      specHeader: 'Specification',
+      rows: {
+        weight: 'Weight',
+        battery: 'Battery',
+        storage: 'Storage',
+        display: 'Display',
+        batteryLife: 'Battery life',
+        price: 'Price'
+      },
+      units: { kg: 'kg', Wh: 'Wh', GB: 'GB', TB: 'TB', in: 'in', h: 'h' },
+      upTo: 'up to'
+    },
+    fi: {
+      intl: 'fi-FI',
+      docTitle: 'Vertaa malleja',
+      title: 'Vertaa malleja',
+      caption: 'Kolmen kannettavan tietokoneen tekniset tiedot',
+      langGroup: 'Kieli',
+      specHeader: 'Ominaisuus',
+      rows: {
+        weight: 'Paino',
+        battery: 'Akku',
+        storage: 'Tallennustila',
+        display: 'Näyttö',
+        batteryLife: 'Akunkesto',
+        price: 'Hinta'
+      },
+      units: { kg: 'kg', Wh: 'Wh', GB: 'Gt', TB: 'Tt', in: 'tuumaa', h: 'h' },
+      upTo: 'jopa'
+    }
+  };
+
+  /* Bind every space in a short expression so it cannot break (§2.4.6). */
+  const bind = (s) => s.replace(/[  ]/g, NBSP);
+
+  function formatCell(row, raw, t) {
+    const num = new Intl.NumberFormat(t.intl, { maximumFractionDigits: 2 });
+    if (row.currency) {
+      // Intl currency output already carries U+00A0 in Finnish ("1 299 €"); bind anyway.
+      const cur = new Intl.NumberFormat(t.intl, {
+        style: 'currency', currency: row.unit, maximumFractionDigits: 0
+      });
+      return { text: bind(cur.format(raw)), value: String(raw) };
+    }
+    const value = typeof raw === 'object' ? raw.v : raw;
+    const unitKey = typeof raw === 'object' ? raw.u : row.unit;
+    let text = num.format(value) + NBSP + t.units[unitKey];
+    if (row.qualifier) text = t[row.qualifier] + NBSP + text;
+    return { text: bind(text), value: String(value) };
+  }
+
+  const table = document.getElementById('specs');
+  const headRow = table.tHead.rows[0];
+  const body = table.tBodies[0];
+
+  function render(lang) {
+    const t = STRINGS[lang];
+    const root = document.documentElement;
+    root.lang = lang;
+    document.title = t.docTitle;
+    document.getElementById('title').textContent = t.title;
+    document.getElementById('caption').textContent = t.caption;
+    document.getElementById('lang-group').setAttribute('aria-label', t.langGroup);
+
+    headRow.replaceChildren();
+    const corner = document.createElement('th');
+    corner.scope = 'col';
+    const cornerLabel = document.createElement('span');
+    cornerLabel.className = 'sr-only';
+    cornerLabel.textContent = t.specHeader;
+    corner.append(cornerLabel);
+    headRow.append(corner);
+    for (const m of SPECS.models) {
+      const th = document.createElement('th');
+      th.scope = 'col';
+      th.id = 'col-' + m.id;
+      th.textContent = m.name;
+      headRow.append(th);
+    }
+
+    body.replaceChildren();
+    for (const row of SPECS.rows) {
+      const tr = document.createElement('tr');
+      if (row.currency) tr.className = 'is-price';
+      const th = document.createElement('th');
+      th.scope = 'row';
+      th.textContent = t.rows[row.key];
+      tr.append(th);
+      row.values.forEach((raw) => {
+        const td = document.createElement('td');
+        const { text, value } = formatCell(row, raw, t);
+        const data = document.createElement('data');
+        data.value = value;
+        data.textContent = text;
+        td.append(data);
+        tr.append(td);
+      });
+      body.append(tr);
+    }
+
+    for (const b of document.querySelectorAll('.lang-switch button')) {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+    }
+    try { localStorage.setItem('specs-lang', lang); } catch (e) { /* storage unavailable */ }
+  }
+
+  document.querySelector('.lang-switch').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-lang]');
+    if (btn) render(btn.dataset.lang);
+  });
+
+  let initial = 'en';
+  const fromUrl = new URLSearchParams(location.search).get('lang');
+  if (fromUrl && STRINGS[fromUrl]) {
+    initial = fromUrl;
+  } else {
+    try {
+      const saved = localStorage.getItem('specs-lang');
+      if (saved && STRINGS[saved]) initial = saved;
+    } catch (e) { /* storage unavailable */ }
+  }
+  render(initial);
+})();
+</script>
+</body>
+</html>

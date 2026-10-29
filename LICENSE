@@ -1,0 +1,31 @@
+This repository uses three licenses. Which one applies depends on the file.
+
+1. Text: CC BY-NC 4.0 (LICENSE-CC-BY-NC-4.0.txt)
+   SKILL.md, everything in references/ and the prose in evals/ (prompts,
+   case files, graders and the benchmark report).
+
+   references/rules.md and the rule table in SKILL.md paraphrase and follow
+   the rule order of Richard Rutter, "The Elements of Typographic Style
+   Applied to the Web" (https://webtypography.net,
+   https://github.com/clagnut/webtypography), which is published under
+   CC BY-NC 4.0. That work is itself based on Robert Bringhurst, "The
+   Elements of Typographic Style". Because this text adapts that material,
+   it is shared under the same license. Changes: the rules are paraphrased,
+   the CSS is rewritten for current browsers and measured corrections,
+   logical-property, direction and locale guidance are added.
+
+   Attribution for this repository: "Typography skill by Petri Lahdelma,
+   adapting webtypography.net by Richard Rutter, CC BY-NC 4.0".
+
+2. Code: MIT (LICENSE-MIT.txt)
+   Everything in scripts/, package.json and the shell scaffolds in evals/
+   (place-files.sh).
+
+3. Fonts: SIL Open Font License 1.1
+   The font files in evals/ofl-feature-check/files/fonts/ are unmodified
+   copies of Source Serif 4 (Adobe) and Outfit, each shipped beside its own
+   OFL text. They are test fixtures only.
+
+This note is a description of intent, not legal advice. If the
+NonCommercial term matters for how you want to use the text, read the
+license itself or ask the rights holders.

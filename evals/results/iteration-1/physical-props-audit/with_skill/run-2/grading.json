@@ -1,0 +1,75 @@
+{
+  "expectations": [
+    {
+      "text": "review.md names .docs-main width, margin: 0 auto, padding-left and padding-right and gives logical replacements (inline-size or max-inline-size, margin-inline: auto, padding-inline)",
+      "passed": false,
+      "evidence": "Finding is headed '.docs-main { width: 960px; ... }' and the fix uses margin-inline/padding-inline, but review.md never names margin: 0 auto or padding-left/padding-right for .docs-main."
+    },
+    {
+      "text": "review.md names .sidebar float: left, margin-right and text-align: right and replaces them with float: inline-start, margin-inline-end and text-align: end",
+      "passed": true,
+      "evidence": "Sidebar finding names float: left; margin-right: 24px; text-align: right; fix float: inline-start; margin-inline-end: 24px; text-align: end."
+    },
+    {
+      "text": "review.md names .callout border-left, padding-left, margin-left and both left border radii and replaces them with border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius and border-end-start-radius",
+      "passed": true,
+      "evidence": "Callout finding names border-left, padding-left, margin-left and both left radii; fix uses border-inline-start, padding-inline-start, margin-inline-start, border-start-start-radius, border-end-start-radius."
+    },
+    {
+      "text": "review.md names the ul padding-left and the blockquote's left margin and replaces them with padding-inline-start and margin-inline-start (with margin-block for the vertical part)",
+      "passed": true,
+      "evidence": "ul -> padding-inline-start: 1.5em; blockquote -> margin-block: 1.5em; margin-inline: 2em 0."
+    },
+    {
+      "text": "review.md names .note-badge right: 8px, the h2 text-align: left and the ::after margin-left and replaces them with inset-inline-end, text-align: start and margin-inline-start",
+      "passed": true,
+      "evidence": "note-badge -> inset-inline-end: 8px; h2 -> text-align: start; ::after margin-left -> margin-inline-start: 0.25em."
+    },
+    {
+      "text": "review.md says the right arrow (\\2192) and the breadcrumb translateX need mirroring in RTL (for example via :dir(rtl))",
+      "passed": true,
+      "evidence": "':dir(rtl) .nav-next::after { content: \"\\2190\" ... }' and translateX flagged as physical, replaced by margin-inline-start: 2px (explanation of the RTL direction is muddled but mirroring is required)."
+    },
+    {
+      "text": "review.md leaves the box-shadow offset and rotate(-4deg) physical, or explicitly classes them as decorative and not to convert",
+      "passed": true,
+      "evidence": "'Leave the box-shadow physical. It models a light source'; 'Leave alone: rotate(-4deg)... physical graphics'."
+    },
+    {
+      "text": "review.md explains that 75ch in Verdana gives well over 75 characters because ch is the width of the zero, and recommends an em-based or measured measure",
+      "passed": true,
+      "evidence": "'ch is the width of Verdana's zero (0.636em)... 75ch renders 91.6 characters per line'; recommends a measured 55ch (re-measured 66.6 chars)."
+    },
+    {
+      "text": "review.md states that with content-box sizing .docs-main occupies 1024px in total (960px plus two 32px paddings)",
+      "passed": true,
+      "evidence": "'with box-sizing: content-box: the box is 1024px wide in total'."
+    },
+    {
+      "text": "review.md flags widows: 1 and orphans: 1 as allowing single stranded lines and recommends 2 or more",
+      "passed": true,
+      "evidence": "'widows: 1; orphans: 1 explicitly permits a single stranded line'; fix widows: 2; orphans: 2."
+    },
+    {
+      "text": "review.md warns against letterspacing Arabic text (letter-spacing breaks joining)",
+      "passed": true,
+      "evidence": "'tracking breaks the joins between Arabic letters'."
+    },
+    {
+      "text": "review.md explains that the browser's default padding-inline-start (40px) stays on the right in RTL when ul uses padding-left, so the list is indented on both sides",
+      "passed": true,
+      "evidence": "'the browser's default padding-inline-start: 40px stays on the right in RTL while your 24px lands on the left, so Arabic lists are indented on both sides'."
+    },
+    {
+      "text": "review.md proposes no invalid CSS and no transform that would double-mirror a Bidi_Mirrored glyph",
+      "passed": true,
+      "evidence": "Every property/value and selector in the review's CSS blocks and inline fixes passed Chromium CSS.supports / insertRule (only prose ellipses and the @font-face descriptor font-display were flagged). Also checked docs-theme.fixed.css: all valid. No scaleX on glyphs; says › » > already mirror, leave them alone."
+    }
+  ],
+  "summary": {
+    "passed": 12,
+    "failed": 1,
+    "total": 13,
+    "pass_rate": 0.923
+  }
+}

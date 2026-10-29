@@ -1,0 +1,54 @@
+/* Northlight docs theme: logical-property edition (LTR rendering unchanged except where noted) */
+*, *::before, *::after { box-sizing: content-box; }   /* unchanged; see review "Refinement" */
+
+html { font-size: 100%; }
+body { font-family: Verdana, sans-serif; font-size: 1rem; line-height: 1.6; color: #222; }
+
+/* Arabic edition: a face that covers the script, swapped on the root only so code stays monospace */
+:root:lang(ar) body {
+  font-family: "Noto Sans Arabic", "IBM Plex Sans Arabic", "Segoe UI", Tahoma, "Geeza Pro", sans-serif;
+  font-synthesis: none;            /* no slanted Arabic from a missing italic */
+}
+:root:lang(ar) :is(em, i, cite) { font-style: normal; font-weight: 700; }
+
+.docs-main {
+  inline-size: 960px;
+  max-inline-size: calc(100% - 64px);   /* content-box: 960 + 2 x 32 padding never exceeds the viewport */
+  margin-inline: auto;
+  padding-inline: 32px;
+}
+.docs-main p { max-inline-size: 55ch; text-wrap: pretty; }   /* was 75ch = 92 chars in Verdana; 55ch = about 66 */
+
+.sidebar {
+  float: inline-start;
+  inline-size: 240px;
+  margin-inline-end: 24px;
+  text-align: end;                 /* keeps today's LTR look; see design note */
+}
+
+.callout {
+  border-inline-start: 4px solid #0a6;
+  padding-inline-start: 16px;
+  margin-inline-start: 0;
+  border-start-start-radius: 6px;
+  border-end-start-radius: 6px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);   /* physical light source: stays */
+}
+
+.breadcrumb .sep { display: inline-block; margin-inline-start: 2px; }   /* was translateX(2px) */
+.nav-next::after { content: "\2192"; content: "\2192" / ""; margin-inline-start: 0.25em; }
+:dir(rtl) .nav-next::after { content: "\2190"; content: "\2190" / ""; }
+
+.docs-main ul { padding-inline-start: 1.5em; }
+.docs-main blockquote { margin-block: 1.5em; margin-inline: 2em 0; }
+
+.note-badge { position: absolute; inset-block-start: 8px; inset-inline-end: 8px; }
+.docs-main h2 { text-align: start; text-wrap: balance; }
+.figure-caption { text-align: center; }
+.hero-illustration { transform: rotate(-4deg); }   /* physical graphic: stays */
+
+@media print {
+  p { widows: 2; orphans: 2; }
+  h2, h3 { break-after: avoid; }
+  blockquote, figure, pre, table { break-inside: avoid; }
+}

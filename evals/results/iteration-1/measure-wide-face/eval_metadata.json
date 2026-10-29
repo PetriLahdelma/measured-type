@@ -1,0 +1,13 @@
+{
+  "eval_name": "measure-wide-face",
+  "prompt": "Write prose.css for our documentation article body. The markup is `<article class=\"prose\" lang=\"en\">` containing h2, h3, p, ul and blockquote. The body face is Verdana (system font, no web font) and body text is 1.125rem on the browser's default root size; leave :root alone. Target about 66 characters per line, and keep a consistent vertical rhythm between headings and blocks. Save prose.css.",
+  "assertions": [
+    "Rendered at a 1280px-wide viewport in Verdana with English sample prose, full body lines in .prose average between 58 and 74 characters",
+    "prose.css spaces blocks in a unit equal to one prose body line (1.125rem times the body line-height, e.g. a custom property or 1lh on the paragraph), not in rlh or rem values that resolve against the 16px root line",
+    "prose.css sets h2 and h3 margins as whole or half multiples of that same prose body line",
+    "prose.css sets the body font-size as a fixed rem value with no vw or vi term, so it doubles at 200% zoom",
+    "prose.css uses logical properties for every text-flow box property (no margin-left/right, padding-left/right, width or max-width on text, text-align: left/right)",
+    "prose.css sets h2 and h3 line-heights so each heading line is a whole or half multiple of the body line, so blocks after a wrapped heading land back on the body interval",
+    "prose.css gives an h3 that directly follows an h2 at least one body line of space above it"
+  ]
+}

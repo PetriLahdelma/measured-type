@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: zoom-safe-scale
+expected_outcome: |
+  Body-level sizes that double exactly under zoom, fluid headings that still grow substantially at 200% zoom, distinct adjacent heading steps and spacing derived from the body line.

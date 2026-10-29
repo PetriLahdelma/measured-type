@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laptop Specs</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --text: #1b1b1a;
+    --muted: #5f5f5b;
+    --border: #e2e1dc;
+    --accent: #1f4fd1;
+    --accent-text: #ffffff;
+    --row-alt: #fafaf8;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413;
+      --surface: #1d1d1b;
+      --text: #ecebe6;
+      --muted: #a3a29c;
+      --border: #33332f;
+      --accent: #7c9cff;
+      --accent-text: #0e1220;
+      --row-alt: #21211f;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413;
+    --surface: #1d1d1b;
+    --text: #ecebe6;
+    --muted: #a3a29c;
+    --border: #33332f;
+    --accent: #7c9cff;
+    --accent-text: #0e1220;
+    --row-alt: #21211f;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main {
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 2.5rem 16px 3rem;
+  }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  h1 {
+    margin: 0;
+    font-size: 1.625rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .lede {
+    margin: 0.25rem 0 0;
+    color: var(--muted);
+  }
+
+  .lang-switch {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px;
+    background: var(--surface);
+  }
+  .lang-switch button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.875rem;
+    min-height: 2.25rem;
+    padding: 0 0.95rem;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .lang-switch button[aria-pressed="true"] {
+    background: var(--accent);
+    color: var(--accent-text);
+  }
+  .lang-switch button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  caption {
+    text-align: left;
+    padding: 1rem 1rem 0.5rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  th, td {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border);
+    text-align: right;
+    white-space: nowrap;
+  }
+  thead th {
+    border-top: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+  thead th:first-child,
+  tbody th {
+    text-align: left;
+  }
+  tbody th {
+    font-weight: 500;
+    color: var(--muted);
+    white-space: normal;
+  }
+  tbody tr:nth-child(even) { background: var(--row-alt); }
+  tbody tr.price td { font-weight: 600; }
+
+  .note {
+    margin-top: 1rem;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 30rem) {
+    th, td { padding: 0.625rem 0.75rem; }
+    h1 { font-size: 1.375rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1 id="title"></h1>
+      <p class="lede" id="lede"></p>
+    </div>
+    <div class="lang-switch" role="group" id="lang-group">
+      <button type="button" data-lang="en" lang="en">English</button>
+      <button type="button" data-lang="fi" lang="fi">Suomi</button>
+    </div>
+  </header>
+
+  <div class="table-wrap">
+    <table id="specs">
+      <caption id="caption"></caption>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p class="note" id="note"></p>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const NBSP = " ";
+
+  // Raw data: plain numbers only. Formatting happens per locale at render time.
+  const data = {
+    models: [
+      { id: "air",   name: "Model 13", weightKg: 1.24, batteryWh: 52,   storageGB: 512,  displayIn: 13.6, batteryLifeH: 18, priceEUR: 1299 },
+      { id: "pro",   name: "Model 15", weightKg: 1.55, batteryWh: 72,   storageGB: 1000, displayIn: 15.3, batteryLifeH: 15, priceEUR: 1899 },
+      { id: "max",   name: "Model 16", weightKg: 2.1,  batteryWh: 99.5, storageGB: 2000, displayIn: 16.2, batteryLifeH: 22, priceEUR: 2799 }
+    ],
+    rows: ["weight", "battery", "storage", "display", "batteryLife", "price"]
+  };
+
+  const i18n = {
+    en: {
+      locale: "en-GB",
+      title: "Compare laptops",
+      lede: "Three models, side by side.",
+      caption: "Technical specifications",
+      groupLabel: "Language",
+      specHeader: "Specification",
+      note: "Battery life is measured under light use and varies with settings and workload.",
+      labels: {
+        weight: "Weight",
+        battery: "Battery capacity",
+        storage: "Storage",
+        display: "Display size",
+        batteryLife: "Battery life",
+        price: "Price"
+      },
+      units: { kg: "kg", Wh: "Wh", GB: "GB", TB: "TB", inch: "in", h: "h" },
+      upTo: "up to"
+    },
+    fi: {
+      locale: "fi-FI",
+      title: "Vertaile kannettavia",
+      lede: "Kolme mallia rinnakkain.",
+      caption: "Tekniset tiedot",
+      groupLabel: "Kieli",
+      specHeader: "Ominaisuus",
+      note: "Akunkesto on mitattu kevyessä käytössä, ja se vaihtelee asetusten ja kuormituksen mukaan.",
+      labels: {
+        weight: "Paino",
+        battery: "Akun kapasiteetti",
+        storage: "Tallennustila",
+        display: "Näytön koko",
+        batteryLife: "Akunkesto",
+        price: "Hinta"
+      },
+      // Finnish SI-style abbreviations: gigatavu = Gt, teratavu = Tt; tuuma written out.
+      units: { kg: "kg", Wh: "Wh", GB: "Gt", TB: "Tt", inch: "tuumaa", h: "h" },
+      upTo: "jopa"
+    }
+  };
+
+  // Number + unit, always joined by a no-break space so they never wrap apart.
+  function num(value, t, fractionDigits) {
+    const opts = fractionDigits == null
+      ? { maximumFractionDigits: 2 }
+      : { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits };
+    // Intl uses the locale's own separators: "1,24" and "1 299" (U+00A0) in fi-FI.
+    return new Intl.NumberFormat(t.locale, opts).format(value);
+  }
+  const withUnit = (n, unit) => n + NBSP + unit;
+
+  const formatters = {
+    weight: (m, t) => withUnit(num(m.weightKg, t), t.units.kg),
+    battery: (m, t) => withUnit(num(m.batteryWh, t), t.units.Wh),
+    storage: (m, t) => m.storageGB >= 1000
+      ? withUnit(num(m.storageGB / 1000, t), t.units.TB)
+      : withUnit(num(m.storageGB, t), t.units.GB),
+    display: (m, t) => withUnit(num(m.displayIn, t), t.units.inch),
+    batteryLife: (m, t) => t.upTo + NBSP + withUnit(num(m.batteryLifeH, t), t.units.h),
+    price: (m, t) => new Intl.NumberFormat(t.locale, {
+      style: "currency",
+      currency: "EUR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(m.priceEUR)
+  };
+
+  const table = document.getElementById("specs");
+  const thead = table.tHead;
+  const tbody = table.tBodies[0];
+  const group = document.getElementById("lang-group");
+
+  function render(lang) {
+    const t = i18n[lang] || i18n.en;
+    document.documentElement.lang = lang;
+    document.title = t.title;
+    document.getElementById("title").textContent = t.title;
+    document.getElementById("lede").textContent = t.lede;
+    document.getElementById("caption").textContent = t.caption;
+    document.getElementById("note").textContent = t.note;
+    group.setAttribute("aria-label", t.groupLabel);
+
+    // Header row
+    const hr = document.createElement("tr");
+    const corner = document.createElement("th");
+    corner.scope = "col";
+    corner.textContent = t.specHeader;
+    hr.appendChild(corner);
+    data.models.forEach(m => {
+      const th = document.createElement("th");
+      th.scope = "col";
+      th.textContent = m.name;
+      hr.appendChild(th);
+    });
+    thead.replaceChildren(hr);
+
+    // Body rows
+    const rows = data.rows.map(key => {
+      const tr = document.createElement("tr");
+      if (key === "price") tr.className = "price";
+      const th = document.createElement("th");
+      th.scope = "row";
+      th.textContent = t.labels[key];
+      tr.appendChild(th);
+      data.models.forEach(m => {
+        const td = document.createElement("td");
+        td.textContent = formatters[key](m, t);
+        tr.appendChild(td);
+      });
+      return tr;
+    });
+    tbody.replaceChildren(...rows);
+
+    group.querySelectorAll("button").forEach(b => {
+      b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+    });
+  }
+
+  function initialLang() {
+    try {
+      const saved = localStorage.getItem("specs-lang");
+      if (saved && i18n[saved]) return saved;
+    } catch (e) { /* storage unavailable */ }
+    const nav = (navigator.language || "en").slice(0, 2).toLowerCase();
+    return i18n[nav] ? nav : "en";
+  }
+
+  group.addEventListener("click", e => {
+    const btn = e.target.closest("button[data-lang]");
+    if (!btn) return;
+    const lang = btn.dataset.lang;
+    render(lang);
+    try { localStorage.setItem("specs-lang", lang); } catch (err) { /* ignore */ }
+  });
+
+  // Exposed for testing.
+  window.renderSpecs = render;
+  render(initialLang());
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+/* ==========================================================================
+   Type and spacing tokens: marketing and docs site
+   --------------------------------------------------------------------------
+   Rationale
+
+   1. Every size is rem (or a clamp() that keeps a rem term), and :root is
+      left at the reader's default size, so browser zoom and the reader's
+      font-size setting both scale the text (WCAG 1.4.4; Bringhurst 3.1.1).
+
+   2. Reading and interface sizes (body, small, caption, label) are fixed
+      rem. They are exactly 2x at 200% zoom on every window width.
+
+   3. Headings and the hero are fluid from a 360px to a 1440px viewport.
+      The vi term in a fluid size does not grow with zoom (zoom halves the
+      CSS viewport), so each range is kept modest: h4 1.10x, h3 1.17x,
+      h2 1.24x, h1 1.37x, hero 1.41x from min to max. Measured with
+      verify-zoom.mjs at 200% zoom on the worst window (1440px) they reach
+      1.61x (hero) to 1.88x (h4). h2 to h4 reach the full 2x by 250% zoom
+      and h1 and hero by 300% on every window, and every max/min ratio
+      stays far below the 2.5 limit that browser zoom (up to 500%) can
+      still compensate. All headings are WCAG large text even at minimum.
+
+   4. Hierarchy survives the narrow ranges: adjacent heading steps are at
+      least 1.2x apart at every width from 360px to 1440px, so h3 and h4
+      never collapse into each other on phones.
+
+   5. Leading is unitless (inherits as a ratio, survives WCAG 1.4.12 user
+      overrides). It tightens as size grows: 1.6 for body, 1.05 for the
+      hero (Bringhurst 2.2.1). Tracking is normal for lowercase text,
+      slightly negative only at display sizes (2.1.7) and positive for the
+      uppercase label (2.1.6). Re-test the negative values with the face
+      you ship; they are starting points, not measurements.
+
+   6. Vertical spacing is measured in body lines (2.2.2). --line is one
+      body line (17px x 1.6 = 27.2px at default settings); every gap is a
+      whole or half multiple of it, so headings and body share one rhythm.
+      The body is larger than the root, so rlh would be the wrong unit;
+      --line is a calc() of rem values instead and stays zoom-safe.
+   ========================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------------
+     Font sizes
+     Fixed roles: rem only. Fluid roles: clamp(min, rem + vi, max),
+     linear from 360px (min) to 1440px (max) at the default 16px root.
+     --------------------------------------------------------------------- */
+  --text-body:    1.0625rem;   /* 17px: reading text, docs and marketing copy */
+  --text-small:   0.9375rem;   /* 15px: secondary copy, UI text, table cells */
+  --text-caption: 0.8125rem;   /* 13px: figure captions, footnotes, meta */
+  --text-label:   0.75rem;     /* 12px: uppercase eyebrows, tags, nav labels */
+
+  /*                min          preferred              max          px range */
+  --text-h4:   clamp(1.25rem,   1.2083rem + 0.1852vi, 1.375rem);  /* 20 to 22 */
+  --text-h3:   clamp(1.5rem,    1.4167rem + 0.3704vi, 1.75rem);   /* 24 to 28 */
+  --text-h2:   clamp(1.8125rem, 1.6667rem + 0.6481vi, 2.25rem);   /* 29 to 36 */
+  --text-h1:   clamp(2.1875rem, 1.9167rem + 1.2037vi, 3rem);      /* 35 to 48 */
+  --text-hero: clamp(2.75rem,   2.375rem  + 1.6667vi, 3.875rem);  /* 44 to 62 */
+
+  /* ---------------------------------------------------------------------
+     Line heights: unitless, so children inherit the ratio, not a length.
+     --------------------------------------------------------------------- */
+  --leading-body:    1.6;
+  --leading-small:   1.5;
+  --leading-caption: 1.4;
+  --leading-label:   1.3;    /* single-line labels; multi-line still readable */
+  --leading-h4:      1.35;
+  --leading-h3:      1.3;
+  --leading-h2:      1.2;
+  --leading-h1:      1.15;
+  --leading-hero:    1.05;   /* check accented capitals (Å, Ä, Ö) for collisions */
+
+  /* ---------------------------------------------------------------------
+     Letter spacing: em, so it scales with the size it is applied to.
+     Lowercase stays normal; display sizes tighten slightly; caps open up.
+     --------------------------------------------------------------------- */
+  --tracking-body:    normal;
+  --tracking-small:   normal;
+  --tracking-caption: 0.005em;   /* a touch of air at 13px; drop it for loose faces */
+  --tracking-label:   0.08em;    /* uppercase: +5 to +10% of size (2.1.6) */
+  --tracking-h4:      normal;
+  --tracking-h3:      -0.005em;
+  --tracking-h2:      -0.01em;
+  --tracking-h1:      -0.015em;
+  --tracking-hero:    -0.02em;   /* stop before letters touch; never on caps */
+
+  /* Tracked caps need slightly wider word gaps too (2.1.1). */
+  --word-spacing-label: 0.05em;
+
+  /* ---------------------------------------------------------------------
+     Vertical rhythm: one body line and its multiples.
+     --------------------------------------------------------------------- */
+  --line: calc(var(--text-body) * var(--leading-body));   /* 1.7rem = 27.2px */
+
+  --space-3xs: calc(var(--line) * 0.125);  /*  3.4px: icon to label, hairline gaps */
+  --space-2xs: calc(var(--line) * 0.25);   /*  6.8px: inside controls and tags */
+  --space-xs:  calc(var(--line) * 0.5);    /* 13.6px: heading to its first block */
+  --space-s:   var(--line);                /* 27.2px: between paragraphs and blocks */
+  --space-m:   calc(var(--line) * 1.5);    /* 40.8px: before h3 and h4 */
+  --space-l:   calc(var(--line) * 2);      /* 54.4px: before h2, around figures */
+  --space-xl:  calc(var(--line) * 3);      /* 81.6px: between page sections (narrow) */
+  --space-2xl: calc(var(--line) * 4);      /* 108.8px: between page sections (wide) */
+
+  /* Role aliases, so components ask for intent rather than a size. */
+  --space-paragraph:     var(--space-s);
+  --space-after-heading: var(--space-xs);
+  --space-before-h2:     var(--space-l);
+  --space-before-h3:     var(--space-m);
+  --space-before-h4:     var(--space-m);
+  --space-section:       var(--space-xl);
+
+  /* Reading measure: measured 67 to 69 characters per line at 17px in
+     system-ui and Georgia (34em gave 74 to 75, too long).
+     Count it with the face you ship (measure-line.js) before trusting it. */
+  --measure-prose: 31em;
+}
+
+/* Section spacing steps up on wide layouts. The breakpoint is in em, so at
+   200% zoom on a 1440px window (45em of CSS viewport) the page falls back to
+   the narrow, tighter spacing that suits its now-narrow column. Whole-line
+   steps keep the rhythm; no fluid in-between values. */
+@media (min-width: 64em) {
+  :root {
+    --space-section: var(--space-2xl);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Usage notes (not rules; apply the tokens in your own components)
+
+   .prose            font-size: var(--text-body); line-height: var(--leading-body);
+                     max-inline-size: var(--measure-prose);
+   .prose > *        margin-block: 0;
+   .prose > * + *    margin-block-start: var(--space-paragraph);
+   .prose > h2       margin-block-start: var(--space-before-h2);
+   .prose > :is(h2, h3, h4) + *
+                     margin-block-start: var(--space-after-heading);
+
+   Put each gap in one place (top margins only): a bottom margin on a heading
+   collapses with the next block's top margin to the larger of the two.
+   Headings: text-wrap: balance; and, where supported,
+   text-box: trim-both cap alphabetic; so a half-line gap looks like one.
+   Labels: text-transform: uppercase (keep the source text in its true case).
+   Do not put fixed heights on text boxes: WCAG 1.4.12 lets readers raise
+   line-height to 1.5, paragraph spacing to 2em and letter-spacing to 0.12em.
+   --------------------------------------------------------------------------- */

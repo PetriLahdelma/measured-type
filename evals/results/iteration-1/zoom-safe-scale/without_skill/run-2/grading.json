@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "At 200% zoom on a 1280px window (CSS viewport 640px, 1rem = 32px), the body, small, caption and label font-size tokens compute to exactly twice their size at 100% zoom",
+      "passed": true,
+      "evidence": "Playwright: body 16/16, small 14/14, caption 13/13, label 12/12 px at 1280/640; 2x@640/@1280 = 2.000 for all four."
+    },
+    {
+      "text": "At 200% zoom on a 1280px window, every heading and hero font-size token computes to at least 1.6 times its size at 100% zoom",
+      "passed": false,
+      "evidence": "Hero --font-size-hero (clamp(2.5rem, 1.8333rem + 2.963vw, 4.5rem)) measured 67.26px @1280 vs 48.30px @640, ratio 1.436 < 1.6; h1 1.604, h2 1.692, h3 1.756, h4 1.880 pass."
+    },
+    {
+      "text": "Adjacent heading tokens (hero, h1, h2, h3, h4) differ by at least 1.15 times at both a 360px and a 1440px viewport at 100% zoom",
+      "passed": false,
+      "evidence": "h3/h4 measured 20.00/18.00 = 1.111 at 360px (< 1.15); other pairs pass (hero/h1 1.333/1.636, h1/h2 1.250/1.375, h2/h3 1.200/1.280)."
+    },
+    {
+      "text": "tokens.css derives vertical spacing tokens from the body line (body size times body line-height), not from a fixed px value",
+      "passed": false,
+      "evidence": "Spacing tokens are fixed rem (--space-s: 1rem, --space-m: 1.5rem ...), clamp() section values and em flow values (--space-flow-text: 1em); none derived from body size x line-height."
+    },
+    {
+      "text": "tokens.css gives the uppercase label token letter-spacing of at least 0.05em and the hero token zero or negative letter-spacing",
+      "passed": true,
+      "evidence": "--letter-spacing-label: 0.08em; --letter-spacing-hero: -0.03em."
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 3,
+    "total": 5,
+    "pass_rate": 0.4
+  }
+}

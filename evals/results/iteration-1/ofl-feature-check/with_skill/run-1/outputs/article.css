@@ -1,0 +1,270 @@
+/*
+ * article.css: long-form case studies.
+ * Markup: <article class="prose" lang="en"> with p, h2, h3, em, abbr,
+ * .eyebrow and one small results table of numbers.
+ *
+ * Every OpenType feature below was checked in the served files with
+ * scripts/font-features.py (see notes.md). Features a file lacks are not
+ * requested, and font-synthesis: none stops the browser faking them.
+ */
+
+/* ---------- Faces ---------- */
+
+/* Variable fonts: declare the full axis ranges so the browser picks the
+   instance from font-weight, and so bold or italic never get synthesized. */
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Outfit has no italic file; with font-synthesis: none an <em> inside a
+   heading stays upright instead of becoming a slanted roman. */
+@font-face {
+  font-family: "Outfit";
+  src: url("fonts/Outfit%5Bwght%5D.ttf") format("truetype");
+  font-weight: 100 900; /* the file's default instance is Thin (100) */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- Reading text ---------- */
+
+.prose {
+  --body-size: 1.125rem;   /* 18px at default settings; scales with the reader's size and zoom */
+  --body-leading: 1.5;
+  --line: calc(var(--body-size) * var(--body-leading));  /* one body line: 27px */
+  --sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  font-weight: 400;
+  font-optical-sizing: auto;   /* opsz 8-60: follows the size, text cut at 18px, finer cut in large type */
+  font-kerning: normal;
+  font-synthesis: none;        /* no fake bold, italic or small caps anywhere in the article */
+
+  /* Source Serif 4 defaults to tabular lining figures (all digits 500 units
+     wide). Running text wants proportional oldstyle figures: onum and pnum
+     both cover 0-9 in the roman and the italic. */
+  font-variant-numeric: oldstyle-nums proportional-nums;
+
+  /* Measure: 31em = 558px at 18px. Counted in Chromium with
+     scripts/measure-line.js: 66.6 characters per full line (range 59-72).
+     36em gave 78. em, not ch: with oldstyle proportional figures on, this
+     zero is 0.56em against an average character of 0.46em, so 66ch would
+     run to about 80 characters. */
+  max-inline-size: 31em;
+  margin-inline: auto;
+  padding-inline: 1rem;       /* gutter on phones; the measure is the content box */
+  box-sizing: content-box;
+
+  text-align: start;          /* ragged; justification is not earned on screen */
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
+  -webkit-hyphenate-limit-before: 3;
+  -webkit-hyphenate-limit-after: 3;
+  -webkit-hyphenate-limit-lines: 2;
+  overflow-wrap: break-word;  /* last resort for long URLs or product codes */
+}
+
+/* One gap, on one side: top margins only, in body-line units. */
+.prose > * {
+  margin-block: 0;
+}
+
+.prose > * + * {
+  margin-block-start: var(--line);
+}
+
+/* Block paragraphs, the web convention for skimmable case studies:
+   one blank line between paragraphs, no indent (never both). */
+.prose p {
+  text-wrap: pretty;
+}
+
+.prose strong {
+  font-weight: 600;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+/* ---------- Acronyms: WCAG, SAP, API ---------- */
+
+/* Spaced small caps from the font's own c2sc (capitals) and smcp
+   (lowercase): Source Serif 4 roman covers A-Z and digits in both. */
+.prose abbr {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.05em;
+  text-decoration: none;      /* drop the dotted underline browsers add to abbr[title] */
+  hyphens: manual;
+  white-space: nowrap;
+}
+
+/* Source Serif 4 Italic has no smcp or c2sc. Requesting small caps there
+   would render as full caps under font-synthesis: none (or as shrunken fake
+   caps without it). Ask for the italic capitals the font really has, with
+   the light tracking capitals need, so the emphasis stays italic. */
+.prose :is(em, i, cite) abbr {
+  font-variant-caps: normal;
+  letter-spacing: 0.03em;
+}
+
+/* ---------- Headings: Outfit ---------- */
+
+.prose :is(h2, h3) {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-variant-numeric: normal;   /* Outfit has lining figures only */
+  letter-spacing: normal;
+  hyphens: manual;
+  text-wrap: balance;
+}
+
+/* Heading line-heights are whole or half body lines, so text after a
+   wrapped heading still returns to the 27px interval. */
+.prose h2 {
+  font-size: 2rem;                         /* 32px */
+  line-height: calc(1.5 * var(--line));    /* 40.5px = 1.27 */
+  letter-spacing: -0.01em;                 /* slight tightening at display size; Outfit stays open */
+  margin-block-start: calc(2 * var(--line));
+}
+
+.prose h3 {
+  font-size: 1.375rem;                     /* 22px, 1.22x body, 1.45x under h2 */
+  line-height: var(--line);                /* 27px = 1.23 */
+  margin-block-start: calc(1.5 * var(--line));
+}
+
+/* Headings bind to the text they introduce. */
+.prose > :is(h2, h3) + * {
+  margin-block-start: calc(0.5 * var(--line));
+}
+
+.prose > h2 + h3 {
+  margin-block-start: var(--line);
+}
+
+/* Acronyms in headings and labels: Outfit has no small caps; keep caps. */
+.prose :is(h2, h3, .eyebrow, table) abbr {
+  font-variant-caps: normal;
+  letter-spacing: inherit;
+}
+
+/* ---------- Eyebrow ---------- */
+
+.prose .eyebrow {
+  font-family: var(--sans);
+  font-size: 0.875rem;          /* 14px */
+  font-weight: 600;             /* heavier to hold up at the smaller size */
+  line-height: var(--line);     /* one body line, on the beat */
+  text-transform: uppercase;    /* content keeps its real case for AT and translation */
+  letter-spacing: 0.08em;
+  word-spacing: 0.08em;
+  font-variant-numeric: normal;
+  hyphens: manual;
+  /* Outfit has no `case` feature, so hyphens and parentheses cannot be
+     raised to cap height here; prefer eyebrow copy without them. */
+}
+
+/* Eyebrow sits right above its heading. */
+.prose > .eyebrow + :is(h2, h3) {
+  margin-block-start: 0;
+}
+
+.prose > * + .eyebrow {
+  margin-block-start: calc(2 * var(--line));
+}
+
+/* ---------- Results table: Outfit, tabular figures ---------- */
+
+.prose table {
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 400;
+  /* Outfit's default figures are proportional (1 = 321 units, 0 = 659);
+     tnum gives all ten one width so columns align. Outfit has only lining
+     figures, so lining-nums would be a no-op and is not requested. */
+  font-variant-numeric: tabular-nums;
+  border-collapse: collapse;
+  inline-size: 100%;
+  hyphens: manual;
+}
+
+.prose caption {
+  caption-side: top;
+  text-align: start;
+  font-weight: 600;
+  padding-block-end: calc(0.5 * var(--line));
+}
+
+.prose :is(th, td) {
+  padding-block: 0.375rem;
+  padding-inline: 0 1.5rem;
+  text-align: start;
+  vertical-align: baseline;
+  border-block-end: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.prose :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.prose thead th {
+  font-weight: 600;
+  border-block-end-color: color-mix(in srgb, currentColor 55%, transparent);
+}
+
+/* Numbers align on the end edge; the first column holds the labels. */
+.prose :is(td, thead th):not(:first-child),
+.prose td.num {
+  text-align: end;
+  white-space: nowrap;          /* keep "38%" or "-1.2 s" whole */
+}
+
+/* ---------- Details ---------- */
+
+.prose a {
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.15em;
+  text-decoration-skip-ink: auto;
+}
+
+/* Trim the half-leading above the article's first line so its top aligns
+   with the cap height of the eyebrow or heading. Progressive. */
+@supports (text-box: trim-start cap alphabetic) {
+  .prose > :first-child {
+    text-box: trim-start cap alphabetic;
+  }
+}
+
+@media print {
+  .prose {
+    max-inline-size: none;
+    padding-inline: 0;
+  }
+  .prose p {
+    widows: 2;
+    orphans: 2;
+  }
+  .prose :is(h2, h3, .eyebrow) {
+    break-after: avoid;
+  }
+  .prose table {
+    break-inside: avoid;
+  }
+}

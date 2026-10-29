@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "In the rendered DOM for both English and Finnish, every number-unit pair in the table (weight, battery, storage, display, battery life, price) is joined by U+00A0 or U+202F, never a plain U+0020",
+      "passed": true,
+      "evidence": "Rendered textContent, EN and FI: every number-unit pair uses U+00A0 (e.g. 1.24|U+00A0|kg, 13,6|U+00A0|tuumaa, 1|U+00A0|299|U+00A0|€); EN price is a prefix symbol with no separator (\"€1,299\"), no U+0020 anywhere."
+    },
+    {
+      "text": "The Finnish rendering uses decimal commas (1,24 and 99,5) and groups the prices with a no-break space (1 299 €)",
+      "passed": true,
+      "evidence": "FI render: \"1,24 kg\", \"99,5 Wh\", price \"1 299 €\" with code points 1|U+00A0|2|9|9|U+00A0|U+20AC."
+    },
+    {
+      "text": "specs.html sets the numeric cells with tabular-nums",
+      "passed": true,
+      "evidence": "table { font-variant-numeric: lining-nums tabular-nums; }; computed on every td: \"lining-nums tabular-nums\"."
+    },
+    {
+      "text": "specs.html sets the html lang attribute to fi when Finnish is selected",
+      "passed": true,
+      "evidence": "After clicking the page's Suomi button, document.documentElement.lang === \"fi\" (render() sets document.documentElement.lang = lang)."
+    },
+    {
+      "text": "specs.html uses logical properties for text layout (no margin-left/right, padding-left/right, text-align: left/right, left/right offsets)",
+      "passed": true,
+      "evidence": "CSS uses margin-inline, padding-inline(-start/-end), text-align: start/end, inline-size; only physical items are uniform shorthands (margin: 0, padding: 2px) and an overflow-x fallback; no left/right properties."
+    },
+    {
+      "text": "In the rendered DOM for both languages, the battery-life qualifier (up to / jopa) is bound to its number with a no-break space, so it cannot be stranded at a line end",
+      "passed": true,
+      "evidence": "Rendered: EN \"up|U+00A0|to|U+00A0|18|U+00A0|h\", FI \"jopa|U+00A0|18|U+00A0|h\"; all three cells per language."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

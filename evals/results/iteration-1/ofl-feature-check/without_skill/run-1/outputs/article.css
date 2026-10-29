@@ -1,0 +1,327 @@
+/*
+ * article.css: long-form case study typography
+ * Markup: <article class="prose" lang="en"> with p, h2, h3, em, abbr,
+ * a small results table and an uppercase .eyebrow label.
+ *
+ * Body: Source Serif 4 (variable: wght 200-900, opsz 8-60, roman + italic)
+ * Display, eyebrow, table: Outfit (variable: wght 100-900, roman only)
+ *
+ * Every feature switched on below was checked against the font files'
+ * GSUB/GPOS tables; see notes.md for what each font has and lacks.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Font faces                                                          */
+/* ------------------------------------------------------------------ */
+
+/* File names contain [ ] and , so they are percent-encoded. */
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4%5Bopsz%2Cwght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic%5Bopsz%2Cwght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("fonts/Outfit%5Bwght%5D.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * Metric-matched fallbacks, so the swap does not reflow the page.
+ * size-adjust = letter-frequency-weighted average advance width of the
+ * web font divided by the local font's; ascent/descent are the web
+ * font's typo metrics divided by size-adjust. Measured against the
+ * Source Serif 4 instance at wght 400 / opsz 19 and Outfit at 400 / 600.
+ */
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia");
+  font-style: normal;
+  size-adjust: 102.9%;
+  ascent-override: 100.7%;
+  descent-override: 32.6%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-style: italic;
+  size-adjust: 92.6%;
+  ascent-override: 111.9%;
+  descent-override: 36.2%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Outfit Fallback";
+  src: local("Arial"), local("ArialMT");
+  font-weight: 100 549;
+  size-adjust: 100.2%;
+  ascent-override: 99.8%;
+  descent-override: 26%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Outfit Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT");
+  font-weight: 550 900;
+  size-adjust: 94.3%;
+  ascent-override: 106.1%;
+  descent-override: 27.6%;
+  line-gap-override: 0%;
+}
+
+/* ------------------------------------------------------------------ */
+/* Article                                                             */
+/* ------------------------------------------------------------------ */
+
+.prose {
+  --prose-serif: "Source Serif 4", "Source Serif 4 Fallback", Georgia, serif;
+  --prose-sans: "Outfit", "Outfit Fallback", Arial, sans-serif;
+  --prose-rule: color-mix(in srgb, currentColor 18%, transparent);
+  --prose-muted: color-mix(in srgb, currentColor 68%, transparent);
+  --prose-space: 1.5em;
+
+  font-family: var(--prose-serif);
+  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem); /* 17-19px */
+  font-weight: 400;
+  line-height: 1.6;
+  max-inline-size: 32em; /* about 68 characters of Source Serif 4 */
+  margin-inline: auto;
+
+  /*
+   * opsz follows the used font size (1 CSS px = 1 opsz unit), so body
+   * text gets the text cut (~opsz 17-19) without any manual setting.
+   * Never hard-code opsz in font-variation-settings: it would freeze
+   * every size in the article to one cut.
+   */
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures; /* fi fl ff ffi ffl ft */
+
+  /*
+   * Source Serif 4's DEFAULT figures are tabular lining (every digit is
+   * 500 units wide). In running text that leaves gaps around 1 and makes
+   * numbers shout. Proportional oldstyle figures sit at x-height and
+   * pair with the small-cap acronyms below.
+   */
+  font-variant-numeric: oldstyle-nums proportional-nums;
+
+  /*
+   * The italic has no smcp/c2sc. Without this, an acronym inside <em>
+   * would get browser-synthesised small caps (scaled-down capitals with
+   * thin stems). The em abbr rule below handles that case on purpose.
+   */
+  font-synthesis-small-caps: none;
+
+  hyphens: auto;
+  hyphenate-limit-chars: 7 3 3;
+  hanging-punctuation: first allow-end;
+}
+
+.prose p {
+  margin-block: 0;
+  text-wrap: pretty;
+}
+
+.prose p + p {
+  margin-block-start: 1em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Headings (Outfit)                                                   */
+/* ------------------------------------------------------------------ */
+
+.prose :is(h2, h3) {
+  font-family: var(--prose-sans);
+  font-variant-numeric: normal; /* Outfit: proportional lining, the default */
+  hyphens: manual;
+  text-wrap: balance;
+  margin-block: 0;
+}
+
+.prose h2 {
+  font-size: 1.6em;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.012em; /* geometric sans spaces loosely at display size */
+  margin-block: calc(var(--prose-space) * 1.6) 0.5em;
+}
+
+.prose h3 {
+  font-size: 1.2em;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  margin-block: calc(var(--prose-space) * 1.2) 0.4em;
+}
+
+/* Headings straight after an eyebrow or at the top need no extra air. */
+.prose > :first-child,
+.prose .eyebrow + :is(h2, h3) {
+  margin-block-start: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Eyebrow label (Outfit, uppercase)                                   */
+/* ------------------------------------------------------------------ */
+
+.prose .eyebrow {
+  font-family: var(--prose-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-transform: uppercase;
+
+  /*
+   * Capitals need open tracking at small sizes. Outfit has no `case`
+   * feature, so punctuation in the label cannot be raised to cap height;
+   * keep hyphens and brackets out of eyebrow copy.
+   */
+  letter-spacing: 0.09em;
+  font-variant-numeric: normal;
+  hyphens: manual;
+  color: var(--prose-muted);
+  margin-block: calc(var(--prose-space) * 1.6) 0.6em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Emphasis and acronyms                                               */
+/* ------------------------------------------------------------------ */
+
+.prose em {
+  font-style: italic; /* real Source Serif 4 Italic, same axes */
+}
+
+/*
+ * Acronyms in the roman: true small caps. all-small-caps turns on
+ * c2sc + smcp. Source Serif 4's c2sc also covers 0-9 and &, so
+ * "WCAG 2.2" and "R&D" stay inside the small-cap texture.
+ * Small caps (553 units tall vs 670 for capitals) need a touch of
+ * tracking to match the colour of lowercase.
+ */
+.prose abbr {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.035em;
+  text-transform: none;
+}
+
+.prose abbr[title] {
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: from-font;
+  text-decoration-color: var(--prose-muted);
+  text-underline-offset: 0.18em;
+  cursor: help;
+}
+
+/*
+ * Acronyms in italic: Source Serif 4 Italic has no small caps at all,
+ * so use its real capitals with light tracking instead of a faked
+ * small-cap. This is a deliberate fallback, not a rendering accident.
+ */
+.prose :is(em, i, cite) abbr {
+  font-variant-caps: normal;
+  letter-spacing: 0.02em;
+}
+
+/* Headings, eyebrow and table are Outfit, which has no small caps. */
+.prose :is(h2, h3, .eyebrow, table) abbr {
+  font-variant-caps: normal;
+  letter-spacing: inherit;
+}
+
+/* ------------------------------------------------------------------ */
+/* Results table (Outfit)                                              */
+/* ------------------------------------------------------------------ */
+
+.prose table {
+  font-family: var(--prose-sans);
+  font-size: 0.875em;
+  line-height: 1.4;
+  border-collapse: collapse;
+  inline-size: 100%;
+  margin-block: var(--prose-space);
+  hyphens: manual;
+
+  /*
+   * Outfit's default digits are proportional (0 is 659 units, 1 is 321)
+   * and kerned against each other. tnum swaps in .tf digits that are
+   * all 590 units and carry no kerning, so columns line up. Outfit has
+   * only lining figures, so no lnum/onum to set.
+   */
+  font-variant-numeric: tabular-nums;
+}
+
+.prose caption {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-align: start;
+  color: var(--prose-muted);
+  padding-block-end: 0.75em;
+}
+
+.prose :is(th, td) {
+  padding: 0.55em 0.75em;
+  border-block-end: 1px solid var(--prose-rule);
+  vertical-align: baseline;
+  text-align: start;
+}
+
+.prose :is(th, td):first-child {
+  padding-inline-start: 0;
+}
+
+.prose :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.prose thead th {
+  font-weight: 600;
+  border-block-end-color: currentColor;
+}
+
+.prose tbody th {
+  font-weight: 500;
+}
+
+/* Number columns: everything after the row label is right-aligned. */
+.prose :is(th, td):not(:first-child) {
+  text-align: end;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Narrow screens                                                      */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 30rem) {
+  .prose {
+    line-height: 1.55;
+  }
+
+  .prose h2 {
+    font-size: 1.45em;
+  }
+
+  .prose table {
+    font-size: 0.8125em;
+  }
+}

@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: physical-props-audit
+expected_outcome: |
+  A review that converts every text-flow physical property to its logical equivalent, mirrors only directional glyphs and offsets, leaves decorative physical properties alone, and catches the Verdana ch measure, the content-box width and the widows/orphans values.
+context:
+  scaffold_script: place-files.sh

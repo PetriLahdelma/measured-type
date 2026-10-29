@@ -1,0 +1,131 @@
+/* ==========================================================================
+   tokens.css: type and vertical rhythm for a marketing + docs site
+   ==========================================================================
+
+   RATIONALE
+
+   1. Nothing is in px. Every size is rem (or em) so it follows both the
+      reader's default font size and browser zoom. The root font size is never
+      set, so 1rem = the user's preference (16px by default; px values in the
+      comments assume that default).
+
+   2. Reading text is static. Body, small, caption and label are plain rem.
+      At 200% browser zoom they render at exactly 2.00x at every window width.
+      This is the text people actually read, so it gets the strict guarantee.
+
+   3. Headings are fluid from 360px to 1440px with
+        clamp(min-rem, intercept-rem + slope-vw, max-rem)
+      The preferred value always carries a rem term, both bounds are rem and
+      no token is viewport units alone (that pattern is WCAG failure F94,
+      because vw ignores zoom).
+
+   4. Why fluid headings stay under 2.5x, and what 200% zoom really yields.
+      Browser zoom z shrinks the CSS viewport to W/z and enlarges each CSS px
+      by z, so a size f(W) renders at z * f(W / z). Reaching 2x at exactly
+      200% would need f(W / 2) >= f(W): a heading that never grows with the
+      viewport. No growing fluid size can do that, so the scale is held to
+      two rules:
+        a. max/min ratio <= 2.5 (here at most 1.78). Then 2x is always
+           reachable inside the browser zoom range (Barvian's rule).
+        b. Gentle ranges, so 200% zoom delivers most of the gain at once and
+           full 2x arrives at a modest zoom level. Even the worst case (a
+           1440px window) is a clear 1.4x to 1.9x gain at 200%. The clamp
+           floor still doubles, so a zoomed heading is never smaller than
+           2x its 360px size.
+      Measured in Chromium (verify-zoom.mjs, zoom simulated as
+      viewport W/z with px * z), worst window across 360 to 2560px:
+
+        token     range px   max/min   at 200% zoom   2x reached at
+        h4        18 -> 20    1.11      1.87x          215% zoom
+        h3        20 -> 24    1.20      1.78x          229%
+        h2        24 -> 32    1.33      1.67x          250%
+        h1        30 -> 44    1.47      1.58x          274%
+        display   36 -> 64    1.78      1.42x          340%
+        body/small/caption/label: 2.00x at 200%, everywhere.
+
+   5. Line heights are unitless so they scale with whatever size is in play
+      and inherit as ratios. They tighten as size grows. Body uses 1.6, so a
+      user stylesheet forcing 1.5 (WCAG 1.4.12) changes little.
+
+   6. Letter spacing is in em so it tracks the fluid size: negative for
+      display sizes, neutral for body, positive for small and uppercase text.
+
+   7. Spacing is rem (fixed steps) or em (flow tokens resolved on the element
+      that uses them), so gaps grow with zoom along with the text. Section
+      spacing is fluid; shrinking it relative to text under zoom is a feature,
+      as it hands the reader more room.
+   ========================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------------
+     Font size: static reading text
+     ------------------------------------------------------------------------ */
+  --font-size-body: 1rem;        /* 16px */
+  --font-size-small: 0.875rem;   /* 14px */
+  --font-size-caption: 0.8125rem; /* 13px */
+  --font-size-label: 0.75rem;    /* 12px, uppercase */
+
+  /* ------------------------------------------------------------------------
+     Font size: fluid headings, 360px -> 1440px
+     slope = (max - min) / 1080px; intercept = min - slope * 360px
+     ------------------------------------------------------------------------ */
+  --font-size-h4: clamp(1.125rem, 1.0833rem + 0.1852vw, 1.25rem); /* 18 -> 20 */
+  --font-size-h3: clamp(1.25rem, 1.1667rem + 0.3704vw, 1.5rem);   /* 20 -> 24 */
+  --font-size-h2: clamp(1.5rem, 1.3333rem + 0.7407vw, 2rem);      /* 24 -> 32 */
+  --font-size-h1: clamp(1.875rem, 1.5833rem + 1.2963vw, 2.75rem); /* 30 -> 44 */
+  --font-size-display: clamp(2.25rem, 1.6667rem + 2.5926vw, 4rem); /* 36 -> 64, hero */
+
+  /* ------------------------------------------------------------------------
+     Line height (unitless)
+     ------------------------------------------------------------------------ */
+  --line-height-body: 1.6;
+  --line-height-small: 1.5;
+  --line-height-caption: 1.4;
+  --line-height-label: 1.3333;   /* 16px at 12px */
+  --line-height-h4: 1.35;
+  --line-height-h3: 1.3;
+  --line-height-h2: 1.2;
+  --line-height-h1: 1.12;
+  --line-height-display: 1.05;
+
+  /* ------------------------------------------------------------------------
+     Letter spacing (em, scales with the size it is applied to)
+     ------------------------------------------------------------------------ */
+  --letter-spacing-body: 0;
+  --letter-spacing-small: 0.005em;
+  --letter-spacing-caption: 0.01em;
+  --letter-spacing-label: 0.08em;
+  --text-transform-label: uppercase;
+  --letter-spacing-h4: -0.005em;
+  --letter-spacing-h3: -0.01em;
+  --letter-spacing-h2: -0.015em;
+  --letter-spacing-h1: -0.02em;
+  --letter-spacing-display: -0.03em;
+
+  /* ------------------------------------------------------------------------
+     Vertical spacing: fixed steps (4px base)
+     ------------------------------------------------------------------------ */
+  --space-3xs: 0.25rem; /*  4px */
+  --space-2xs: 0.5rem;  /*  8px */
+  --space-xs: 0.75rem;  /* 12px */
+  --space-sm: 1rem;     /* 16px */
+  --space-md: 1.5rem;   /* 24px */
+  --space-lg: 2rem;     /* 32px */
+  --space-xl: 3rem;     /* 48px */
+  --space-2xl: 4rem;    /* 64px */
+  --space-3xl: 6rem;    /* 96px */
+
+  /* ------------------------------------------------------------------------
+     Vertical spacing: fluid layout rhythm, 360px -> 1440px
+     ------------------------------------------------------------------------ */
+  --space-block: clamp(2rem, 1.6667rem + 1.4815vw, 3rem);   /* 32 -> 48, between blocks */
+  --space-section: clamp(3rem, 2rem + 4.4444vw, 6rem);      /* 48 -> 96, between sections */
+
+  /* ------------------------------------------------------------------------
+     Vertical spacing: text flow (em resolves on the element using the token)
+     e.g. h2 { margin-block: var(--flow-heading-before) var(--flow-heading-after); }
+     ------------------------------------------------------------------------ */
+  --flow-space: 1em;                        /* between paragraphs, lists, figures */
+  --flow-heading-before: max(2rem, 1.25em); /* h4/h3 32px, h2 40px, h1 55px at max */
+  --flow-heading-after: 0.5em;              /* heading binds to the text it introduces */
+}

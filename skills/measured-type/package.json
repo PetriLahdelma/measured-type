@@ -1,0 +1,12 @@
+{
+  "name": "measured-type-scripts",
+  "private": true,
+  "description": "Helper scripts for the measured-type skill: rendered line-length counts in Chromium.",
+  "license": "MIT",
+  "scripts": {
+    "measure": "node scripts/measure-line.js"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1"
+  }
+}

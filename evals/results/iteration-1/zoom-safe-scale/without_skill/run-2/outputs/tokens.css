@@ -1,0 +1,144 @@
+/* ==========================================================================
+   tokens.css: type and vertical spacing tokens (marketing + docs)
+   ==========================================================================
+
+   RATIONALE
+
+   1. Everything is rem, em or unitless. Nothing is px, and html font-size is
+      never set in px, so the user's default font size (text-only zoom) and
+      browser zoom both reach every token.
+
+   2. Reading text is static rem. Body, small, caption and label do not use
+      vw at all, so at 200% zoom (browser or text-only) they render at exactly
+      2x. These carry most of the words on a docs page, so they get the
+      strongest guarantee.
+
+   3. Headings and hero are fluid from 360px to 1440px with
+      clamp(MIN, rem + vw, MAX). The vw part of a fluid size does not grow
+      with zoom (zoom shrinks the CSS viewport), so no viewport-fluid size can
+      be exactly 2x at exactly 200% zoom while it is inside its fluid range.
+      That is arithmetic, not a bug of this file. What this file guarantees:
+
+        a. MAX <= 2 x MIN for every fluid token (hero is the widest at 1.8x).
+           Zoom pushes the CSS viewport toward 360px, where the size bottoms
+           out at MIN, so z x MIN >= 2 x MAX is reached by 360% zoom for the
+           hero and by 300% or less for h1 to h4. Browsers zoom to 500%, so
+           2x text is always reachable on every viewport (SC 1.4.4 asks that
+           text can be resized to 200%, not that one zoom step does it).
+        b. The rem intercept dominates, so 200% zoom alone already gives at
+           least 1.4x (hero) and 1.5x to 1.9x (h1 to h4) at a 1440px window,
+           and closer to 2x on narrower windows.
+        c. Text-only zoom (a larger browser default font size) doubles the
+           rem parts but not the vw part, so it gives the same ratios as 2a
+           and 2b. Firefox text-only zoom also goes to 500%, so 2x is
+           reachable there too. If a headline must hit exactly 2x at one
+           200% step, set it in a static rem token instead of a fluid one.
+
+   4. Line-height is unitless, so it scales with the font and is inherited as
+      a ratio (a length would freeze at the parent's size). It tightens as
+      size grows: 1.6 for body down to 1.05 for the hero.
+
+   5. Letter-spacing is in em, so tracking stays proportional at any size and
+      any zoom. Large sizes get negative tracking; the uppercase label gets
+      positive tracking because caps set tight are hard to read.
+
+   6. Vertical spacing is rem (layout rhythm) or em (space that belongs to a
+      text element, like the gap above a heading). Section spacing is fluid
+      too: its vw part shrinking under zoom is a feature here, because it
+      gives zoomed users more content and less empty space. Never put these
+      tokens on fixed heights; let boxes grow (SC 1.4.12 text spacing).
+
+   Measured in Chromium (browser zoom simulated as CSS viewport / zoom),
+   windows 360 to 1920px. Size at 200% zoom vs 100%, worst case, and the
+   zoom at which each token reaches 2x, worst case:
+     body, small, caption, label   2.00x   200%
+     h4                            1.87x   220%
+     h3                            1.73x   240%
+     h2                            1.67x   250%
+     h1                            1.58x   275%
+     hero                          1.41x   350%
+   Worst case is always the 1440px window; at 360px every token is 2.00x.
+   ========================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------------
+     Fluid range: 360px (22.5rem) to 1440px (90rem).
+     Formula per token: slope = (MAX - MIN) / 1080px
+                        intercept = MIN - 360px x slope
+     ------------------------------------------------------------------------ */
+
+  /* Body: long-form docs and marketing copy. Static, exact 2x at 200%. */
+  --font-size-body: 1rem; /* 16px */
+  --line-height-body: 1.6;
+  --letter-spacing-body: 0;
+
+  /* Small: secondary copy, table cells, sidebar nav. */
+  --font-size-small: 0.875rem; /* 14px */
+  --line-height-small: 1.5;
+  --letter-spacing-small: 0.005em;
+
+  /* Caption: figure captions, footnotes, metadata. */
+  --font-size-caption: 0.8125rem; /* 13px */
+  --line-height-caption: 1.45;
+  --letter-spacing-caption: 0.01em;
+
+  /* Uppercase label: eyebrows, tags, overlines. Apply with
+     text-transform: uppercase; keep the source text in sentence case so
+     screen readers do not spell it out. */
+  --font-size-label: 0.75rem; /* 12px */
+  --line-height-label: 1.35;
+  --letter-spacing-label: 0.08em;
+
+  /* H4: 18px -> 20px (max/min 1.11) */
+  --font-size-h4: clamp(1.125rem, 1.0833rem + 0.1852vw, 1.25rem);
+  --line-height-h4: 1.4;
+  --letter-spacing-h4: -0.005em;
+
+  /* H3: 20px -> 25px (max/min 1.25) */
+  --font-size-h3: clamp(1.25rem, 1.1458rem + 0.463vw, 1.5625rem);
+  --line-height-h3: 1.3;
+  --letter-spacing-h3: -0.01em;
+
+  /* H2: 24px -> 32px (max/min 1.33) */
+  --font-size-h2: clamp(1.5rem, 1.3333rem + 0.7407vw, 2rem);
+  --line-height-h2: 1.2;
+  --letter-spacing-h2: -0.015em;
+
+  /* H1: 30px -> 44px (max/min 1.47) */
+  --font-size-h1: clamp(1.875rem, 1.5833rem + 1.2963vw, 2.75rem);
+  --line-height-h1: 1.15;
+  --letter-spacing-h1: -0.02em;
+
+  /* Hero display: 40px -> 72px (max/min 1.8). Marketing hero only; one per
+     page. Pair with overflow-wrap: break-word so a long word still reflows
+     at 320 CSS px (400% zoom on a 1280px window, SC 1.4.10). */
+  --font-size-hero: clamp(2.5rem, 1.8333rem + 2.963vw, 4.5rem);
+  --line-height-hero: 1.05;
+  --letter-spacing-hero: -0.03em;
+
+  /* ------------------------------------------------------------------------
+     Vertical spacing
+     ------------------------------------------------------------------------ */
+
+  /* Static scale (rem). Component padding, stacks, gaps. */
+  --space-3xs: 0.25rem; /*  4px */
+  --space-2xs: 0.5rem; /*  8px */
+  --space-xs: 0.75rem; /* 12px */
+  --space-s: 1rem; /* 16px */
+  --space-m: 1.5rem; /* 24px */
+  --space-l: 2rem; /* 32px */
+  --space-xl: 3rem; /* 48px */
+  --space-2xl: 4rem; /* 64px */
+
+  /* Text flow (em: relative to the element that carries it, so a small-text
+     block gets a proportionally smaller gap and a heading a larger one). */
+  --space-flow-text: 1em; /* between paragraphs, lists, code blocks */
+  --space-flow-heading-before: calc(0.75em + 1rem); /* margin-block-start */
+  --space-flow-heading-after: calc(0.25em + 0.5rem); /* margin-block-end */
+  --space-flow-label-after: 0.75em; /* eyebrow label to its heading */
+
+  /* Section rhythm (fluid 360px -> 1440px, max/min <= 2). */
+  --space-section-s: clamp(2rem, 1.6667rem + 1.4815vw, 3rem); /* 32 -> 48px */
+  --space-section-m: clamp(3rem, 2.3333rem + 2.963vw, 5rem); /* 48 -> 80px */
+  --space-section-l: clamp(4rem, 2.6667rem + 5.9259vw, 8rem); /* 64 -> 128px */
+}

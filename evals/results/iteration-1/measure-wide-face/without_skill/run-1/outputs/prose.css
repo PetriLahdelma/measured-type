@@ -1,0 +1,119 @@
+/*
+ * Documentation article body.
+ * Markup: <article class="prose" lang="en"> with h2, h3, p, ul, blockquote.
+ *
+ * Measure
+ * Verdana is a wide face: its "0" (what the ch unit measures) is 0.636em,
+ * but running English text in Verdana averages about 0.503em per character
+ * (fontTools, weighted over sample prose). So 66ch would give roughly
+ * 83 characters per line. The measure is set in em against the body size
+ * instead: 34.5em = 621px at 1.125rem on a 16px root, a capacity of about
+ * 68 characters, so filled lines (which break before the next word) average
+ * about 63-67 characters. Measured in Chromium: 59-69 per line, mean 63.
+ *
+ * Rhythm
+ * One rhythm unit = one body line = 1.125rem x 1.6 = 1.8rem (28.8px).
+ * Every line-height and every vertical gap is a multiple of half a unit
+ * (0.9rem), so headings and blocks stay on the same baseline cadence.
+ * Margins live only on the block-start side (flow spacing between
+ * siblings), so nothing depends on margin collapsing.
+ */
+
+.prose {
+  --prose-leading: 1.6;
+  --prose-unit: 1.8rem;                         /* 1.125rem x 1.6 */
+  --prose-half: calc(var(--prose-unit) / 2);    /* 0.9rem */
+
+  font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+  font-size: 1.125rem;
+  line-height: var(--prose-leading);
+  font-kerning: normal;
+  max-inline-size: 34.5em;                      /* ~66 Verdana characters */
+  overflow-wrap: break-word;
+  hyphens: manual;
+}
+
+/* Reset UA block margins at zero specificity (:where) so the flow rules
+   below always win; spacing is owned by those rules. */
+.prose :where(h2, h3, p, ul, blockquote, li) {
+  margin-block: 0;
+}
+
+/* Flow: one rhythm unit between consecutive blocks. */
+.prose > * + * {
+  margin-block-start: var(--prose-unit);
+}
+
+/* Headings: line-heights are rhythm multiples, not unitless ratios. */
+.prose h2 {
+  font-size: 1.5rem;                            /* 24px */
+  line-height: var(--prose-unit);               /* 28.8px = 1 unit */
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+.prose h3 {
+  font-size: 1.25rem;                           /* 20px */
+  line-height: var(--prose-unit);               /* 28.8px = 1 unit */
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+/* Space above a heading groups it with the content that follows. */
+.prose > * + h2 {
+  margin-block-start: calc(var(--prose-unit) * 2);   /* 3.6rem */
+}
+
+.prose > * + h3 {
+  margin-block-start: calc(var(--prose-unit) * 1.5); /* 2.7rem */
+}
+
+/* Heading sits close to its own content: half a unit below. */
+.prose > :is(h2, h3) + * {
+  margin-block-start: var(--prose-half);
+}
+
+/* A subsection straight after a section heading. */
+.prose > h2 + h3 {
+  margin-block-start: var(--prose-unit);
+}
+
+.prose p {
+  text-wrap: pretty;
+}
+
+/* Lists */
+.prose ul {
+  padding-inline-start: 1.5em;
+  list-style-type: disc;
+}
+
+.prose li {
+  padding-inline-start: 0.25em;
+  text-wrap: pretty;
+}
+
+.prose li + li {
+  margin-block-start: var(--prose-half);
+}
+
+.prose li > ul {
+  margin-block-start: var(--prose-half);
+}
+
+/* Blockquote: same body size and leading so it keeps the rhythm. */
+.prose blockquote {
+  margin-inline: 0;
+  padding-inline-start: 1.25em;
+  border-inline-start: 0.25rem solid color-mix(in srgb, currentColor 25%, transparent);
+  font-style: italic;
+}
+
+.prose blockquote > * + * {
+  margin-block-start: var(--prose-unit);
+}
+
+/* Start and end flush with the article box. */
+.prose > :first-child {
+  margin-block-start: 0;
+}

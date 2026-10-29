@@ -1,0 +1,123 @@
+/*
+ * prose.css: documentation article body
+ * Markup: <article class="prose" lang="en"> with h2, h3, p, ul, blockquote.
+ *
+ * Measure
+ *   Verdana is a wide face. Its "0" glyph (what 1ch measures) is 0.636em,
+ *   but running English text averages about 0.51em per character, so
+ *   1 character of prose is roughly 0.8ch. A 66-character line is therefore
+ *   66 x 0.8 = 53ch, not 66ch (66ch would give about 82 characters).
+ *   max-inline-size is set on the article itself, so ch resolves against
+ *   the 1.125rem body size, and headings or blockquotes cannot widen it.
+ *
+ * Vertical rhythm
+ *   One unit (--prose-step) equals one body line: 1.125rem x 1.6 = 1.8rem.
+ *   Every line-height, margin and padding below is a multiple of half a unit
+ *   (0.9rem), so blocks and headings always land back on the same grid.
+ *   :root is not touched; all units are rem against the browser default.
+ */
+
+.prose {
+  --prose-leading: 1.6;
+  --prose-step: calc(1.125rem * var(--prose-leading)); /* 1.8rem, one body line */
+  --prose-half: calc(var(--prose-step) / 2);           /* 0.9rem, grid unit */
+
+  font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+  font-size: 1.125rem;
+  line-height: var(--prose-step);
+  font-kerning: normal;
+  max-inline-size: 53ch; /* about 66 characters of Verdana text per line */
+  margin-inline: auto;
+  overflow-wrap: break-word;
+  hyphens: auto; /* lang="en" on the article enables the English dictionary */
+}
+
+/* Reset UA block margins; flow spacing is set explicitly below. */
+.prose :where(h2, h3, p, ul, blockquote, li) {
+  margin-block: 0;
+}
+
+/* Body blocks: one blank line between them. */
+.prose :where(p, ul, blockquote) {
+  margin-block-end: var(--prose-step);
+}
+
+.prose p {
+  text-wrap: pretty;
+}
+
+/* Headings
+ * Line boxes are grid multiples: h2 = 1.5 units, h3 = 1 unit.
+ * More space above than below binds each heading to the text it introduces.
+ */
+.prose :where(h2, h3) {
+  font-weight: 700;
+  color: inherit;
+  text-wrap: balance;
+  hyphens: manual;
+  letter-spacing: -0.01em; /* Verdana Bold sets very wide at display sizes */
+}
+
+.prose h2 {
+  font-size: 1.75rem;                                   /* 28px */
+  line-height: calc(var(--prose-step) * 1.5);           /* 2.7rem, ratio 1.54 */
+  margin-block: calc(var(--prose-step) * 2) var(--prose-half);
+}
+
+.prose h3 {
+  font-size: 1.25rem;                                   /* 20px */
+  line-height: var(--prose-step);                       /* 1.8rem, ratio 1.44 */
+  margin-block: calc(var(--prose-step) * 1.5) var(--prose-half);
+}
+
+/* A heading directly after another heading needs less separation. */
+.prose h2 + h3 {
+  margin-block-start: var(--prose-half);
+}
+
+/* No leading or trailing gap inside the article box. */
+.prose > :first-child {
+  margin-block-start: 0;
+}
+
+.prose > :last-child {
+  margin-block-end: 0;
+}
+
+/* Lists: items sit on consecutive lines; the list as a whole gets block spacing. */
+.prose ul {
+  padding-inline-start: 1.5em;
+  list-style-type: disc;
+}
+
+.prose li::marker {
+  color: currentColor;
+}
+
+/* Multi-paragraph list items keep the grid. */
+.prose li > p {
+  margin-block-end: var(--prose-half);
+}
+
+.prose li > :last-child {
+  margin-block-end: 0;
+}
+
+/* Blockquote: indented with a rule, same size and leading as body text so the
+ * grid is not broken. Padding is zero in the block direction for the same reason. */
+.prose blockquote {
+  margin-inline: 0;
+  padding-block: 0;
+  padding-inline: 1.25em 0;
+  border-inline-start: 0.25em solid currentColor;
+  border-inline-start-color: color-mix(in srgb, currentColor 25%, transparent);
+  font-style: italic;
+}
+
+.prose blockquote > p {
+  margin-block-end: var(--prose-step);
+}
+
+.prose blockquote > :last-child {
+  margin-block-end: 0;
+}
