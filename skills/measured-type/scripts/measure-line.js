@@ -206,9 +206,11 @@ async function main() {
 
   let chromium;
   try {
+    if (process.env.MT_NO_PLAYWRIGHT) throw new Error('MT_NO_PLAYWRIGHT is set');
     ({ chromium } = require('playwright'));
   } catch {
     console.error('Playwright is missing: npm install && npx playwright install chromium');
+    console.error('Without a browser, node scripts/estimate-measure.js "<font-family>" <width> gives an estimate.');
     process.exit(2);
   }
   const path = require('node:path');

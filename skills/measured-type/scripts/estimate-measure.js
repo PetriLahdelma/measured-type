@@ -1,0 +1,120 @@
+#!/usr/bin/env node
+/**
+ * Estimate characters per line without a browser.
+ *
+ *   node scripts/estimate-measure.js Verdana 66ch
+ *   node scripts/estimate-measure.js "Georgia, serif" 34em --size 18
+ *   node scripts/estimate-measure.js "Brand Sans" 600px --json
+ *
+ * A line holds about width / (average character width) characters, less a
+ * few for the word that does not fit at the end. The average character and
+ * zero widths below were measured in Chromium on macOS on 29 October 2026,
+ * on the English sample prose of measure-line.js at 16px (spec 0003 K3).
+ * Faces not in the table get the range the table spans. The real count still
+ * comes from measure-line.js; this is for when no browser is installed.
+ *
+ * No dependencies. Exit code 0, or 2 on a usage error.
+ */
+
+// family: [average character width in em, zero width in em]
+const FACES = {
+  'Arial': [0.438, 0.556],
+  'Helvetica': [0.438, 0.556],
+  'Helvetica Neue': [0.442, 0.556],
+  'Verdana': [0.504, 0.636],
+  'Tahoma': [0.441, 0.546],
+  'Trebuchet MS': [0.45, 0.524],
+  'Georgia': [0.435, 0.614],
+  'Times New Roman': [0.393, 0.5],
+  'Palatino': [0.437, 0.5],
+  'Iowan Old Style': [0.441, 0.556],
+  'Charter': [0.433, 0.556],
+  'Avenir Next': [0.448, 0.58],
+  'Futura': [0.451, 0.617],
+  'Gill Sans': [0.401, 0.5],
+  'Optima': [0.426, 0.556],
+  'Baskerville': [0.393, 0.5],
+  'Hoefler Text': [0.416, 0.596],
+  'system-ui': [0.446, 0.61], // San Francisco on macOS; other systems differ
+  'Roboto': [0.443, 0.563],
+  'Merriweather': [0.48, 0.634],
+  'DM Sans': [0.457, 0.684],
+  'Raleway': [0.454, 0.612],
+  'PT Serif': [0.439, 0.533],
+  'PT Sans': [0.422, 0.545],
+  'Geist': [0.45, 0.673],
+  'Rubik': [0.456, 0.633],
+  'Libre Franklin': [0.455, 0.688],
+  'Menlo': [0.602, 0.602],
+  'Courier New': [0.6, 0.6],
+  'JetBrains Mono': [0.6, 0.6],
+};
+const WRAP_LOSS = 2.8; // characters lost to the word that does not fit, median of the calibration
+const MONO = new Set(['Menlo', 'Courier New', 'JetBrains Mono']);
+
+const ROOT_PX = 16;
+
+function lookup(stack) {
+  const names = String(stack).split(',').map((s) => s.trim().replace(/^["']|["']$/g, ''));
+  for (const n of names) {
+    const hit = Object.keys(FACES).find((k) => k.toLowerCase() === n.toLowerCase());
+    if (hit) return hit;
+  }
+  return null;
+}
+
+function widthPx(width, size, zeroEm) {
+  const m = /^([\d.]+)(ch|em|rem|px)$/.exec(String(width).trim());
+  if (!m) throw new Error(`cannot read the width ${width}: use ch, em, rem or px`);
+  const n = parseFloat(m[1]);
+  if (m[2] === 'px') return n;
+  if (m[2] === 'rem') return n * ROOT_PX;
+  if (m[2] === 'em') return n * size;
+  return n * size * zeroEm;
+}
+
+const perLine = (px, size, avgEm) => Math.round((px / (avgEm * size) - WRAP_LOSS) * 10) / 10;
+
+function estimate({ family, width, size = ROOT_PX }) {
+  const face = lookup(family);
+  if (face) {
+    const [avgEm, zeroEm] = FACES[face];
+    const px = widthPx(width, size, zeroEm);
+    return { family: face, known: true, width, size, widthPx: Math.round(px * 10) / 10, cpl: perLine(px, size, avgEm), avgEm, zeroEm };
+  }
+  const values = Object.entries(FACES).filter(([k]) => !MONO.has(k))
+    .map(([, [avgEm, zeroEm]]) => perLine(widthPx(width, size, zeroEm), size, avgEm));
+  return { family: String(family), known: false, width, size, cpl: null, low: Math.min(...values), high: Math.max(...values) };
+}
+
+function describe(e) {
+  if (e.known) return `about ${Math.round(e.cpl)} characters per line in ${e.family} at ${e.width}`;
+  return `${Math.round(e.low)} to ${Math.round(e.high)} characters per line at ${e.width}, depending on the face`;
+}
+
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const json = args.includes('--json');
+  const i = args.indexOf('--size');
+  const size = i >= 0 ? parseFloat(args[i + 1]) : ROOT_PX;
+  const [family, width] = args.filter((a, j) => !a.startsWith('--') && (i < 0 || j !== i + 1));
+  if (!family || !width) {
+    console.error('usage: estimate-measure.js <font-family> <width: 66ch | 34em | 34rem | 600px> [--size px] [--json]');
+    process.exit(2);
+  }
+  let e;
+  try {
+    e = estimate({ family, width, size });
+  } catch (err) {
+    console.error(err.message);
+    process.exit(2);
+  }
+  if (json) console.log(JSON.stringify(e, null, 2));
+  else {
+    console.log(`${describe(e)} (estimate from a Chromium calibration, not a measurement)`);
+    if (e.known) console.log(`  ${e.widthPx}px at ${size}px; average character ${e.avgEm}em, zero ${e.zeroEm}em`);
+    else console.log(`  ${family} is not in the calibration table; run measure-line.js for the real count`);
+  }
+}
+
+module.exports = { estimate, describe, lookup, FACES };

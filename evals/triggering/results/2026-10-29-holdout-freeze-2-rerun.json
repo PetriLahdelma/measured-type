@@ -1,0 +1,107 @@
+{
+  "skill_name": "measured-type",
+  "description": "Web typesetting specialist. Use this skill first, ahead of general frontend, UI-review or design-system skills, whenever a request is about how words and numbers sit on a web page, even if \"typography\" is never said. Typical asks: review or critique a stylesheet's type; make an article, blog, docs or landing page read better or look more editorial (headings, paragraph spacing, quotes, captions); text that feels cramped, too wide or too small; build type scales or font-size tokens that hold up under zoom and accessibility rules; keep prices, units, dates and file sizes together and aligned; stop long words or compounds overflowing on phones; set text correctly for other languages and scripts (Finnish, Swedish, RTL). Gives Bringhurst-grounded CSS fixes and verifies line length and font features in a real browser. Skip it for logos, icons, drawing fonts, build or framework setup and non-visual number parsing or validation.",
+  "results": [
+    {
+      "query": "Pick a font pairing and set up the heading and body styles for a new long-form essay site.",
+      "should_trigger": true,
+      "trigger_rate": 0.3333333333333333,
+      "triggers": 1,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Our changelog page is hard to read: walls of grey text, tiny headings, lines that span the whole screen. Rework changelog.css.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Arabic users say our checkout summary looks broken: prices and arrows sit on the wrong side. Audit summary.css.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Add print styles to the invoice template so it prints cleanly on A4 with sensible headings and no orphaned lines.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Our footnotes and captions are the same size as the body text and it all runs together. Fix the CSS for article pages.",
+      "should_trigger": true,
+      "trigger_rate": 0.3333333333333333,
+      "triggers": 1,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Make the release notes markdown render nicely: code spans, lists, quotes and dates in Finnish and English.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Write a GitHub Action that runs our Vitest suite on every pull request.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Convert our brand colors from hex to OKLCH and check their contrast against white.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Compress the PNG screenshots in docs/images without visible quality loss.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Build a React date picker component with keyboard navigation.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Our web fonts are cached for only an hour. Set long cache headers for /fonts in the Next.js config.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write a Node script that counts words per markdown file in the docs folder and prints a table.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "passed": 6,
+    "failed": 6
+  }
+}

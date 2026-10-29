@@ -27,7 +27,7 @@
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { measureLines } = require('./measure-line.js');
-const { toMarkdown } = require('./lint-css.js');
+const { toMarkdown, lint } = require('./lint-css.js');
 const { apcaLc } = require('./apca.js');
 
 const ORDER = { HIGH: 0, MEDIUM: 1, LOW: 2 };
@@ -286,10 +286,45 @@ function contrast(fg, bg) {
 
 // ---------- audit ----------
 
+// ---------- lite mode: no browser ----------
+
+const RENDERED = [
+  'rendered measure (characters per line)', 'contrast', 'reflow at 320 and 375px', 'text spacing (WCAG 1.4.12)',
+  'zoom growth of headings', 'web-font fallback', 'heading order and spacing', 'the checks in screen-and-ui.md and product-ui.md',
+];
+
+function loadPlaywright() {
+  if (process.env.MT_NO_PLAYWRIGHT) throw new Error('MT_NO_PLAYWRIGHT is set');
+  return require('playwright');
+}
+
+// Source checks only: the page's <style> blocks and the local stylesheets it links.
+function liteAudit(target) {
+  if (/^[a-z]+:\/\//i.test(target) && !/^file:/i.test(target)) {
+    const err = new Error(`${target} needs a browser: npm install && npx playwright install chromium (lite mode reads local files only)`);
+    err.code = 'NEEDS_BROWSER';
+    throw err;
+  }
+  const file = /^file:/i.test(target) ? require('node:url').fileURLToPath(target) : path.resolve(target);
+  const html = require('node:fs').readFileSync(file, 'utf8');
+  const sheets = [...html.matchAll(/<link\b[^>]*>/gi)]
+    .map((m) => m[0])
+    .filter((tag) => /rel=["']?stylesheet/i.test(tag))
+    .map((tag) => (/href=["']([^"']+)["']/i.exec(tag) || [])[1])
+    .filter((href) => href && !/^([a-z]+:)?\/\//i.test(href))
+    .map((href) => path.resolve(path.dirname(file), href.split(/[?#]/)[0]))
+    .filter((p) => require('node:fs').existsSync(p));
+  const report = lint([file, ...sheets]);
+  return { ...report, target: file, mode: 'lite', notVerified: [...RENDERED.map((r) => `${r} (lite mode, no browser)`), ...report.notVerified.filter((n) => !/page-audit/.test(n))] };
+}
+
+const needsInstall = (err) => /Cannot find module 'playwright'|MT_NO_PLAYWRIGHT|Executable doesn't exist|playwright install/i.test(String(err && err.message));
+
 async function audit(target, opts = {}) {
+  if (opts.lite) return liteAudit(target);
   const url = /^[a-z]+:\/\//i.test(target) ? target : pathToFileURL(path.resolve(target)).href;
   const own = !opts.browser;
-  const browser = opts.browser || (await require('playwright').chromium.launch());
+  const browser = opts.browser || (await loadPlaywright().chromium.launch());
   const findings = [];
   const notVerified = new Set(['Safari and Firefox rendering (Chromium only)']);
   const add = (rule, severity, location, measured, fix) => findings.push({ rule, severity, location, measured, fix });
@@ -519,16 +554,28 @@ if (require.main === module) {
   const json = args.includes('--json');
   const target = args.find((a) => !a.startsWith('--'));
   if (!target) {
-    console.error('usage: page-audit.js <url|file.html> [--json]');
+    console.error('usage: page-audit.js <url|file.html> [--lite] [--json]');
     process.exit(2);
   }
-  audit(target).then((report) => {
+  const print = (report) => {
     if (json) console.log(JSON.stringify(report, null, 2));
-    else console.log(report.findings.length ? toMarkdown(report) : `No typography findings on ${report.target}.\n\nVerdict: ${report.verdict}\nNot verified: ${report.notVerified.join('; ')}\n`);
+    else {
+      if (report.mode === 'lite') console.log('Lite mode, no browser: source checks only. For the rendered checks: npm install && npx playwright install chromium\n');
+      console.log(report.findings.length ? toMarkdown(report) : `No typography findings on ${report.target}.\n\nVerdict: ${report.verdict}\nNot verified: ${report.notVerified.join('; ')}\n`);
+    }
     process.exit(report.findings.some((f) => f.severity === 'HIGH') ? 1 : 0);
-  }).catch((err) => {
+  };
+  const fail = (err) => {
     console.error(err.message);
     process.exit(2);
+  };
+  audit(target, { lite: args.includes('--lite') }).then(print).catch((err) => {
+    if (!needsInstall(err)) return fail(err);
+    try {
+      print(liteAudit(target));
+    } catch (liteErr) {
+      fail(liteErr);
+    }
   });
 }
 

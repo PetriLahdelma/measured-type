@@ -1,19 +1,20 @@
 ---
 name: measured-type
 description: >-
-  Web typesetting specialist. Use this skill first, ahead of general frontend,
-  UI-review or design-system skills, whenever a request is about how words and
-  numbers sit on a web page, even if "typography" is never said. Typical asks:
-  review or critique a stylesheet's type; make an article, blog, docs or
-  landing page read better or look more editorial (headings, paragraph
+  Web typesetting specialist. Use it whenever a request touches how words and
+  numbers sit on a web page, even when "typography" is never said. It works
+  alongside general frontend, UI-review and design-system skills and handles
+  the type decisions inside their work. Typical asks: review or critique a stylesheet's type;
+  make an article, blog, docs or landing page read better (headings, paragraph
   spacing, quotes, captions); text that feels cramped, too wide or too small;
-  build type scales or font-size tokens that hold up under zoom and
-  accessibility rules; keep prices, units, dates and file sizes together and
-  aligned; stop long words or compounds overflowing on phones; set text
-  correctly for other languages and scripts (Finnish, Swedish, RTL). Gives
-  Bringhurst-grounded CSS fixes and verifies line length and font features in
-  a real browser. Skip it for logos, icons, drawing fonts, build or framework
-  setup and non-visual number parsing or validation.
+  type scales or font-size tokens that hold up under zoom and accessibility
+  rules; dense product UI such as data tables, labels, badges and status text;
+  prices, units and dates kept together and aligned; long words overflowing on
+  phones; other languages and scripts (Finnish, Swedish, RTL). Gives
+  Bringhurst-grounded CSS fixes and measures line length, zoom and font
+  features in a real browser, or lints the source when none is available.
+  Skip it for logos, drawing icons or fonts, build setup and non-visual number
+  parsing.
 license: Text CC BY-NC 4.0 (adapts webtypography.net by Richard Rutter); scripts MIT. See LICENSE.
 ---
 
@@ -169,6 +170,14 @@ exits 1 naming any step that fails. The rules it applies:
                                                            # contrast, text spacing, zoom
    ```
    Add `--rtl` to the lint when a right-to-left edition is planned.
+
+   **No browser installed?** `lint-css.js` and `estimate-measure.js` need only
+   Node, no `npm install`. `page-audit.js --lite` (and any run where
+   Playwright is missing) lints a local page and its stylesheets and lists
+   every rendered check it skipped; `estimate-measure.js "Verdana" 66ch`
+   estimates characters per line from a Chromium calibration. Say "estimated"
+   and put the skipped checks under **Not verified**; never report an
+   estimate as a measurement.
 2. Read `references/css-modern.md` for renamed, dead or mistyped properties
    the tools do not know. Judge hierarchy, rhythm, pairing and emphasis
    yourself.
@@ -230,7 +239,8 @@ and no decorative effects standing in for hierarchy.
 | `references/audit.md` | any review or audit: severities, verdict, report table and the rule catalog |
 | `references/screen-and-ui.md` | inline code, icons beside labels, heading hierarchy and spacing, choosing or combining faces, kerning, thin weights or light text on dark |
 | `scripts/lint-css.js` | auditing CSS or HTML source, or a pull request (`--diff`) |
-| `scripts/page-audit.js` | auditing a rendered page: reflow, measure, contrast, text spacing, fonts, zoom, plus the `screen-and-ui.md` checks |
+| `scripts/page-audit.js` | auditing a rendered page: reflow, measure, contrast, text spacing, fonts, zoom, plus the `screen-and-ui.md` checks; `--lite` without a browser |
+| `scripts/estimate-measure.js` | no browser available: characters per line estimated for a face and width |
 | `scripts/apca.js` | a contrast question where weight matters: APCA Lc next to the WCAG ratio |
 | `scripts/fallback-metrics.py` | loading web fonts: a metric-matched fallback so the swap does not reflow |
 | `scripts/type-scale.js` | building fluid type tokens that pass the zoom and step checks |

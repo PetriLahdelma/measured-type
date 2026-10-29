@@ -1,0 +1,171 @@
+{
+  "skill_name": "measured-type",
+  "description": "Web typesetting specialist for how words and numbers sit on a web page, even when \"typography\" is never said. Works alongside general frontend, UI-review and design-system skills: they keep layout and components, this one makes the type decisions. Typical asks: review or critique a stylesheet's type; make an article, blog, docs or landing page read better (headings, paragraph spacing, quotes, captions); text that feels cramped, too wide or too small; type scales or font-size tokens that hold up under zoom and accessibility rules; dense product UI such as data tables, labels, badges and status text; prices, units and dates kept together and aligned; long words overflowing on phones; other languages and scripts (Finnish, Swedish, RTL). Gives Bringhurst-grounded CSS fixes and measures line length, zoom and font features in a real browser, or lints the source when no browser is available. Skip it for logos, drawing icons or fonts, build or framework setup and non-visual number parsing or validation.",
+  "results": [
+    {
+      "query": "Our docs article body feels cramped and the lines run really long on a desktop monitor. Can you fix prose.css? It's Inter at 17px.",
+      "should_trigger": true,
+      "trigger_rate": 0.3333333333333333,
+      "triggers": 1,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Build a type scale for our design system tokens that stays readable when people zoom to 200%.",
+      "should_trigger": true,
+      "trigger_rate": 0.3333333333333333,
+      "triggers": 1,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Before I use small caps for acronyms, check whether fonts/Lora-Italic.woff2 actually has them.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "We're launching a Hebrew version of the help center. Go through main.css and tell me what will break.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Format the prices and file sizes on the Finnish product page so numbers never break away from their units.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Make our blog post template look more editorial: better heading hierarchy, paragraph spacing and pull quotes.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Review the typography in landing.css and give me an honest critique with fixes.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Set up vertical rhythm for our markdown-rendered docs so headings, lists and code blocks sit on a consistent interval.",
+      "should_trigger": true,
+      "trigger_rate": 0.3333333333333333,
+      "triggers": 1,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "The numbers in our pricing table don't line up and the minus signs look like hyphens. Fix the CSS.",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Swedish body text overflows on phones because of long compound words. What CSS should we use?",
+      "should_trigger": true,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Write a Python script that renames every .ttf file in this folder to its font family name.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Set up Tailwind CSS in this Next.js project with the default config.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Turn this CSV of quarterly revenue into a bar chart for the board deck.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Translate these UI strings from English to Finnish and Swedish.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "The sidebar collapses to zero width in Safari when the flex container wraps. Find the bug.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Add a dark mode toggle that remembers the user's choice in localStorage.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Design a logo mark for a typography newsletter called Kerning Weekly.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write Jest unit tests for our date formatting utility.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write a regex that validates Finnish mobile phone numbers.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Create an SVG icon set for the app's bottom navigation.",
+      "should_trigger": false,
+      "trigger_rate": 0.0,
+      "triggers": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "total": 20,
+    "passed": 10,
+    "failed": 10
+  }
+}

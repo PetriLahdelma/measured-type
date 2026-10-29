@@ -20,6 +20,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
+const { estimate, describe } = require('./estimate-measure.js');
 
 const ROOT_PX = 16;
 const ORDER = { HIGH: 0, MEDIUM: 1, LOW: 2 };
@@ -219,7 +220,10 @@ function lintCss(blocks, file, opts, out) {
         add('MT-WIDTH-PX', 'MEDIUM', d, `${rule} cannot shrink at 320 CSS px`, 'max-inline-size in em, counted with measure-line.js');
       }
       if (/^(max-)?(width|inline-size)$/.test(d.prop) && /^[\d.]+ch$/.test(v) && parseFloat(v) >= 30) {
-        add('MT-MEASURE-CH', 'LOW', d, `${rule}: 1ch is the width of the zero, not the average letter`, 'count it: node scripts/measure-line.js page.html "selector"');
+        const family = b.decls.find((x) => x.prop === 'font-family');
+        const est = family && estimate({ family: family.value, width: v });
+        const guess = est && est.known ? `; ${describe(est)} (estimate)` : '';
+        add('MT-MEASURE-CH', 'LOW', d, `${rule}: 1ch is the width of the zero, not the average letter${guess}`, 'count it: node scripts/measure-line.js page.html "selector"');
       }
       if (/^font-variant(-caps)?$/.test(d.prop) && /small-caps|petite-caps|unicase/.test(v) && !smallCapsSynthOff) {
         add('MT-SMALLCAPS-SYNTH', 'MEDIUM', d, `${rule} with small-caps synthesis allowed`, 'font-synthesis-small-caps: none, after checking smcp/c2sc with font-features.py');

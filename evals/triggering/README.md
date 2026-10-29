@@ -40,3 +40,26 @@ The tuned description is no worse and slightly more eager, but the change is
 within run-to-run noise. Wording alone does not make the skill load on its own
 in this setup.
 
+
+## Softer trigger, 29 October 2026 (spec 0003 J)
+
+An outside reviewer asked for a description that does not claim to go
+"first, ahead of" other design skills. Two softer wordings were run, then the
+freeze-2 description again on the same evening as a same-day baseline, three
+runs per prompt each:
+
+| Set | Description | Typography tasks passed | Mean load rate | Near misses passed |
+|---|---|--:|--:|--:|
+| `trigger-eval.json` (tuning set) | freeze-2, rerun | 1/10 | 20% | 10/10 |
+| `trigger-eval.json` (tuning set) | 0003-a "works alongside" | 0/10 | 10% | 10/10 |
+| `trigger-eval.json` (tuning set) | 0003-b "use it whenever ... alongside" (shipped) | 0/10 | 10% | 10/10 |
+| `trigger-holdout.json` | freeze-2, rerun | 0/6 | 11% | 6/6 |
+| `trigger-holdout.json` | 0003-a | 0/6 | 6% | 6/6 |
+| `trigger-holdout.json` | 0003-b (shipped) | 0/6 | 11% | 6/6 |
+
+On the fresh holdout set 0003-b loads exactly as often as freeze-2. On the
+tuning set, which freeze-2 was optimised on, it loads half as often and loses
+that set's one passing prompt; spec 0003 J4 allows a loss of one prompt. The
+freeze-2 holdout rate also fell from 22% to 11% between two runs on the same
+day, which is the size of the noise in this setup. Files:
+`results/2026-10-29-*spec0003*` and `results/2026-10-29-*freeze-2-rerun.json`.
