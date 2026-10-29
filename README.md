@@ -140,7 +140,7 @@ from the outline and it lands on the letter.
 2. **Direction and language before anything else.** Every rule is written
    flow-relative, with `lang` and `dir` in place, so an RTL or vertical edition
    is a content change rather than a rewrite.
-3. **Decide with the rules.** Bringhurst's *Elements of Typographic Style*,
+3. **Decide with the rules.** Bringhurst's [*The Elements of Typographic Style*](https://www.amazon.com/dp/0881792128),
    numbered so reviews can cite `§2.1.2`, translated into CSS that ships today.
 4. **Measure what can be measured.** Characters per line, zoom ratios,
    rendered hard spaces, font coverage.
@@ -221,7 +221,9 @@ SIL Open Font License. The Measured Type name and the artwork in
 `.github/brand/` identify this project and are not licensed for other use.
 See [LICENSE](LICENSE).
 
-The rules follow Robert Bringhurst's *The Elements of Typographic Style* and the
-rule order of webtypography.net. They are paraphrased and the CSS is rewritten
-for current browsers. The wordmark is set in Source Serif 4 by Adobe; the
+The rules follow Robert Bringhurst's
+[*The Elements of Typographic Style*](https://www.amazon.com/dp/0881792128) and
+the rule order of webtypography.net. They are paraphrased and the CSS is
+rewritten for current browsers. The skill is a working translation, not a
+substitute: if it is useful to you, buy the book. The wordmark is set in Source Serif 4 by Adobe; the
 brand's interface type is IBM Plex. Both are released under the OFL.
