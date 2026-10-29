@@ -5,6 +5,19 @@ considered: the choices a careful typographer makes once the rules are met. It
 is opinionated on purpose. When a project has a house style or design tokens,
 work inside them and use this to judge and refine, not to override.
 
+Each rule here is one of four kinds, marked where the difference matters:
+
+- **Standard**: WCAG or a specification. Departing breaks something for
+  somebody.
+- **Measured**: a number to check in the browser or the font file. Depart
+  only with a measurement of your own.
+- **Convention**: what careful typographers usually do, for a stated reason.
+  Depart when the project has a better reason and applies it consistently.
+- **Preference**: this file's taste. A house style wins.
+
+In a review, say which kind a finding is. "Below AA contrast" and "I would
+use one weight fewer" are not the same severity.
+
 ## The stance
 
 Typography is in service of the text. Hierarchy comes from size, weight and
@@ -16,16 +29,18 @@ expensive as a whole.
 
 ## Hierarchy
 
-- **Few sizes, clear steps.** Adjacent roles you want readers to distinguish
-  should differ by a step of about 1.2–1.25× (never below about 1.15×, the
-  floor `rules.md` §3.1.1 sets for phones). Sizes 1–2px apart read
-  as mistakes, not hierarchy.
-- **Two or three weights.** Regular for text, one heavier weight for emphasis
-  and headings, perhaps one display weight. Medium, semibold and bold side by
-  side blur together.
-- **Space is hierarchy too.** More space above a heading than below it binds
+- **Few sizes, clear steps** (convention). When size is what tells two roles
+  apart, make the step about 1.2–1.25× (never below about 1.15×, the floor
+  `rules.md` §3.1.1 sets for phones); sizes 1–2px apart then read as
+  mistakes. A small size difference is fine when weight, case, color or
+  position already carries the distinction.
+- **Two or three weights** (preference). Regular for text, one heavier weight
+  for emphasis and headings, perhaps one display weight. Medium, semibold and
+  bold side by side blur together; a further weight earns its place when it
+  has a role no other weight covers, such as dense data.
+- **Space is hierarchy too** (convention). More space above a heading than below it binds
   the heading to its section. Equal space everywhere flattens structure.
-- **One loud thing per view.** A single display size or accent treatment per
+- **One loud thing per view** (preference). A single display size or accent treatment per
   screen; a page of shouting headlines has no headline.
 
 ## Families
@@ -33,7 +48,7 @@ expensive as a whole.
 - **One family can carry a whole site** when it has the weights, italics,
   figures and optical sizes for every role. That restraint is often the most
   refined option.
-- **Pair only when each family has a job:** a text face for reading and a sans
+- **Pair only when each family has a job** (preference): a text face for reading and a sans
   for interface, or a mono for code and data. Pair by contrast (serif with
   sans, different construction) or by shared structure (similar x-height and
   proportions). Two similar sans serifs on one page look like an accident.
@@ -47,27 +62,30 @@ expensive as a whole.
 
 ## Reading text
 
-- **Size:** editorial reading text on desktop is commonly 17–21px (about
+- **Size** (convention, floor measured): editorial reading text on desktop is commonly 17–21px (about
   1.0625–1.3rem) in 2026; 16px is the floor for any reading text and a
   reasonable default for interface copy. Let the reader's settings scale it.
 - **Measure, leading, ragged:** see `rules.md`. Ragged right with good
   hyphenation beats justified text on screens almost every time.
-- **Color:** dark gray to near-black on an off-white or white ground, with
-  AA contrast (4.5:1) at minimum for all text including secondary copy. Light
+- **Color:** dark gray to near-black on an off-white or white ground
+  (preference), with AA contrast (4.5:1, WCAG 1.4.3; standard) at minimum for
+  all text including secondary copy. Light
   gray body text at 60% opacity is the commonest readability failure in
   contemporary UI.
-- **Italic for emphasis and titles; bold sparingly;** never underline for
-  emphasis (underline means link).
+- **Italic for emphasis and titles; bold sparingly** (convention); never
+  underline for emphasis where underline means link.
 
 ## Display text
 
 - Tighten leading as size grows (about 1.0–1.15 at 48px and above) and test
   descenders and diacritics for collisions.
-- Tracking at display sizes: slightly negative for most lowercase sans faces
-  (about −0.01em to −0.03em), measured per face; never so tight that letters
-  touch, and never negative on capitals.
+- Tracking at display sizes (measured per face): slightly negative for most
+  lowercase sans faces, about −0.01em to −0.03em, never so tight that letters
+  touch. Capitals start from positive tracking (`rules.md` §2.1.6); at large
+  display sizes some faces' capitals space too loosely and want a little less,
+  judged on the actual word rather than set as a token.
 - `text-wrap: balance`, deliberate breaks with `&nbsp;`, no single-word last
-  lines.
+  lines (convention).
 - Large type earns its size by saying less. A five-line hero heading is a
   paragraph set too large.
 
@@ -76,7 +94,8 @@ expensive as a whole.
 - All caps only for short labels, nav items, eyebrows, buttons when the system
   calls for it: smaller size, +0.06–0.12em tracking, often a heavier weight to
   compensate for the reduced size.
-- Never whole sentences or paragraphs in caps.
+- No whole sentences or paragraphs in caps (convention); a display line of
+  a few words set as a deliberate graphic is the usual exception.
 - Prefer real small caps for acronyms in prose; in UI, full caps acronyms
   (with normal tracking at text sizes) are fine.
 - Use `text-transform` so the content keeps its true case.
@@ -122,7 +141,8 @@ the reader set to light.
 
 ## Template tells to avoid
 
-These patterns mark a page as assembled from defaults, not designed:
+These are preferences. Each can be right once, chosen on purpose; they mark
+a page as assembled from defaults when they repeat without a reason:
 
 - A tracked-caps eyebrow above every section heading, a gradient-filled
   heading and a gray 18px subhead, repeated down the page.
@@ -141,6 +161,8 @@ These patterns mark a page as assembled from defaults, not designed:
 
 When asked for a typographic review, go beyond correctness: name the single
 biggest improvement first (often measure, contrast or too many sizes), then
-the system issues (scale, roles, families), then details. Show the fix in CSS,
+the system issues (scale, roles, families), then details. Label each finding
+as standard, measured, convention or preference, so the team knows which ones
+they can decline. Show the fix in CSS,
 and say what the page will feel like after it, so the reviewer understands the
 reason, not just the rule.

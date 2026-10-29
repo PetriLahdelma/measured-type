@@ -52,7 +52,7 @@ not leak into cards and controls.
 | 2.2.1 | Leading suits face, size and measure | body ~1.4–1.6; display ~1.05–1.2; wider measure, more lead | unitless `line-height` for body text; headings may use a whole number of body lines (`line-height: var(--line)`) |
 | 2.2.2 | Vertical space in measured intervals | every gap a multiple (or half) of the body line | `--line: calc(size * leading)` (or `1rlh` only if body = root size), `text-box: trim-both cap alphabetic` |
 | 2.3.1–2 | Mark paragraphs one way | first paragraph flush; later ones indent at least 1 en, typically 1em; or space them, never both | `p + p { text-indent: 1em; margin-block-start: 0 }` |
-| 2.1.3 | Ragged unless justification is earned | justify only with working hyphenation and a wide measure; sans and mono stay ragged | `text-align: start` |
+| 2.1.3 | Ragged unless justification is earned | justify only with working hyphenation and a wide measure; ragged usually suits sans and mono | `text-align: start` |
 | 2.4.1 | Hyphenation minimums | 2 letters before the break, 3 after; words of 6+ | `hyphens: auto; hyphenate-limit-chars: 6 2 3` + correct `lang` |
 | 2.4.3 | No hyphen ladders | max 3 consecutive hyphenated lines | `-webkit-hyphenate-limit-lines: 3` (Safari only) |
 | 2.4.5 | Hyphenate by the language's rules | dictionary follows `lang` | `lang` on `<html>` and on every foreign passage |
@@ -192,6 +192,8 @@ characters per line, roughly double the 66 ideal").
 
 Opinions that go beyond Bringhurst. Read `references/taste.md` before making
 aesthetic choices or when asked for a typographic review with a point of view.
+It marks each rule as standard, measured, convention or preference; report
+findings with that label; a house style overrides the last two.
 In short: few sizes used with conviction, one or two families with a clear job
 each, generous but disciplined space, real glyphs instead of synthesized ones,
 and no decorative effects standing in for hierarchy.

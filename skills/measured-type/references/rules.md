@@ -98,9 +98,10 @@ caps lines at 80 characters, just above Bringhurst's 45–75.
 hyphens. Narrow columns, sans serifs and monospaced faces look better ragged.
 
 **Now.** Default to `text-align: start` (logical: left in LTR, right in RTL).
-Justify only when all of these hold: the measure is wide (60+ characters),
-`hyphens: auto` works for the language in every target engine and the face is
-a text serif. `text-justify: inter-word` keeps letters unspaced.
+Justify only when the measure is wide (60+ characters) and `hyphens: auto`
+works for the language in every target engine. Text serifs justify most
+gracefully; a sans with even spacing can justify too on a wide measure, but
+check the rendered rivers rather than assuming. `text-justify: inter-word` keeps letters unspaced.
 
 **Traps.** `text-align: justify` without hyphenation opens rivers of space,
 worst on mobile. `text-align-last: justify` stretches the final line; avoid it.
