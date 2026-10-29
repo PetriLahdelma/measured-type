@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: h2h-measure-ideal
+expected_outcome: |
+  Paragraphs that actually set about 66 characters per line in the face the post uses, judged by counting rendered lines.

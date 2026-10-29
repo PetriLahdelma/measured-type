@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: h2h-dashboard
+expected_outcome: |
+  A dense product page that can be scanned and read by everyone, judged by rendering the fixed page.

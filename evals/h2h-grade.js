@@ -272,11 +272,159 @@ async function gradeRtl(browser, dir) {
   ];
 }
 
+// ---------- h2h-dashboard (spec 0003 N; written apart from page-audit.js) ----------
+
+function fixedPage(dir, base) {
+  const html = path.join(dir, `${base}.fixed.html`);
+  if (fs.existsSync(html)) return html;
+  const file = path.join(dir, '__graded.html');
+  fs.writeFileSync(file, fs.readFileSync(path.join(dir, `${base}.html`), 'utf8').replace(`href="${base}.css"`, `href="${base}.fixed.css"`));
+  return file;
+}
+
+async function gradeDashboard(browser, dir) {
+  const file = fixedPage(dir, 'dashboard');
+  const out = [];
+  const p = await open(browser, file, 1280);
+  const r = await p.evaluate(() => {
+    const visible = (el) => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+    const own = (el) => [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
+    const table = document.querySelector('table');
+    const heads = table ? [...table.querySelectorAll('thead th, thead td, tr:first-child th')].map((h) => h.textContent.trim().toLowerCase()) : [];
+    const rows = table ? [...table.querySelectorAll('tbody tr')].map((tr) => [...tr.cells]) : [];
+    const col = (re) => heads.findIndex((h) => re.test(h));
+    const numCols = [/request/, /error/, /p95|latency/].map(col).filter((i) => i >= 0);
+    const glyphs = numCols.map((c) => {
+      const cell = rows[0] && rows[0][c];
+      if (!cell) return { c, diff: null };
+      const s = document.createElement('span');
+      s.style.cssText = 'position: absolute; white-space: pre';
+      cell.append(s);
+      s.textContent = '1';
+      const one = s.getBoundingClientRect().width;
+      s.textContent = '0';
+      const zero = s.getBoundingClientRect().width;
+      s.remove();
+      return { c, diff: Math.abs(one - zero) / zero };
+    });
+    const ltr = getComputedStyle(document.body).direction !== 'rtl';
+    const aligned = numCols.map((c) => rows.map((cells) => cells[c] && getComputedStyle(cells[c]).textAlign));
+    const caps = [];
+    const small = [];
+    for (const el of document.body.querySelectorAll('*')) {
+      const text = own(el);
+      if (!text || !visible(el)) continue;
+      const cs = getComputedStyle(el);
+      const size = parseFloat(cs.fontSize);
+      const letters = text.replace(/[^\p{L}]/gu, '');
+      const upper = cs.textTransform === 'uppercase' || (letters.length >= 4 && letters === letters.toUpperCase() && letters !== letters.toLowerCase());
+      const ls = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing);
+      if (upper && size < 20 && ls < 0.03 * size - 0.01) caps.push(`${el.tagName.toLowerCase()} "${text.slice(0, 20)}" ${ls}px at ${size}px`);
+      if (size < 12) small.push(`${el.tagName.toLowerCase()} "${text.slice(0, 20)}" ${size}px`);
+    }
+    const statusCol = col(/status/);
+    const statusWords = rows.map((cells) => {
+      const cell = cells[statusCol];
+      return cell ? (cell.innerText || '').replace(/[^\p{L}]/gu, '').length : 0;
+    });
+    return { heads, numCols, glyphs, ltr, aligned, caps, small, statusCol, statusWords };
+  });
+  out.push([r.numCols.length === 3 && r.glyphs.every((g) => g.diff !== null && g.diff <= 0.02),
+    `columns ${r.numCols.join(', ')}: 1 against 0 ${r.glyphs.map((g) => (g.diff === null ? 'n/a' : `${(g.diff * 100).toFixed(1)}%`)).join(', ')}`]);
+  const endOk = (a) => a === 'end' || a === (r.ltr ? 'right' : 'left');
+  out.push([r.numCols.length === 3 && r.aligned.every((c) => c.every(endOk)), `alignments ${r.aligned.map((c) => [...new Set(c)].join('/')).join(', ')}`]);
+  out.push([r.caps.length === 0, r.caps.length ? `untracked capitals: ${r.caps.join('; ')}` : 'no untracked capitals under 20px']);
+  out.push([r.small.length === 0, r.small.length ? `under 12px: ${r.small.join('; ')}` : 'no text under 12px']);
+  out.push([r.statusCol >= 0 && r.statusWords.length === 4 && r.statusWords.every((n) => n >= 2), `status column ${r.statusCol}, letters per row ${r.statusWords.join(', ')}`]);
+
+  const texts = await p.evaluate(() => {
+    const parse = (s) => (s.match(/[\d.]+/g) || []).map(Number);
+    const res = [];
+    for (const el of document.body.querySelectorAll('*')) {
+      if (![...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim())) continue;
+      if (!(el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden')) continue;
+      const cs = getComputedStyle(el);
+      let bg = null;
+      for (let q = el; q; q = q.parentElement) {
+        const v = parse(getComputedStyle(q).backgroundColor);
+        if (v.length === 3 || (v.length === 4 && v[3] > 0)) { bg = v; break; }
+      }
+      res.push({ tag: el.tagName.toLowerCase() + (el.className ? `.${el.className}` : ''), fg: parse(cs.color), bg: bg || [255, 255, 255], size: parseFloat(cs.fontSize), weight: parseInt(cs.fontWeight, 10) });
+    }
+    return res;
+  });
+  const failing = texts.filter((t) => {
+    const a = t.fg.length > 3 ? t.fg[3] : 1;
+    const fg = [0, 1, 2].map((i) => t.fg[i] * a + t.bg[i] * (1 - a));
+    const [l1, l2] = [luminance(fg), luminance(t.bg)].sort((x, y) => y - x);
+    t.ratio = ((l1 + 0.05) / (l2 + 0.05)).toFixed(2);
+    return t.ratio < (t.size >= 24 || (t.size >= 18.66 && t.weight >= 700) ? 3 : 4.5);
+  });
+  out.push([failing.length === 0, failing.length ? `below ratio: ${failing.map((t) => `${t.tag} ${t.ratio}:1`).join(', ')}` : `all ${texts.length} text elements pass`]);
+  await p.close();
+
+  const kpi = async (w) => {
+    const q = await open(browser, file, w);
+    const s = await q.evaluate(() => [...document.querySelectorAll('.kpi-value, .kpi strong, .kpi dd, .kpi data')].map((e) => parseFloat(getComputedStyle(e).fontSize)));
+    await q.close();
+    return s;
+  };
+  const [k1, k5] = [await kpi(1280), await kpi(256)];
+  const growth = k1.map((s, i) => (5 * k5[i]) / s);
+  out.push([k1.length === 3 && growth.every((g) => g >= 1.99), `KPI values ${k1.join('/')}px at 1280, ${k5.join('/')}px at 256: ${growth.map((g) => g.toFixed(2)).join(', ')}× by 500% zoom`]);
+
+  const cut = async (w) => {
+    const q = await open(browser, file, w);
+    const c = await q.evaluate(() => {
+      const named = (e) => e && (e.title || e.getAttribute('aria-label') || e.getAttribute('aria-describedby'));
+      return [...document.body.querySelectorAll('*')].filter((el) => {
+        const cs = getComputedStyle(el);
+        const hit = (cs.textOverflow === 'ellipsis' && el.scrollWidth > el.clientWidth + 1) || (cs.webkitLineClamp && cs.webkitLineClamp !== 'none' && el.scrollHeight > el.clientHeight + 1);
+        return hit && !named(el) && !named(el.parentElement) && !named(el.closest('a, button'));
+      }).map((el) => el.textContent.trim().slice(0, 30));
+    });
+    await q.close();
+    return c;
+  };
+  const [c1, c2] = [await cut(1280), await cut(640)];
+  out.push([c1.length === 0 && c2.length === 0, `cut without full text: 1280 [${c1.join('; ')}], 640 [${c2.join('; ')}]`]);
+
+  const p320 = await open(browser, file, 320);
+  const sw = await p320.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+  await p320.close();
+  out.push([sw.sw <= sw.cw + 1, `scrollWidth ${sw.sw} in a ${sw.cw}px viewport`]);
+  return out;
+}
+
+// ---------- h2h-measure-ideal ----------
+
+async function gradeMeasureIdeal(browser, dir) {
+  const file = fixedPage(dir, 'post');
+  const p = await open(browser, file, 1280);
+  const r = await p.evaluate(() => {
+    const ps = [...document.querySelectorAll('article p')];
+    ps.forEach((e, i) => e.setAttribute('data-g', i));
+    const m = ps.map((e, i) => measureLines(`[data-g="${i}"]`)).filter((x) => x.fullLines);
+    return { m, sizes: ps.map((e) => parseFloat(getComputedStyle(e).fontSize)) };
+  });
+  await p.close();
+  const lines = r.m.reduce((s, x) => s + x.fullLines, 0);
+  const avg = lines ? r.m.reduce((s, x) => s + x.avgCharsPerLine * x.fullLines, 0) / lines : null;
+  const p375 = await open(browser, file, 375);
+  const sw = await p375.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+  await p375.close();
+  return [
+    [avg !== null && avg >= 60 && avg <= 72, `pooled ${avg && avg.toFixed(1)} characters per line over ${lines} full lines (per paragraph ${r.m.map((x) => x.avgCharsPerLine).join(', ')})`],
+    [sw.sw <= sw.cw + 1, `scrollWidth ${sw.sw} in a ${sw.cw}px viewport`],
+    [r.sizes.length > 0 && r.sizes.every((s) => s >= 16), `paragraph sizes ${[...new Set(r.sizes)].join(', ')}px`],
+  ];
+}
+
 async function main() {
   const [name, outputs] = process.argv.slice(2);
-  const graders = { 'h2h-page-audit': gradePageAudit, 'h2h-font-loading': gradeFontLoading, 'h2h-rtl': gradeRtl };
+  const graders = { 'h2h-page-audit': gradePageAudit, 'h2h-font-loading': gradeFontLoading, 'h2h-rtl': gradeRtl, 'h2h-dashboard': gradeDashboard, 'h2h-measure-ideal': gradeMeasureIdeal };
   if (!graders[name] || !outputs) {
-    console.error('usage: h2h-grade.js <h2h-page-audit|h2h-font-loading|h2h-rtl> <outputs-dir>');
+    console.error(`usage: h2h-grade.js <${Object.keys(graders).join('|')}> <outputs-dir>`);
     process.exit(2);
   }
   const texts = ASSERTIONS(name);
