@@ -1,12 +1,13 @@
 {
   "name": "measured-type-scripts",
   "private": true,
-  "description": "Helper scripts for the measured-type skill: rendered line-length counts in Chromium and font feature coverage.",
+  "description": "Helper scripts for the measured-type skill: rendered line counts, page audits, CSS lint, font feature coverage, fallback metrics and type scales.",
   "license": "MIT",
   "scripts": {
     "measure": "node scripts/measure-line.js",
-    "test": "node scripts/test/run.js",
-    "test:fonts": "python3 scripts/test/test_font_features.py"
+    "test": "node scripts/test/run.js && node --test scripts/test/",
+    "test:fonts": "python3 scripts/test/test_font_features.py",
+    "test:unit": "node --test scripts/test/"
   },
   "devDependencies": {
     "playwright": "1.64.1"
