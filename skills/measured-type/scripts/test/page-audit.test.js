@@ -48,6 +48,19 @@ test('C4 text clipped under the 1.4.12 spacing override is MT-TEXT-SPACING HIGH'
   assert.ok(find(r, 'MT-TEXT-SPACING', 'HIGH').length, JSON.stringify(r.findings));
 });
 
+test('C4b text already clipped without the override (screen-reader text, closed panel, spam trap) is not MT-TEXT-SPACING', async () => {
+  const r = await run('spacing-hidden.html');
+  assert.equal(find(r, 'MT-TEXT-SPACING').length, 0, JSON.stringify(find(r, 'MT-TEXT-SPACING')));
+});
+
+test('C3b a translucent ground is laid over the page before the ratio is taken', async () => {
+  const r = await run('contrast-alpha.html');
+  const hit = find(r, 'MT-CONTRAST', 'HIGH');
+  assert.equal(hit.length, 1, JSON.stringify(hit));
+  assert.match(hit[0].location, /\.low/);
+  assert.match(hit[0].measured, /^2\.1\d:1 \(rgb\(119, 119, 119\) on rgb\(179, 179, 179\)/);
+});
+
 test('C5 a missing web font is MT-FONT-FALLBACK MEDIUM naming the face that rendered', async () => {
   const r = await run('fallback.html');
   const hit = find(r, 'MT-FONT-FALLBACK', 'MEDIUM');

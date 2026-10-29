@@ -91,6 +91,13 @@ test('B12 physical sides are MT-PHYSICAL LOW, HIGH with --rtl', () => {
   assert.ok(!has(run('ul { margin-inline-start: 1em; }'), 'MT-PHYSICAL'));
 });
 
+test('B12b left: 50% centred with translate(-50%) is direction-neutral, not MT-PHYSICAL', () => {
+  assert.ok(!has(run('.toast { position: fixed; left: 50%; transform: translateX(-50%); }'), 'MT-PHYSICAL'));
+  assert.ok(!has(run('.tip { left: 50%; translate: -50% 0; }'), 'MT-PHYSICAL'));
+  assert.ok(has(run('.tip { left: 50%; }'), 'MT-PHYSICAL', 'LOW'));
+  assert.ok(has(run('.tip { left: 1rem; transform: translateX(-50%); }'), 'MT-PHYSICAL', 'LOW'));
+});
+
 test('B13 widows of 1 is MT-WIDOWS LOW', () => {
   assert.ok(has(run('@media print { p { widows: 1; } }'), 'MT-WIDOWS', 'LOW'));
 });
