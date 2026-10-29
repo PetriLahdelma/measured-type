@@ -18,10 +18,14 @@
  * justification without hyphenation, one-word heading lines, size count, and
  * the checks from Latin and Saltz in references/screen-and-ui.md (inline code
  * x-height and boxes, kerning, I and l, heading order and spacing, family
- * budget, x-height pairing, weight floor, dark hairlines, icon alignment).
+ * budget, x-height pairing, weight floor, dark hairlines, icon alignment) and
+ * in references/product-ui.md (tabular figures and alignment in number
+ * columns, tracked capitals, truncated text, interface text size).
  *
  * Exit code 1 when a HIGH finding remains (verdict Block), 0 otherwise.
  * Requires Playwright: npm install && npx playwright install chromium.
+ * With --lite, or when Playwright is missing, it lints a local page and its
+ * stylesheets instead and lists every rendered check under Not verified.
  */
 
 const path = require('node:path');
@@ -265,6 +269,86 @@ function bookChecks() {
   return out;
 }
 
+// Dense product UI (specs/0003, references/product-ui.md): number columns,
+// tracked capitals and small interface text, run in the page at 1280px.
+function productChecks() {
+  const mt = window.__mt;
+  const out = { tabular: [], align: [], caps: [], small: [] };
+  const seen = new Set();
+  const once = (key) => (seen.has(key) ? false : (seen.add(key), true));
+  const NUM = /^[\s(+\-−–]*\p{Sc}?\s*\d[\d\s.,:'’  ]*(%|‰|\p{Sc}|[kKMB])?\s*\)?$/u;
+  const rowsOf = (t) => (t.tagName === 'TABLE'
+    ? [...t.tBodies].flatMap((b) => [...b.rows]).map((r) => [...r.cells])
+    : [...t.querySelectorAll('[role=row]')].map((r) => [...r.querySelectorAll('[role=cell], [role=gridcell]')]).filter((c) => c.length));
+  for (const t of [...document.querySelectorAll('table, [role=table], [role=grid]')].filter(mt.visible)) {
+    const rows = rowsOf(t);
+    const cols = Math.max(0, ...rows.map((r) => r.length));
+    for (let c = 0; c < cols; c++) {
+      const cells = rows.map((r) => r[c]).filter(Boolean);
+      const nums = cells.filter((td) => NUM.test(td.textContent.trim()));
+      if (nums.length < 2 || nums.length < cells.length * 0.6) continue;
+      const where = `${mt.path(t)} column ${c + 1}`;
+      // L1: draw single glyphs, so a kerning pair such as "11" cannot pass for proportional figures
+      const probe = document.createElement('span');
+      probe.style.cssText = 'position: absolute; white-space: pre';
+      nums[0].append(probe);
+      const spread = () => {
+        probe.textContent = '1';
+        const one = probe.getBoundingClientRect().width;
+        probe.textContent = '0';
+        const zero = probe.getBoundingClientRect().width;
+        return Math.abs(one - zero) / zero;
+      };
+      const diff = spread();
+      let fixable = false;
+      if (diff > 0.02) {
+        probe.style.fontVariantNumeric = 'tabular-nums';
+        fixable = spread() <= 0.02;
+      }
+      probe.remove();
+      if (diff > 0.02) out.tabular.push({ path: where, diff: diff * 100, fixable, family: getComputedStyle(nums[0]).fontFamily });
+      // L2: place values line up only when the numbers share an edge at the end
+      const rtl = getComputedStyle(nums[0]).direction === 'rtl';
+      const lengths = new Set(nums.map((td) => td.textContent.trim().length));
+      const off = nums.filter((td) => {
+        const a = getComputedStyle(td).textAlign;
+        return !(a === 'end' || a === (rtl ? 'left' : 'right'));
+      });
+      if (lengths.size > 1 && off.length >= nums.length / 2) out.align.push({ path: where, align: getComputedStyle(off[0]).textAlign });
+    }
+  }
+  const reading = new Set(mt.reading());
+  const inReading = (el) => { for (let p = el; p; p = p.parentElement) if (reading.has(p)) return true; return false; };
+  for (const el of mt.textElements()) {
+    const cs = getComputedStyle(el);
+    const size = parseFloat(cs.fontSize);
+    const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
+    const letters = own.replace(/[^\p{L}]/gu, '');
+    const allCaps = letters.length >= 4 && letters === letters.toUpperCase() && letters !== letters.toLowerCase() && !el.closest('p, li, dd, blockquote');
+    const tracking = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing);
+    const p = mt.path(el);
+    if ((cs.textTransform === 'uppercase' || allCaps) && letters.length >= 2 && size < 20 && tracking <= 0 && once(`caps|${p}`)) {
+      out.caps.push({ path: p, size, tracking });
+    }
+    if (size < 12 && !inReading(el) && !['SUP', 'SUB'].includes(el.tagName) && !el.closest('[aria-hidden="true"]') && once(`small|${p}`)) {
+      out.small.push({ path: p, size });
+    }
+  }
+  return out;
+}
+
+// L4: text cut by an ellipsis or a line clamp that no title or accessible name carries in full.
+function truncatedText() {
+  const mt = window.__mt;
+  const named = (e) => e && (e.title || e.getAttribute('aria-label') || e.getAttribute('aria-describedby'));
+  return [...document.body.querySelectorAll('*')].filter(mt.visible).filter((el) => {
+    const cs = getComputedStyle(el);
+    const ellipsis = cs.textOverflow === 'ellipsis' && el.scrollWidth > el.clientWidth + 1;
+    const clamp = cs.webkitLineClamp && cs.webkitLineClamp !== 'none' && el.scrollHeight > el.clientHeight + 1;
+    return (ellipsis || clamp) && !named(el) && !named(el.parentElement) && !named(el.closest('a, button, [role=button], [role=link]'));
+  }).map((el) => ({ path: mt.path(el), text: el.textContent.trim().replace(/\s+/g, ' ').slice(0, 48) }));
+}
+
 function parseColor(s) {
   const m = /rgba?\(([^)]+)\)/.exec(s);
   if (!m) return null;
@@ -492,7 +576,25 @@ async function audit(target, opts = {}) {
       const fix = i.flex ? `translate the icon by ${(-i.offset).toFixed(1)}px, or size it to the cap height` : `vertical-align: ${i.va.toFixed(3)}em`;
       add('MT-ICON-ALIGN', 'LOW', i.path, `${i.offset.toFixed(1)}px between the icon's centre and the middle of the capitals (${i.offset > 0 ? 'icon low' : 'icon high'})`, fix);
     }
+
+    const product = await page.evaluate(productChecks);
+    for (const t of product.tabular) {
+      const face = t.family.split(',')[0].trim().replace(/^["']|["']$/g, '');
+      const fix = t.fixable ? 'font-variant-numeric: lining-nums tabular-nums on the column' : `${face} has no tabular figures: set number columns in a face that has them (check tnum with font-features.py)`;
+      add('MT-TABULAR', 'MEDIUM', t.path, `1 and 0 differ by ${t.diff.toFixed(1)}% in width, so digits do not line up`, fix);
+    }
+    for (const a of product.align) add('MT-NUM-ALIGN', 'LOW', a.path, `numbers of different lengths set text-align: ${a.align}`, 'text-align: end on the number cells and their header, so place values line up');
+    for (const c of product.caps) add('MT-CAPS-TRACKING', 'LOW', c.path, `capitals at ${c.size}px with letter-spacing ${c.tracking}px`, 'letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6)');
+    for (const s of product.small) add('MT-UI-SIZE', 'LOW', s.path, `${s.size}px interface text (house floor 12px)`, 'font-size: 0.75rem or more');
+    const cutAt1280 = await page.evaluate(truncatedText);
+    for (const t of cutAt1280) add('MT-TRUNCATE', 'LOW', t.path, `"${t.text}" cut at 1280px with no title or accessible name`, 'let it wrap, or put the full text in a title or tooltip that keyboard users can reach');
     await page.close();
+    const zoomed = await open(640);
+    const known = new Set(cutAt1280.map((t) => t.path));
+    for (const t of await zoomed.evaluate(truncatedText)) {
+      if (!known.has(t.path)) add('MT-TRUNCATE', 'MEDIUM', t.path, `"${t.text}" fits at 1280px but is cut at 200% zoom (WCAG 1.4.4)`, 'let it wrap at narrow widths instead of truncating');
+    }
+    await zoomed.close();
 
     // ---- text spacing override (WCAG 1.4.12)
     const spacing = await open(1280, '* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } p { margin-block-end: 2em !important; }');

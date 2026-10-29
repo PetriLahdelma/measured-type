@@ -39,7 +39,7 @@ is its own mistake, so decide which kind of text you are setting:
 |---|---|---|
 | **Reading text** | articles, docs, case studies, legal copy | every rule applies: measure, rhythm, paragraph marking, text figures, hyphenation |
 | **Display text** | heroes, page titles, section heads | size from the scale, tighter leading, tracking tuned to size, `text-wrap: balance` |
-| **Interface and data** | buttons, labels, nav, tables, prices, forms, dashboards | no paragraph indents; lining **tabular** figures; uppercase labels get positive tracking; rhythm comes from the spacing scale |
+| **Interface and data** | buttons, labels, nav, tables, prices, forms, dashboards, status badges | no paragraph indents; lining **tabular** figures, numbers aligned at the end; uppercase labels get positive tracking; truncated text stays recoverable; rhythm comes from the spacing scale. Details: `references/product-ui.md` |
 
 A single page usually mixes all three. Scope reading-text rules to a prose
 container (`.prose`, `article`) instead of global element selectors, so they do
@@ -238,6 +238,7 @@ and no decorative effects standing in for hierarchy.
 | `references/taste.md` | choosing faces, pairing, display treatment, dark mode text or reviewing for quality rather than correctness |
 | `references/audit.md` | any review or audit: severities, verdict, report table and the rule catalog |
 | `references/screen-and-ui.md` | inline code, icons beside labels, heading hierarchy and spacing, choosing or combining faces, kerning, thin weights or light text on dark |
+| `references/product-ui.md` | dashboards, admin tools and data tables: number columns, labels, badges and status text, truncation |
 | `scripts/lint-css.js` | auditing CSS or HTML source, or a pull request (`--diff`) |
 | `scripts/page-audit.js` | auditing a rendered page: reflow, measure, contrast, text spacing, fonts, zoom, plus the `screen-and-ui.md` checks; `--lite` without a browser |
 | `scripts/estimate-measure.js` | no browser available: characters per line estimated for a face and width |

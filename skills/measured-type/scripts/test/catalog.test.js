@@ -30,7 +30,7 @@ test('A2 catalog severities are HIGH, MEDIUM or LOW', () => {
 
 test('SKILL.md points to every tool and to the audit format', () => {
   const skill = read('SKILL.md');
-  for (const ref of ['scripts/lint-css.js', 'scripts/page-audit.js', 'scripts/fallback-metrics.py', 'scripts/type-scale.js', 'references/audit.md', 'references/screen-and-ui.md', 'scripts/apca.js']) {
+  for (const ref of ['scripts/lint-css.js', 'scripts/page-audit.js', 'scripts/fallback-metrics.py', 'scripts/type-scale.js', 'references/audit.md', 'references/screen-and-ui.md', 'scripts/apca.js', 'references/product-ui.md', 'scripts/estimate-measure.js']) {
     assert.ok(skill.includes(ref), `SKILL.md does not mention ${ref}`);
   }
 });

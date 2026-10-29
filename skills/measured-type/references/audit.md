@@ -95,6 +95,11 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-HEADING-SPACE | LOW | Space above a section heading (h2 to h6) less than twice the space below it | Latin (`screen-and-ui.md`) |
 | MT-DARK-HAIRLINE | LOW | Light text on dark under 18px with a stroke thinner than 0.45px (house threshold) | Saltz principle 6 (`screen-and-ui.md`) |
 | MT-ICON-ALIGN | LOW | An icon's centre more than 1px from the middle of its label's capitals | Latin (`screen-and-ui.md`) |
+| MT-TABULAR | MEDIUM | A table number column whose 1 and 0 differ in width by more than 2% | §3.2.1 (`product-ui.md`) |
+| MT-TRUNCATE | LOW | Text cut by an ellipsis or line clamp with no title or accessible name; MEDIUM when the cut appears only at 200% zoom (WCAG 1.4.4) | `product-ui.md` |
+| MT-NUM-ALIGN | LOW | A number column of mixed lengths not aligned at the end | convention (`product-ui.md`) |
+| MT-CAPS-TRACKING | LOW | Capitals under 20px with no positive letter-spacing; `text-transform: uppercase` without `letter-spacing` in the source | §2.1.6 (`product-ui.md`) |
+| MT-UI-SIZE | LOW | Interface text under 12px (house floor) | house (`product-ui.md`) |
 
 A rule the tools do not cover (pairing, hierarchy, emphasis, rhythm) still goes
 in the same table under the closest section number, with the kind stated.

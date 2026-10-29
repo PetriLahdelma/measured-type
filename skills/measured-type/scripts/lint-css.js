@@ -234,6 +234,9 @@ function lintCss(blocks, file, opts, out) {
       if ((d.prop === 'font-kerning' && v === 'none') || (d.prop === 'font-feature-settings' && /["']kern["']\s+(0|off)\b/.test(v))) {
         add('MT-KERN-OFF', 'LOW', d, `${rule} switches the font's kerning off`, 'font-kerning: normal (auto already kerns at every size in Chromium and WebKit)');
       }
+      if (d.prop === 'text-transform' && v === 'uppercase' && !b.decls.some((x) => x.prop === 'letter-spacing')) {
+        add('MT-CAPS-TRACKING', 'LOW', d, `${rule} without letter-spacing`, 'letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6)');
+      }
       if (d.prop === 'letter-spacing' && /^-?[\d.]+px$/.test(v) && parseFloat(v) !== 0) {
         add('MT-LS-PX', 'LOW', d, rule, 'the same value in em');
       }
