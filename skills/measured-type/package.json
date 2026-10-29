@@ -5,9 +5,9 @@
   "license": "MIT",
   "scripts": {
     "measure": "node scripts/measure-line.js",
-    "test": "node scripts/test/run.js && node --test scripts/test/",
+    "test": "node scripts/test/run.js && node --test scripts/test/*.test.js",
     "test:fonts": "python3 scripts/test/test_font_features.py",
-    "test:unit": "node --test scripts/test/"
+    "test:unit": "node --test scripts/test/*.test.js"
   },
   "devDependencies": {
     "playwright": "1.64.1"
