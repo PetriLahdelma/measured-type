@@ -28,7 +28,9 @@ otherwise look proportional.
 the numbers share their last digit: `text-align: end` on the cells and on
 their header. Give every value in a column the same number of decimals, put
 the unit in the header (`Size (MB)`) instead of in every cell and format with
-`Intl.NumberFormat(locale)`, which also gives a real minus sign. Check:
+`Intl.NumberFormat(locale)`. Its minus sign depends on the locale: fi-FI
+and sv-SE give U+2212, while en, de and fr give the hyphen-minus U+002D
+(checked in Node 22), so replace it with `−` for display. Check:
 `MT-NUM-ALIGN` flags a start-aligned number column whose values differ in
 length.
 

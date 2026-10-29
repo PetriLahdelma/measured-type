@@ -20,7 +20,8 @@ and graders as head-to-head 2, unchanged. Four configurations, two runs each:
 | Sonnet 5.5 | none | 9/9, 9/9 | 3/3, 3/3 | 62.5, 66.4 | 119k / 118k | 48 s / 44 s |
 
 Every run passed every assertion: 96 of 96 for both configurations, on both
-models. The skill cost 7 to 14% more tokens and was slower in every cell.
+models. The skill cost 7 to 14% more tokens per case (10% to 14% pooled per
+model) and 35% to 38% more time.
 
 ## What happened
 
@@ -43,12 +44,21 @@ models. The skill cost 7 to 14% more tokens and was slower in every cell.
 
 ## What this says
 
-The skill's advantage on these tasks is precision and verification, not
-pass or fail. With it, the measure lands on the target and the agent says it
-was measured; without it, a capable model gets close by reasoning and says it
-estimated. The graders' 60 to 72 band was written to catch `66ch` (79 per
-line), and it does not distinguish 62.5 from 66. Neither case found a fault
-that a model without the skill missed outright, on either model.
+Pass rates tied. The runs differed only in how close the measure came, and
+that comparison is confounded: runs with the skill had the skill's installed
+Chromium, runs without it had no browser. Head-to-head 2 showed that a model
+without the skill reaches 66.4 characters per line once it has a browser, so
+the closeness here follows the bundled measuring tools, not the guidance. The
+closeness metric was not pre-registered (spec 0003 N3 names only the graded
+band), and 4 of 4 against 2 of 4 is too few runs to separate the two. The
+graders' 60 to 72 band was written to catch `66ch` (79 per line) and does not
+distinguish 62.5 from 66. Neither case found a fault that a model without the
+skill missed outright, on either model.
+
+What would settle it: the skill and browser access varied independently (a
+2×2), a one-sentence hint ("measure in a browser; `ch` is the width of the
+zero") against the full skill, a closeness metric registered before the runs
+and ten runs per cell.
 
 ## Incidents (disclosed)
 
@@ -59,8 +69,11 @@ that a model without the skill missed outright, on either model.
   prompts. None of the failed attempts wrote an output file; one had created
   a scratch folder, removed with the reset.
 - **One run without the skill used a Chrome it found on the machine.** The
-  brief forbids installing or downloading, not using what is installed; this
-  is the condition the spec describes ("whatever it finds for itself").
+  brief forbids installing or downloading and reading files outside the
+  working directory; it does not forbid running an installed application.
+  Spec 0003 N3 describes the no-skill condition as "whatever it finds for
+  itself in its own working directory", and a system Chrome is outside it.
+  The run is kept and counted, and this is a deviation from the spec.
 
 ## Limits
 

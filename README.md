@@ -252,8 +252,8 @@ logical sides.
 <sub>Illustration of the identity, not a measurement. The measured figure follows.</sub>
 
 Product UI fails differently from an article. Nothing is too long to read; it
-is hard to compare. Figures that are not tabular cannot line up, so 411 108
-and 80 011 sit at different edges even in a column of their own:
+is hard to compare. Figures that are not tabular cannot line up, so 411 108
+and 80 011 sit at different edges even in a column of their own:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset=".github/brand/tabular-figures-dark.png">
@@ -438,26 +438,25 @@ not on its `pre`); read by intent, both configurations score 34/34. A rerun on
 `content-freeze-2` gave 34/34 against 33/34. On these problems, which nobody
 wrote answers for in advance, the skill made no measurable difference.
 
-**Does it load on its own?** Twenty prompts in
-[`evals/triggering/`](evals/triggering/), each run three times with the skill
-offered and user-level skills switched off. It never loaded for the ten near
-misses (Tailwind setup, a font-renaming script, a logo for a typography
-newsletter). It loaded reliably for one of the ten typography tasks ("Review
-the typography in landing.css") and one time in three for two more. Tuning the
-description with skill-creator's optimization loop (`content-freeze-2`) moved
-the average load rate on typography tasks from 13% to 23%, and from 17% to 22%
-on twelve fresh prompts written before the tuning finished: within noise, with
-still no false loads. A run counts only when opening the skill is the agent's
-first move, so these are lower bounds, but the message is plain: name the
-skill when you want it.
+**Does it load on its own?** Rarely. Sixteen typography prompts and sixteen
+near misses in [`evals/triggering/`](evals/triggering/), each run three times
+with the skill offered and user-level skills switched off. The description
+that ships loaded the skill in 5 of 48 runs on typography prompts (about one
+in ten) and passed none of them at the 0.5 threshold; it never loaded for a
+near miss. Earlier descriptions loaded 11% to 23% of the time across runs on the same
+day, within the same noise. A run counts only when opening the skill is the
+agent's first move, so these are lower bounds, but the message is plain: name
+the skill when you want it.
 
 **Against other typography skills.** Three more cases (a page audit with a
 fix, a no-jump web-font setup and an Arabic edition from one stylesheet) ran
 under seven configurations, two runs each: no skill, Measured Type,
 Anthropic's frontend-design, impeccable, better-typography,
 practicaltypography and wondelai's web-typography. Cases and graders were
-committed before the runs, run folders were anonymized and every assertion is
-measured in Chromium.
+committed before the runs and run folders were anonymized. Every assertion is
+checked by a script: most render the output in Chromium, but two page-audit
+assertions only match words in the audit text and two font-loading assertions
+read the CSS.
 
 | Configuration | Frozen graders | Corrected graders | Mean time | Mean tokens |
 |---|--:|--:|--:|--:|
@@ -469,10 +468,10 @@ measured in Chromium.
 | better-typography | 37/40 | 38/40 | 241 s | 149k |
 | wondelai web-typography | 37/40 | 38/40 | 237 s | 153k |
 
-Measured Type is the only configuration that passed every assertion under
-both graders. Under the corrected graders frontend-design ties it, so the
-pre-registered bar (more than every other configuration) is met only as
-frozen. The correction replaced one RTL assertion that read the CSS source
+Under the corrected graders Measured Type and frontend-design tie at 40 of
+40 and no skill scores 39; one assertion is noise at two runs per cell. The
+pre-registered bar (more than every other configuration) is met only under the
+frozen graders, which the project itself corrected. The correction replaced one RTL assertion that read the CSS source
 instead of the rendered page and failed nine correct answers; the
 [results](evals/results/h2h-1/) give both scores and every disclosure. The
 spread is small: no configuration fell below 37 of 40. What separated them
@@ -483,32 +482,42 @@ per line) and not mirroring a `›` the browser already mirrors.
 dense product UI: an ops dashboard (9 rendered assertions) and "about 66
 characters per line" in Verdana, where `66ch` sets 79. Measured Type and no
 skill both scored 24 of 24; the skill used 9 to 12% more tokens. Every run was
-told a browser was available, and every run without the skill used it to
+told a browser was available; every run without the skill used it to
 measure, found the `66ch` trap and fixed all nine dashboard faults. On this
 model, with a browser in reach, the skill's measured advantage is small to
 none ([results and limits](evals/results/h2h-2/)).
 
-**Head-to-head 3** removed the hint: no browser in the brief, nothing to
-install, and Sonnet 5.5 added next to Opus 5.5. All 16 runs again passed
-every assertion. The difference showed in how close they came: with the
-skill, every run measured in Chromium and set 66.0 to 66.4 characters per
-line; without it, two runs estimated Verdana's widths from memory and landed
-at 62.5 and 63.4, inside the graded band but short of the 66 asked for. The
-skill buys precision and a measured claim instead of an estimate, at 7 to 14%
-more tokens ([results and limits](evals/results/h2h-3/)).
+**Head-to-head 3** removed the hint (no browser in the brief and nothing to
+install) and added Sonnet 5.5 next to Opus 5.5. All 16 runs again passed
+every assertion. The runs differed in how close they came, but the comparison
+is not skill against no skill: runs with the skill had the skill's installed
+Chromium, runs without it had no browser. With it, every run measured and set
+66.0 to 66.4 characters per line; without it, two of four estimated Verdana
+from memory and landed at 62.5 and 63.4. Head-to-head 2 already showed that a
+model without the skill reaches 66.4 once it has a browser. So the measurable
+gain comes from the bundled measuring tools, not from the guidance; the
+closeness metric was chosen after the runs ([results and
+limits](evals/results/h2h-3/)).
 
-**Scope.** Gains concentrate in specific cases. A current model without the
-skill already knows most typographic CSS, measures line length on its own when
-it can, reads font files correctly and gets locale number formatting right. The
-skill earns its place where the model would otherwise trust a formula: fluid
-type under zoom (the largest gap in both iterations, measured against the
-house bar), RTL audits that convert text flow without touching decoration and
-small details such as binding a qualifier to its number. With two runs per
-configuration, treat a one-assertion difference as noise.
+**Scope.** On every case written after the content was frozen, the skill's
+guidance made no measurable difference; the gains above come from the
+development set, where most of the baseline's misses are house conventions.
+A current model without the skill already knows most typographic CSS,
+measures line length on its own when it has a browser, reads font files
+correctly and gets locale number formatting right. What the skill reliably
+adds is the measuring harness (rendered audits, line counts, font coverage,
+zoom ratios) and a shared vocabulary for findings, plus guidance where a model
+would otherwise trust a formula: fluid type under zoom and RTL audits that
+leave decoration alone. With two runs per configuration, treat a
+one-assertion difference as noise. Not yet tested: the skill and a browser
+varied independently, a one-sentence hint against the full skill and ten runs
+per cell.
 
-**Cost.** In iteration 2, runs with the skill took about 100 seconds and 32k
-tokens more each (iteration 1: 35 seconds and 21k), spent reading the longer
-references and running more checks.
+**Cost.** Across the experiments, runs with the skill used 10% to 25% more
+tokens than runs without it (iteration 1: 16%; iteration 2 and both held-out
+rounds: 24% to 25%; head-to-head 1: 18%; head-to-head 2 and 3: 10% to 14%)
+and took up to 38% longer, spent reading the references and running the
+checks.
 
 The outputs, grades and timings of every run are in
 [`evals/results/iteration-2/`](evals/results/iteration-2/),

@@ -104,8 +104,6 @@ rule (standard, measured, convention, preference). Rendered checks in
 - **N2** They run with the skill and with no skill, the same model and
   settings, at least two runs each, graded blind. All scores are published,
   including any case the skill loses.
-</content>
-</invoke>
 - **N3** Head-to-head 3 removes the confound found in head-to-head 2: the
   runner brief (`evals/h2h-3-brief.md`) no longer says that Node, Playwright
   or a browser is available, forbids installing or downloading anything and
