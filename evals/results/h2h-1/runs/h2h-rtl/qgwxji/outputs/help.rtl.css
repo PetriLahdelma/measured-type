@@ -1,0 +1,41 @@
+/* help.rtl.css: one stylesheet for both editions.
+   English: <html lang="en" dir="ltr">. Arabic: <html lang="ar" dir="rtl">.
+   Physical left/right are replaced with logical start/end, so the same
+   rules lay out correctly in either direction. */
+
+/* system-ui already resolves to the platform's Arabic UI face when the text
+   needs it; naming extra Arabic families here pulled in an older, smaller
+   face in testing, so the stack is left as is. Do not add letter-spacing or
+   text-transform: tracking breaks Arabic joining and the script has no case. */
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+.help { max-width: 36rem; }
+
+/* Breadcrumbs: the flex row follows the inline direction, so the trail runs
+   right to left in Arabic. The separator must point toward the next crumb.
+   It is isolated as left-to-right so no engine applies bidi mirroring to it,
+   and the glyph is chosen per direction instead. */
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
+.crumbs li + li::before {
+  content: "\203A"; /* single right-pointing angle quote */
+  direction: ltr; unicode-bidi: isolate;
+  margin-inline: 0.5em; color: #6b6b6b;
+}
+.crumbs li + li:dir(rtl)::before { content: "\2039"; } /* left-pointing */
+
+/* Title row: keep room for the badge at the end edge of the line. */
+.title { position: relative; }
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+.tag {
+  position: absolute; top: 0.25rem; inset-inline-end: 0;
+  font-size: 0.875rem; padding-inline: 0.5em;
+  border: 1px solid currentColor; border-radius: 1em;
+}
+
+/* List numbers and the note's rule sit on the start side in both directions. */
+.steps { padding-inline-start: 1.5rem; }
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin-block: 1.5rem; margin-inline: 0; }
+
+/* Arrows are not mirrored characters, so the glyph is swapped explicitly:
+   "Next" points toward the end of the line, which is the left in Arabic. */
+.next::after { content: " \2192"; }          /* rightwards arrow */
+.next:dir(rtl)::after { content: " \2190"; } /* leftwards arrow */

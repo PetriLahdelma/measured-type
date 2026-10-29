@@ -1,0 +1,50 @@
+{
+  "expectations": [
+    {
+      "text": "Rendered with the fixed stylesheet (page.fixed.html if present, otherwise page.html with page.fixed.css), the page does not scroll sideways at a 320px viewport",
+      "passed": true,
+      "evidence": "scrollWidth 320 in a 320px viewport"
+    },
+    {
+      "text": "Rendered with the fixed stylesheet, every text element has a contrast ratio of at least 4.5:1 against its background (3:1 for text 24px and up, or 18.66px bold and up)",
+      "passed": true,
+      "evidence": "all 27 text elements pass"
+    },
+    {
+      "text": "Rendered with the fixed stylesheet at a 1280px viewport, the body paragraphs (including .lead) average between 45 and 75 characters per full line",
+      "passed": true,
+      "evidence": "per paragraph 57.3, 75, 72.8, 67.5, 73; pooled 67.8"
+    },
+    {
+      "text": "Rendered with the fixed stylesheet, the h1 grows to at least 2 times its size on a 1280px window by 500% zoom (size at a 256px viewport times 5, against its size at 1280px)",
+      "passed": true,
+      "evidence": "h1 40px at 1280, 28px at 256: 3.50× by 500% zoom"
+    },
+    {
+      "text": "Rendered with the fixed stylesheet under the WCAG 1.4.12 text-spacing override (line-height 1.5, letter-spacing 0.12em, word-spacing 0.16em, paragraph spacing 2em), no text is clipped by an element with hidden overflow",
+      "passed": true,
+      "evidence": "nothing clipped"
+    },
+    {
+      "text": "Rendered with the fixed stylesheet, body paragraphs are not justified unless hyphens: auto is also set",
+      "passed": true,
+      "evidence": "0 justified paragraph(s) without hyphens: auto"
+    },
+    {
+      "text": "audit.md identifies that the page scrolls sideways at narrow widths or high zoom because of the table",
+      "passed": true,
+      "evidence": "audit names the table overflow at narrow widths or zoom"
+    },
+    {
+      "text": "audit.md identifies the low-contrast .meta text and gives a contrast figure for it",
+      "passed": true,
+      "evidence": "audit names .meta and a contrast ratio"
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1
+  }
+}

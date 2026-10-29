@@ -172,6 +172,54 @@ async function gradeFontLoading(browser, dir) {
 
 // ---------- h2h-rtl ----------
 
+// Which way the second breadcrumb separator points, read from rendered pixels:
+// a chevron's middle row reaches further toward its point than its ends do.
+async function separatorPoints(browser, file, rtl) {
+  const p = await browser.newPage({ viewport: { width: 900, height: 400 }, deviceScaleFactor: 4 });
+  await p.goto(pathToFileURL(file).href, { waitUntil: 'load' });
+  if (rtl) await p.evaluate(() => { document.documentElement.dir = 'rtl'; document.documentElement.lang = 'ar'; });
+  const box = await p.evaluate(() => {
+    const li = document.querySelectorAll('.crumbs li')[1];
+    const lr = li.getBoundingClientRect();
+    const range = document.createRange();
+    range.selectNodeContents(li);
+    const tr = range.getBoundingClientRect();
+    return lr.right - tr.right > tr.left - lr.left
+      ? { x: tr.right, y: lr.top, width: lr.right - tr.right, height: lr.height }
+      : { x: lr.left, y: lr.top, width: tr.left - lr.left, height: lr.height };
+  });
+  if (box.width < 1) { await p.close(); return 'missing'; }
+  const png = (await p.screenshot({ clip: box })).toString('base64');
+  const way = await p.evaluate(async (b64) => {
+    const img = new Image();
+    img.src = `data:image/png;base64,${b64}`;
+    await img.decode();
+    const c = document.createElement('canvas');
+    [c.width, c.height] = [img.width, img.height];
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    const d = g.getImageData(0, 0, c.width, c.height).data;
+    const rows = [];
+    for (let y = 0; y < c.height; y++) {
+      let lo = null;
+      let hi = null;
+      for (let x = 0; x < c.width; x++) {
+        const i = (y * c.width + x) * 4;
+        // grey ink only, so a neighbouring link's colour cannot leak in
+        if ((d[i] + d[i + 1] + d[i + 2]) / 3 < 180 && Math.abs(d[i] - d[i + 2]) < 40) { if (lo === null) lo = x; hi = x; }
+      }
+      if (lo !== null) rows.push({ lo, hi });
+    }
+    if (rows.length < 3) return 'missing';
+    const [top, mid, bot] = [rows[0], rows[Math.floor(rows.length / 2)], rows[rows.length - 1]];
+    if (mid.lo < (top.lo + bot.lo) / 2 - 2) return 'left';
+    if (mid.hi > (top.hi + bot.hi) / 2 + 2) return 'right';
+    return 'unclear';
+  }, png);
+  await p.close();
+  return way;
+}
+
 async function gradeRtl(browser, dir) {
   const file = path.join(dir, '__graded.html');
   if (!fs.existsSync(path.join(dir, 'help.rtl.css'))) return ASSERTIONS('h2h-rtl').map(() => [false, 'no help.rtl.css']);
@@ -207,9 +255,14 @@ async function gradeRtl(browser, dir) {
   const r = await probe(true);
   const l = await probe(false);
   const flip = (t) => /^matrix\(-1,/.test(t.replace(/\s/g, '')) || /scaleX\(-1\)/.test(t);
+  // Corrected after the h2h-1 runs: the frozen check read the ::before
+  // content, which failed outputs that isolate the separator as LTR and set
+  // U+2039 (they render correctly). The rendered pixels decide now.
+  const sepR = await separatorPoints(browser, file, true);
+  const sepL = await separatorPoints(browser, file, false);
   return [
     [r.listRightOffset > r.olPadLeft, `RTL: text ${r.listRightOffset.toFixed(1)}px from the right edge, left padding ${r.olPadLeft}px`],
-    [r.sepContent.includes('›') && !flip(r.sepTransform), `RTL separator ${r.sepContent}, transform ${r.sepTransform}`],
+    [sepR === 'left' && sepL === 'right', `separator renders pointing ${sepR} in RTL, ${sepL} in LTR (content ${r.sepContent}, transform ${r.sepTransform})`],
     [r.arrowContent.includes('←') || (r.arrowContent.includes('→') && flip(r.arrowTransform)), `RTL arrow ${r.arrowContent}, transform ${r.arrowTransform}`],
     [r.noteRight >= 3 && r.noteLeft < 1, `RTL note border left ${r.noteLeft}px, right ${r.noteRight}px`],
     [r.tagLeftGap <= 2, `RTL tag ${r.tagLeftGap.toFixed(1)}px from the title's left edge`],

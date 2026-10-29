@@ -1,0 +1,153 @@
+/* Release notes: corrected type settings.
+   Sizes are in rem so the reader's default font size and browser zoom both apply.
+   Verdana is kept: it is a system face (no download), very legible on screen,
+   with a large x-height and wide letters, so it gets generous leading and a
+   measure set in characters it actually produces, not in raw ch. */
+
+:root {
+  --font-text: Verdana, Geneva, "DejaVu Sans", "Bitstream Vera Sans", sans-serif;
+
+  /* Type scale: body 16px, roughly a 1.25 to 1.33 step between levels. */
+  --text-small: 0.875rem;                                    /* 14px meta line */
+  --text-base: 1rem;                                         /* 16px body, reads large in Verdana */
+  --text-lead: clamp(1.125rem, 1.05rem + 0.3vw, 1.25rem);    /* 18 to 20px */
+  --text-h2: clamp(1.375rem, 1.25rem + 0.6vw, 1.75rem);      /* 22 to 28px */
+  --text-h1: clamp(1.875rem, 1.45rem + 1.8vw, 2.75rem);      /* 30 to 44px */
+
+  --leading-body: 1.6;
+  --leading-lead: 1.5;
+  --leading-heading: 1.2;
+
+  /* Verdana's "0" is narrower than its average character plus word space,
+     so 75ch gave about 92 characters a line. 34em lands near 66. */
+  --measure: 34em;
+
+  --color-text: #222;
+  --color-muted: #595959;      /* 7.0:1 on white */
+  --color-rule: #d0d0d0;
+  --color-surface: #f3f3f3;
+  --color-accent-edge: #222;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  color: var(--color-text);
+  background: #fff;
+  overflow-wrap: break-word;
+}
+
+.content {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding: clamp(1.5rem, 1rem + 2vw, 3rem) clamp(1rem, 4vw, 1.5rem) 3rem;
+}
+
+h1,
+h2 {
+  line-height: var(--leading-heading);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--text-h1);
+  margin: 0 0 0.5em;
+}
+
+h2 {
+  font-size: var(--text-h2);
+  /* More space above than below so each heading binds to its own section. */
+  margin: 1.75em 0 0.5em;
+}
+
+p {
+  margin: 0 0 1em;
+  text-align: start;
+  text-wrap: pretty;
+}
+
+.lead {
+  font-size: var(--text-lead);
+  line-height: var(--leading-lead);
+  margin-bottom: 0.75em;
+}
+
+.meta {
+  font-size: var(--text-small);
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.callout {
+  margin: 0 0 1em;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border-inline-start: 4px solid var(--color-accent-edge);
+}
+
+.callout > :last-child {
+  margin-bottom: 0;
+}
+
+/* Table title sits outside the scroll box so it never scrolls out of view. */
+.table-title {
+  font-weight: bold;
+  margin: 1.5em 0 0.5em;
+}
+
+/* Wide tables scroll inside their own box instead of pushing the page sideways. */
+.table-scroll {
+  margin: 0 0 1.5em;
+  overflow-x: auto;
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+
+table {
+  border-collapse: collapse;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Measurements are right-aligned so digits and units line up down a column. */
+th,
+td {
+  padding: 0.4em 0 0.4em 1.5em;
+  text-align: end;
+  vertical-align: bottom;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+/* Row labels and the Format head read left to right like text. */
+th[scope="row"],
+th[rowspan] {
+  text-align: start;
+  padding-inline-start: 0;
+}
+
+tbody th {
+  font-weight: normal;
+}
+
+/* Group heads span their two columns; the rule under each stops short of the
+   gutter so "Average size" and "Export time" read as separate groups. */
+th[scope="colgroup"] {
+  text-align: center;
+  border-bottom: 0;
+  background: linear-gradient(var(--color-rule), var(--color-rule)) no-repeat right bottom / calc(100% - 1.5em) 1px;
+}
+
+thead tr:last-child th,
+th[rowspan] {
+  border-bottom: 2px solid var(--color-text);
+}

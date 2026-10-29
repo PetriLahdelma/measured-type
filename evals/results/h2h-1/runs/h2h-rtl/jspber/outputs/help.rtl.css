@@ -1,0 +1,66 @@
+/* help.rtl.css: drop-in replacement for help.css.
+   Renders the English page (<html lang="en" dir="ltr">) exactly as before and
+   mirrors correctly for <html lang="ar" dir="rtl">. Physical left/right have
+   become logical inline-start/inline-end, so the layout follows the document
+   direction instead of being wired to LTR. */
+
+/* The font stack is unchanged on purpose: system-ui already resolves to the
+   platform's Arabic UI face when lang="ar". Naming Arabic fonts here made the
+   browser pick an older face instead. No letter-spacing or text-transform
+   anywhere: Arabic letters join, and tracking breaks the joins. The 1.6 line
+   height leaves room for Arabic marks above and below the letters. */
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+
+/* With zero margins, the box sits against the start edge in either direction. */
+.help { max-width: 36rem; }
+
+/* Flex rows follow the inline direction, so the trail runs right to left in
+   RTL with no extra rule. Symmetric margins need no logical form. */
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
+.crumbs li + li::before { content: "›"; margin: 0 0.5em; color: #6b6b6b; }
+
+/* In RTL the separator has to point left, toward the next, deeper level.
+   Angle-quote characters cannot be trusted for this: they are mirrored by the
+   bidi algorithm, and next to Arabic text some platforms substitute a glyph
+   from a fallback font, so the same character pointed opposite ways
+   depending on font and neighbouring script. A chevron drawn with borders
+   points the same way everywhere and inherits the separator colour. It is
+   decorative, so screen readers no longer announce a stray character. */
+[dir="rtl"] .crumbs li + li::before {
+  content: "";
+  display: inline-block;
+  width: 0.32em;
+  height: 0.32em;
+  border: solid currentColor;
+  border-width: 0 0 0.125em 0.125em;  /* bottom + left, rotated 45deg = "<" */
+  transform: rotate(45deg);
+  vertical-align: 0.12em;
+  margin: 0 0.6em;
+}
+
+.title { position: relative; }
+
+/* start = left in English, right in Arabic. The space reserved for the badge
+   moves to the end side, where the badge now sits. */
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+
+.tag {
+  position: absolute;
+  top: 0.25rem;
+  inset-inline-end: 0;
+  font-size: 0.875rem;
+  padding: 0 0.5em;
+  border: 1px solid currentColor;
+  border-radius: 1em;
+}
+
+/* List numbers sit on the start side; their indent has to follow them. */
+.steps { padding-inline-start: 1.5rem; }
+
+/* The rule marks the edge where reading begins: left in English, right in Arabic. */
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin: 1.5rem 0; }
+
+/* "→" is not a mirrored character, so in RTL it would keep pointing right,
+   which there means "back". Arabic gets a left-pointing arrow. */
+.next::after { content: " →"; }
+[dir="rtl"] .next::after { content: " ←"; }

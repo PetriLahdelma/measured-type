@@ -1,0 +1,110 @@
+/* Body: keep Verdana (tall x-height, built for screens) at the original 15 px,
+   expressed in rem so a reader's default font-size preference still applies.
+   Unitless line-height so every element gets leading relative to its own size. */
+body {
+  margin: 0;
+  font-family: Verdana, "DejaVu Sans", sans-serif;
+  font-size: 0.9375rem;            /* 15px at the default 16px root */
+  line-height: 1.45;
+  color: #222;
+  background: #fff;
+}
+
+/* Measure: 37em of Verdana renders about 65-72 characters per line. */
+.content {
+  max-width: 37em;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+@media (min-width: 40em) {
+  .content { padding-inline: 1.5rem; }
+}
+
+/* Headings: bounded size that still grows with zoom (rem term), always
+   larger than h2, tight leading for display lines, more space above than below. */
+h1 {
+  font-size: clamp(1.75rem, 1.3rem + 2vw, 2.25rem);
+  line-height: 1.15;
+  margin: 2.5rem 0 1rem;
+  text-wrap: balance;
+}
+h2 {
+  font-size: 1.375rem;
+  line-height: 1.25;
+  margin: 2.25rem 0 0.5rem;
+  text-wrap: balance;
+}
+
+/* Paragraphs: flush left, ragged right; space between, no indent. */
+p {
+  margin: 0 0 1em;
+  text-align: start;
+}
+
+/* Lead stays inside the text column; its own size gets its own leading. */
+.lead {
+  font-size: 1.125rem;
+  line-height: 1.45;
+}
+
+/* Meta: smaller but still readable, and at 7:1 contrast instead of 3.4:1. */
+.meta {
+  font-size: 0.875rem;
+  color: #595959;
+}
+
+/* Callout: grows with its content (no fixed height, no clipping).
+   A left rule keeps it distinguishable when the pale tint is lost. */
+.callout {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  background: #f3f3f3;
+  border-left: 3px solid #767676;
+}
+.callout p:last-child { margin-bottom: 0; }
+
+/* Table: scrolls inside its own region on narrow screens instead of
+   widening the whole page. */
+.table-scroll {
+  margin: 1rem 0 1.5rem;
+  overflow-x: auto;
+}
+.table-scroll:focus-visible {
+  outline: 2px solid #1a5fb4;
+  outline-offset: 2px;
+}
+table {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+caption {
+  caption-side: top;
+  text-align: left;
+  font-weight: bold;
+  padding-bottom: 0.5rem;
+}
+th, td {
+  padding: 0.375rem 0.75rem;
+  border-bottom: 1px solid #ddd;
+  vertical-align: bottom;
+}
+th { text-align: left; }
+thead th { border-bottom-color: #999; }
+thead th[scope="colgroup"] { text-align: center; }
+thead tr + tr th,
+td {
+  text-align: right;               /* quantities line up on the units digit */
+}
+td { white-space: nowrap; }
+tbody th { font-weight: normal; }
+/* Outer columns sit on the text edges. */
+tr > :first-child { padding-left: 0; }
+tr > :last-child { padding-right: 0; }
+/* Phones: tighter cells and slightly smaller table type so all five
+   columns fit a 320px screen; the scroll region remains as a fallback. */
+@media (max-width: 30em) {
+  table { font-size: 0.8125rem; }
+  th, td { padding-inline: 0.5rem; }
+}

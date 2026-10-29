@@ -1,0 +1,42 @@
+/* One stylesheet for both directions. Every side-specific value is written
+   with logical properties, so it follows the dir attribute on <html>.
+   With dir="ltr" the page renders exactly as help.css did. */
+
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+
+/* Arabic letterforms are taller and carry marks above and below the line;
+   give them more leading than Latin. */
+:lang(ar) body,
+body:lang(ar) { line-height: 1.8; }
+
+.help { max-width: 36rem; }
+
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
+/* The separator is a bidi-mirrored character, so how it renders in RTL
+   depends on the engine mirroring it. Isolate it as a left-to-right run so it
+   is never mirrored, then choose the glyph that points along the reading
+   direction explicitly. */
+.crumbs li + li::before { content: "›"; margin-inline: 0.5em; color: #6b6b6b; unicode-bidi: isolate; direction: ltr; }
+[dir="rtl"] .crumbs li + li::before { content: "‹"; }
+
+.title { position: relative; }
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+.tag {
+  position: absolute;
+  inset-block-start: 0.25rem;
+  inset-inline-end: 0;
+  font-size: 0.875rem;
+  padding: 0 0.5em;
+  border: 1px solid currentColor;
+  border-radius: 1em;
+  white-space: nowrap;
+}
+
+.steps { padding-inline-start: 1.5rem; }
+
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin: 1.5rem 0; }
+
+/* Arrows are not bidi-mirrored, so the RTL edition swaps the glyph. The
+   no-break space keeps the arrow on the same line as the last word. */
+.next::after { content: "\00a0→"; }
+[dir="rtl"] .next::after { content: "\00a0←"; }

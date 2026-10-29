@@ -1,0 +1,29 @@
+/* help.rtl.css: one stylesheet for both editions.
+   Every horizontal value is a logical property (start/end), so it follows
+   the document's dir. With dir="ltr" it computes to exactly what help.css did. */
+
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+.help { max-width: 36rem; }
+
+/* Flex rows already follow dir, so the breadcrumb order reverses on its own.
+   The "›" separator is a bidi-mirrored character: it renders as "‹" in RTL. */
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
+.crumbs li + li::before { content: "›"; margin-inline: 0.5em; color: #6b6b6b; }
+
+/* Title: the reserved gap and the badge move to the end side. */
+.title { position: relative; }
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+.tag { position: absolute; top: 0.25rem; inset-inline-end: 0; font-size: 0.875rem; padding: 0 0.5em; border: 1px solid currentColor; border-radius: 1em; white-space: nowrap; }
+
+/* List markers and the note's rule sit on the start side. */
+.steps { padding-inline-start: 1.5rem; }
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin: 1.5rem 0; }
+
+/* "→" is not mirrored by the bidi algorithm, so RTL needs its own glyph.
+   The no-break space keeps the arrow on the same line as the last word. */
+.next::after { content: "\00A0→"; }
+[dir="rtl"] .next::after { content: "\00A0←"; }
+
+/* Arabic is a joining script: any tracking breaks the connections between
+   letters, so keep it at zero even if a later rule adds letter-spacing. */
+:lang(ar) { letter-spacing: 0; }

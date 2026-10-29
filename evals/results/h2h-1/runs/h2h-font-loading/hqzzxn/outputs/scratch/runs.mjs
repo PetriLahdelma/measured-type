@@ -1,0 +1,21 @@
+// Width of each style run (h1 bold, em italic, whole paragraphs laid out on one line) fallback vs web.
+import { createRequire } from 'node:module';
+import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
+import { gen } from './sweep.mjs';
+const require = createRequire(import.meta.url); const { chromium } = require('playwright');
+const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const p = JSON.parse(process.argv[2]);
+const css = gen(p) + '\n.prose * { white-space: nowrap; }\n.prose { max-inline-size: none !important; }';
+let block = false;
+const server = http.createServer((req, res) => { const u = new URL(req.url, 'http://x').pathname; if (u === '/fonts.css') { res.writeHead(200, { 'content-type': 'text/css' }); return res.end(css); } if (u.endsWith('.ttf') && block) { res.writeHead(404); return res.end(); } fs.readFile(path.join(ROOT, decodeURIComponent(u)), (e, b) => { if (e) { res.writeHead(404); return res.end(); } res.writeHead(200, { 'content-type': u.endsWith('.html') ? 'text/html' : u.endsWith('.ttf') ? 'font/ttf' : 'text/css' }); res.end(b); }); });
+await new Promise(r => server.listen(0, r)); const url = `http://127.0.0.1:${server.address().port}/article.html`;
+const b = await chromium.launch(); const pg = await b.newPage({ viewport: { width: 1200, height: 800 } });
+const m = () => { const w = el => { const r = document.createRange(); r.selectNodeContents(el); return r.getBoundingClientRect().width; }; const ps = [...document.querySelectorAll('article p')]; return { h1: w(document.querySelector('h1')), em: w(document.querySelector('em')), ps: ps.map(w), h1H: document.querySelector('h1').getBoundingClientRect().height, pH: ps[0].getBoundingClientRect().height, base: (() => { const p = ps[0]; const s = document.createElement('span'); s.textContent = 'x'; p.prepend(s); const t = s.getBoundingClientRect().top - p.getBoundingClientRect().top; const r = document.createRange(); r.selectNodeContents(s); const rr = r.getBoundingClientRect(); s.remove(); return [t, rr.top - p.getBoundingClientRect().top, rr.height]; })() }; };
+block = true; await pg.goto(url); await pg.evaluate(() => document.fonts.ready); const f = await pg.evaluate(m);
+block = false; await pg.goto(url + '?w'); await pg.evaluate(() => document.fonts.ready); const w = await pg.evaluate(m);
+const pct = (a, c) => ((a / c - 1) * 100).toFixed(2) + '%';
+console.log('h1 bold   fallback', f.h1.toFixed(1), 'web', w.h1.toFixed(1), 'fallback vs web', pct(f.h1, w.h1));
+console.log('em italic fallback', f.em.toFixed(1), 'web', w.em.toFixed(1), pct(f.em, w.em));
+f.ps.forEach((x, i) => console.log(`p${i} regular fallback`, x.toFixed(1), 'web', w.ps[i].toFixed(1), pct(x, w.ps[i])));
+console.log('heights h1/p', f.h1H, w.h1H, f.pH, w.pH, 'content-area top/height fallback', f.base, 'web', w.base);
+await b.close(); server.close();

@@ -1,0 +1,91 @@
+/*
+ * Article typography: self-hosted Source Serif 4, Georgia fallback.
+ *
+ * No jump, by construction: font-display is "optional". The browser waits
+ * at most ~100ms for Source Serif 4; if it is not ready by then, the page
+ * renders in Georgia and stays in Georgia for that view, so nothing reflows
+ * under the reader. The file still downloads and is cached, so the next
+ * page view renders in Source Serif 4 from the first paint.
+ *
+ * Why not "swap" plus a metric-matched fallback? That was measured first:
+ * with the best global size-adjust, the late swap still re-wrapped lines at
+ * 10 of 71 viewport widths tested from 300 to 1000px (twice adding a whole
+ * line, a 28px shift), because Georgia and Source Serif 4 differ in
+ * per-letter proportions, which no single scale factor can cancel. Plain
+ * Georgia with swap reflowed at every width tested.
+ *
+ * Georgia is still metric-matched, through local "Source Serif 4 Fallback"
+ * faces, so the Georgia view and the Source Serif 4 view occupy the same
+ * room (same line lengths, line heights and baselines, within a few px of
+ * line length). That keeps first and repeat visits alike, and keeps the
+ * page settled if this is ever switched to font-display: swap.
+ *
+ * Source Serif 4 has an optical-size axis and the browser picks opsz from
+ * the rendered size, so its width relative to Georgia changes with size.
+ * Each fallback face is tuned for the size it stands in for on this page:
+ * regular 400 at 18px (paragraphs), italic 400 at 18px (emphasis),
+ * bold 700 at 36px (the h1). size-adjust is the measured width ratio on
+ * the article's own text in Chromium. Vertical overrides come from
+ * Source Serif 4's metrics (ascent 1036, descent 335, line gap 0, per
+ * 1000 units) divided by each face's size-adjust, so they land on the same
+ * em after scaling.
+ */
+
+/* Web font: variable files, one per style, covering the whole weight axis. */
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4%5Bopsz%2Cwght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic%5Bopsz%2Cwght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: optional;
+}
+
+/* Metric-matched Georgia, shown until the web font is ready. */
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia"), local("Georgia-Regular");
+  font-weight: 400;
+  font-style: normal;
+  size-adjust: 102.85%;
+  ascent-override: 100.73%;
+  descent-override: 32.57%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-weight: 400;
+  font-style: italic;
+  size-adjust: 93.12%;
+  ascent-override: 111.25%;
+  descent-override: 35.97%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-weight: 700;
+  font-style: normal;
+  size-adjust: 86.03%;
+  ascent-override: 120.43%;
+  descent-override: 38.94%;
+  line-gap-override: 0%;
+}
+
+.prose {
+  font-family: "Source Serif 4", "Source Serif 4 Fallback", Georgia, serif;
+  font-optical-sizing: auto;
+  /* Never fake bold or italic: real faces exist for every style used here,
+     and a synthesized style would have different widths from the real one. */
+  font-synthesis: none;
+}

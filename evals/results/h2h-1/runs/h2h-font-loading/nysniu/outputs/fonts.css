@@ -1,0 +1,170 @@
+/* Source Serif 4, self-hosted, for the article text.
+
+   Loading strategy, two layers:
+
+   1. font-display: optional. The browser waits at most about 100ms for the
+      file; if it is not there by then, the page keeps Georgia for this view
+      and Source Serif 4 is used from the cache on the next one. The font is
+      never swapped in under a reader who has started reading, so the page
+      cannot jump. (The roman file is about 1.2 MB, so on a first visit over
+      a phone connection it would otherwise land seconds into the read.)
+
+   2. Georgia is resized to take up the same room as Source Serif 4 (the
+      "Fallback" families below), so a reader who gets Georgia on a first
+      visit and Source Serif 4 on the next sees the same line lengths and
+      paragraph heights. Measured in Chromium and WebKit against this
+      article at every text width from 288px to 576px: plain Georgia
+      changes a paragraph's line count at 41% of widths; the matched
+      Georgia at 4.5%, and moves no paragraph at 320, 414, 768 or 1280px
+      viewports. A uniform resize cannot reach zero, because Georgia's
+      individual letters are not in the same proportions as Source Serif's,
+      which is why the swap itself is switched off in step 1.
+
+   If showing Source Serif 4 on the very first visit matters more than a
+   guaranteed still page, change both "optional" values to "swap": the text
+   still shows at once and, thanks to step 2, the swap reflows at most one
+   line at a small share of widths instead of most of the page.
+
+   Both files are variable fonts (wght 200-900, opsz 8-60). One file covers
+   every weight of the roman, the other every weight of the italic. The opsz
+   axis follows the font size automatically (font-optical-sizing: auto). */
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: optional;
+}
+
+/* Metric-matched Georgia.
+
+   size-adjust: the ratio of the advance width of this article's own copy in
+   Source Serif 4 to the same copy in Georgia, measured in Chromium for each
+   style at the size it is used. Because the web font's optical size changes
+   its widths, body text (18px, opsz 18) and the heading (36px, opsz 36) get
+   separate families.
+
+   ascent/descent/line-gap overrides: Source Serif 4's line box (ascender
+   1.036em, descender 0.335em, no line gap) divided by size-adjust, so the
+   baseline sits in the same place in both fonts. Safari honours size-adjust
+   but not these three overrides; with the unitless line-height the article
+   already sets, that moves glyphs within the line by a fraction of a pixel
+   and does not change the layout.
+
+   Every style has its own face pointing at Georgia's real bold and italic,
+   so nothing is synthesised while the web font is loading. Weight ranges
+   make 500 and below pick Georgia Regular and 600 and above Georgia Bold,
+   the same way the variable font would be read at those weights. */
+
+/* Body text: calibrated at 18px. */
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia"), local("Georgia-Regular");
+  font-weight: 200 500;
+  font-style: normal;
+  size-adjust: 102.85%;
+  ascent-override: 100.73%;
+  descent-override: 32.57%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-weight: 200 500;
+  font-style: italic;
+  size-adjust: 93.26%;
+  ascent-override: 111.09%;
+  descent-override: 35.92%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-weight: 600 900;
+  font-style: normal;
+  size-adjust: 91.04%;
+  ascent-override: 113.8%;
+  descent-override: 36.8%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold Italic"), local("Georgia-BoldItalic");
+  font-weight: 600 900;
+  font-style: italic;
+  size-adjust: 86.1%;
+  ascent-override: 120.33%;
+  descent-override: 38.91%;
+  line-gap-override: 0%;
+}
+
+/* Heading: calibrated at 36px (the h1 is 2em of the 18px article text). */
+@font-face {
+  font-family: "Source Serif 4 Heading Fallback";
+  src: local("Georgia"), local("Georgia-Regular");
+  font-weight: 200 500;
+  font-style: normal;
+  size-adjust: 96.94%;
+  ascent-override: 106.87%;
+  descent-override: 34.56%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Heading Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-weight: 200 500;
+  font-style: italic;
+  size-adjust: 88.76%;
+  ascent-override: 116.72%;
+  descent-override: 37.74%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Heading Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-weight: 600 900;
+  font-style: normal;
+  size-adjust: 86.07%;
+  ascent-override: 120.37%;
+  descent-override: 38.92%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Heading Fallback";
+  src: local("Georgia Bold Italic"), local("Georgia-BoldItalic");
+  font-weight: 600 900;
+  font-style: italic;
+  size-adjust: 81.41%;
+  ascent-override: 127.26%;
+  descent-override: 41.15%;
+  line-gap-override: 0%;
+}
+
+/* The article. Plain Georgia and the generic serif stay at the end of the
+   stack for systems without Georgia; there the swap can still reflow. */
+.prose {
+  font-family: "Source Serif 4", "Source Serif 4 Fallback", Georgia, serif;
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  /* Never fake small caps by shrinking capitals. */
+  font-synthesis-small-caps: none;
+}
+
+.prose h1 {
+  font-family: "Source Serif 4", "Source Serif 4 Heading Fallback", Georgia, serif;
+}

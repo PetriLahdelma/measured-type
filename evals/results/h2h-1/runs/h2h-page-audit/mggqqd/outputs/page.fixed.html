@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Release notes 4.2</title>
+<link rel="stylesheet" href="page.fixed.css">
+</head>
+<body>
+<main class="content">
+<h1>Release notes 4.2</h1>
+<p class="lead">This release changes how projects are stored, how exports are named and how the command line reports progress. Read the migration section before you update a shared workspace, because older clients cannot open projects saved by this version.</p>
+<p class="meta">Published 29 October 2026 by the platform team. Applies to the desktop app, the command line and the web editor.</p>
+<h2>Storage</h2>
+<p>Projects are now saved as a single bundle instead of a folder of loose files. Bundles open faster, sync more reliably and can be moved between machines without losing their history. Existing projects are converted the first time they are opened, and a backup of the original folder is kept next to the new bundle for thirty days.</p>
+<div class="callout" role="note"><p><strong>Older clients cannot open converted projects.</strong> Update every machine that shares a workspace before anyone opens a project in version 4.2, or keep a copy of the folder until everyone has updated.</p></div>
+<h2 id="exports">Exports</h2>
+<p>Export names now include the project name, the date and a short revision code, so files from different projects no longer overwrite each other in a shared downloads folder. The previous naming scheme is still available in the export settings for teams that depend on it.</p>
+<div class="table-scroll" role="region" aria-labelledby="exports" tabindex="0">
+<table>
+<thead><tr><th scope="col">Format</th><th scope="col">Average size before</th><th scope="col">Average size after</th><th scope="col">Export time before</th><th scope="col">Export time after</th></tr></thead>
+<tbody>
+<tr><td>PDF</td><td>4.8 MB</td><td>3.1 MB</td><td>12 seconds</td><td>7 seconds</td></tr>
+<tr><td>PNG sequence</td><td>220 MB</td><td>180 MB</td><td>95 seconds</td><td>61 seconds</td></tr>
+</tbody>
+</table>
+</div>
+</main>
+</body>
+</html>

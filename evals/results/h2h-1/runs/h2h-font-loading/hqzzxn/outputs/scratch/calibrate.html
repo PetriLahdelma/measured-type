@@ -1,0 +1,12 @@
+<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="../fonts.css">
+<style>body{margin:0} .prose div,.prose h1{white-space:nowrap;margin:0;line-height:normal} .t{font-size:18px} .h{font-size:36px}</style>
+<div class="prose" id="root"></div>
+<script>
+const src = `Most of what we read on screens is read in passing. Long reading is different in kind, not only in length: it asks the reader to hold a thread across pages and to trust that the page will not shift under the eye. A layout that jumps when its fonts arrive breaks that trust at the very first line. The fix is not to hide the text until the font has loaded, which leaves readers looking at a blank page on slow connections.`;
+const root = document.getElementById('root');
+for (const role of ['t','h']) for (const [style, weight] of [['normal',400],['italic',400],['normal',700],['italic',700]]) {
+  const el = document.createElement(role === 'h' ? 'h1' : 'div');
+  el.className = role; el.style.fontStyle = style; el.style.fontWeight = weight; el.textContent = role === 'h' ? src.slice(0, 160) : src;
+  el.dataset.k = `${role === 'h' ? 'heading 36px' : 'text 18px'} ${style} ${weight}`; root.append(el);
+}
+</script>

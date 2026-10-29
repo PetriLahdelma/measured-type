@@ -1,0 +1,136 @@
+/* Release notes 4.2: corrected typography.
+   All sizes in rem/em so the page follows the reader's font-size setting and zoom.
+   Line heights are unitless so every element gets leading in proportion to its own size. */
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  /* DejaVu Sans / Bitstream Vera are the closest metric relatives of Verdana on systems without it */
+  font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+  font-size: 0.9375rem;      /* 15px at the default 16px root; Verdana's large x-height reads big */
+  line-height: 1.55;         /* wide, open face: a little more leading than the old 22px (1.47) */
+  color: #222;
+  background: #fff;
+}
+
+/* Measure: about 60 Verdana "0" widths keeps running text near 65 to 70 characters a line */
+.content {
+  max-width: 60ch;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+
+/* Paragraphs: ragged right, no justification (no word-spacing rivers on narrow screens) */
+p {
+  margin: 0 0 1em;
+  text-align: start;
+}
+
+/* Headings: bounded fluid size, own leading, balanced breaks */
+h1,
+h2 {
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+h1 {
+  /* 28px on a phone, up to 40px on wide screens; the rem term keeps it zoomable */
+  font-size: clamp(1.75rem, 1.25rem + 1.6vw, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;   /* Verdana is spaced for small text; tighten slightly at display size */
+  margin: 2.5rem 0 0.75rem;
+}
+
+h2 {
+  font-size: 1.375rem;       /* 22px */
+  line-height: 1.25;
+  margin: 2.25rem 0 0.5rem;  /* more space above than below: the heading belongs to what follows */
+}
+
+/* Lead: same column as the body, larger size, proportional leading */
+.lead {
+  font-size: 1.125rem;       /* 18px */
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+/* Meta: secondary, but readable. #5f5f5f on #fff is about 6.4:1 */
+.meta {
+  font-size: 0.875rem;       /* 14px */
+  line-height: 1.5;
+  color: #5f5f5f;
+}
+
+/* Callout: grows with its text; nothing is clipped */
+.callout {
+  background: #f3f3f3;
+  border-left: 0.25rem solid #5f5f5f;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1em;
+}
+
+.callout > :last-child {
+  margin-bottom: 0;
+}
+
+/* Table: scrolls inside its own box on narrow screens instead of widening the page */
+.table-wrap {
+  overflow-x: auto;
+  margin: 0;
+}
+
+.table-wrap:focus-visible {
+  outline: 2px solid #222;
+  outline-offset: 2px;
+}
+
+table {
+  border-collapse: collapse;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.table-title {
+  font-weight: 700;
+  margin: 1.5rem 0 0.25rem;
+}
+
+th,
+td {
+  padding: 0.375rem 1rem 0.375rem 0;
+  border-bottom: 1px solid #ddd;
+  vertical-align: bottom;
+  text-align: start;
+}
+
+th:last-child,
+td:last-child {
+  padding-right: 0;
+}
+
+thead th {
+  border-bottom-color: #222;
+}
+
+/* Column-group headings sit centred over the pair they span */
+thead tr:first-child th[colspan] {
+  text-align: center;
+  padding-right: 0;
+  padding-left: 1rem;
+}
+
+/* Figures: right-aligned so units and digits line up down each column */
+td,
+thead tr:nth-child(2) th {
+  text-align: end;
+  white-space: nowrap;
+  padding-left: 1rem;
+}
+
+tbody th {
+  font-weight: 400;
+}

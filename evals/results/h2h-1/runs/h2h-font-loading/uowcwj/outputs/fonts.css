@@ -1,0 +1,107 @@
+/*
+ * Article typography: self-hosted Source Serif 4 with a Georgia fallback
+ * that is tuned to occupy the same space, so the page does not move when
+ * the web font replaces it.
+ *
+ * How the "no jump" works
+ * -----------------------
+ * 1. font-display: swap paints the text immediately in the fallback
+ *    (no invisible text), then swaps in Source Serif 4 when it arrives.
+ * 2. The fallback is not plain Georgia. It is a local Georgia face with
+ *    size-adjust, so its words are as wide as Source Serif 4's words and
+ *    lines wrap at the same places, and with ascent/descent/line-gap
+ *    overrides, so each line's baseline sits where Source Serif 4's will.
+ *
+ * Where the numbers come from
+ * ---------------------------
+ * size-adjust = width of this article's own text set in Source Serif 4
+ *               divided by its width in Georgia, measured in Chromium at
+ *               the size, weight and style each face is used at here
+ *               (body 18px regular and italic, h1 36px bold). Source
+ *               Serif 4 has an optical-size axis, so its widths change with
+ *               font size; the bold face is matched at the h1 size because
+ *               the h1 is the only bold text in the article.
+ *                 regular 18px: 5777.95 / 5617.88 = 1.0285
+ *                 italic  18px: 5334.55 / 5720.11 = 0.9326
+ *                 bold    36px: 11243.55 / 13063.02 = 0.8607
+ * ascent/descent/line-gap overrides = Source Serif 4's own vertical
+ *               metrics (hhea and typo: ascender 1036, descender -335,
+ *               line gap 0, 1000 units per em) divided by that face's
+ *               size-adjust, because size-adjust scales the overrides too.
+ *
+ * Checked in Chromium (scripts in _check/): with the web font held back
+ * for 800ms and then swapped in, cumulative layout shift is 0 at 320-1440px
+ * viewports. Sweeping the column from 260px to 576px, the tuned fallback
+ * wraps a block differently from Source Serif 4 at 14 of 317 widths (one
+ * line, last paragraph), against 131 of 317 for plain Georgia; mean height
+ * change 1.5px against 16.5px.
+ *
+ * Re-measure these if the article's sizes change, or if another weight or
+ * style starts being used.
+ */
+
+/* ---------- Web font: Source Serif 4 (variable: wght 200-900, opsz 8-60) ---------- */
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4[opsz,wght].ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic[opsz,wght].ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---------- Metric-matched fallback: local Georgia ---------- */
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia"), local("Georgia Regular");
+  font-weight: 400;
+  font-style: normal;
+  size-adjust: 102.85%;
+  ascent-override: 100.73%;  /* 103.6% / 1.0285 */
+  descent-override: 32.57%;  /*  33.5% / 1.0285 */
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-weight: 400;
+  font-style: italic;
+  size-adjust: 93.26%;
+  ascent-override: 111.09%;  /* 103.6% / 0.9326 */
+  descent-override: 35.92%;  /*  33.5% / 0.9326 */
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-weight: 700;
+  font-style: normal;
+  size-adjust: 86.07%;
+  ascent-override: 120.37%;  /* 103.6% / 0.8607 */
+  descent-override: 38.92%;  /*  33.5% / 0.8607 */
+  line-gap-override: 0%;
+}
+
+/* ---------- Apply to the article ---------- */
+
+.prose {
+  /* Plain Georgia and serif stay in the stack for browsers that ignore
+     the metric overrides or have no local Georgia. */
+  font-family: "Source Serif 4", "Source Serif 4 Fallback", Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+.prose h1 {
+  font-weight: 700;
+}

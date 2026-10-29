@@ -1,0 +1,19 @@
+<!doctype html><html dir="rtl" lang="ar"><meta charset="utf-8">
+<style>
+body{font:32px/1.6 system-ui,sans-serif;margin:10px}
+ol{list-style:none;margin:0;padding:0;display:flex}
+li+li::before{margin:0 .5em}
+.r1 li+li::before{content:"\2039"}
+.r2 li+li::before{content:"\2039";color:#6b6b6b}
+.r3 li+li::before{content:"\203A";color:#6b6b6b}
+.r4 li+li::before{content:"\2039";unicode-bidi:isolate;direction:ltr}
+.r5 li+li::before{content:"\203A";unicode-bidi:isolate;direction:ltr}
+.r6 li+li::before{content:"\2039";font-family:Helvetica}
+</style>
+<ol class="r1"><li><a href="#">مساعدة</a></li><li><a href="#">المشاريع</a></li><li>r1 ‹</li></ol>
+<ol class="r2"><li><a href="#">مساعدة</a></li><li><a href="#">المشاريع</a></li><li>r2 ‹ grey</li></ol>
+<ol class="r3"><li><a href="#">مساعدة</a></li><li><a href="#">المشاريع</a></li><li>r3 › grey</li></ol>
+<ol class="r4"><li><a href="#">مساعدة</a></li><li><a href="#">المشاريع</a></li><li>r4 ‹ iso</li></ol>
+<ol class="r5"><li><a href="#">مساعدة</a></li><li><a href="#">المشاريع</a></li><li>r5 › iso</li></ol>
+<ol class="r6"><li><a href="#">مساعدة</a></li><li><a href="#">المشاريع</a></li><li>r6 ‹ helv</li></ol>
+</html>

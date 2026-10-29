@@ -1,0 +1,94 @@
+/*
+ * help.rtl.css: one stylesheet for both editions of help.html.
+ * English (dir="ltr" lang="en") renders exactly as with help.css.
+ * Arabic (dir="rtl" lang="ar") mirrors because every side-specific
+ * property is written as a logical (start/end) property.
+ */
+
+body {
+  margin: 0;
+  padding: 1.5rem;
+  font: 1rem/1.6 system-ui, sans-serif;
+  color: #1f1f1d;
+}
+
+.help { max-width: 36rem; }
+
+/* Flex rows follow the inline direction, so the trail reverses on its own. */
+.crumbs ol {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* The separator must point along the reading direction. Browsers do not
+   reliably mirror a lone chevron in generated content (Chromium draws "›"
+   unmirrored here), so swap the character explicitly. The margins are
+   symmetric, so nothing else needs flipping. */
+.crumbs li + li::before {
+  content: "›";
+  margin: 0 0.5em;
+  color: #6b6b6b;
+}
+[dir="rtl"] .crumbs li + li::before { content: "‹"; }
+
+.title { position: relative; }
+
+.title h2 {
+  text-align: start;               /* was: left */
+  margin: 0 0 1rem;
+  padding-inline-end: 4rem;        /* was: padding-right; room for the tag */
+}
+
+.tag {
+  position: absolute;
+  inset-block-start: 0.25rem;      /* was: top */
+  inset-inline-end: 0;             /* was: right */
+  font-size: 0.875rem;
+  padding: 0 0.5em;
+  border: 1px solid currentColor;
+  border-radius: 1em;
+}
+
+.steps { padding-inline-start: 1.5rem; }   /* was: padding-left; markers sit on the start side */
+
+.note {
+  border-inline-start: 4px solid #b33a32;  /* was: border-left */
+  padding-inline-start: 1rem;              /* was: padding-left */
+  margin: 1.5rem 0;
+}
+
+/* U+2192 is NOT bidi-mirrored, so the arrow must be swapped explicitly. */
+.next::after { content: " →"; }
+[dir="rtl"] .next::after { content: " ←"; }
+
+/* ---------- Arabic text settings ---------- */
+
+/* Arabic glyphs sit small on the body: at the same nominal size their
+   letter bodies read noticeably smaller than Latin x-height, and the
+   dots and vowel marks need vertical room. Bump size and leading a
+   step, and name Arabic-capable system faces so no platform falls back
+   to a poor default. */
+html:lang(ar) body {
+  font-family: system-ui, "Segoe UI", "SF Arabic", "Geeza Pro",
+               "Noto Sans Arabic", Tahoma, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+
+/* Arabic is a joined script: tracking breaks the connections between
+   letters, and a synthesized (slanted) italic has no meaning in it.
+   Weight synthesis stays on so the heading is still bold. */
+:lang(ar) {
+  letter-spacing: normal;
+  font-synthesis-style: none;
+}
+
+/* Smaller label text gets the same proportional bump so it stays legible. */
+html:lang(ar) .tag { font-size: 0.9375rem; }
+
+/* The larger body leading is for running text; keep the heading line
+   tighter so the tag still lines up with the heading's letters. */
+html:lang(ar) .title h2 { line-height: 1.4; }

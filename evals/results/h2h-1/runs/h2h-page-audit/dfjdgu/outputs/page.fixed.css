@@ -1,0 +1,184 @@
+/*
+  Release notes: corrected typography.
+
+  Roles (all sizes in rem so the reader's browser font setting and zoom apply):
+    meta     0.875rem / 1.5   secondary grey #5c5c5c (6.7:1 on white)
+    data     0.9375rem / 1.4  tabular figures, numbers right-aligned
+    body     1rem / 1.6       16px floor, about 66 characters per line
+    lead     1.1875rem / 1.55
+    h2       1.5rem / 1.25    bold
+    h1       2rem to 2.75rem / 1.15, bold, grows gently with the viewport
+             but always from a rem base, so zoom still enlarges it
+
+  Verdana stays the face. Its x-height is 0.545 em, much taller than most
+  fallbacks, so font-size-adjust holds the apparent size steady if Verdana
+  is missing (Linux, Android) instead of the text suddenly shrinking.
+*/
+
+:root {
+  --text: #222;
+  --text-secondary: #5c5c5c;
+  --surface: #fff;
+  --surface-note: #f3f3f3;
+  --rule: #d6d6d6;
+  --rule-strong: #8f8f8f;
+
+  --step-meta: 0.875rem;
+  --step-data: 0.9375rem;
+  --step-body: 1rem;
+  --step-lead: 1.1875rem;
+  --step-h2: 1.5rem;
+  --step-h1: clamp(2rem, 1.55rem + 1.6vw, 2.75rem);
+
+  /* Verdana is wide: 1em of measure holds about 1.9 characters of prose,
+     so 35em lands near 66 characters per line at body size. */
+  --measure: 35em;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", sans-serif;
+  font-size: var(--step-body);
+  font-size-adjust: 0.545;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--surface);
+}
+
+.content {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+
+/* Headings: unitless leading so a wrapped title never overlaps itself,
+   more space above than below so each heading binds to its section. */
+h1,
+h2 {
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--step-h1);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 2.5rem 0 1rem;
+}
+
+h2 {
+  font-size: var(--step-h2);
+  line-height: 1.25;
+  margin: 2.5rem 0 0.75rem;
+}
+
+/* Running text: ragged right, no justification rivers. */
+p {
+  margin: 0 0 1em;
+  text-align: start;
+  text-wrap: pretty;
+}
+
+.lead {
+  font-size: var(--step-lead);
+  line-height: 1.55;
+  margin-bottom: 0.75rem;
+}
+
+.meta {
+  font-size: var(--step-meta);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* Warning note: sized by its content, never clipped. */
+.callout {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--surface-note);
+  border: 1px solid var(--rule);
+}
+
+.callout p:last-child {
+  margin-bottom: 0;
+}
+
+/* Data table */
+.table-scroll {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--step-data);
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+caption {
+  caption-side: top;
+  text-align: start;
+  font-size: var(--step-meta);
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding-bottom: 0.5rem;
+}
+
+th,
+td {
+  padding: 0.5rem 0.75rem;
+  text-align: start;
+  vertical-align: bottom;
+  border-bottom: 1px solid var(--rule);
+}
+
+th:first-child,
+td:first-child {
+  padding-inline-start: 0;
+}
+
+th:last-child,
+td:last-child {
+  padding-inline-end: 0;
+}
+
+thead th {
+  font-weight: 700;
+}
+
+/* Row labels read as labels, not as a second heading weight. */
+tbody th {
+  font-weight: 400;
+}
+
+/* The rule under the full header block is darker than the row rules. */
+thead tr:last-child th,
+thead th[rowspan] {
+  border-bottom-color: var(--rule-strong);
+}
+
+/* Group headers span their pair of columns and centre over it;
+   the light rule under them shows which columns they own. */
+thead th[colspan] {
+  text-align: center;
+}
+
+/* Sub-headers and values for the numeric columns align on the right,
+   so figures and units line up down each column. */
+thead tr:last-child th,
+td {
+  text-align: end;
+  white-space: nowrap;
+}

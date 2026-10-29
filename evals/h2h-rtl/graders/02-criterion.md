@@ -4,4 +4,4 @@ focus: trace
 weight: 1
 ---
 
-In RTL the breadcrumb separator is not flipped a second time: its ::before content is still U+203A and it has no transform that mirrors it
+In RTL the breadcrumb separator renders pointing left and in LTR it still renders pointing right (read from the rendered pixels, not from the ::before content)

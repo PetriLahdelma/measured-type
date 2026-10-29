@@ -5,7 +5,7 @@
 </picture></h1>
 
 [![Agent skill: Claude Code and gh skill](https://img.shields.io/badge/agent_skill-Claude_Code_and_gh_skill-20211F)](skills/measured-type/SKILL.md)
-[![Evals: 5 development and 3 held-out cases](https://img.shields.io/badge/evals-5_dev_%2B_3_held--out_cases-B33A32)](#evidence)
+[![Evals: 5 development, 3 held-out and 3 head-to-head cases](https://img.shields.io/badge/evals-5_dev_%2B_3_held--out_%2B_3_head--to--head-B33A32)](#evidence)
 [![License: CC BY-NC 4.0 text, MIT code](https://img.shields.io/badge/license-CC_BY--NC_4.0_text%2C_MIT_code-61645E)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
@@ -20,6 +20,13 @@ text.
 Most typography advice ends at a rule of thumb. This skill goes one step
 further: when a claim can be checked, it is checked in a browser or against the
 font file. The number goes into the answer.
+
+<p>
+  <img alt="Illustration: a light reading page on a desktop display. The measured type wordmark sits above the headline Reading is a rhythm, set large in a serif with rhythm in italic, followed by two short paragraphs and a margin note reading 01, On reading." src=".github/brand/reading-page-desktop.jpg" width="64%">
+  <img alt="Illustration: the same identity on a tablet in dark mode. Paper-coloured serif type on near-black reads Every line, considered, with considered in italic, above two short paragraphs and the caption Measured Type, Reading specimen." src=".github/brand/reading-page-tablet-dark.jpg" width="32%">
+</p>
+<sub>Illustrations of the identity, not measurements. The measured evidence starts at
+<a href="#proof-not-rules-of-thumb">Proof, not rules of thumb</a>.</sub>
 
 ## Install
 
@@ -332,6 +339,34 @@ still no false loads. A run counts only when opening the skill is the agent's
 first move, so these are lower bounds, but the message is plain: name the
 skill when you want it.
 
+**Against other typography skills.** Three more cases (a page audit with a
+fix, a no-jump web-font setup and an Arabic edition from one stylesheet) ran
+under seven configurations, two runs each: no skill, Measured Type,
+Anthropic's frontend-design, impeccable, better-typography,
+practicaltypography and wondelai's web-typography. Cases and graders were
+committed before the runs, run folders were anonymized and every assertion is
+measured in Chromium.
+
+| Configuration | Frozen graders | Corrected graders | Mean time | Mean tokens |
+|---|--:|--:|--:|--:|
+| Measured Type | **40/40** | **40/40** | 298 s | 164k |
+| frontend-design | 38/40 | **40/40** | 240 s | 145k |
+| No skill | 38/40 | 39/40 | 293 s | 139k |
+| impeccable | 37/40 | 39/40 | 409 s | 168k |
+| practicaltypography | 37/40 | 39/40 | 327 s | 153k |
+| better-typography | 37/40 | 38/40 | 241 s | 149k |
+| wondelai web-typography | 37/40 | 38/40 | 237 s | 153k |
+
+Measured Type is the only configuration that passed every assertion under
+both graders. Under the corrected graders frontend-design ties it, so the
+pre-registered bar (more than every other configuration) is met only as
+frozen. The correction replaced one RTL assertion that read the CSS source
+instead of the rendered page and failed nine correct answers; the
+[results](evals/results/h2h-1/) give both scores and every disclosure. The
+spread is small: no configuration fell below 37 of 40. What separated them
+was counting every reading block (five runs left a byline at 79 characters
+per line) and not mirroring a `›` the browser already mirrors.
+
 **Scope.** Gains concentrate in specific cases. A current model without the
 skill already knows most typographic CSS, measures line length on its own when
 it can, reads font files correctly and gets locale number formatting right. The
@@ -348,8 +383,9 @@ references and running more checks.
 The outputs, grades and timings of every run are in
 [`evals/results/iteration-2/`](evals/results/iteration-2/),
 [`iteration-1/`](evals/results/iteration-1/),
-[`heldout-1/`](evals/results/heldout-1/) and
-[`heldout-2/`](evals/results/heldout-2/).
+[`heldout-1/`](evals/results/heldout-1/),
+[`heldout-2/`](evals/results/heldout-2/) and
+[`h2h-1/`](evals/results/h2h-1/).
 
 ## Running the evals
 
@@ -369,6 +405,8 @@ copy the case's `files/fonts/` next to them first. The results folders do not
 duplicate the font files.
 
 ## Support Measured Type
+
+<img align="right" alt="Measured Type app icon: a paper-coloured lowercase m above a measure rule on a rounded red tile." src=".github/brand/app-icon.svg" width="96">
 
 Measured Type is free to use. If it saves you time, optional sponsorship helps
 keep it measured and maintained. Issues with a reproducible case, new eval

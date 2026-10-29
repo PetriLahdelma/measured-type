@@ -1,0 +1,95 @@
+/*
+ * Source Serif 4, self-hosted, with a metric-matched Georgia fallback.
+ *
+ * How the page avoids a jump when the web font arrives:
+ * 1. font-display: swap shows text immediately in the fallback.
+ * 2. The fallback is not plain Georgia but "Source Serif 4 Fallback": local
+ *    Georgia faces resized with size-adjust so a line of text is as wide in
+ *    Georgia as in Source Serif 4, which keeps every line break in place.
+ * 3. ascent-override / descent-override / line-gap-override give every
+ *    fallback face Source Serif 4's vertical metrics (ascent 1.036em,
+ *    descent 0.335em, no line gap), so baselines and line boxes do not move,
+ *    including on lines that mix roman and italic.
+ *
+ * The overrides are divided by size-adjust because the browser scales them by
+ * it: 103.6% / 1.0285 = 100.73%, 33.5% / 1.0285 = 32.57%, and so on.
+ *
+ * size-adjust values were measured in Chromium against this article's own
+ * text, at the sizes it is set in (body 18px, h1 36px bold). Source Serif 4 is
+ * an optical-size font, so its width changes a little with font size; bold is
+ * tuned for the 36px heading. A sweep of article widths from 288px to 576px
+ * found 102.85% near the minimum for roman; one scale factor cannot match
+ * every word, so at roughly 4% of widths one block still rewraps by a line
+ * (12 of 289 widths; plain unadjusted Georgia shifts at 119 of 289).
+ */
+
+/* ---------- Web font: variable roman and italic (wght 200-900, opsz 8-60) */
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---------- Fallback: local Georgia, reshaped to Source Serif 4's metrics */
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia"), local("Georgia-Regular");
+  font-weight: 400;
+  font-style: normal;
+  size-adjust: 102.85%;
+  ascent-override: 100.73%;
+  descent-override: 32.57%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-weight: 400;
+  font-style: italic;
+  size-adjust: 93.26%;
+  ascent-override: 111.09%;
+  descent-override: 35.92%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-weight: 700;
+  font-style: normal;
+  size-adjust: 86.07%;
+  ascent-override: 120.37%;
+  descent-override: 38.92%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold Italic"), local("Georgia-BoldItalic");
+  font-weight: 700;
+  font-style: italic;
+  size-adjust: 86.10%;
+  ascent-override: 120.32%;
+  descent-override: 38.91%;
+  line-gap-override: 0%;
+}
+
+/* ---------- Article text */
+
+article {
+  /* Plain Georgia stays in the stack for browsers that ignore the overrides. */
+  font-family: "Source Serif 4", "Source Serif 4 Fallback", Georgia, serif;
+}

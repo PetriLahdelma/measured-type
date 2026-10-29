@@ -1,0 +1,10 @@
+body { margin: 0; font-family: Verdana, sans-serif; font-size: 15px; line-height: 22px; color: #222; background: #fff; }
+.content { max-width: 75ch; margin: 0 auto; padding: 0 24px; }
+h1 { font-size: 6vw; margin: 32px 0 8px; }
+h2 { font-size: 22px; margin: 32px 0 8px; }
+.lead { width: 1100px; max-width: none; font-size: 18px; }
+.meta { color: #8a8a8a; font-size: 13px; }
+p { text-align: justify; margin: 0 0 16px; }
+.callout { height: 5em; overflow: hidden; background: #f3f3f3; padding: 12px 16px; }
+table { border-collapse: collapse; margin: 16px 0; }
+th, td { padding: 6px 16px; text-align: left; white-space: nowrap; border-bottom: 1px solid #ddd; }

@@ -124,3 +124,10 @@ Fixture pages: `scripts/test/audit/`.
   edited after a run to change the outcome.
 - **E4** Competitor content is used locally for the runs only; the repository
   records each competitor's source URL and commit, not its files.
+
+Outcome of `h2h-1` (29 October 2026, `evals/results/h2h-1/`): E3 met under the
+frozen graders (Measured Type 40/40, next best 38/40). One RTL assertion was
+then found to read the CSS source instead of the rendered page and was
+replaced by a pixel check; under the corrected graders frontend-design ties
+at 40/40, so E3 is not met. Both results are published. The font-loading case
+did not separate any configuration.

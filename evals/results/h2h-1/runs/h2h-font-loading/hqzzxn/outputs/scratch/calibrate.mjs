@@ -1,0 +1,14 @@
+import { createRequire } from 'node:module'; import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
+const require = createRequire(import.meta.url); const { chromium } = require('playwright');
+const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+let block = false;
+const server = http.createServer((req, res) => { const u = decodeURIComponent(new URL(req.url, 'http://x').pathname); if (u.endsWith('.ttf') && block) { res.writeHead(404); return res.end(); } fs.readFile(path.join(ROOT, u), (e, b) => { if (e) { res.writeHead(404); return res.end(); } res.writeHead(200, { 'content-type': u.endsWith('.html') ? 'text/html' : u.endsWith('.ttf') ? 'font/ttf' : 'text/css', 'cache-control': 'no-store' }); res.end(b); }); });
+await new Promise(r => server.listen(0, r)); const url = `http://127.0.0.1:${server.address().port}/scratch/calibrate.html`;
+const b = await chromium.launch(); const pg = await b.newPage({ viewport: { width: 1200, height: 800 } });
+const m = () => [...document.querySelectorAll('[data-k]')].map(el => { const r = document.createRange(); r.selectNodeContents(el); const rr = r.getBoundingClientRect(); return { k: el.dataset.k, w: rr.width, h: el.getBoundingClientRect().height, fam: (() => { return getComputedStyle(el).fontFamily.split(',')[1]; })() }; });
+block = true; await pg.goto(url); await pg.evaluate(() => document.fonts.ready); const f = await pg.evaluate(m);
+const fbFaces = await pg.evaluate(() => [...document.fonts].map(x => `${x.family} ${x.style} ${x.weight} ${x.status}`));
+block = false; await pg.goto(url + '?w'); await pg.evaluate(() => document.fonts.ready); const w = await pg.evaluate(m);
+console.log(fbFaces.join('\n'));
+f.forEach((x, i) => console.log(x.k.padEnd(24), 'fallback', x.w.toFixed(1).padStart(7), 'web', w[i].w.toFixed(1).padStart(7), 'width err', ((x.w / w[i].w - 1) * 100).toFixed(2).padStart(6) + '%', 'line-normal height', x.h.toFixed(2), w[i].h.toFixed(2)));
+await b.close(); server.close(); process.exit(0);

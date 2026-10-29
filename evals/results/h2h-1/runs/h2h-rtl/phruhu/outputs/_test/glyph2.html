@@ -1,0 +1,13 @@
+<!doctype html><html dir="rtl" lang="ar"><meta charset="utf-8"><style>
+body{font:40px system-ui;margin:10px} ol{list-style:none;display:flex;margin:0;padding:0}
+li+li::before{margin-inline:.5em}
+.a li+li::before{content:"\203A"}
+.b li+li::before{content:"\2039"}
+.c li+li::before{content:"\2039";direction:ltr;unicode-bidi:isolate}
+.d li+li::before{content:"\203A";direction:ltr;unicode-bidi:isolate}
+</style><body>
+<ol class="a"><li>a</li><li>&#x645;&#x645;</li></ol>
+<ol class="b"><li>b</li><li>&#x645;&#x645;</li></ol>
+<ol class="c"><li>c</li><li>&#x645;&#x645;</li></ol>
+<ol class="d"><li>d</li><li>&#x645;&#x645;</li></ol>
+</body></html>

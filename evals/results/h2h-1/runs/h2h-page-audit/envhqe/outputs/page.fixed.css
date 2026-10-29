@@ -1,0 +1,164 @@
+/* Release notes: corrected type.
+   One body line (--line) drives every vertical gap; all sizes are rem so the
+   reader's default size and browser zoom scale them. */
+
+:root {
+  --body-size: 1rem;                                   /* 16px at the default */
+  --body-leading: 1.6;                                 /* Verdana: big x-height, wants open leading */
+  --line: calc(var(--body-size) * var(--body-leading)); /* 25.6px */
+
+  --text-meta: 1rem;
+  --text-lead: 1.125rem;                               /* 18px */
+  --text-h2: 1.375rem;                                 /* 22px, 1.22x over the lead */
+  --text-h1: clamp(2rem, 1.75rem + 1vi, 2.5rem);       /* 32-40px, 1.25x range */
+
+  --ink: #222;
+  --ink-muted: #595959;                                /* 7.0:1 on white */
+  --ground: #fff;
+  --callout-ground: #f3f3f3;
+  --rule: #ddd;
+  --rule-strong: #999;
+
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  /* DejaVu Sans / Bitstream Vera and Geneva are close to Verdana's width, so
+     the measure holds where Verdana is not installed (Linux, Android). */
+  font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  font-kerning: normal;
+  font-synthesis-small-caps: none;
+  color: var(--ink);
+  background: var(--ground);
+}
+
+/* Measure: 35em of 16px Verdana, counted in Chromium: 65 characters per line on average (60-70). */
+.content {
+  max-inline-size: 35em;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  padding-block: var(--line) calc(var(--line) * 2);
+}
+
+/* Display */
+h1,
+h2 {
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--text-h1);
+  line-height: 1.15;
+  margin-block: var(--line) calc(var(--line) * 0.5);
+}
+
+h2 {
+  font-size: var(--text-h2);
+  line-height: var(--line);            /* exactly one body line: wrapped heads stay on the beat */
+  margin-block: calc(var(--line) * 1.5) calc(var(--line) * 0.5);
+}
+
+/* Reading text: ragged, one paragraph convention (space, no indent) */
+p {
+  margin-block: 0 var(--line);
+  text-align: start;
+  text-wrap: pretty;
+}
+
+/* Narrow screens: about 30 characters per line, so let long words break */
+@media (width < 30em) {
+  p {
+    hyphens: auto;
+    hyphenate-limit-chars: 6 3 3;
+  }
+}
+
+.lead {
+  font-size: var(--text-lead);
+  line-height: 1.5;
+}
+
+.meta {
+  font-size: var(--text-meta);
+  color: var(--ink-muted);
+}
+
+/* Note: grows with its text; no fixed height, nothing clipped */
+.callout {
+  background: var(--callout-ground);
+  padding-block: calc(var(--line) * 0.5);
+  padding-inline: 1em;
+  margin-block: 0 var(--line);
+}
+
+.callout > :last-child {
+  margin-block-end: 0;
+}
+
+/* Data table: scrolls inside its own box on narrow screens so the page never does */
+.table-scroll {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  margin-block: 0 var(--line);
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+table {
+  border-collapse: collapse;
+  line-height: 1.4;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+th,
+td {
+  padding-block: calc(var(--line) * 0.25);
+  padding-inline: 0.75em;
+  text-align: start;
+  vertical-align: baseline;
+  border-block-end: 1px solid var(--rule);
+}
+
+thead th {
+  vertical-align: bottom;
+  border-block-end-color: var(--rule-strong);
+}
+
+/* Group heads ("Average size", "Export time") span their before/after pair */
+thead th[colspan] {
+  text-align: center;
+  padding-block-end: 0;
+  border-block-end: 0;
+}
+
+tbody th {
+  font-weight: 400;
+}
+
+/* Flush with the text column on both sides */
+thead th[rowspan],
+tbody th {
+  padding-inline-start: 0;
+}
+
+:is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+/* Figures align on the units column: numbers right, quantity and unit kept together */
+thead tr:last-child th,
+td {
+  text-align: end;
+}
+
+td {
+  white-space: nowrap;
+}

@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "In RTL the numbered steps list is indented from the right side (its text starts at a larger offset from the right edge of the list than the list's left padding)",
+      "passed": true,
+      "evidence": "RTL: text 24.0px from the right edge, left padding 0px"
+    },
+    {
+      "text": "In RTL the breadcrumb separator renders pointing left and in LTR it still renders pointing right (read from the rendered pixels, not from the ::before content)",
+      "passed": true,
+      "evidence": "separator renders pointing left in RTL, right in LTR (content \"›\", transform none)"
+    },
+    {
+      "text": "In RTL the next link's arrow points left: its ::after content contains U+2190, or a single horizontal flip is applied to a U+2192 arrow",
+      "passed": true,
+      "evidence": "RTL arrow \" ←\" / \"\", transform none"
+    },
+    {
+      "text": "In RTL the note's coloured border is on its right side",
+      "passed": true,
+      "evidence": "RTL note border left 0px, right 4px"
+    },
+    {
+      "text": "In RTL the New tag sits at the left edge of the title",
+      "passed": true,
+      "evidence": "RTL tag 0.0px from the title's left edge"
+    },
+    {
+      "text": "In RTL the h2 is aligned to the right (start)",
+      "passed": true,
+      "evidence": "RTL h2 text-align start, direction rtl"
+    },
+    {
+      "text": "In LTR the page renders as the original did: note border on the left, steps indented from the left, h2 aligned left and the tag at the right",
+      "passed": true,
+      "evidence": "LTR note border left 4/right 0, list text 24.0px from the left, h2 start, tag 0.0px from the right"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1
+  }
+}

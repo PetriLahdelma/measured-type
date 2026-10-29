@@ -1,0 +1,36 @@
+/* help.rtl.css: drop-in replacement for help.css.
+   Same rendering for <html lang="en" dir="ltr">, mirrored for <html lang="ar" dir="rtl">.
+   Physical left/right are replaced with logical (start/end) properties, so the
+   layout follows the document direction without per-direction overrides. */
+
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+.help { max-width: 36rem; }
+
+/* Breadcrumbs: flex rows already run right-to-left under dir="rtl", so only
+   the separator needs work. "›" is formally a bidi-mirrored character, but
+   engines disagree on whether generated content gets mirrored (Chromium and
+   WebKit leave it pointing right). Isolating it as LTR rules automatic
+   mirroring out, and the RTL rule then swaps the glyph by hand, so every
+   browser shows the same thing and nothing gets flipped twice. */
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
+.crumbs li + li::before { content: "›"; margin: 0 0.5em; color: #6b6b6b; unicode-bidi: isolate; direction: ltr; }
+html[dir="rtl"] .crumbs li + li::before { content: "‹"; }
+
+.title { position: relative; }
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+.tag { position: absolute; top: 0.25rem; inset-inline-end: 0; font-size: 0.875rem; padding: 0 0.5em; border: 1px solid currentColor; border-radius: 1em; }
+
+.steps { padding-inline-start: 1.5rem; }
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin: 1.5rem 0; }
+
+/* "→" is not bidi-mirrored, so it needs an explicit swap to point forward
+   (leftward) in RTL. */
+.next::after { content: " →"; }
+html[dir="rtl"] .next::after { content: " ←"; }
+
+/* Arabic script: taller ascenders, descenders and stacked dots need more
+   leading than Latin at the same size. The font stack is left alone on
+   purpose: system-ui has no Arabic glyphs on some platforms, and the
+   browser's own fallback then picks the platform's Arabic UI face, which is
+   a better match than any family we could name here. */
+body:lang(ar) { line-height: 1.8; }

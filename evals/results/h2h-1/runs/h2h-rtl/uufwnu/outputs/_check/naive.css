@@ -1,0 +1,43 @@
+/*
+  help.rtl.css: drop-in replacement for help.css.
+  Serves both <html lang="en" dir="ltr"> and <html lang="ar" dir="rtl">.
+  Physical left/right values are replaced by logical (start/end) ones, so the
+  English page computes to exactly the same layout as before.
+*/
+
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+
+/* Arabic: a face with real Arabic coverage ahead of the generic fallback,
+   a slightly larger size (Arabic letterforms read small next to Latin at the
+   same nominal size) and more leading for ascenders, descenders and dots. */
+:lang(ar) body,
+body:lang(ar) {
+  font-family: system-ui, "Segoe UI", "SF Arabic", "Geeza Pro", "Noto Sans Arabic", Tahoma, sans-serif;
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+
+.help { max-inline-size: 36rem; }
+
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
+/* The separator must point along the reading direction. Browsers do not
+   reliably mirror "›" inside generated content (Chromium leaves it pointing
+   right), so RTL sets "‹" explicitly and isolates it as LTR so an engine that
+   does mirror cannot flip it back. The margin is symmetric, so it needs no
+   logical form. */
+.crumbs li + li::before { content: "›"; margin: 0 0.5em; color: #6b6b6b; }
+[dir="rtl"] .crumbs li + li::before { content: "‹"; }
+
+.title { position: relative; }
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+.tag { position: absolute; top: 0.25rem; inset-inline-end: 0; font-size: 0.875rem; padding: 0 0.5em; border: 1px solid currentColor; border-radius: 1em; }
+:lang(ar) .tag { top: 0.4rem; }
+
+.steps { padding-inline-start: 1.5rem; }
+
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin: 1.5rem 0; }
+
+/* "→" is not bidi-mirrored, so it keeps pointing right in Arabic. Point it
+   along the reading direction instead. */
+.next::after { content: " →"; }
+[dir="rtl"] .next::after { content: " ←"; }

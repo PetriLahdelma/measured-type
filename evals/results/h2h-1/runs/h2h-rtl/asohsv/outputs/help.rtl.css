@@ -1,0 +1,27 @@
+/* Direction-neutral version of help.css.
+   Horizontal properties are written as start/end (logical) values, so the
+   same rules lay out left-to-right for English and right-to-left when
+   <html dir="rtl"> is set. The two directional glyphs are the only rules
+   that need a per-direction value. */
+
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+.help { max-inline-size: 36rem; }
+
+/* Breadcrumbs: flex already follows the inline direction, so the items
+   reverse on their own. The separator must point the way the trail reads.
+   It is pinned to LTR so no engine mirrors it on its own, then chosen
+   explicitly per direction. */
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
+.crumbs li + li::before { content: "›"; margin: 0 0.5em; color: #6b6b6b; direction: ltr; unicode-bidi: isolate; }
+.crumbs li:dir(rtl) + li::before { content: "‹"; }
+
+.title { position: relative; }
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+.tag { position: absolute; top: 0.25rem; inset-inline-end: 0; font-size: 0.875rem; padding: 0 0.5em; border: 1px solid currentColor; border-radius: 1em; }
+
+.steps { padding-inline-start: 1.5rem; }
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin: 1.5rem 0; }
+
+/* The arrow points toward the next page, which is the reading direction. */
+.next::after { content: " →"; }
+.next:dir(rtl)::after { content: " ←"; }

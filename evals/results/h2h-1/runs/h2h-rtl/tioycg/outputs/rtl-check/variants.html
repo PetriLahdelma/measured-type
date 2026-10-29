@@ -1,0 +1,9 @@
+<!doctype html><html dir="rtl" lang="ar"><meta charset="utf-8"><style>
+body{font:32px/1.6 system-ui,sans-serif} li{list-style:none} 
+.a li::before{content:"›"} .b li::before{content:"‹"}
+.c li::before{content:"‹";unicode-bidi:isolate;direction:ltr}
+.d li::before{content:"‹";display:inline-block;direction:ltr}
+.e li::before{content:"\2039";unicode-bidi:isolate;direction:ltr}
+</style><body>
+<ul class="a"><li>A المساعدة</li></ul><ul class="b"><li>B المساعدة</li></ul><ul class="c"><li>C المساعدة</li></ul><ul class="d"><li>D المساعدة</li></ul><ul class="e"><li>E المساعدة</li></ul>
+<p>F text: ‹ › المساعدة</p></body></html>

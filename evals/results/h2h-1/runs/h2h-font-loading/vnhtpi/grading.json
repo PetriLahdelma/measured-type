@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "fonts.css loads Source Serif 4 from the fonts folder with @font-face and sets font-display to swap, fallback or optional",
+      "passed": true,
+      "evidence": "roman @font-face, font-display swap"
+    },
+    {
+      "text": "fonts.css declares the italic file in its own @font-face with font-style: italic, so the em text renders in the real italic once the font has loaded",
+      "passed": true,
+      "evidence": "italic @font-face with font-style: italic"
+    },
+    {
+      "text": "Rendered at a 1280px viewport, the article's height with the font files blocked differs from its height with the fonts loaded by at most 2%",
+      "passed": true,
+      "evidence": "height loaded 450.6 (Source Serif 4), blocked 450.6: 0.00%"
+    },
+    {
+      "text": "Rendered at a 1280px viewport, the paragraphs' average characters per full line with the font files blocked differ from the loaded state by at most 3%",
+      "passed": true,
+      "evidence": "chars/line loaded 68.8, blocked 68.8: 0.00%"
+    },
+    {
+      "text": "With the font files blocked, the article text renders in Georgia (the fallback the brief names), not in another face",
+      "passed": true,
+      "evidence": "blocked state renders in Georgia"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1
+  }
+}

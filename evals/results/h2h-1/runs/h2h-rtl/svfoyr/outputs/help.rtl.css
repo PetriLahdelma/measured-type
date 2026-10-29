@@ -1,0 +1,35 @@
+/* help.rtl.css
+   One stylesheet for both editions of help.html.
+   Every side-specific rule is written against the inline start/end of the
+   text instead of a physical left/right, so the English page (dir="ltr")
+   renders exactly as before and the Arabic page (dir="rtl") mirrors itself. */
+
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+.help { max-width: 36rem; }
+
+/* Breadcrumbs: flex rows already follow the writing direction.
+   "›" is a bidi-mirrored character, so browsers that apply mirroring already
+   draw it as "‹" in right-to-left text. Rather than lean on that implicitly,
+   the separator is isolated as left-to-right (which switches mirroring off)
+   and each direction names its own glyph, pointing from the parent towards
+   the current page. Never mirrored twice, never left pointing backwards. */
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
+.crumbs li + li::before { content: "›"; margin: 0 0.5em; color: #6b6b6b; unicode-bidi: isolate; direction: ltr; }
+.crumbs li + li:dir(rtl)::before { content: "‹"; }
+
+/* Title row: the badge sits at the end of the line and the heading keeps
+   room for it on that same side. */
+.title { position: relative; }
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+.tag { position: absolute; top: 0.25rem; inset-inline-end: 0; font-size: 0.875rem; padding: 0 0.5em; border: 1px solid currentColor; border-radius: 1em; }
+
+/* Numbered steps: indent on the side the numbers hang from. */
+.steps { padding-inline-start: 1.5rem; }
+
+/* Note: rule and indent on the side reading starts from. */
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin: 1.5rem 0; }
+
+/* "Next" link: the arrow points the way the reader moves forward.
+   "→" is not bidi-mirrored, so right-to-left pages need the explicit swap. */
+.next::after { content: " →"; }
+.next:dir(rtl)::after { content: " ←"; }

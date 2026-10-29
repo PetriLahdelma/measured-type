@@ -1,0 +1,40 @@
+/* Help page, direction-neutral.
+   Every side-specific value is written as start/end of the line, so the same
+   rules render the English page exactly as before and mirror themselves when
+   <html dir="rtl" lang="ar">. Only the few things that cannot follow the
+   direction on their own are handled per language or direction at the end. */
+
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+.help { max-inline-size: 36rem; }
+
+/* Flex follows the direction, so the trail reads right to left in Arabic.
+   The "›" separator is a mirrored punctuation mark: browsers draw it as "‹"
+   inside right-to-left text, so it needs no flip. */
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
+.crumbs li + li::before { content: "›"; margin: 0 0.5em; color: #6b6b6b; }
+
+.title { position: relative; }
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+.tag { position: absolute; inset-block-start: 0.25rem; inset-inline-end: 0; font-size: 0.875rem; padding: 0 0.5em; border: 1px solid currentColor; border-radius: 1em; }
+
+/* Set the start padding explicitly: a physical padding-left would leave the
+   browser's default list indent on the right in Arabic and pad both sides. */
+.steps { padding-inline-start: 1.5rem; }
+
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin: 1.5rem 0; }
+
+.next::after { content: " →"; }
+
+/* ---- Right-to-left and Arabic ---- */
+
+/* An arrow is not a mirrored character; swap it so "next" points onward. */
+.next:dir(rtl)::after { content: " ←"; }
+
+/* Arabic: a stack that covers the script on every platform, and more leading
+   for its deeper descenders and stacked marks. No letter-spacing anywhere:
+   it would break the joins between letters. Set on body only, so code or
+   monospace elements added later keep their own family. */
+:root:lang(ar) body {
+  font-family: system-ui, "Segoe UI", "SF Arabic", "Geeza Pro", "Noto Sans Arabic", Tahoma, sans-serif;
+  line-height: 1.8;
+}

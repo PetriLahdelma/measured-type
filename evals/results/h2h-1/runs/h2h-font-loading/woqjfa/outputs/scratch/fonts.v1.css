@@ -1,0 +1,108 @@
+/* fonts.css: Source Serif 4, self-hosted, for the article text.
+
+   Loading strategy
+   ----------------
+   The text is shown at once in Georgia (font-display: swap), and Georgia is
+   resized and given Source Serif 4's vertical metrics so that it occupies the
+   same room. When the web font arrives only the letter shapes change; line
+   breaks, line count and paragraph heights stay put.
+
+   The numbers below were computed from the font files themselves (average
+   advance width of English text, word spaces included, plus ascent/descent)
+   at the instances the page actually renders, then checked in Chromium:
+     - body text: 1.125rem (18px), so optical size 18, weight 400
+     - <em>:      italic, optical size 18, weight 400
+     - <h1>:      2em (36px), so optical size 36, weight 700
+   Source Serif 4 changes its widths along the optical-size axis, so matching
+   against the file's default instance (opsz 20) would be about 2% off.
+
+   Safari applies size-adjust but, as of 2026, ignores the ascent, descent
+   and line-gap overrides; widths (and so line breaks) still match there.
+*/
+
+/* ---- The web font: two variable files cover every weight and both styles */
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---- Metric-matched fallback: one face per weight and style, each
+        pointing at Georgia's matching local face, so bold and italic keep
+        their real shapes (and widths) while the web font is loading. */
+
+/* Regular, matched to Source Serif 4 at opsz 18, wght 400 */
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia");
+  font-weight: 400;
+  font-style: normal;
+  size-adjust: 103.863%;
+  ascent-override: 99.7466%;
+  descent-override: 32.254%;
+  line-gap-override: 0%;
+}
+
+/* Italic, matched to Source Serif 4 Italic at opsz 18, wght 400 */
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-weight: 400;
+  font-style: italic;
+  size-adjust: 93.5899%;
+  ascent-override: 110.696%;
+  descent-override: 35.7944%;
+  line-gap-override: 0%;
+}
+
+/* Bold, matched to the heading: Source Serif 4 at opsz 36, wght 700.
+   (Bold inside 18px body text would want about 91.9%; the article has
+   none, so the face is tuned for the h1, which is where bold appears.) */
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-weight: 700;
+  font-style: normal;
+  size-adjust: 86.9618%;
+  ascent-override: 119.133%;
+  descent-override: 38.5227%;
+  line-gap-override: 0%;
+}
+
+/* Bold italic, matched to Source Serif 4 Italic at opsz 18, wght 700 */
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold Italic"), local("Georgia-BoldItalic");
+  font-weight: 700;
+  font-style: italic;
+  size-adjust: 86.9048%;
+  ascent-override: 119.211%;
+  descent-override: 38.5479%;
+  line-gap-override: 0%;
+}
+
+/* ---- Apply to the article */
+
+.prose {
+  /* Web font, then the matched Georgia, then plain Georgia (only if the
+     local() lookups fail), then the generic serif. */
+  font-family: "Source Serif 4", "Source Serif 4 Fallback", Georgia, serif;
+  /* Let the opsz axis follow the font size (the default, stated because the
+     fallback numbers depend on it). */
+  font-optical-sizing: auto;
+  /* Every weight and style used is a real face, fallbacks included, so the
+     browser must never fake bold or slant a roman. */
+  font-synthesis: none;
+  font-kerning: normal;
+}

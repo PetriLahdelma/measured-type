@@ -1,0 +1,157 @@
+/*
+ * Article typography: self-hosted Source Serif 4, Georgia as the fallback.
+ *
+ * Two things keep the page still while the font loads.
+ *
+ * 1. font-display: optional. The browser waits at most ~100ms for the font.
+ *    If it is there (cached, or a fast connection) the text is drawn in
+ *    Source Serif 4 from the first frame. If not, the text is drawn in
+ *    Georgia and stays in Georgia for this page view; the font finishes
+ *    downloading in the background and is used from the next page view on.
+ *    The font is never swapped in under a reader, so nothing reflows.
+ *
+ *    Why not swap: even a well-matched fallback cannot match every word's
+ *    width. Measured on this article across column widths of 288-576px with
+ *    the best single scale factor, a late swap still re-broke lines at about
+ *    3 in 10 widths and changed a paragraph's line count (pushing everything
+ *    below it) at about 1 in 25. With optional, both are zero.
+ *
+ * 2. A metric-matched Georgia. Georgia is resized (size-adjust) and given
+ *    Source Serif 4's ascent and descent, so the fallback page has the same
+ *    measure, nearly the same line breaks and identical baselines. A reader
+ *    who sees Georgia on a first visit and Source Serif 4 on the next gets
+ *    the same page, only in different letterforms.
+ *
+ * Source Serif 4 is an optical-size font: with font-optical-sizing: auto
+ * (the default) larger text uses a narrower, finer cut, so its width
+ * relative to Georgia depends on the size. The fallback is therefore tuned
+ * twice: once for running text (18px, the article body) and once for the
+ * headline (36px, the h1). Scale factors were measured in the browser on
+ * running English prose and on this article. Ascent and descent are Source
+ * Serif 4's own (1036 and 335 per 1000 units, no line gap) divided by the
+ * scale factor, since size-adjust scales the overridden metrics too.
+ */
+
+/* ---------- Web font ---------- */
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4[opsz,wght].ttf") format("truetype");
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: optional;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic[opsz,wght].ttf") format("truetype");
+  font-style: italic;
+  font-weight: 200 900;
+  font-display: optional;
+}
+
+/* ---------- Fallback for running text (tuned at 18px) ---------- */
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia"), local("Georgia-Regular");
+  font-style: normal;
+  font-weight: 400;
+  size-adjust: 103%;
+  ascent-override: 100.58%;
+  descent-override: 32.52%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-style: italic;
+  font-weight: 400;
+  size-adjust: 93.2%;
+  ascent-override: 111.16%;
+  descent-override: 35.94%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-style: normal;
+  font-weight: 700;
+  size-adjust: 91.3%;
+  ascent-override: 113.47%;
+  descent-override: 36.69%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold Italic"), local("Georgia-BoldItalic");
+  font-style: italic;
+  font-weight: 700;
+  size-adjust: 86.27%;
+  ascent-override: 120.09%;
+  descent-override: 38.83%;
+  line-gap-override: 0%;
+}
+
+/* ---------- Fallback for the headline (tuned at 36px) ---------- */
+
+@font-face {
+  font-family: "Source Serif 4 Display Fallback";
+  src: local("Georgia"), local("Georgia-Regular");
+  font-style: normal;
+  font-weight: 400;
+  size-adjust: 97.45%;
+  ascent-override: 106.31%;
+  descent-override: 34.38%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Display Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-style: italic;
+  font-weight: 400;
+  size-adjust: 88.75%;
+  ascent-override: 116.73%;
+  descent-override: 37.75%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Display Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-style: normal;
+  font-weight: 700;
+  size-adjust: 85.6%;
+  ascent-override: 121.03%;
+  descent-override: 39.14%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Display Fallback";
+  src: local("Georgia Bold Italic"), local("Georgia-BoldItalic");
+  font-style: italic;
+  font-weight: 700;
+  size-adjust: 81.61%;
+  ascent-override: 126.95%;
+  descent-override: 41.05%;
+  line-gap-override: 0%;
+}
+
+/* ---------- Application ---------- */
+
+/*
+ * The tuned faces only exist where Georgia is installed. Elsewhere they are
+ * skipped and the stack ends in the generic serif.
+ */
+.prose {
+  font-family: "Source Serif 4", "Source Serif 4 Fallback", Georgia, serif;
+}
+
+.prose h1 {
+  font-family: "Source Serif 4", "Source Serif 4 Display Fallback", Georgia, serif;
+}

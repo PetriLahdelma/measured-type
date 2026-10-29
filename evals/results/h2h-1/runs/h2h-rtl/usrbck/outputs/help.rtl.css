@@ -1,0 +1,34 @@
+/* help.rtl.css: one stylesheet for both editions.
+   English (dir="ltr" lang="en") renders exactly as with help.css.
+   Arabic (dir="rtl" lang="ar") mirrors because every side is flow-relative:
+   "inline-start" is the left edge in English and the right edge in Arabic. */
+
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+
+/* Measure: inline size follows the writing direction. */
+.help { max-inline-size: 36rem; }
+
+/* Breadcrumbs: flex rows already run in the text direction. */
+.crumbs ol { list-style: none; margin-block: 0 1.5rem; margin-inline: 0; padding: 0; display: flex; }
+/* "›" is a mirrored glyph in Unicode, so in an RTL run the browser draws it
+   pointing left by itself. Do not flip it with a transform. */
+.crumbs li + li::before { content: "›"; margin-inline: 0.5em; color: #6b6b6b; }
+
+/* Title and "New" tag: the heading reserves room at its end edge,
+   and the tag sits in that space (right in English, left in Arabic). */
+.title { position: relative; }
+.title h2 { text-align: start; margin-block: 0 1rem; margin-inline: 0; padding-inline-end: 4rem; }
+.tag { position: absolute; inset-block-start: 0.25rem; inset-inline-end: 0; font-size: 0.875rem; padding-block: 0; padding-inline: 0.5em; border: 1px solid currentColor; border-radius: 1em; }
+
+/* Steps: override the browser's own list indent, which is already
+   padding-inline-start, so RTL does not end up indented on both sides. */
+.steps { padding-inline-start: 1.5rem; }
+
+/* Note: the rule marks the start edge, where the reader's eye enters the line. */
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin-block: 1.5rem; margin-inline: 0; }
+
+/* "Next" arrow: U+2192 is not a mirrored character, so it must be swapped.
+   The arrow is decorative ("Next:" already says it), so screen readers skip it;
+   the first declaration is the fallback for engines without alt text in content. */
+.next::after { content: " →"; content: " →" / ""; }
+.next:dir(rtl)::after { content: " ←"; content: " ←" / ""; }

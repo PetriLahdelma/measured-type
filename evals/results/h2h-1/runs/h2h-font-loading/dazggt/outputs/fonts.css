@@ -1,0 +1,103 @@
+/*
+ * Article typeface: Source Serif 4 (self-hosted variable fonts), Georgia fallback.
+ *
+ * Loading policy: font-display: swap. Text is readable immediately in Georgia,
+ * and the web font replaces it when it arrives. To keep that swap from moving
+ * anything, Georgia is wrapped in "Source Serif 4 Fallback" faces whose
+ * size-adjust makes Georgia set the same line lengths as Source Serif 4, and
+ * whose ascent/descent/line-gap overrides give it Source Serif 4's vertical
+ * metrics. The swap then changes letter shapes, not line breaks or heights.
+ *
+ * How the numbers were derived:
+ *   size-adjust     = width of running text in Source Serif 4 / width in
+ *                     Georgia, measured per face at the size it is used
+ *                     (regular and italic at the 18px body size, bold at the
+ *                     36px heading, where the opsz axis follows font size).
+ *                     The regular value was then fine-tuned (102.9% -> 103.15%)
+ *                     by comparing paragraph line breaks in both fonts at every
+ *                     viewport width from 288px to 608px; this value gave the
+ *                     fewest differing widths and none at common phone widths.
+ *                     Bold is tuned for the heading; bold at body size would
+ *                     want about 91%.
+ *   ascent-override = Source Serif 4 ascender  (1036/1000) / size-adjust
+ *   descent-override= Source Serif 4 descender (335/1000)  / size-adjust
+ *   line-gap        = 0, as in Source Serif 4.
+ * The overrides are divided by size-adjust because the browser scales the
+ * override metrics by size-adjust as well.
+ */
+
+/* ---- Web font: Source Serif 4, variable (wght 200-900, opsz 8-60) ---- */
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic%5Bopsz,wght%5D.ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---- Metric-matched Georgia, shown until the web font is ready ---- */
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia"), local("Georgia Regular");
+  font-weight: 400;
+  font-style: normal;
+  size-adjust: 103.15%;
+  ascent-override: 100.44%;
+  descent-override: 32.48%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-weight: 400;
+  font-style: italic;
+  size-adjust: 93.3%;
+  ascent-override: 111.04%;
+  descent-override: 35.91%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-weight: 700;
+  font-style: normal;
+  size-adjust: 86.1%;
+  ascent-override: 120.33%;
+  descent-override: 38.91%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold Italic"), local("Georgia-BoldItalic");
+  font-weight: 700;
+  font-style: italic;
+  size-adjust: 86.1%;
+  ascent-override: 120.33%;
+  descent-override: 38.91%;
+  line-gap-override: 0%;
+}
+
+/* ---- Apply to the article ---- */
+
+.prose {
+  font-family: "Source Serif 4", "Source Serif 4 Fallback", Georgia, serif;
+  /* Let the opsz axis track the rendered size (text cut at 18px, display cut
+     on the heading). Stated explicitly because the fallback widths above were
+     calibrated with it on. */
+  font-optical-sizing: auto;
+  /* Real italic and bold faces exist for both fonts; never fake them. */
+  font-synthesis: none;
+}

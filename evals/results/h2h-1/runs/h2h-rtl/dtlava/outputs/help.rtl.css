@@ -1,0 +1,36 @@
+/* help.rtl.css: one stylesheet for both the English (ltr) and Arabic (rtl) editions.
+   Every horizontal property is written in logical terms (start/end, inline-start/inline-end),
+   so the same rules lay out left-to-right or right-to-left from the dir attribute alone. */
+
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+
+/* Arabic: keep the system UI face first, then name Arabic-capable faces so the
+   fallback is a designed Arabic font rather than whatever the OS picks. */
+:lang(ar) body,
+body:lang(ar) {
+  font-family: system-ui, "SF Arabic", "Segoe UI", "Noto Sans Arabic", "Noto Naskh Arabic", Tahoma, sans-serif;
+  line-height: 1.7;
+}
+
+.help { max-width: 36rem; }
+
+/* Flex rows follow the inline direction, so the trail runs right-to-left in rtl with no extra rule. */
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
+/* U+203A is a bidi-mirrored character: in an rtl line the browser draws it as a left-pointing
+   chevron by itself. Do NOT swap it for U+2039 in rtl, or it gets mirrored back to the wrong way. */
+.crumbs li + li::before { content: "›"; margin: 0 0.5em; color: #6b6b6b; }
+
+.title { position: relative; }
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+.tag { position: absolute; top: 0.25rem; inset-inline-end: 0; font-size: 0.875rem; padding: 0 0.5em; border: 1px solid currentColor; border-radius: 1em; }
+
+.steps { padding-inline-start: 1.5rem; }
+
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin: 1.5rem 0; }
+
+/* U+2192 is not bidi-mirrored, so the arrow has to be swapped explicitly for rtl. */
+.next::after { content: " →"; }
+[dir="rtl"] .next::after { content: " ←"; }
+/* Same specificity, later in the file: browsers with :dir() also get nested dir islands right. */
+.next:dir(ltr)::after { content: " →"; }
+.next:dir(rtl)::after { content: " ←"; }

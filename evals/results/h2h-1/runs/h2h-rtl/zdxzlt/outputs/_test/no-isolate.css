@@ -1,0 +1,45 @@
+/*
+ * help.rtl.css
+ * One stylesheet for both editions of help.html:
+ *   <html lang="en" dir="ltr">  renders exactly as help.css does
+ *   <html lang="ar" dir="rtl">  mirrors the layout for Arabic
+ *
+ * Every left/right in the original is expressed as a logical property
+ * (start/end), so the browser flips it from the dir attribute. Only the
+ * pieces that logical properties cannot reach (generated arrow glyphs and
+ * Arabic list numerals) have explicit direction or language rules.
+ */
+
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+
+.help { max-width: 36rem; }
+
+/* Flex rows follow the inline direction, so the trail runs right to left in RTL. */
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; flex-wrap: wrap; }
+.crumbs li + li::before {
+  content: "›";
+  margin: 0 0.5em;
+  color: #6b6b6b;
+  /* Pin the glyph to LTR so the bidi algorithm never mirrors it on its own;
+     the RTL rule below picks the left-pointing glyph explicitly. */
+}
+[dir="rtl"] .crumbs li + li::before { content: "‹"; }
+
+/* The "New" pill sits at the end of the heading line: right in English, left in Arabic. */
+.title { position: relative; }
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+.tag { position: absolute; top: 0.25rem; inset-inline-end: 0; font-size: 0.875rem; padding: 0 0.5em; border: 1px solid currentColor; border-radius: 1em; }
+
+/* Numbers hang in the start-side padding on either side of the page. */
+.steps { padding-inline-start: 1.5rem; }
+
+/* Rule on the start edge: left in English, right in Arabic. */
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin: 1.5rem 0; }
+
+/* The "next" arrow points in the reading direction. */
+.next::after { content: " →"; }
+[dir="rtl"] .next::after { content: " ←"; }
+
+/* Arabic-specific typography. */
+:lang(ar) .steps { list-style-type: arabic-indic; }
+:lang(ar) body { line-height: 1.8; }

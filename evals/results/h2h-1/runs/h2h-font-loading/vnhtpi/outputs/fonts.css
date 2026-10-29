@@ -1,0 +1,88 @@
+/*
+  Article typography: Source Serif 4, self-hosted, with Georgia as the fallback.
+
+  The text renders at once in Georgia (font-display: swap), so a slow network
+  never shows a blank page. To keep the swap from moving anything, Georgia is
+  wrapped in a "fallback" face whose metrics are overridden to match Source
+  Serif 4: size-adjust makes each line of text take the same width (so lines
+  break in the same places), and the ascent/descent/line-gap overrides put the
+  baseline at the same height inside each line box.
+
+  The size-adjust values were measured on this article's own text in Chromium,
+  one per style actually used on the page:
+    regular 400 at 18px (body)            Source Serif 4 is ~3% wider than Georgia
+    bold 700 at 36px (h1, opsz 36)        Source Serif 4 is 14.8% narrower
+    italic 400 at 18px (em)               Source Serif 4 is 6.7% narrower
+  Bold is measured at the heading size because the variable font's optical
+  size axis follows the font size and makes large settings narrower.
+  The regular value was then fine-tuned (102.9% measured, 103.2% used) by
+  comparing line breaks in both fonts at common phone widths (320-440px) and
+  at the full 36rem column: at 103.2% every paragraph keeps its line count
+  when the web font swaps in.
+
+  Vertical metrics of Source Serif 4 (units per em 1000):
+    ascent 1036, descent 335, line gap 0.
+  The overrides are divided by each face's size-adjust, because size-adjust
+  also scales the overridden metrics.
+*/
+
+/* ---------- The web font (variable: weight 200-900, optical size 8-60) ---------- */
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4[opsz,wght].ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  src: url("fonts/SourceSerif4-Italic[opsz,wght].ttf") format("truetype");
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---------- Georgia, resized to occupy the same space ---------- */
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia"), local("Georgia Regular");
+  font-weight: 400;
+  font-style: normal;
+  size-adjust: 103.2%;
+  ascent-override: 100.39%;  /* 103.6 / 1.032 */
+  descent-override: 32.46%;  /* 33.5 / 1.032 */
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  font-weight: 700;
+  font-style: normal;
+  size-adjust: 85.20%;
+  ascent-override: 121.60%;  /* 103.6 / 0.8520 */
+  descent-override: 39.32%;  /* 33.5 / 0.8520 */
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Fallback";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  font-weight: 400;
+  font-style: italic;
+  size-adjust: 93.28%;
+  ascent-override: 111.06%;  /* 103.6 / 0.9328 */
+  descent-override: 35.91%;  /* 33.5 / 0.9328 */
+  line-gap-override: 0%;
+}
+
+/* ---------- Apply to the article ---------- */
+
+.prose {
+  font-family: "Source Serif 4", "Source Serif 4 Fallback", Georgia, serif;
+  font-optical-sizing: auto;
+  font-kerning: normal;
+}

@@ -1,0 +1,157 @@
+/*
+ * Release notes: corrected typography.
+ * The incumbent face (Verdana) and palette are kept. Sizes are in rem so the
+ * reader's browser font-size setting and text zoom are honoured, and line
+ * heights are unitless so they scale with each role instead of being pinned
+ * to one 22px value.
+ */
+
+:root {
+  /* Type roles */
+  --font-text: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+  --size-title: clamp(1.875rem, 1.45rem + 1.6vw, 2.5rem);
+  --size-section: 1.375rem;
+  --size-lead: 1.125rem;
+  --size-body: 1rem;
+  --size-meta: 0.875rem;
+  --size-data: 0.9375rem;
+
+  --leading-title: 1.15;
+  --leading-section: 1.3;
+  --leading-body: 1.6;
+  --leading-meta: 1.5;
+
+  /* Ink and grounds */
+  --ink: #222;
+  --ink-muted: #595959;  /* 7.0:1 on white */
+  --ground: #fff;
+  --ground-note: #f3f3f3;
+  --rule: #ddd;
+  --rule-strong: #222;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: var(--size-body);
+  line-height: var(--leading-body);
+  color: var(--ink);
+  background: var(--ground);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Reading column: Verdana is wide, so 75ch of "0" glyphs came out at ~91
+   characters of real prose. 58ch lands prose at roughly 70 characters. */
+.content {
+  max-width: 58ch;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+  overflow-wrap: break-word;
+}
+
+h1,
+h2 {
+  font-weight: bold;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--size-title);
+  line-height: var(--leading-title);
+  letter-spacing: -0.015em;
+  margin: 2.5rem 0 0.75rem;
+}
+
+h2 {
+  font-size: var(--size-section);
+  line-height: var(--leading-section);
+  margin: 2.5rem 0 0.5rem;
+}
+
+p {
+  margin: 0 0 1em;
+  text-align: start;
+  text-wrap: pretty;
+}
+
+.lead {
+  font-size: var(--size-lead);
+  line-height: 1.55;
+  margin-bottom: 0.75rem;
+}
+
+.meta {
+  font-size: var(--size-meta);
+  line-height: var(--leading-meta);
+  color: var(--ink-muted);
+}
+
+/* Callout: grows with its text instead of clipping it. */
+.callout {
+  margin: 1.5rem 0;
+  padding: 0.875rem 1rem;
+  background: var(--ground-note);
+}
+
+.callout > :last-child {
+  margin-bottom: 0;
+}
+
+/* Data table */
+.table-scroll {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--size-data);
+  line-height: 1.4;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+th,
+td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  text-align: start;
+  vertical-align: baseline;
+}
+
+th:first-child,
+td:first-child {
+  padding-inline-start: 0;
+}
+
+th:last-child,
+td:last-child {
+  padding-inline-end: 0;
+}
+
+thead th {
+  vertical-align: bottom;
+  border-bottom-color: var(--rule-strong);
+  text-wrap: balance;
+}
+
+/* Figures align on the right edge so units and magnitudes stack. */
+th:not(:first-child),
+td:not(:first-child) {
+  text-align: end;
+}
+
+td {
+  white-space: nowrap;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--ground);
+}

@@ -1,0 +1,37 @@
+/* Direction-agnostic version of help.css.
+   Physical left/right are replaced with logical start/end properties, so the
+   same rules lay out correctly for dir="ltr" and dir="rtl". */
+
+body { margin: 0; padding: 1.5rem; font: 1rem/1.6 system-ui, sans-serif; color: #1f1f1d; }
+.help { max-width: 36rem; }
+
+/* Breadcrumbs: flex rows already follow the inline direction, so the items
+   reorder by themselves. The separator must point toward the deeper level,
+   which is leftward in Arabic. Rather than leave that to bidi mirroring of the
+   character (which depends on the surrounding text resolving as right-to-left),
+   the glyph is isolated as left-to-right, so it is never mirrored, and the
+   correct one is chosen per direction. */
+.crumbs ol { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; }
+.crumbs li + li::before { content: "\203A"; margin-inline: 0.5em; color: #6b6b6b; direction: ltr; unicode-bidi: isolate; }
+[dir="rtl"] .crumbs li + li::before { content: "\2039"; }
+.crumbs li:dir(rtl) + li::before { content: "\2039"; }
+.crumbs li:dir(ltr) + li::before { content: "\203A"; }
+
+/* Title row: the badge sits at the inline end, the heading reserves space there. */
+.title { position: relative; }
+.title h2 { text-align: start; margin: 0 0 1rem; padding-inline-end: 4rem; }
+.tag { position: absolute; top: 0.25rem; inset-inline-end: 0; font-size: 0.875rem; padding: 0 0.5em; border: 1px solid currentColor; border-radius: 1em; }
+
+/* Numbered list: indent on the side where the markers are. */
+.steps { padding-inline-start: 1.5rem; }
+
+/* Callout: accent rule on the reading-start edge. */
+.note { border-inline-start: 4px solid #b33a32; padding-inline-start: 1rem; margin: 1.5rem 0; }
+
+/* "Next" arrow: U+2192 is never mirrored, so pick the glyph per direction.
+   Attribute and :dir() selectors are separate rules so a browser that does
+   not know :dir() still applies the attribute fallback. */
+.next::after { content: " \2192"; }
+[dir="rtl"] .next::after { content: " \2190"; }
+.next:dir(rtl)::after { content: " \2190"; }
+.next:dir(ltr)::after { content: " \2192"; }

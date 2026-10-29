@@ -1,0 +1,162 @@
+/* Release notes: corrected typography.
+   Sizes are in rem so they follow the reader's browser setting and zoom.
+   Line heights are unitless so every element gets spacing in proportion
+   to its own size. */
+
+:root {
+  --text-sm: 0.875rem;                                   /* 14px: metadata, captions */
+  --text-base: 1rem;                                     /* 16px: body, table */
+  --text-lead: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);   /* 18 -> 20px */
+  --text-h2: 1.5rem;                                     /* 24px */
+  --text-h1: clamp(2rem, 1.25rem + 2.5vw, 2.75rem);      /* 32 -> 44px */
+
+  --ink: #222;
+  --ink-muted: #595959;   /* 7:1 on white */
+  --rule: #d6d6d6;
+  --surface-note: #f3f3f3;
+  --accent-note: #8a8a8a;
+
+  /* Verdana's zero is wide, so 1ch is about 1.2 average characters.
+     54ch lands body lines at roughly 60-70 characters. */
+  --measure: 54ch;
+  --gutter: clamp(1rem, 5vw, 1.5rem);
+  --table-max: 44rem;     /* tables are scanned, not read: they may run wider than prose */
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, Tahoma, sans-serif;
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--ink);
+  background: #fff;
+}
+
+.content {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 var(--gutter) 3rem;
+}
+
+h1,
+h2 {
+  text-wrap: balance;
+  font-weight: 700;
+}
+
+h1 {
+  font-size: var(--text-h1);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 2rem 0 0.75rem;
+}
+
+h2 {
+  font-size: var(--text-h2);
+  line-height: 1.25;
+  margin: 2.5rem 0 0.5rem;   /* more space above than below: binds to its section */
+}
+
+p {
+  margin: 0 0 1rem;
+  text-align: start;          /* ragged right: no rivers, even word spacing */
+  text-wrap: pretty;          /* avoids one-word last lines where supported */
+}
+
+.lead {
+  font-size: var(--text-lead);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.meta {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--ink-muted);
+  margin-bottom: 1.5rem;
+}
+
+.callout {
+  background: var(--surface-note);
+  border-inline-start: 4px solid var(--accent-note);
+  padding: 0.75rem 1rem;
+  margin: 1.5rem 0;
+}
+
+.callout p:last-child {
+  margin-bottom: 0;
+}
+
+/* Table: may extend past the text column (centred on it) so header
+   labels need at most two lines; on narrow screens it scrolls inside
+   its own box instead of pushing the whole page sideways. */
+.table-scroll {
+  overflow-x: auto;
+  margin-block: 1.5rem;
+  margin-inline: calc((100% - min(var(--table-max), 100vw - 2 * var(--gutter))) / 2);
+}
+
+.table-scroll table {
+  margin-inline: auto;
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid #005fcc;
+  outline-offset: 2px;
+}
+
+table {
+  border-collapse: collapse;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+caption {
+  caption-side: top;
+  text-align: start;
+  /* stays in view while the table scrolls sideways on small screens */
+  position: sticky;
+  left: 0;
+  max-inline-size: calc(100vw - 2 * var(--gutter));
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+  padding-bottom: 0.5rem;
+}
+
+th,
+td {
+  padding: 0.5rem 0.625rem;
+  text-align: start;
+  border-bottom: 1px solid var(--rule);
+}
+
+th {
+  vertical-align: bottom;
+  border-bottom: 2px solid var(--ink);
+  min-width: 5em;             /* header labels wrap to short lines, never one word per line */
+}
+
+td {
+  white-space: nowrap;        /* keeps "4.8 MB" and "12 seconds" together */
+}
+
+th:first-child,
+td:first-child {
+  padding-inline-start: 0;
+}
+
+/* Numbers align on the right so values compare down the column. */
+th:not(:first-child),
+td:not(:first-child) {
+  text-align: end;
+}
+
+th:last-child,
+td:last-child {
+  padding-inline-end: 0;
+}

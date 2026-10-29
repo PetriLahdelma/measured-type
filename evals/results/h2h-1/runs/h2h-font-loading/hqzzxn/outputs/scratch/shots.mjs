@@ -1,0 +1,10 @@
+import { createRequire } from 'node:module'; import http from 'node:http'; import fs from 'node:fs'; import path from 'node:path';
+const require = createRequire(import.meta.url); const { chromium } = require('playwright');
+const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+let block = false;
+const server = http.createServer((req, res) => { const u = decodeURIComponent(new URL(req.url, 'http://x').pathname); if (u.endsWith('.ttf') && block) { res.writeHead(404); return res.end(); } fs.readFile(path.join(ROOT, u), (e, b) => { if (e) { res.writeHead(404); return res.end(); } res.writeHead(200, { 'content-type': u.endsWith('.html') ? 'text/html' : u.endsWith('.ttf') ? 'font/ttf' : 'text/css' }); res.end(b); }); });
+await new Promise(r => server.listen(0, r)); const url = `http://127.0.0.1:${server.address().port}/article.html`;
+const b = await chromium.launch(); const pg = await b.newPage({ viewport: { width: 390, height: 700 }, deviceScaleFactor: 2 });
+block = true; await pg.goto(url); await pg.evaluate(() => document.fonts.ready); await pg.screenshot({ path: 'scratch/fallback-390.png' });
+block = false; await pg.goto(url + '?w'); await pg.evaluate(() => document.fonts.ready); await pg.screenshot({ path: 'scratch/web-390.png' });
+await b.close(); server.close(); process.exit(0);

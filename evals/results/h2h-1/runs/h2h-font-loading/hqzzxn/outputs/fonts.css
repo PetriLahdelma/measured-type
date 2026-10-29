@@ -1,0 +1,150 @@
+/*
+ * Reading type for article.html: self-hosted Source Serif 4, Georgia fallback.
+ *
+ * Text paints at once in Georgia (font-display: swap), then Source Serif 4
+ * replaces it. To keep that swap from moving anything, Georgia is wrapped in
+ * local "fallback" faces whose size and vertical metrics are overridden to
+ * occupy the same room as Source Serif 4:
+ *
+ *   size-adjust       Source Serif 4 advance width / Georgia advance width,
+ *                     measured over the article's own copy, then corrected
+ *                     against rendered widths in Chromium.
+ *   ascent / descent  Source Serif 4's vertical metrics (1036 / 335 per 1000
+ *                     units, no line gap) divided by size-adjust, because the
+ *                     browser scales the overrides by size-adjust as well.
+ *
+ * Source Serif 4 has an optical-size axis that the browser sets from the font
+ * size, and its letters are about 5% narrower at heading sizes than at text
+ * sizes. One Georgia face cannot match both, so text and headings get their
+ * own fallback family: text faces are tuned at the 18px body size, heading
+ * faces at the 36px h1.
+ */
+
+/* Web font: two variable files cover every weight from 200 to 900. */
+
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url("fonts/SourceSerif4[opsz,wght].ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Source Serif 4";
+  font-style: italic;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url("fonts/SourceSerif4-Italic[opsz,wght].ttf") format("truetype");
+}
+
+/* Fallback for running text (tuned at 18px). */
+
+@font-face {
+  font-family: "Source Serif 4 Text Fallback";
+  font-style: normal;
+  font-weight: 400;
+  src: local("Georgia");
+  size-adjust: 102.9%;
+  ascent-override: 100.68%;
+  descent-override: 32.56%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Text Fallback";
+  font-style: italic;
+  font-weight: 400;
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  size-adjust: 93.4%;
+  ascent-override: 110.92%;
+  descent-override: 35.87%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Text Fallback";
+  font-style: normal;
+  font-weight: 700;
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  size-adjust: 91.2%;
+  ascent-override: 113.6%;
+  descent-override: 36.73%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Text Fallback";
+  font-style: italic;
+  font-weight: 700;
+  src: local("Georgia Bold Italic"), local("Georgia-BoldItalic");
+  size-adjust: 86.2%;
+  ascent-override: 120.19%;
+  descent-override: 38.86%;
+  line-gap-override: 0%;
+}
+
+/* Fallback for headings (tuned at the 36px h1). */
+
+@font-face {
+  font-family: "Source Serif 4 Heading Fallback";
+  font-style: normal;
+  font-weight: 400;
+  src: local("Georgia");
+  size-adjust: 97%;
+  ascent-override: 106.8%;
+  descent-override: 34.54%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Heading Fallback";
+  font-style: italic;
+  font-weight: 400;
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  size-adjust: 88.5%;
+  ascent-override: 117.06%;
+  descent-override: 37.85%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Heading Fallback";
+  font-style: normal;
+  font-weight: 700;
+  src: local("Georgia Bold"), local("Georgia-Bold");
+  size-adjust: 85.6%;
+  ascent-override: 121.03%;
+  descent-override: 39.14%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Serif 4 Heading Fallback";
+  font-style: italic;
+  font-weight: 700;
+  src: local("Georgia Bold Italic"), local("Georgia-BoldItalic");
+  size-adjust: 81.4%;
+  ascent-override: 127.27%;
+  descent-override: 41.15%;
+  line-gap-override: 0%;
+}
+
+/*
+ * Plain Georgia stays in each stack for browsers that ignore the override
+ * descriptors; it is wider than Source Serif 4, so there the swap can rewrap.
+ */
+:root {
+  --font-reading: "Source Serif 4", "Source Serif 4 Text Fallback", Georgia, serif;
+  --font-reading-heading: "Source Serif 4", "Source Serif 4 Heading Fallback", Georgia, serif;
+}
+
+.prose {
+  font-family: var(--font-reading);
+  font-optical-sizing: auto;
+  font-kerning: normal;
+}
+
+.prose :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-reading-heading);
+}

@@ -1,0 +1,135 @@
+/* Release notes: corrected type.
+   Sizes in rem so the reader's default size and zoom apply.
+   One body line (--line) drives every vertical gap. */
+
+:root {
+  --text-body: 1rem;                                  /* 16px: body, meta, table */
+  --text-lead: clamp(1.125rem, 1.05rem + 0.4vi, 1.25rem); /* 18-20px: lead only */
+  --text-head: 1.25rem;                               /* 20px: h2 (bold) */
+  --text-title: clamp(2rem, 1.75rem + 1vi, 2.5rem);   /* 32-40px: h1 only */
+  --leading: 1.5;
+  --line: calc(var(--text-body) * var(--leading));    /* 24px at the default size */
+  --ink: #222;
+  --ink-muted: #595959;                               /* 7.0:1 on white */
+  --rule: #ddd;
+  --tint: #f3f3f3;
+}
+
+body {
+  margin: 0;
+  font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;
+  font-size: var(--text-body);
+  line-height: var(--leading);
+  font-kerning: normal;
+  font-synthesis-small-caps: none;
+  color: var(--ink);
+  background: #fff;
+}
+
+/* Measure: 36em at 16px Verdana sets about 67 characters per line (checked in Chromium). */
+.content {
+  max-inline-size: 36em;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  padding-block: calc(2 * var(--line));
+}
+
+/* Vertical rhythm: top margins only, so nothing collapses into a different gap. */
+.content > * { margin-block: 0; }
+.content > * + * { margin-block-start: var(--line); }
+
+h1, h2 {
+  font-weight: bold;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--text-title);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: var(--text-head);
+  line-height: var(--line);                           /* one body line: wrapped heads stay on the beat */
+}
+.content > * + h2 { margin-block-start: calc(2 * var(--line)); }
+.content > h1 + *,
+.content > h2 + * { margin-block-start: calc(0.5 * var(--line)); }
+
+/* Reading text: ragged, hyphenated with limits, no runts. */
+p {
+  text-align: start;
+  text-wrap: pretty;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 6 2 3;
+}
+
+.lead {
+  font-size: var(--text-lead);
+  line-height: 1.45;
+}
+
+.meta {
+  color: var(--ink-muted);
+}
+
+.callout {
+  background: var(--tint);
+  padding-block: calc(0.5 * var(--line));
+  padding-inline: 1em;
+}
+.callout > p { margin: 0; }
+
+/* Data: lining tabular figures, numbers aligned on the end edge, scrolls inside its own box on narrow screens. */
+.table-scroll {
+  overflow-x: auto;
+}
+.table-scroll:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+table {
+  border-collapse: collapse;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+caption {
+  caption-side: top;
+  text-align: start;
+  font-weight: bold;
+  padding-block-end: calc(0.5 * var(--line));
+}
+
+th, td {
+  padding-block: calc(0.25 * var(--line));
+  padding-inline: 0.75em;
+  text-align: start;
+  vertical-align: bottom;
+  border-block-end: 1px solid var(--rule);
+}
+tbody th, thead tr:first-child th:first-child { padding-inline-start: 0; }
+tr > :last-child { padding-inline-end: 0; }
+
+th, td { white-space: nowrap; }
+tbody th { font-weight: normal; }
+td, thead tr + tr th { text-align: end; }
+/* Group heads span their two columns, centred over a rule. */
+thead th[scope="colgroup"] {
+  text-align: center;
+  padding-block-end: calc(0.125 * var(--line));
+  border-block-end: 0;
+  /* a short rule under each group, inset so the two groups' rules do not run together */
+  background: linear-gradient(var(--rule), var(--rule)) no-repeat right bottom / calc(100% - 0.75em) 1px;
+}
+thead tr:first-child th[scope="colgroup"] + th { padding-inline-start: 1.5em; }
+thead tr + tr th:nth-child(3),
+tbody td:nth-of-type(3) { padding-inline-start: 1.5em; }
+
+@media print {
+  p { widows: 3; orphans: 3; }
+  h2 { break-after: avoid; }
+  .callout, table { break-inside: avoid; }
+}
