@@ -179,9 +179,12 @@ only after `font-kerning: normal` is already on.
 
 **Now.**
 
-- `font-synthesis: none` on fonts you load, then load the weights and italics
-  you use. Synthesized bold smears; synthesized italic is a slanted roman;
-  synthesized small caps are shrunken capitals.
+- Load the weights and italics you use, then switch synthesis off.
+  Synthesized bold smears; synthesized italic is a slanted roman; synthesized
+  small caps are shrunken capitals. `font-synthesis-small-caps: none` is always
+  safe. `font-synthesis: none` (weight and style too) is right when every face
+  you use is loaded, fallbacks included; if a fallback lacks a bold or italic,
+  that text shows as regular until the web font arrives.
 - No `transform: scaleX()` on text. Width changes belong to a real width axis
   (`font-stretch` / `wdth`) designed by the type designer.
 - No negative `letter-spacing` in body text to squeeze copy into a box.

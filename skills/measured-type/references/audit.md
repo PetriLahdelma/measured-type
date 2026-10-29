@@ -58,7 +58,7 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-REFLOW | HIGH | Page scrolls sideways at 320 CSS px (400% zoom of 1280) or at 375px | WCAG 1.4.10, §2.1.2 |
 | MT-ZOOM-VW | HIGH | `font-size` from `vw`/`vi` with no `rem`/`em` term: cannot grow with zoom | WCAG 1.4.4, §3.1.1 |
 | MT-VIEWPORT-ZOOM | HIGH | `user-scalable=no` or `maximum-scale` below 2 in the viewport meta | WCAG 1.4.4 |
-| MT-ROOT-PX | HIGH | `font-size` in `px` on `html` or `:root`: overrides the reader's default | §3.1.1 |
+| MT-ROOT-PX | HIGH | `font-size` in `px` on `html` or `:root`: overrides the reader's default (a percentage under 100% is LOW) | §3.1.1 |
 | MT-CONTRAST | HIGH | Text contrast under 4.5:1 (3:1 for 24px, or 18.66px bold) | WCAG 1.4.3 |
 | MT-TEXT-SPACING | HIGH | Text clipped or overflowing its box under the 1.4.12 spacing override | WCAG 1.4.12 |
 | MT-MEASURE-LONG | MEDIUM | Reading text averages over 75 characters per full line | §2.1.2 (measured) |

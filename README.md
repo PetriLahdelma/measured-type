@@ -195,6 +195,40 @@ every change with the section it follows: measure, leading, rhythm in whole body
 lines, paragraph marking, figures, small caps, minus signs, hard spaces and
 logical sides.
 
+## Tools
+
+Five scripts turn the rules into numbers. Each one has tests that were written
+before it ([`specs/0001-measured-tools.md`](specs/0001-measured-tools.md)), and
+the two audits share one report format: severity, rule ID, location, the
+measured value, the CSS fix and a Block or Approve verdict
+([`references/audit.md`](skills/measured-type/references/audit.md)).
+
+| Script | What it measures |
+|---|---|
+| [`page-audit.js`](skills/measured-type/scripts/page-audit.js) | A rendered page at 1280, 768 and 375px and at 200%, 400% and 500% zoom: reflow, characters per line, contrast, the WCAG 1.4.12 spacing override, fonts that fell back, heading zoom growth |
+| [`lint-css.js`](skills/measured-type/scripts/lint-css.js) | CSS and HTML source, or only what a pull request changed (`--diff`): fluid sizes evaluated at 200% and 500% zoom, length line-heights, `62.5%` roots, justification, `ch` measures, physical sides, hyphen-minus and straight quotes |
+| [`measure-line.js`](skills/measured-type/scripts/measure-line.js) | Characters per line of one selector, graphemes and columns counted correctly |
+| [`fallback-metrics.py`](skills/measured-type/scripts/fallback-metrics.py) | A metric-matched fallback `@font-face` from the font files, so the web font swaps in without reflow |
+| [`type-scale.js`](skills/measured-type/scripts/type-scale.js) | Fluid `clamp()` tokens, each checked for range, zoom growth and step ratio before it is printed |
+
+```bash
+node scripts/page-audit.js examples/editorial/before.html
+```
+
+```text
+| Severity | Rule | Location | Measured | Fix |
+|---|---|---|---|---|
+| HIGH | MT-CONTRAST | `article.prose > p.kicker` | 2.85:1 (rgb(153, 153, 153) on rgb(255, 255, 255), needs 4.5:1) | darken the text or lighten the ground to reach the ratio |
+| HIGH | MT-REFLOW | `article.prose > table at 320 CSS px (400% zoom of 1280)` | page is 355px wide in a 320px viewport | max-inline-size instead of fixed widths; let tables scroll inside a wrapper |
+| HIGH | MT-ZOOM-VW | `article.prose > h1` | 56.32px grows 1.00× at 200% and 1.00× at 500% zoom | clamp(min-rem, rem + vi, max-rem) with a range near 1.4× |
+| MEDIUM | MT-MEASURE-LONG | `article.prose > p at 1280px` | 159.5 characters per line (range 155-166) | max-inline-size in em, counted to about 66 with measure-line.js |
+
+Verdict: Block (4 HIGH)
+Not verified: Safari and Firefox rendering (Chromium only)
+```
+
+(Excerpt: the full report has seven rows.) The same audit approves `after.html`.
+
 ## How it works
 
 1. **Classify the text first.** Reading, display and interface text follow

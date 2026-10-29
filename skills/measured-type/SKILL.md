@@ -106,21 +106,33 @@ Details, language tables and code: `references/logical-and-language.md`.
    only when the prose is set at the root font size.
 4. Space headings, quotes, lists and figures in whole or half `--line` steps.
 5. Choose one paragraph convention (indent or space).
-6. Turn on figures and small caps the font really has; `font-synthesis: none`.
-7. `hyphens: auto` with limits when the measure is narrow or the language has
+6. Turn on figures and small caps the font really has. Always set
+   `font-synthesis-small-caps: none`; set `font-synthesis: none` for weight
+   and style too only where every weight and italic you use is loaded,
+   fallbacks included (`rules.md` §2.1.9).
+7. Match the fallback so the web font arrives without reflow:
+   `python3 scripts/fallback-metrics.py font.woff2 --fallback Georgia.ttf --name Georgia`
+   prints the `@font-face` overrides; list that family right after the web
+   font.
+8. `hyphens: auto` with limits when the measure is narrow or the language has
    long compounds (Finnish and Swedish do); keep `text-align: start`.
-8. `text-wrap: pretty` on paragraphs, `text-wrap: balance` on headings.
-9. Check punctuation glyphs in the content: en dash ranges, real quotes and
+9. `text-wrap: pretty` on paragraphs, `text-wrap: balance` on headings.
+10. Check punctuation glyphs in the content: en dash ranges, real quotes and
    apostrophes, `×` and `−`, ellipsis.
-10. Check WCAG 1.4.12: the layout must survive user overrides of line-height
+11. Check WCAG 1.4.12: the layout must survive user overrides of line-height
     1.5, paragraph spacing 2em, letter-spacing 0.12em and word-spacing 0.16em,
     so avoid fixed heights on text boxes.
-11. Check WCAG 1.4.10: at 320 CSS px (a 1280px window at 400% zoom) text
+12. Check WCAG 1.4.10: at 320 CSS px (a 1280px window at 400% zoom) text
     reflows into one column without sideways scrolling. Page zoom scales `px`
     too, so a fixed `width: 960px` keeps its character count but no longer
     fits; `max-inline-size` lets the box shrink.
 
 ### Building or reviewing a type scale
+
+Generate and check it rather than hand-tuning `clamp()`:
+`node scripts/type-scale.js --base 1rem:1.125rem --ratio 1.2:1.25 --steps 5 --fluid-from 4`
+prints the tokens and a table of range, zoom growth and step ratios, and
+exits 1 naming any step that fails. The rules it applies:
 
 - 5 to 8 sizes for a site, each with a named role. Use either the traditional
   scale (12 14 16 18 21 24 36 48 60 72) or a stated ratio, not a pile of
@@ -140,24 +152,25 @@ Details, language tables and code: `references/logical-and-language.md`.
 - Express spacing tokens as multiples of the base line so headings and body
   share one rhythm.
 
-### Auditing existing CSS
+### Auditing existing CSS or a page
 
-Read `references/css-modern.md` first: older stylesheets and tutorials,
-including the webtypography.net source this skill draws on, are full of
-properties that were renamed, never shipped or contain typos. Report findings
-in this shape:
-
-```markdown
-## Broken (renders wrong or is invalid)
-- `selector` §n: what is wrong, why it matters. Fix: `css`
-## Hurts reading
-- ...
-## Refinement
-- ...
-```
-
-Give a concrete estimate where you can (for example "960px at 16px is about 115
-characters per line, roughly double the 66 ideal").
+1. Run the tools first, then read: they find what reading misses and every
+   finding comes with a number.
+   ```bash
+   node scripts/lint-css.js src/styles page.html          # source, with file:line
+   node scripts/lint-css.js src --diff origin/main         # only what a PR changed
+   node scripts/page-audit.js http://localhost:3000/post   # rendered: reflow, measure,
+                                                           # contrast, text spacing, zoom
+   ```
+   Add `--rtl` to the lint when a right-to-left edition is planned.
+2. Read `references/css-modern.md` for renamed, dead or mistyped properties
+   the tools do not know. Judge hierarchy, rhythm, pairing and emphasis
+   yourself.
+3. Report in the format of `references/audit.md`: one table ordered by
+   severity (HIGH, MEDIUM, LOW), rule ID, location, the measured value and the
+   CSS fix, then **Block** or **Approve** and what you could not verify. Label
+   taste findings with their kind so the team knows which ones it can
+   decline.
 
 ## 5. Verify, don't assume
 
@@ -208,6 +221,11 @@ and no decorative effects standing in for hierarchy.
 | `scripts/measure-line.js` | before stating or shipping a measure; after changing font, size or `max-inline-size` |
 | `scripts/font-features.py` | before enabling `onum`, `smcp`, `c2sc`, `case`, `tnum` or any `font-feature-settings` |
 | `references/taste.md` | choosing faces, pairing, display treatment, dark mode text or reviewing for quality rather than correctness |
+| `references/audit.md` | any review or audit: severities, verdict, report table and the rule catalog |
+| `scripts/lint-css.js` | auditing CSS or HTML source, or a pull request (`--diff`) |
+| `scripts/page-audit.js` | auditing a rendered page: reflow, measure, contrast, text spacing, fonts, zoom |
+| `scripts/fallback-metrics.py` | loading web fonts: a metric-matched fallback so the swap does not reflow |
+| `scripts/type-scale.js` | building fluid type tokens that pass the zoom and step checks |
 
 Sources: Robert Bringhurst, *The Elements of Typographic Style*; Richard
 Rutter, *The Elements of Typographic Style Applied to the Web*
