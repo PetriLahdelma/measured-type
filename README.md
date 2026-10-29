@@ -123,6 +123,7 @@ python3 scripts/font-features.py "SourceSerif4-Italic[opsz,wght].ttf" --check sm
 ```text
 # Source Serif 4 Italic  (SourceSerif4-Italic[opsz,wght].ttf)
 italic: yes
+default figures: tabular lining
 GSUB: aalt case ccmp dnom frac liga lnum locl numr onum ordn pnum sinf ss01 ss02 ss03 subs sups tnum zero
 
   smcp: ABSENT  (small caps from lowercase: should cover a-z and accented letters)

@@ -169,7 +169,8 @@ characters per line, roughly double the 66 ideal").
 - **Features**: confirm the font has them before enabling, check that a
   feature actually covers the glyphs you need (a tag can map almost nothing)
   and look at the rendered glyphs (true small caps have heavier strokes than
-  shrunk capitals):
+  shrunk capitals). `--check` takes any GSUB or GPOS tag and, for figure
+  features, says first whether the default digits already have that form:
   ```bash
   python3 scripts/font-features.py fonts/*.woff2 --check smcp=abcdefghijklmnopqrstuvwxyz
   ```
