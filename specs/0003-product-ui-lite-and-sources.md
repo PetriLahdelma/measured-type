@@ -106,3 +106,13 @@ rule (standard, measured, convention, preference). Rendered checks in
   including any case the skill loses.
 </content>
 </invoke>
+- **N3** Head-to-head 3 removes the confound found in head-to-head 2: the
+  runner brief (`evals/h2h-3-brief.md`) no longer says that Node, Playwright
+  or a browser is available, forbids installing or downloading anything and
+  limits runs to Read, Write, Edit, Glob, Grep and Bash. A run with the skill
+  still has its scripts and their installed `node_modules`, as after the
+  README's install; a run without it has whatever it finds for itself in its
+  own working directory. Same two cases and graders, unchanged. Four
+  configurations, two runs each: Claude Opus 5.5 and Claude Sonnet 5.5 (the
+  smaller model), each with the skill (frozen at `content-freeze-5`) and
+  with none. Graded blind; every score published.
