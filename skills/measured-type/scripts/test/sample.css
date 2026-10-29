@@ -1,0 +1,2 @@
+/* Used by `npm test` to check the --css mode end to end. */
+.prose { font: 18px/1.5 Georgia, serif; max-inline-size: 34em; margin: 2rem; }

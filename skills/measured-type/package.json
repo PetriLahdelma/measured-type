@@ -1,10 +1,11 @@
 {
   "name": "measured-type-scripts",
   "private": true,
-  "description": "Helper scripts for the measured-type skill: rendered line-length counts in Chromium.",
+  "description": "Helper scripts for the measured-type skill: rendered line-length counts in Chromium and font feature coverage.",
   "license": "MIT",
   "scripts": {
-    "measure": "node scripts/measure-line.js"
+    "measure": "node scripts/measure-line.js",
+    "test": "node scripts/test/run.js"
   },
   "devDependencies": {
     "playwright": "1.64.1"

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>measure-line.js regression fixtures</title>
+<!--
+  Pairs of paragraphs that must measure the same. Each case changes one thing
+  the counter used to get wrong and keeps the line breaks identical.
+-->
+<style>
+  body { margin: 2rem; font: 18px/1.5 Georgia, serif; }
+  .w { inline-size: 480px; margin-block-end: 2rem; }
+  #shifted .up { vertical-align: 0.3em; }
+  #shifted sup { font-size: inherit; line-height: 0; }
+  #code code { font-family: ui-monospace, monospace; font-size: 0.8em; }
+  #cols { inline-size: 1000px; column-count: 2; column-gap: 40px; }
+  #vert { writing-mode: vertical-rl; inline-size: 480px; }
+  #spaced { letter-spacing: 0.05em; }
+  #padded { box-sizing: border-box; inline-size: 520px; padding-inline: 20px; border: 0; }
+</style>
+</head>
+<body>
+<p class="w" id="plain"></p>
+<p class="w" id="shifted"></p>
+<p class="w" id="code"></p>
+<p class="w" id="nfc"></p>
+<p class="w" id="nfd"></p>
+<p id="cols"></p>
+<p class="w" id="onecol"></p>
+<p id="vert"></p>
+<p class="w" id="spaced"></p>
+<p id="padded"></p>
+<p class="w" id="br"></p>
+<div class="w" id="twoparas"><p></p><p></p></div>
+<script>
+  const words = ('The measure is the length of a line. Somewhere between forty-five and ' +
+    'seventy-five characters the eye can travel to the end of a line and return to the next ' +
+    'without losing its place. Narrower lines break phrases apart and wider ones make the ' +
+    'return sweep uncertain, especially when the leading is tight and the face is large. ' +
+    'Leading should grow with the measure, while display sizes want much less of it.').split(' ');
+  const text = words.join(' ');
+  const $ = (id) => document.getElementById(id);
+  for (const id of ['plain', 'nfc', 'onecol', 'vert', 'padded']) $(id).textContent = text;
+  // Same text, every fifth word raised: superscript-like boxes on the same line.
+  $('shifted').innerHTML = words
+    .map((w, i) => (i % 10 === 4 ? `<span class="up">${w}</span>` : i % 10 === 9 ? `<sup>${w}</sup>` : w))
+    .join(' ');
+  // Smaller inline code: wraps differently, so it is checked against word positions.
+  $('code').innerHTML = words.map((w, i) => (i % 6 === 2 ? `<code>${w}</code>` : w)).join(' ');
+  // Accented letters stored two ways.
+  const accented = text.replace(/e/g, 'é').replace(/a/g, 'ä');
+  $('nfc').textContent = accented.normalize('NFC');
+  $('nfd').textContent = accented.normalize('NFD');
+  $('cols').textContent = text + ' ' + text;
+  $('onecol').textContent = text + ' ' + text;
+  $('spaced').textContent = text;
+  // A forced break must end a line the way a paragraph end does.
+  const half = Math.floor(words.length / 2);
+  const a = words.slice(0, half).join(' ');
+  const b = words.slice(half).join(' ');
+  $('br').innerHTML = `${a}<br>${b}`;
+  const [p1, p2] = $('twoparas').children;
+  p1.textContent = a;
+  p2.textContent = b;
+</script>
+</body>
+</html>

@@ -157,8 +157,10 @@ characters per line, roughly double the 66 ideal").
 - **Measure**: count characters per line in the rendered page instead of
   trusting `ch`. `1ch` is the width of the zero, usually wider than the average
   letter, so `66ch` often fits 75+ characters (97 in a wide geometric sans).
-  The script counts full lines in Chromium and reports the box in px, `ch` and
-  `em`, so you can correct the value in one step:
+  The script counts full lines in Chromium (graphemes, so accents count once;
+  columns and vertical text on their own axis), reports the content box in px,
+  `ch` and `em` and names the face that actually rendered, so you can correct
+  the value in one step:
   ```bash
   node scripts/measure-line.js --css prose.css          # built-in sample prose
   node scripts/measure-line.js page.html ".prose > p"    # an existing page

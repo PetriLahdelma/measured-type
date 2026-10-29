@@ -102,9 +102,10 @@ node scripts/measure-line.js --css prose.css
 ```text
 .prose > p at 1280px, zoom 1: 66.1 chars/line (inside 45-75)
   range 60-71 over 20 full lines in 4 paragraphs
-  Verdana, "DejaVu Sans", "Bitstream Vera Sans", sans-serif 18px, line-height 28.8px
-  box 621px = 54.3ch = 34.5em
-  zero 0.636em vs average character 0.522em
+  declared Verdana, "DejaVu Sans", "Bitstream Vera Sans", sans-serif 18px, line-height 28.8px
+  rendered with Verdana (system font, 350 glyphs)
+  content box 621px = 54.3ch = 34.5em
+  zero 0.636em vs average character 0.504em
 ```
 
 `54.3ch` for 66 characters: the last line says why.
