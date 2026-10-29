@@ -48,7 +48,7 @@ not leak into cards and controls.
 | § | Rule | Numbers | Current CSS |
 |---|---|---|---|
 | 2.1.2 | Comfortable measure | 45–75 characters, 66 ideal; 40–50 per column in multi-column | `max-inline-size: 34em` or about `60ch`, then count (see §5) |
-| 2.2.1 | Leading suits face, size and measure | body ~1.4–1.6; display ~1.05–1.2; wider measure, more lead | unitless `line-height` only |
+| 2.2.1 | Leading suits face, size and measure | body ~1.4–1.6; display ~1.05–1.2; wider measure, more lead | unitless `line-height` for body text; headings may use a whole number of body lines (`line-height: var(--line)`) |
 | 2.2.2 | Vertical space in measured intervals | every gap a multiple (or half) of the body line | `--line: calc(size * leading)` (or `1rlh` only if body = root size), `text-box: trim-both cap alphabetic` |
 | 2.3.1–2 | Mark paragraphs one way | first paragraph flush; later ones indent at least 1 en, typically 1em; or space them, never both | `p + p { text-indent: 1em; margin-block-start: 0 }` |
 | 2.1.3 | Ragged unless justification is earned | justify only with working hyphenation and a wide measure; sans and mono stay ragged | `text-align: start` |
@@ -114,6 +114,10 @@ Details, language tables and code: `references/logical-and-language.md`.
 10. Check WCAG 1.4.12: the layout must survive user overrides of line-height
     1.5, paragraph spacing 2em, letter-spacing 0.12em and word-spacing 0.16em,
     so avoid fixed heights on text boxes.
+11. Check WCAG 1.4.10: at 320 CSS px (a 1280px window at 400% zoom) text
+    reflows into one column without sideways scrolling. Page zoom scales `px`
+    too, so a fixed `width: 960px` keeps its character count but no longer
+    fits; `max-inline-size` lets the box shrink.
 
 ### Building or reviewing a type scale
 
@@ -126,9 +130,11 @@ Details, language tables and code: `references/logical-and-language.md`.
   part does not grow with zoom, so keep each range modest and compute the
   ratio at 200% zoom (see `rules.md` §3.1.1). A pure `vw` value fails zoom.
   Narrow ranges compress the steps on phones: keep only hero and h1 fluid and
-  give h3/h4 fixed sizes at least 1.15–1.2× apart.
-- Pair each size with its own unitless line-height and, for caps or display
-  roles, its tracking. Leading tightens and tracking moves slightly negative as
+  give h3/h4 fixed sizes a clear step apart (aim for 1.2–1.25×, never below
+  about 1.15× even on phones).
+- Pair each size with its own line-height (unitless, or for headings a whole
+  number of body lines so wrapped headings stay on the beat) and, for caps or
+  display roles, its tracking. Leading tightens and tracking moves slightly negative as
   size grows; caps and small labels get positive tracking.
 - Express spacing tokens as multiples of the base line so headings and body
   share one rhythm.

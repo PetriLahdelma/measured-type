@@ -22,13 +22,13 @@ or caniuse instead of trusting this table.
 | `page-break-inside: never` | **invalid value** | `break-inside: avoid` |
 | `content: "2022"` / `content: "2767"` | **bug**: prints the digits | `content: "\2022"` / `"\2767"` |
 | `font-variant: small-caps` on a font without `smcp` | browser fakes it | `font-variant-caps: all-small-caps` + `font-synthesis: none` |
-| `font-feature-settings: "onum"` for figures | works, but overrides all other features | `font-variant-numeric: oldstyle-nums` |
+| `font-feature-settings: "onum"` for figures | works, but it is one property: a later `font-feature-settings: "tnum"` replaces the whole list and drops `onum`, while `font-variant-numeric` values set separately combine | `font-variant-numeric: oldstyle-nums` |
 | `text-rendering: optimizeLegibility` | legacy; can slow long pages | `font-kerning: normal`; ligatures are on by default |
 | `-webkit-font-smoothing: antialiased` everywhere | macOS-only, thins text | omit for body text; consider it only for light-on-dark display |
 | `line-height: 22px` / `line-height: 1.5em` | inherits a fixed length | unitless `line-height: 1.5` |
-| `html { font-size: 62.5% }` | overrides reader settings | `font-size: 100%` and `rem` tokens |
-| `font-size: 4vw` | ignores zoom (WCAG 1.4.4) | `clamp(2rem, 1.5rem + 2vi, 4rem)` |
-| `width: 960px` on text containers | measure changes with zoom | `max-inline-size: 34em` |
+| `html { font-size: 62.5% }` | still relative, but 1rem becomes 10px: every inherited size must be restated and components that assume 16px shrink (`px` on `:root` is what overrides reader settings) | `font-size: 100%` and `rem` tokens |
+| `font-size: 4vw` | ignores zoom (WCAG 1.4.4) | `clamp(1.75rem, 1.5rem + 1vi, 2.375rem)`: a modest range, checked at 200% zoom |
+| `width: 960px` on text containers | zoom scales it, so it stops fitting narrow windows (WCAG 1.4.10 reflow); larger default text shrinks the measure | `max-inline-size: 34em` |
 | `margin-left`, `padding-right`, `left`, `text-align: left` | physical | logical equivalents, see `logical-and-language.md` |
 | `<acronym>` | removed from HTML | `<abbr title="...">` |
 | `display: table` to center verse in IE | workaround | `inline-size: fit-content; margin-inline: auto` |

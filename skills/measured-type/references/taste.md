@@ -17,7 +17,8 @@ expensive as a whole.
 ## Hierarchy
 
 - **Few sizes, clear steps.** Adjacent roles you want readers to distinguish
-  should differ by at least a step of about 1.2–1.25×. Sizes 1–2px apart read
+  should differ by a step of about 1.2–1.25× (never below about 1.15×, the
+  floor `rules.md` §3.1.1 sets for phones). Sizes 1–2px apart read
   as mistakes, not hierarchy.
 - **Two or three weights.** Regular for text, one heavier weight for emphasis
   and headings, perhaps one display weight. Medium, semibold and bold side by

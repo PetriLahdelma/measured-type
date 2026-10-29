@@ -187,7 +187,7 @@ which is where unhyphenated narrow columns fail first.
 | Primary quotes | “ ” (US); UK often ‘ ’ | ” ” (U+201D on both sides) | ” ” (U+201D on both sides) |
 | Secondary quotes | ‘ ’ | ’ ’ | ’ ’ |
 | Alternative | | » » | » » |
-| Apostrophe | ’ | ’ (also in inflected forms: *Rutterin*, *CSS:n*) | ’ (rare) |
+| Apostrophe | ’ | ’ in consonant gradation (*vaa’an*) and after foreign names ending in a silent letter (*Bordeaux’ssa*); abbreviations inflect with a colon instead (*CSS:n*) | ’ (rare) |
 | Thousands | 1,000 | 1 000 (no-break space) | 1 000 (no-break space) |
 | Decimal | 2.5 | 2,5 | 2,5 |
 | Currency | €1,000 | 1 000 € | 1 000 € / 1 000 kr |

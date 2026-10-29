@@ -64,15 +64,17 @@ lines break phrases and fragment reading.
 
   | Face | zero | average character | `66ch` | `60ch` | `55ch` | `34em` |
   |---|---|---|---|---|---|---|
-  | Verdana (wide humanist sans) | 0.64em | 0.52em | 81 | 73 | 67 | 65 |
-  | Outfit (wide geometric sans) | 0.66em | 0.45em | 97 | 88 | 81 | 75 |
-  | Source Serif 4 (text serif) | 0.51em | 0.47em | 72 | 66 | 59 | 73 |
+  | Verdana (wide humanist sans) | 0.64em | 0.50em | 81 | 73 | 67 | 65 |
+  | Outfit (wide geometric sans) | 0.66em | 0.43em | 97 | 88 | 81 | 75 |
+  | Source Serif 4 (text serif) | 0.51em | 0.45em | 72 | 66 | 59 | 73 |
 
   The average includes word spaces. Geometric sans faces with round, wide
   figures are the worst case for `ch`. Narrow text serifs break the `em` rule
   of thumb the other way: `34em` overshoots.
-- Either unit is fine **once measured**. `em` is stable for one known face;
-  `ch` follows whichever face actually renders, so it holds up better when
+- Either unit is fine **once measured**. `em` is stable for one known face
+  at one optical size. With an `opsz` axis the face changes width with size:
+  Source Serif 4 at `34em` and 18px sets 66 characters at `opsz` 8, 74 at 20
+  and 83 at 60, so measure at the size you ship. `ch` follows whichever face actually renders, so it holds up better when
   fallback fonts of different widths may appear. Never ship a `ch` or `em`
   value from a rule of thumb; count rendered characters (SKILL.md §5).
 - Inside components, measure against the container rather than the viewport:
@@ -84,8 +86,11 @@ lines break phrases and fragment reading.
   shorter.
 
 **Traps.** Unconstrained `width: 100%` text on desktop (120+ characters).
-Fixed `px` containers whose character count changes as readers zoom. WCAG
-1.4.8 (AAA) caps lines at 80 characters, inside Bringhurst's range.
+Fixed `px` containers: page zoom scales them with the text, so the count
+holds, but the box stops fitting narrow windows and forces sideways scrolling
+(WCAG 1.4.10 asks for reflow at 320 CSS px); a reader who raises the default
+font size gets fewer characters per line in the same box. WCAG 1.4.8 (AAA)
+caps lines at 80 characters, just above Bringhurst's 45–75.
 
 ### 2.1.3 Set ragged if ragged setting suits the text and page
 
@@ -110,9 +115,9 @@ stacked `&nbsp;`:
 | Char | Name | Use |
 |---|---|---|
 | U+2002 | en space | separators in contents lists |
-| U+2009 | thin space | around `×`, between initials, French punctuation |
+| U+2009 | thin space | around `×`, between initials (it can break) |
 | U+200A | hair space | between initials, around a closed en dash |
-| U+202F | narrow no-break space | thousands groups and number-unit pairs |
+| U+202F | narrow no-break space | thousands groups, number-unit pairs, French `; : ! ?` and inside « » |
 | U+00A0 | no-break space | keep words together; it also means "do not break" |
 
 For code or verse whose spacing carries meaning, use `<pre>` or
@@ -215,8 +220,10 @@ measure (wider lines want more).
 
 **Now.**
 
-- Always unitless: `line-height: 1.5`. A length (`px`, `em` computed on the
-  parent) is inherited as a fixed value and overlaps when a child is larger.
+- Unitless for body text and anything with children: `line-height: 1.5`. A
+  length (`px`, `em` computed on the parent) is inherited as a fixed value and
+  overlaps when a child is larger. The one deliberate exception is a heading
+  set to a whole number of body lines (2.2.2), which has no larger children.
 - Body text: roughly 1.4–1.6 on screen. Display: 1.05–1.2. Captions and small
   UI: 1.3–1.45.
 - Browsers split leading equally above and below the line, unlike metal type.
@@ -243,17 +250,20 @@ main text should return on the beat.
 .prose {
   --body-size: 1.125rem;
   --body-leading: 1.55;
-  --line: calc(var(--body-size) * var(--body-leading));  /* one body line */
+  --line: calc(var(--body-size) * var(--body-leading));  /* 18px × 1.55 = 27.9px */
   font-size: var(--body-size);
   line-height: var(--body-leading);
 }
 /* Space with top margins only, so nothing collapses unexpectedly. */
 .prose > * { margin-block: 0; }
 .prose > * + * { margin-block-start: var(--line); }
-.prose > h2 { font-size: 1.5rem; line-height: 1.25; margin-block-start: calc(2 * var(--line)); }
-.prose > h3 { font-size: 1.25rem; line-height: 1.3; margin-block-start: calc(1.5 * var(--line)); }
+.prose > :is(h2, h3) { line-height: var(--line); }                  /* each heading line is one body line */
+.prose > h2 { font-size: 1.5rem; margin-block-start: calc(2.5 * var(--line)); }   /* 24px, ratio 1.16 */
+.prose > h3 { font-size: 1.25rem; margin-block-start: calc(1.5 * var(--line)); }  /* 20px, ratio 1.4 */
 .prose > :is(h2, h3) + * { margin-block-start: calc(0.5 * var(--line)); }  /* tight under headings */
 .prose > h2 + h3 { margin-block-start: var(--line); }
+/* An h2 takes 2.5 + 1 + 0.5 = 4 lines and an h3 1.5 + 1 + 0.5 = 3, so the
+   text after either lands back on the body interval, wrapped or not. */
 ```
 
 - **Margin collapse trap.** Do not give headings a bottom margin while a
@@ -267,17 +277,18 @@ main text should return on the beat.
   paragraph's top (`getBoundingClientRect`) should equal the intended fraction
   of `--line`.
 
-- **Keep headings on the beat.** If a heading's line-height is an arbitrary
-  ratio (1.2 of 24px = 28.8px is fine, 1.3 of 20px = 26px is not), every block
-  after it drifts off the body interval. Where the size allows, set heading
-  line-height as a length tied to the body line, so a wrapping heading still
-  occupies whole lines:
+- **Keep headings on the beat.** A heading with an arbitrary unitless ratio
+  (`line-height: 1.25` on 24px is 30px against a 27.9px body line) pushes
+  every block after it off the interval and more so each time it wraps. That
+  is why the example sets heading line-height as a length tied to the body
+  line. Larger headings take a multiple:
   ```css
-  .prose > h2 { font-size: 1.5rem; line-height: var(--line); }               /* 24px on 28.8px */
-  .prose > h1 { font-size: 2.25rem; line-height: calc(1.5 * var(--line)); }  /* 36px on 43.2px */
+  .prose > h1 { font-size: 3rem; line-height: calc(2 * var(--line)); }  /* 48px on 55.8px, ratio 1.16 */
   ```
   Choose the multiple (1, 1.5 or 2 lines) that gives a heading ratio of about
-  1.05–1.3. A length line-height is safe here because headings do not pass it
+  1.05–1.3; a small heading close to body size, like the 20px h3 above, can sit
+  nearer body leading (1.4). Only whole multiples keep a wrapped heading on the
+  beat; 1.5 lines drifts by half a line per extra line. A length line-height is safe here because headings do not pass it
   to larger children. A strict baseline grid is still fragile (fallback fonts,
   images of unknown height); the aim is measured steps, not perfection.
 - `text-box: trim-both cap alphabetic` trims the half-leading above the cap
@@ -313,7 +324,7 @@ Choose one convention:
 .prose p + p { text-indent: 1em; }    /* 1em, or 1lh to describe a square */
 
 /* Block paragraphs: the web default, good for skimmable docs */
-.prose p + p { margin-block-start: 1rlh; }
+.prose p + p { margin-block-start: var(--line); }   /* not 1rlh unless body = root size */
 ```
 
 Never both indent and space. Other conventions (outdents with negative
@@ -329,7 +340,7 @@ interval and indent it from the start edge with logical properties:
 
 ```css
 .prose blockquote {
-  margin-block: 1rlh;
+  margin-block: var(--line);
   margin-inline: 1.5em 0;
   padding-inline-start: 1em;
   border-inline-start: 2px solid currentColor;
@@ -427,7 +438,7 @@ alone on a paragraph's last line.
 h1, h2, h3 { text-wrap: balance; }  /* even line lengths in headings */
 
 @media print {
-  p { widows: 2; orphans: 2; }
+  p { widows: 3; orphans: 3; }   /* the initial value is 2, so 2 changes nothing */
   h2, h3 { break-after: avoid; }
   figure, table, blockquote { break-inside: avoid; }
 }
@@ -451,7 +462,7 @@ own devising.
 
 - Tokens in `rem`, with roles: `--text-s`, `--text-m`, `--title-s`... A
   reading site rarely needs more than 6–8.
-- Fluid sizes: `clamp(1.5rem, 1.2rem + 1.2vi, 2.25rem)`; the `rem` term keeps
+- Fluid sizes: `clamp(1.75rem, 1.5rem + 1vi, 2.375rem)` (a 1.36× range); the `rem` term keeps
   zoom working. Fluid sizing belongs to display roles; body, small, caption
   and label sizes stay fixed `rem`, so they double exactly at 200% zoom.
 - **Zoom math.** Zoom doubles `rem` but halves the CSS viewport, so the `vi`
@@ -467,11 +478,13 @@ own devising.
   to its neighbour at 360px, the steps collapse (22 over 20px is a 1.10 step,
   which reads as a mistake). Resolve it by keeping only the top one or two
   roles fluid (hero, h1) and setting h3 and h4 as fixed `rem` sizes a clear
-  step apart (at least 1.15–1.2× at every width), or by dropping a heading
+  step apart (aim for 1.2–1.25×, never below about 1.15× at any width), or by dropping a heading
   level. Check both constraints in the same script: adjacent ratios at 360px
   and 1440px, and the 200% zoom ratio at the worst window.
-- Set `font-size: 100%` (or nothing) on `:root`, never `62.5%` tricks or `px`,
-  so the reader's default size is respected.
+- Set `font-size: 100%` (or nothing) on `:root`. A `px` value there overrides
+  the reader's default size. `62.5%` stays relative to it, but makes 1rem 10px,
+  so every inherited size has to be restated and third-party components that
+  assume 16px come out small.
 - Use `font-optical-sizing: auto` with variable fonts that have an `opsz` axis,
   so small sizes get sturdier forms and large sizes get finer ones.
 - Use `font-size-adjust` (for example `font-size-adjust: ex-height 0.5`) when
@@ -508,7 +521,8 @@ acronyms of personal names (DC, JFK). Genuine small caps are drawn as such;
 shrunken capitals are a parody.
 
 ```css
-.prose abbr {
+/* Scope to marked acronyms: a bare `abbr` also catches e.g., kg and PhD. */
+.prose abbr.sc {
   font-variant-caps: all-small-caps;
   font-variant-numeric: oldstyle-nums;
   letter-spacing: 0.05em;
