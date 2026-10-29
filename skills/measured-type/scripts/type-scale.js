@@ -10,6 +10,8 @@
  * --steps    number of steps above the body (step 0)
  * --viewports  where the fluid ramp starts and ends, in px (default 360:1440)
  * --fluid-from N  keep steps below N fixed in rem at their large-viewport size
+ * --prefix NAME  token name prefix (default step: --step-0); font-size gives --font-size-0,
+ *                which Rhythmguard's typography scale "auto" reads
  *                (rules.md §3.1.1: body and small headings stay fixed)
  *
  * Each step is `clamp(min-rem, rem + vi, max-rem)`, fixed `rem` when min equals
@@ -46,7 +48,7 @@ function buildStep(step, minPx, maxPx, [w0, w1]) {
   return { css, f: (W) => Math.max(lo * ROOT_PX, Math.min(intercept * ROOT_PX + (vi * W) / 100, hi * ROOT_PX)) };
 }
 
-function scale({ base, ratio, steps, viewports, fluidFrom = 0 }) {
+function scale({ base, ratio, steps, viewports, fluidFrom = 0, prefix: tokenPrefix = 'step' }) {
   const [b0, b1] = base;
   const [r0, r1] = ratio;
   const out = [];
@@ -81,7 +83,8 @@ function scale({ base, ratio, steps, viewports, fluidFrom = 0 }) {
     s.f = f;
     out.push(s);
   }
-  const css = `:root {\n${out.map((s) => `  --step-${s.step}: ${s.css};`).join('\n')}\n}`;
+  const prefix = String(tokenPrefix).replace(/^-+/, '');
+  const css = `:root {\n${out.map((s) => `  --${prefix}-${s.step}: ${s.css};`).join('\n')}\n}`;
   return { css, steps: out.map(({ f, ...rest }) => rest), ok: out.every((s) => !s.failures.length) };
 }
 
@@ -109,6 +112,7 @@ if (require.main === module) {
       steps: Number(opt('steps', 5)),
       viewports: pair(opt('viewports', '360:1440')),
       fluidFrom: Number(opt('fluid-from', 0)),
+      prefix: opt('prefix', 'step'),
     });
   } catch (err) {
     console.error(err.message);

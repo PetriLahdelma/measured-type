@@ -10,7 +10,7 @@
 [![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
 
-**[Install](#install)**&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[View the evaluations](evals/results/iteration-2/benchmark.md)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
+**[Install](#install)**&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[View the evaluations](#evidence)&emsp;[With Rhythmguard](#pairs-with-rhythmguard)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
 
 Measured Type brings typographic judgment into a coding agent's workflow, with
 tools for checking the parts that can be measured. It is for design engineers,
@@ -69,6 +69,11 @@ node ~/.claude/skills/measured-type/scripts/lint-css.js src
 
 ```bash
 node ~/.claude/skills/measured-type/scripts/estimate-measure.js "Verdana" 66ch
+```
+
+```text
+about 81 characters per line in Verdana at 66ch (estimate from a Chromium calibration, not a measurement)
+  671.6px at 16px; average character 0.504em, zero 0.636em
 ```
 
 The linter reads CSS, Sass, Less, HTML, the `<style>` blocks of Vue, Svelte
@@ -241,6 +246,44 @@ every change with the section it follows: measure, leading, rhythm in whole body
 lines, paragraph marking, figures, small caps, minus signs, hard spaces and
 logical sides.
 
+### A dense dashboard
+
+Product UI fails differently from an article. Nothing is too long to read; it
+is hard to compare. Figures that are not tabular cannot line up, so 411 108
+and 80 011 sit at different edges even in a column of their own:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/brand/tabular-figures-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset=".github/brand/tabular-figures-light.png">
+  <img alt="The same four-row service table set twice in system-ui at 15px. With the defaults, start-aligned proportional figures: the digit 1 is 26.9% narrower than 0 and the last digits of the Requests column end across 434 to 447px. With text-align: end and tabular-nums: 0% difference and every last digit at one position." src=".github/brand/tabular-figures-light.png" width="100%">
+</picture>
+
+The audit of the ops dashboard used in head-to-head 2 and 3
+([`evals/h2h-dashboard/`](evals/h2h-dashboard/files/)), unedited except for
+the rows left out:
+
+```bash
+node scripts/page-audit.js dashboard.html
+```
+
+```text
+| Severity | Rule | Location | Measured | Fix |
+|---|---|---|---|---|
+| HIGH | MT-CONTRAST | `p.foot` | 2.23:1 (rgb(170, 170, 170) on rgb(250, 250, 250), needs 4.5:1) | darken the text or lighten the ground to reach the ratio |
+| HIGH | MT-REFLOW | `table.services at 320 CSS px (400% zoom of 1280)` | page is 924px wide in a 320px viewport | max-inline-size instead of fixed widths; let tables scroll inside a wrapper |
+| MEDIUM | MT-TABULAR | `table.services column 3`, `table.services column 4`, `table.services column 5` | 1 and 0 differ by 26.8% in width, so digits do not line up | font-variant-numeric: lining-nums tabular-nums on the column |
+| LOW | MT-CAPS-TRACKING | `header.top > p.eyebrow`, `section.kpis > div.kpi > p.kpi-label`, `thead > tr > th` | capitals at 11px with letter-spacing 0px | letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6) |
+| LOW | MT-NUM-ALIGN | `table.services column 3`, `table.services column 4`, `table.services column 5` | numbers of different lengths set text-align: left | text-align: end on the number cells and their header, so place values line up |
+| LOW | MT-TRUNCATE | `tr > td > span.name` | "Authentication gateway for partner accounts" cut at 1280px with no title or accessible name | let it wrap, or put the full text in a title or tooltip that keyboard users can reach |
+| LOW | MT-UI-SIZE | `p.foot` | 10px interface text (house floor 12px) | font-size: 0.75rem or more |
+
+Verdict: Block (9 HIGH)
+```
+
+(Excerpt: the full report has 14 rows, among them three more contrast failures
+and the `3vw` KPI figures that do not grow with zoom.) What the checks are
+and where each rule comes from: [`references/product-ui.md`](skills/measured-type/references/product-ui.md).
+
 ## Tools
 
 Six scripts turn the rules into numbers. Each one has tests that were written
@@ -257,7 +300,7 @@ measured value, the CSS fix and a Block or Approve verdict
 | [`measure-line.js`](skills/measured-type/scripts/measure-line.js) | Characters per line of one selector, graphemes and columns counted correctly |
 | [`estimate-measure.js`](skills/measured-type/scripts/estimate-measure.js) | Characters per line for a face and a width without a browser, from a Chromium calibration (within 6% of the rendered count in the tests) |
 | [`fallback-metrics.py`](skills/measured-type/scripts/fallback-metrics.py) | A metric-matched fallback `@font-face` from the font files, so the web font swaps in without reflow |
-| [`type-scale.js`](skills/measured-type/scripts/type-scale.js) | Fluid `clamp()` tokens, each checked for range, zoom growth and step ratio before it is printed |
+| [`type-scale.js`](skills/measured-type/scripts/type-scale.js) | Fluid `clamp()` tokens, each checked for range, zoom growth and step ratio before it is printed; `--prefix font-size` names them for Rhythmguard |
 
 ```bash
 node scripts/page-audit.js examples/editorial/before.html
@@ -275,7 +318,28 @@ Verdict: Block (4 HIGH)
 Not verified: Safari and Firefox rendering (Chromium only)
 ```
 
-(Excerpt: the full report has nine rows, including a Helvetica standfirst whose I and l the new glyph check flags.) The same audit approves `after.html`.
+(Excerpt: the full report has eleven rows, including a Helvetica standfirst whose I and l the glyph check flags and a number column set start-aligned.) The same audit approves `after.html`.
+
+## In CI and pull requests
+
+The linter needs no install and exits 1 when a HIGH finding remains, so it
+can gate a pull request on its own. `--diff` limits it to the lines the branch
+changed, which lets an older codebase adopt it without fixing everything
+first:
+
+```bash
+node path/to/measured-type/scripts/lint-css.js src --diff origin/main
+```
+
+The rendered audit needs Playwright and a page to load: point it at a preview
+deployment or a built HTML file. Without a browser it lints instead and lists
+what it did not check, so a CI log never claims a measurement it did not make.
+
+```bash
+node path/to/measured-type/scripts/page-audit.js https://preview.example.com/post
+```
+
+Exit codes for both: 0 approve, 1 block (a HIGH finding), 2 usage error.
 
 ## How it works
 
@@ -287,7 +351,8 @@ Not verified: Safari and Firefox rendering (Chromium only)
 3. **Decide with the rules.** Bringhurst's [*The Elements of Typographic Style*](https://www.amazon.com/dp/0881792128),
    numbered so reviews can cite `§2.1.2`, translated into CSS that ships today.
 4. **Measure what can be measured.** Characters per line, zoom ratios,
-   rendered hard spaces, font coverage.
+   rendered hard spaces, font coverage, figures in a number column. With no
+   browser, estimate and say so.
 5. **Review with a point of view.** A taste reference for what reads as
    considered and for the template tells that read as defaults.
 
@@ -303,6 +368,8 @@ Open the part that answers the question in front of you.
 | Whether a font has real small caps or text figures | [Checking what a font contains](skills/measured-type/references/rules.md#checking-what-a-font-contains), then [`font-features.py`](skills/measured-type/scripts/font-features.py) |
 | Spacing for capitals, labels and acronyms | [Letterspace capitals and small caps](skills/measured-type/references/rules.md#216-letterspace-capitals-small-caps-and-long-digit-strings) |
 | Data tables, labels, badges and status text | [Dense product UI](skills/measured-type/references/product-ui.md) |
+| Inline code, icons beside labels, heading order, pairing faces, kerning, thin weights | [Screen and interface type](skills/measured-type/references/screen-and-ui.md) |
+| A line length with no browser at hand | [`estimate-measure.js`](skills/measured-type/scripts/estimate-measure.js), then measure when you can |
 | Where hard spaces go | [Link short numerical expressions](skills/measured-type/references/rules.md#246-link-short-numerical-expressions-with-hard-spaces) |
 | Making a layout work right to left | [Physical to logical map](skills/measured-type/references/logical-and-language.md#physical-to-logical-map) and [Mirroring](skills/measured-type/references/logical-and-language.md#mirroring) |
 | Quotes, decimals, units and dates for a locale | [Locale conventions](skills/measured-type/references/logical-and-language.md#locale-conventions-the-pattern), worked for English, Finnish and Swedish |
@@ -444,8 +511,9 @@ The outputs, grades and timings of every run are in
 [`evals/results/iteration-2/`](evals/results/iteration-2/),
 [`iteration-1/`](evals/results/iteration-1/),
 [`heldout-1/`](evals/results/heldout-1/),
-[`heldout-2/`](evals/results/heldout-2/) and
-[`h2h-1/`](evals/results/h2h-1/).
+[`heldout-2/`](evals/results/heldout-2/),
+[`h2h-1/`](evals/results/h2h-1/), [`h2h-2/`](evals/results/h2h-2/) and
+[`h2h-3/`](evals/results/h2h-3/).
 
 ## Running the evals
 
@@ -460,9 +528,80 @@ content; `evals/triggering/` measures whether it loads, with skill-creator's
 node skills/measured-type/scripts/measure-line.js --css evals/results/iteration-1/measure-wide-face/with_skill/run-1/outputs/prose.css
 ```
 
+The head-to-head graders render each output in Chromium and print
+`grading.json`:
+
+```bash
+NODE_PATH=skills/measured-type/node_modules node evals/h2h-grade.js h2h-dashboard evals/results/h2h-3/runs/h2h-dashboard/pkfafu/outputs
+```
+
 The `ofl-feature-check` and `heldout-results-table` outputs reference `fonts/`;
 copy the case's `files/fonts/` next to them first. The results folders do not
 duplicate the font files.
+
+## Pairs with Rhythmguard
+
+[**Rhythmguard**](https://github.com/PetriLahdelma/stylelint-plugin-rhythmguard)
+is a Stylelint plugin by the same author, built on one line: *nobody chose
+13px*. It answers a different question from this skill; the two do not
+overlap:
+
+| | Measured Type | Rhythmguard |
+|---|---|---|
+| Asks | Is this value right for a reader? | Is this value one of ours? |
+| Checks | Measure, zoom, contrast, figures, capitals, truncation, font features, rendered in a browser | Spacing values and opt-in type sizes, against your scale or tokens |
+| Reads | CSS, Sass, Less, HTML, components and Tailwind classes | CSS and SCSS through Stylelint, Tailwind class strings through its ESLint companion |
+| Fixes | Explains each finding with its number, source and CSS | Autofixes to the nearest step or token |
+| Runs as | An agent skill with scripts | Stylelint and ESLint rules, an audit CLI and a GitHub Action |
+
+**Together:** let Measured Type build the scale and Rhythmguard keep everyone
+on it. Generate the type tokens with the names Rhythmguard reads, add the
+small label and caption sizes by hand, then point Rhythmguard at both token
+files:
+
+```bash
+node scripts/type-scale.js --base 1rem:1.125rem --ratio 1.2:1.25 --steps 5 --fluid-from 4 --prefix font-size
+```
+
+```json
+{
+  "plugins": ["stylelint-plugin-rhythmguard"],
+  "rules": {
+    "rhythmguard/use-scale": [true, {
+      "propertyGroups": ["spacing", "typography"],
+      "scale": "auto",
+      "scaleSources": ["src/space.css", "src/type.css"],
+      "scales": { "typography": "auto" }
+    }]
+  }
+}
+```
+
+On one stylesheet, each tool finds what the other leaves alone:
+
+```css
+.prose { font-family: Verdana, sans-serif; font-size: var(--font-size-0); line-height: 1.6; max-inline-size: 66ch; }
+.prose h2 { font-size: var(--font-size-3); margin-block: var(--space-8) var(--space-3); }
+.card { padding: 13px; margin-block-end: var(--space-6); }
+.card-title { font-size: 17px; text-transform: uppercase; }
+.kpi { font-size: 3vw; }
+```
+
+```text
+npx stylelint src/app.css
+  3:18  Unexpected off-scale value "13px". Use scale values (nearest: 12px or 16px).
+  4:26  Unexpected off-scale value "17px". Use typography scale values (nearest: 14px or 18px).
+
+node scripts/lint-css.js src
+  HIGH  MT-ZOOM-VW        .kpi { font-size: 3vw } never reaches 2× zoom, even at 500% (1.00×)
+  LOW   MT-CAPS-TRACKING  .card-title { text-transform: uppercase } without letter-spacing
+  LOW   MT-MEASURE-CH     .prose { max-inline-size: 66ch }: about 81 characters per line in Verdana (estimate)
+```
+
+(Both outputs shortened to one line per finding; run with Stylelint 17.16 and
+Rhythmguard 3.14.0.) Rhythmguard skips fluid `clamp()` and `vw` sizes by
+design, which is exactly the case Measured Type evaluates at every zoom
+level; Measured Type has no idea which 13px your team never chose.
 
 ## Support Measured Type
 

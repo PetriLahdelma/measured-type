@@ -77,3 +77,11 @@ test('D6 --fluid-from keeps lower steps fixed rem and keeps fluid steps a ratio 
     assert.ok(s.stepRatioMin >= 1.2 - 1e-3, `step ${s.step} only ${s.stepRatioMin}x above the step below at the small end`);
   }
 });
+
+test('D7 --prefix names the tokens, so a linter that infers a type scale from --font-size-* can read them', () => {
+  const r = run([...GOOD, '--prefix', 'font-size']);
+  assert.equal(r.status, 0, r.stderr + r.stdout);
+  assert.match(r.stdout, /--font-size-0: /);
+  assert.doesNotMatch(r.stdout, /--step-/);
+  assert.match(run(GOOD).stdout, /--step-0: /);
+});
