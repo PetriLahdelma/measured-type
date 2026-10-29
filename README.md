@@ -1,19 +1,16 @@
-<picture>
+<h1><picture>
   <source media="(prefers-color-scheme: dark)" srcset=".github/brand/readme-header-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset=".github/brand/readme-header-light.svg">
   <img alt="Measured Type. Type, with proof. An agent skill for considered web typography." src=".github/brand/readme-header-light.svg" width="100%">
-</picture>
+</picture></h1>
 
-[![Agent skill: Claude Code](https://img.shields.io/badge/agent_skill-Claude_Code-20211F)](skills/measured-type/SKILL.md)
-[![Evals: 5 cases with baseline](https://img.shields.io/badge/evals-5_cases%2C_with_baseline-B33A32)](evals/results/iteration-1/benchmark.md)
-[![Text: CC BY-NC 4.0](https://img.shields.io/badge/text-CC_BY--NC_4.0-61645E)](LICENSE-CC-BY-NC-4.0.txt)
-[![Code: MIT](https://img.shields.io/badge/code-MIT-61645E)](LICENSE-MIT.txt)
+[![Agent skill: Claude Code and gh skill](https://img.shields.io/badge/agent_skill-Claude_Code_and_gh_skill-20211F)](skills/measured-type/SKILL.md)
+[![Evals: development set, 5 cases](https://img.shields.io/badge/evals-development_set%2C_5_cases-B33A32)](#evidence)
+[![License: CC BY-NC 4.0 text, MIT code](https://img.shields.io/badge/license-CC_BY--NC_4.0_text%2C_MIT_code-61645E)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
-[![Sponsor](https://img.shields.io/badge/Sponsor-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/PetriLahdelma)
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/petrilahdey)
 
-**[Install](#install)**&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[View the evaluations](evals/results/iteration-1/benchmark.md)&emsp;[License](#license)
+**[Install](#install)**&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[View the evaluations](evals/results/iteration-1/benchmark.md)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
 
 Measured Type brings typographic judgment into a coding agent's workflow, with
 tools for checking the parts that can be measured. It is for design engineers,
@@ -56,6 +53,17 @@ cd ~/.claude/skills/measured-type && npm install && npx playwright install chrom
 pip install fonttools brotli
 ```
 
+**Check the install.** The scripts ship with regression fixtures; run them in
+the folder the skill was installed to and every line should read `ok`:
+
+```bash
+cd ~/.claude/skills/measured-type && npm test
+```
+
+That proves the measuring works. To check that the skill itself loads, ask
+Claude Code *Which measured-type rule covers line length?* The answer should
+cite §2.1.2 and point to `measure-line.js`.
+
 Then ask the way you normally would. The skill's description is written to
 load it whenever the work sets text people read, even when the word typography
 never comes up. That triggering is not benchmarked yet; the evals read the
@@ -93,6 +101,12 @@ line silently becomes a full one.
   <source media="(prefers-color-scheme: light)" srcset=".github/brand/measure-66ch-light.png">
   <img alt="Two paragraphs set at max-inline-size: 66ch and 16px. In Verdana the box is 671px wide and the full lines average 81 characters. In Source Serif 4 the box is 548px wide and the lines average 70 characters. 1ch is the width of the zero: 0.64em in Verdana, 0.52em in Source Serif 4." src=".github/brand/measure-66ch-light.png" width="100%">
 </picture>
+
+| `max-inline-size: 66ch` at 16px | Verdana | Source Serif 4 |
+|---|--:|--:|
+| Width of the zero, `1ch` | 0.64em | 0.52em |
+| Box width | 671px | 548px |
+| Characters per full line | 81 | 70 |
 
 Every number in this figure was counted in the rendered page, not computed from
 the CSS. The same count is one command away. Asked for about 66 characters per
@@ -141,7 +155,11 @@ check smcp: absent
 The same habit applies to metrics. A variable font's metadata describes one
 instance, while the outline at the size you set is what the reader sees:
 
-<img alt="Source Serif 4 lowercase a and x on a baseline, with the x-height line at the top of the x. The rounded a extends slightly above it." src=".github/brand/x-height-specimen.png" width="100%">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/brand/x-height-specimen-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset=".github/brand/x-height-specimen.png">
+  <img alt="Source Serif 4 lowercase a and x on a baseline, with the x-height line at the top of the x. The rounded a extends slightly above it." src=".github/brand/x-height-specimen.png" width="100%">
+</picture>
 
 At weight 450 and optical size 60, the drawn x of Source Serif 4 is 0.453em
 tall. The `OS/2` table's `sxHeight` says 475 units, which matches the outline
@@ -253,7 +271,7 @@ Measured Type is free to use. If it saves you time, optional sponsorship helps
 keep it measured and maintained. Issues with a reproducible case, new eval
 cases and corrections to the references are welcome contributions too.
 
-[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_on_GitHub-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/PetriLahdelma)
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_on_GitHub-BF3989?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/PetriLahdelma)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/petrilahdey)
 
 ## License
