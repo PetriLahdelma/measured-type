@@ -431,8 +431,10 @@ fragment. In table cells, `white-space: nowrap` is a sensible extra guard.
 
 ### 2.4.8 Never begin a page with the last line of a multi-line paragraph
 
-Screens do not paginate, so the live problem is the *runt*: a single short word
-alone on a paragraph's last line.
+The rule is about pages: a paragraph's last line should not open a new page.
+Screens do not paginate, so on screen the related problem is a single short
+word alone on a paragraph's last line, which typesetters call a *runt* (their
+term, not Bringhurst's).
 
 ```css
 .prose p  { text-wrap: pretty; }   /* avoids runts, evens the rag */
@@ -506,7 +508,9 @@ table, .price, .stat, time.duration {
 ```
 
 - Text (oldstyle) figures sit with lowercase and stop numbers shouting in
-  prose. Lining figures belong with capitals and in display.
+  prose. Bringhurst keeps lining (titling) figures for full caps only; lining
+  figures in a mixed-case display heading like the `h1` above are a common web
+  convention, not his rule.
 - Tabular figures share one width so columns of numbers align; use them in
   tables, prices, counters and anything that updates in place.
 - Many UI sans faces default to lining tabular; many text serifs default to
@@ -620,7 +624,8 @@ a word of under four letters; `text-wrap: pretty` and `hyphens` limits handle
 most cases.
 
 **Initials and drop caps.** Use `initial-letter: 3` on `::first-letter`
-(Chromium and Safari) with a fallback that does nothing harmful; set the rest
+(Chromium) plus `-webkit-initial-letter: 3` (Safari, whole numbers only; no
+Firefox) with a fallback that does nothing harmful; set the rest
 of the first line in small caps if you want the classic opening.
 
 **Underlines.** For links in text, `text-underline-offset: 0.15em`,

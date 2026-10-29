@@ -196,13 +196,15 @@ which is where unhyphenated narrow columns fail first.
 | Time | 3:00 PM / 15:00 | klo 15.00 | 15.00 or 15:00 |
 | Date | October 27, 2026 / 27 October 2026 | 27.10.2026 | 27 oktober 2026 / 2026-10-27 |
 | Ranges | 9–5, pp. 12–24 | 9–17, ma–pe | 9–17, mån–fre |
-| Ordinals | 27th | 27. | 27:e |
+| Ordinals | 27th | 27. | 27:e (1:a and 2:a for numbers ending in 1 or 2, except 11:e and 12:e) |
 
 Implementation:
 
 ```js
 new Intl.NumberFormat('fi-FI', { style: 'currency', currency: 'EUR' }).format(1000);
 // "1 000,00 €" with no-break spaces
+// Intl groups four-digit numbers in fi and sv ("1 000"). Some house styles
+// leave them unspaced; useGrouping: 'min2' gives "1000" and still "10 000".
 new Intl.NumberFormat('sv-SE', { style: 'percent' }).format(0.5);   // "50 %"
 // Unit style uses a PLAIN space; bind it yourself:
 new Intl.NumberFormat('fi-FI', { style: 'unit', unit: 'gigabyte' })

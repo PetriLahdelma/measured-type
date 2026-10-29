@@ -43,7 +43,7 @@ or caniuse instead of trusting this table.
 | Property | What it does | Support (late 2026) |
 |---|---|---|
 | `hyphens: auto` | dictionary hyphenation by `lang` | all engines; dictionary coverage varies by engine and language |
-| `hyphenate-limit-chars` | minimum word, before and after lengths | Chromium; others partial or prefixed |
+| `hyphenate-limit-chars` | minimum word, before and after lengths | Chromium 109+ and Firefox 137+; not Safari (use `-webkit-hyphenate-limit-before/after`) |
 | `hyphenate-character` | custom hyphen glyph | broad |
 | `text-wrap: balance` | even line lengths for short text | all engines |
 | `text-wrap: pretty` | avoids runts, better rag in paragraphs | Chromium and Safari; harmless elsewhere |
@@ -56,8 +56,8 @@ or caniuse instead of trusting this table.
 | `font-kerning` | kerning on/off | all engines |
 | `font-optical-sizing` | `opsz` axis follows size | all engines |
 | `font-size-adjust` | match x-height (or cap height) across families | all engines |
-| `size-adjust`, `ascent-override`, `descent-override`, `line-gap-override` in `@font-face` | metric-matched fallback, less layout shift | Chromium and Firefox; Safari partial |
-| `initial-letter` | drop and raised caps | Chromium and Safari |
+| `size-adjust`, `ascent-override`, `descent-override`, `line-gap-override` in `@font-face` | metric-matched fallback, less layout shift | Chromium and Firefox; Safari supports `size-adjust` only |
+| `initial-letter` | drop and raised caps | Chromium; Safari only as `-webkit-initial-letter` with whole numbers; not Firefox |
 | `hanging-punctuation` | hang quotes and stops | Safari only |
 | `text-spacing-trim`, `text-autospace` | CJK punctuation and script spacing | Chromium (and Safari for some values) |
 | `widows`, `orphans` | paged and multicolumn breaks | Chromium and Safari; not Firefox |

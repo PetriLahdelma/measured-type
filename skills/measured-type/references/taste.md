@@ -115,7 +115,8 @@ the reader set to light.
 
 ## Numbers
 
-- Text figures in prose, lining in headings and caps, tabular lining in tables
+- Text figures in prose, lining with caps (Bringhurst) and, by web convention, in
+  display headings; tabular lining in tables
   and prices (see `rules.md` §3.2.1).
 - Big statistics: lining figures, the display weight, units smaller and kept
   on the same line with a hard space.

@@ -53,7 +53,7 @@ not leak into cards and controls.
 | 2.2.2 | Vertical space in measured intervals | every gap a multiple (or half) of the body line | `--line: calc(size * leading)` (or `1rlh` only if body = root size), `text-box: trim-both cap alphabetic` |
 | 2.3.1–2 | Mark paragraphs one way | first paragraph flush; later ones indent at least 1 en, typically 1em; or space them, never both | `p + p { text-indent: 1em; margin-block-start: 0 }` |
 | 2.1.3 | Ragged unless justification is earned | justify only with working hyphenation and a wide measure; ragged usually suits sans and mono | `text-align: start` |
-| 2.4.1 | Hyphenation minimums | 2 letters before the break, 3 after; words of 6+ | `hyphens: auto; hyphenate-limit-chars: 6 2 3` + correct `lang` |
+| 2.4.1 | Hyphenation minimums | 2 letters before the break, 3 after; only words of 6+ letters (a software convention, not Bringhurst's) | `hyphens: auto; hyphenate-limit-chars: 6 2 3` + correct `lang` |
 | 2.4.3 | No hyphen ladders | max 3 consecutive hyphenated lines | `-webkit-hyphenate-limit-lines: 3` (Safari only) |
 | 2.4.5 | Hyphenate by the language's rules | dictionary follows `lang` | `lang` on `<html>` and on every foreign passage |
 | 2.1.6 | Letterspace caps, small caps, long digit strings | +5% to +10% of size | `letter-spacing: 0.05em`–`0.1em` |
@@ -65,7 +65,7 @@ not leak into cards and controls.
 | 3.2.2 | Acronyms in spaced small caps | true `smcp`/`c2sc` only; not for 2-letter places or personal initials | `font-variant-caps: all-small-caps; letter-spacing: 0.05em` |
 | 2.4.6 | Hard spaces in short expressions | `6.2 mm`, `page 3`, `4 × 4`, `1 000 €` | `&nbsp;` / U+202F; `Intl` currency and percent include them, `style: 'unit'` does not |
 | 2.1.5 | Little or no space inside initials | `W.B. Yeats` or hair spaces | U+200A |
-| 2.4.8 | No widows, no runts | screen: avoid one-word last lines; print: 2+ lines | `text-wrap: pretty`; print `widows: 2; orphans: 2` |
+| 2.4.8 | No stranded lines at page breaks | print: never a paragraph's last line at the top of a page; screen: avoid one-word last lines (a web convention) | `text-wrap: pretty`; print `widows: 3; orphans: 3` |
 
 Full reasoning, variants and pitfalls for each rule: `references/rules.md`.
 
