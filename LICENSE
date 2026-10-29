@@ -26,6 +26,13 @@ This repository uses three licenses. Which one applies depends on the file.
    copies of Source Serif 4 (Adobe) and Outfit, each shipped beside its own
    OFL text. They are test fixtures only.
 
+4. Name and brand artwork: not licensed for reuse
+   The Measured Type name, the wordmark and the artwork in .github/brand/
+   identify this project. Neither license above covers them; you may use
+   them to refer to this project. The wordmark lettering is outlined from
+   Source Serif 4 (Adobe, OFL); the typefaces themselves remain under
+   their own licenses.
+
 This note is a description of intent, not legal advice. If the
 NonCommercial term matters for how you want to use the text, read the
 license itself or ask the rights holders.
