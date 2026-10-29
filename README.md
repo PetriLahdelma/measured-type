@@ -60,6 +60,23 @@ agent:
 gh skill install PetriLahdelma/measured-type measured-type --agent claude-code --scope user
 ```
 
+**Try it without installing anything.** The source linter and the measure
+estimate need only Node, no `npm install` and no browser:
+
+```bash
+node ~/.claude/skills/measured-type/scripts/lint-css.js src
+```
+
+```bash
+node ~/.claude/skills/measured-type/scripts/estimate-measure.js "Verdana" 66ch
+```
+
+The linter reads CSS, Sass, Less, HTML, the `<style>` blocks of Vue, Svelte
+and Astro files and Tailwind classes in markup and JSX. The estimate comes
+from a Chromium calibration of 30 faces and says so. Without a browser,
+`page-audit.js` falls back to a lite mode that lints the page's own
+stylesheets and lists every rendered check it skipped.
+
 **The measuring scripts** are optional. The skill works without them but cannot
 measure:
 
@@ -84,9 +101,10 @@ That proves the measuring works. To check that the skill itself loads, ask
 Claude Code *Which measured-type rule covers line length?* The answer should
 cite §2.1.2 and point to `measure-line.js`.
 
-Then ask by name to be sure the skill loads. In a test of twenty prompts
-it loaded on its own reliably for only one of ten typography tasks; a prompt
-that names it (*Use measured-type to …*) loaded it every time. A first task
+Then ask by name to be sure the skill loads. In tests of sixteen typography
+prompts it loaded on its own in only about one run in ten
+([triggering eval](evals/triggering/README.md)); a prompt that names it
+(*Use measured-type to …*) loaded it every time. A first task
 that shows what it adds, run in a project with a stylesheet:
 
 > *Use measured-type to audit the typography in styles.css and fix the HIGH findings. Measure the line length in the browser.*
@@ -97,6 +115,10 @@ Tasks it is written for:
 - *Build a type scale for this site that still works at 200% zoom.*
 - *Audit this stylesheet before we ship the Arabic edition.*
 - *Does our italic have real small caps?*
+- *The numbers in our admin table don't line up and the status badges are hard to read.*
+
+It works alongside general frontend and design-system skills: they keep
+layout and components, this one makes the type decisions inside them.
 
 ## What it catches
 
@@ -221,17 +243,19 @@ logical sides.
 
 ## Tools
 
-Five scripts turn the rules into numbers. Each one has tests that were written
-before it ([`specs/0001-measured-tools.md`](specs/0001-measured-tools.md)), and
+Six scripts turn the rules into numbers. Each one has tests that were written
+before it ([`specs/0001-measured-tools.md`](specs/0001-measured-tools.md),
+[`0002`](specs/0002-book-checks.md), [`0003`](specs/0003-product-ui-lite-and-sources.md)), and
 the two audits share one report format: severity, rule ID, location, the
 measured value, the CSS fix and a Block or Approve verdict
 ([`references/audit.md`](skills/measured-type/references/audit.md)).
 
 | Script | What it measures |
 |---|---|
-| [`page-audit.js`](skills/measured-type/scripts/page-audit.js) | A rendered page at 1280, 768 and 375px and at 200%, 400% and 500% zoom: reflow, characters per line, contrast, the WCAG 1.4.12 spacing override, fonts that fell back, heading zoom growth; and from Latin and Saltz, inline code x-height, kerning switched off, I and l alike, heading order and spacing, the family budget, x-height pairing, thin weights with APCA Lc, hairlines on dark grounds and icon alignment |
-| [`lint-css.js`](skills/measured-type/scripts/lint-css.js) | CSS and HTML source, or only what a pull request changed (`--diff`): fluid sizes evaluated at 200% and 500% zoom, length line-heights, `62.5%` roots, justification, `ch` measures, physical sides, hyphen-minus and straight quotes |
+| [`page-audit.js`](skills/measured-type/scripts/page-audit.js) | A rendered page at 1280, 768 and 375px and at 200%, 400% and 500% zoom: reflow, characters per line, contrast, the WCAG 1.4.12 spacing override, fonts that fell back, heading zoom growth; and from Latin and Saltz, inline code x-height, kerning switched off, I and l alike, heading order and spacing, the family budget, x-height pairing, thin weights with APCA Lc, hairlines on dark grounds and icon alignment; for dense product UI, tabular figures and end alignment in number columns, tracked capitals, truncated text (also at 200% zoom) and interface text under 12px. `--lite` without a browser |
+| [`lint-css.js`](skills/measured-type/scripts/lint-css.js) | CSS, Sass, Less, HTML, Vue, Svelte, Astro, JSX and Tailwind classes, or only what a pull request changed (`--diff`): fluid sizes evaluated at 200% and 500% zoom, length line-heights, `62.5%` roots, justification, `ch` measures with an estimate for known faces, physical sides (with the logical Tailwind utility), untracked capitals, hyphen-minus and straight quotes. No dependencies |
 | [`measure-line.js`](skills/measured-type/scripts/measure-line.js) | Characters per line of one selector, graphemes and columns counted correctly |
+| [`estimate-measure.js`](skills/measured-type/scripts/estimate-measure.js) | Characters per line for a face and a width without a browser, from a Chromium calibration (within 6% of the rendered count in the tests) |
 | [`fallback-metrics.py`](skills/measured-type/scripts/fallback-metrics.py) | A metric-matched fallback `@font-face` from the font files, so the web font swaps in without reflow |
 | [`type-scale.js`](skills/measured-type/scripts/type-scale.js) | Fluid `clamp()` tokens, each checked for range, zoom growth and step ratio before it is printed |
 
@@ -278,6 +302,7 @@ Open the part that answers the question in front of you.
 | A type scale that survives zoom | [Building or reviewing a type scale](skills/measured-type/SKILL.md#building-or-reviewing-a-type-scale) and [Don't compose without a scale](skills/measured-type/references/rules.md#311-dont-compose-without-a-scale) |
 | Whether a font has real small caps or text figures | [Checking what a font contains](skills/measured-type/references/rules.md#checking-what-a-font-contains), then [`font-features.py`](skills/measured-type/scripts/font-features.py) |
 | Spacing for capitals, labels and acronyms | [Letterspace capitals and small caps](skills/measured-type/references/rules.md#216-letterspace-capitals-small-caps-and-long-digit-strings) |
+| Data tables, labels, badges and status text | [Dense product UI](skills/measured-type/references/product-ui.md) |
 | Where hard spaces go | [Link short numerical expressions](skills/measured-type/references/rules.md#246-link-short-numerical-expressions-with-hard-spaces) |
 | Making a layout work right to left | [Physical to logical map](skills/measured-type/references/logical-and-language.md#physical-to-logical-map) and [Mirroring](skills/measured-type/references/logical-and-language.md#mirroring) |
 | Quotes, decimals, units and dates for a locale | [Locale conventions](skills/measured-type/references/logical-and-language.md#locale-conventions-the-pattern), worked for English, Finnish and Swedish |
