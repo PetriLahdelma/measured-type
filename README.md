@@ -248,6 +248,9 @@ logical sides.
 
 ### A dense dashboard
 
+<img alt="Illustration: a desktop monitor showing a light ops dashboard titled Service health, with three summary cards (6 services, 337,040 requests, 413 errors) and a six-row table whose request and error counts are right-aligned so their digits line up. Every status is a word; Scheduler reads Down in red." src=".github/brand/dashboard-desktop.jpg" width="100%">
+<sub>Illustration of the identity, not a measurement. The measured figure follows.</sub>
+
 Product UI fails differently from an article. Nothing is too long to read; it
 is hard to compare. Figures that are not tabular cannot line up, so 411 108
 and 80 011 sit at different edges even in a column of their own:
