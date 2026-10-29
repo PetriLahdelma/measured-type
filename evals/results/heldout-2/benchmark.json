@@ -1,0 +1,639 @@
+{
+  "metadata": {
+    "skill_name": "measured-type",
+    "skill_path": "skills/measured-type at tag content-freeze-2 (7b17a83)",
+    "executor_model": "claude-opus-5-5",
+    "analyzer_model": "claude-opus-5-5 (grader subagents, blind to folder intent by instruction; rendered checks in Chromium via Playwright)",
+    "timestamp": "2026-10-29T13:59:13Z",
+    "evals_run": [
+      "heldout-results-table",
+      "heldout-sidenote-measure",
+      "heldout-swedish-narrow-docs"
+    ],
+    "runs_per_configuration": 2
+  },
+  "runs": [
+    {
+      "eval_id": "heldout-results-table",
+      "eval_name": "heldout-results-table",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 216.8,
+        "tokens": 166295,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "In the rendered DOM, every negative change value uses U+2212 MINUS SIGN, never U+002D HYPHEN-MINUS",
+          "passed": true,
+          "evidence": "Probe (Playwright 1.64 Chromium, 1280px, after document.fonts.ready, served over http): Change cells render \"−1.7%\", \"−1.3 pp\", \"−1\", \"+0.5 pp\"; every negative starts with U+2212 (MINUS constant replaces Intl minusSign parts); no U+002D in any Change cell; no hidden text in the cells."
+        },
+        {
+          "text": "In the rendered DOM, every percentage-point change keeps its number and unit together with U+00A0 or U+202F (no plain U+0020 between the number and pp or percentage points)",
+          "passed": true,
+          "evidence": "Both pp cells: the only code point between the number and \"pp\" is U+00A0 (\"−1.3 pp\", \"+0.5 pp\", from `fracSpan.append(NBSP, abbr)`); no U+0020."
+        },
+        {
+          "text": "The numeric cells (Q1, Q2, Q3 and Change) render with tabular lining figures: their computed font-variant-numeric includes neither oldstyle-nums nor proportional-nums",
+          "passed": true,
+          "evidence": "Every numeric td and its text-bearing spans (.int, .frac, abbr) compute font-variant-numeric \"lining-nums tabular-nums\" (from `table { font-variant-numeric: lining-nums tabular-nums; }`)."
+        },
+        {
+          "text": "The numeric cells and the header cells above them are aligned to the end of their column (computed text-align end or right)",
+          "passed": true,
+          "evidence": "All Q1-Q3 and Change td (display table-cell) and their thead th compute text-align \"end\" (`.numeric { text-align: end; }` on both); decimal alignment is done with inline-block .frac slots inside the end-aligned cell."
+        },
+        {
+          "text": "An @font-face rule loads fonts/SourceSerif4[opsz,wght].ttf and Chromium renders the numeric cells in Source Serif 4 (not a fallback face)",
+          "passed": true,
+          "evidence": "@font-face src `url(\"fonts/SourceSerif4%5Bopsz,wght%5D.ttf\") format(\"truetype\")`, FontFace status loaded; CSS.getPlatformFontsForNode on every tbody td and descendant reports only \"Source Serif 4\" (SourceSerif4Roman-Regular_wght_opsz100000, isCustomFont true, 162 glyphs)."
+        },
+        {
+          "text": "Column headers are th elements with scope=\"col\" and each row's metric is a th with scope=\"row\"",
+          "passed": true,
+          "evidence": "thead: Metric, Q1, Q2, Q3, Change are th scope=\"col\"; tbody: Revenue (EUR), Operating margin, Headcount, Churn are th scope=\"row\"."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "heldout-results-table",
+      "eval_name": "heldout-results-table",
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 320.5,
+        "tokens": 175034,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "In the rendered DOM, every negative change value uses U+2212 MINUS SIGN, never U+002D HYPHEN-MINUS",
+          "passed": true,
+          "evidence": "Probe (Playwright 1.64 Chromium, 1280px, after document.fonts.ready, served over http): Change cells render \"−1.7%\", \"−1.3 pp\", \"−1\", \"+0.5 pp\"; negatives start with U+2212 (typesetMinus replaces \"-\"); no U+002D; no hidden text. innerText breaks at the inline-flex .head/.tail boundary but the visible characters are unchanged."
+        },
+        {
+          "text": "In the rendered DOM, every percentage-point change keeps its number and unit together with U+00A0 or U+202F (no plain U+0020 between the number and pp or percentage points)",
+          "passed": true,
+          "evidence": "Both pp cells: the only code point between the number and \"pp\" is U+00A0 (NBSP + `<abbr>pp</abbr>` in the tail); no U+0020."
+        },
+        {
+          "text": "The numeric cells (Q1, Q2, Q3 and Change) render with tabular lining figures: their computed font-variant-numeric includes neither oldstyle-nums nor proportional-nums",
+          "passed": true,
+          "evidence": "Numeric td and .head, .tail, abbr all compute font-variant-numeric \"lining-nums tabular-nums\" (`table.results { font-variant-numeric: lining-nums tabular-nums; }`)."
+        },
+        {
+          "text": "The numeric cells and the header cells above them are aligned to the end of their column (computed text-align end or right)",
+          "passed": true,
+          "evidence": "Q1-Q3 and Change td (display table-cell) compute text-align \"end\" (`.results td { text-align: end; }`) and their th compute \"end\" (`.results thead th { text-align: end; }`); the inline-flex .fig with justify-content flex-end only sits inside the already end-aligned Change td, so alignment is not flex-only."
+        },
+        {
+          "text": "An @font-face rule loads fonts/SourceSerif4[opsz,wght].ttf and Chromium renders the numeric cells in Source Serif 4 (not a fallback face)",
+          "passed": true,
+          "evidence": "@font-face src `url(\"fonts/SourceSerif4%5Bopsz,wght%5D.ttf\") format(\"truetype\")`, status loaded; getPlatformFontsForNode on all tbody td and descendants reports only \"Source Serif 4\" (SourceSerif4Roman-Regular_wght_opsz120000, isCustomFont true, 102 glyphs)."
+        },
+        {
+          "text": "Column headers are th elements with scope=\"col\" and each row's metric is a th with scope=\"row\"",
+          "passed": true,
+          "evidence": "thead th Metric, Q1, Q2, Q3, Change have scope=\"col\"; each tbody metric th has scope=\"row\"."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "heldout-sidenote-measure",
+      "eval_name": "heldout-sidenote-measure",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 153.8,
+        "tokens": 144730,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At a 1440px viewport, full lines of .prose p average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js .prose p at 1440: avgCharsPerLine 65.3 (28 full lines, inline size 540px = 30em)."
+        },
+        {
+          "text": "At a 1440px viewport, .notes sits beside .prose (to its right in LTR, overlapping it vertically) and full lines of .notes p average between 25 and 50 characters",
+          "passed": true,
+          "evidence": "At 1440 .notes left 863.9 >= .prose right 808.1, tops 55.8/55.8 overlap; .notes p avgCharsPerLine 45.6 at 308px (22em)."
+        },
+        {
+          "text": "At a 375px viewport, the page has no horizontal scroll (document scrollWidth at most 375) and .notes sits below .prose",
+          "passed": true,
+          "evidence": "At 375: scrollWidth 375; .notes top 1548 >= .prose bottom 1492.2 (below)."
+        },
+        {
+          "text": "At 200% zoom on a 1280px window (CSS viewport 640px), the page has no horizontal scroll and full lines of .prose p average between 45 and 75 characters",
+          "passed": true,
+          "evidence": "At 640 CSS px (zoom 2): scrollWidth 640; .prose p avgCharsPerLine 65.3."
+        },
+        {
+          "text": "layout.css sets the .prose and .notes font sizes as fixed rem values (1.125rem and 0.875rem) with no vw or vi term",
+          "passed": true,
+          "evidence": ".prose { font-size: var(--body-size) } with --body-size: 1.125rem; .notes { font-size: var(--note-size) } with --note-size: 0.875rem; no vw/vi anywhere."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "heldout-sidenote-measure",
+      "eval_name": "heldout-sidenote-measure",
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 200.1,
+        "tokens": 158355,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At a 1440px viewport, full lines of .prose p average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js .prose p at 1440: avgCharsPerLine 67.6 (25 full lines, inline size 558px = 31em)."
+        },
+        {
+          "text": "At a 1440px viewport, .notes sits beside .prose (to its right in LTR, overlapping it vertically) and full lines of .notes p average between 25 and 50 characters",
+          "passed": true,
+          "evidence": "At 1440 .notes left 865.9 >= .prose right 810.1, notes 139.5-369.6 within prose 55.8-976.2; .notes p avgCharsPerLine 49.5 at 322px (23em)."
+        },
+        {
+          "text": "At a 375px viewport, the page has no horizontal scroll (document scrollWidth at most 375) and .notes sits below .prose",
+          "passed": true,
+          "evidence": "At 375: scrollWidth 375; .notes top 1520.1 >= .prose bottom 1464.3 (below)."
+        },
+        {
+          "text": "At 200% zoom on a 1280px window (CSS viewport 640px), the page has no horizontal scroll and full lines of .prose p average between 45 and 75 characters",
+          "passed": true,
+          "evidence": "At 640 CSS px (zoom 2): scrollWidth 640; .prose p avgCharsPerLine 67.6."
+        },
+        {
+          "text": "layout.css sets the .prose and .notes font sizes as fixed rem values (1.125rem and 0.875rem) with no vw or vi term",
+          "passed": true,
+          "evidence": ".prose { font-size: var(--body-size) } with --body-size: 1.125rem; .notes { font-size: var(--note-size) } with --note-size: 0.875rem; no vw/vi anywhere."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "heldout-swedish-narrow-docs",
+      "eval_name": "heldout-swedish-narrow-docs",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 287.8,
+        "tokens": 163084,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At a 320px viewport, the page has no horizontal scroll (document scrollWidth at most 320)",
+          "passed": true,
+          "evidence": "documentElement.scrollWidth = 320 at 320px (400 at 400px); pre scrolls inside its box (overflow-x: auto, scrollWidth 664 vs clientWidth 288), table 288 = 288."
+        },
+        {
+          "text": "Body paragraphs in the article compute hyphens: auto",
+          "passed": true,
+          "evidence": "Both article p compute hyphens: auto, auto at 320px and 400px; from `.doc { hyphens: auto; text-align: start }`."
+        },
+        {
+          "text": "Inline code and pre do not hyphenate: they compute hyphens none or manual",
+          "passed": true,
+          "evidence": "Computed: code: manual; pre: manual; code (in pre): manual (same at 400px); from `.doc code, .doc pre { hyphens: manual }`."
+        },
+        {
+          "text": "At a 320px viewport, every value cell in the settings table renders on a single line, so no number is split from its unit",
+          "passed": true,
+          "evidence": "At 320px every value cell (2,5 GB, 1 500 kr, 30 dagar, 12 h) has 1 client rect via Range, height 18px vs 24px line-height; `.doc td:last-child { white-space: nowrap }`."
+        },
+        {
+          "text": "Body paragraphs are not justified (computed text-align is start or left)",
+          "passed": true,
+          "evidence": "Both article p compute text-align: start, start at 320px and 400px."
+        },
+        {
+          "text": "At a 320px viewport, the h1 does not overflow its own box (its scrollWidth is no larger than its clientWidth)",
+          "passed": true,
+          "evidence": "h1 scrollWidth 288 vs clientWidth 288 at 320px (368 vs 368 at 400px); h1 is 24px with hyphens auto."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "heldout-swedish-narrow-docs",
+      "eval_name": "heldout-swedish-narrow-docs",
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 368.1,
+        "tokens": 184784,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At a 320px viewport, the page has no horizontal scroll (document scrollWidth at most 320)",
+          "passed": true,
+          "evidence": "documentElement.scrollWidth = 320 at 320px (400 at 400px); pre wraps (pre-wrap, scrollWidth 288 = clientWidth), table 288 = 288."
+        },
+        {
+          "text": "Body paragraphs in the article compute hyphens: auto",
+          "passed": true,
+          "evidence": "Both article p compute hyphens: auto, auto at 320px and 400px; from `.doc { hyphens: auto; text-align: start }`."
+        },
+        {
+          "text": "Inline code and pre do not hyphenate: they compute hyphens none or manual",
+          "passed": true,
+          "evidence": "Computed: code: manual; pre: manual; code (in pre): manual (same at 400px); from `.doc :is(code, pre) { hyphens: manual }`."
+        },
+        {
+          "text": "At a 320px viewport, every value cell in the settings table renders on a single line, so no number is split from its unit",
+          "passed": true,
+          "evidence": "At 320px every value cell (2,5 GB, 1 500 kr, 30 dagar, 12 h) has 1 client rect via Range, height 18px vs 24px line-height; `.doc :is(th, td):last-child { white-space: nowrap }`."
+        },
+        {
+          "text": "Body paragraphs are not justified (computed text-align is start or left)",
+          "passed": true,
+          "evidence": "Both article p compute text-align: start, start at 320px and 400px."
+        },
+        {
+          "text": "At a 320px viewport, the h1 does not overflow its own box (its scrollWidth is no larger than its clientWidth)",
+          "passed": true,
+          "evidence": "h1 scrollWidth 288 vs clientWidth 288 at 320px (368 vs 368 at 400px); h1 is 28px with hyphens auto."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "heldout-results-table",
+      "eval_name": "heldout-results-table",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 184.3,
+        "tokens": 141965,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "In the rendered DOM, every negative change value uses U+2212 MINUS SIGN, never U+002D HYPHEN-MINUS",
+          "passed": true,
+          "evidence": "Probe (Playwright 1.64 Chromium, 1280px, after document.fonts.ready, served over http): Visible Change text \"−1.7%\", \"−1.3pp\", \"−1\", \"+0.5pp\"; negatives start with U+2212 (MINUS constant); no U+002D. Hidden text noted: clipped .sr-only \" percentage points\" and \" (unfavourable)\" spans, plus a visibility:hidden \".0\" pad on Headcount."
+        },
+        {
+          "text": "In the rendered DOM, every percentage-point change keeps its number and unit together with U+00A0 or U+202F (no plain U+0020 between the number and pp or percentage points)",
+          "passed": true,
+          "evidence": "Visible text has no code point between the number and \"pp\" (\"−1.3pp\", \"+0.5pp\"); the gap is the abbr margin-left 0.15em inside the inline-block .u, so no U+0020 separates number and unit. The hidden sr-only \" percentage points\" follows \"pp\", not a number."
+        },
+        {
+          "text": "The numeric cells (Q1, Q2, Q3 and Change) render with tabular lining figures: their computed font-variant-numeric includes neither oldstyle-nums nor proportional-nums",
+          "passed": true,
+          "evidence": "Numeric td and .delta, .u, abbr, .pad, .sr-only all compute font-variant-numeric \"lining-nums tabular-nums\" (from the table rule); the invisible \".0\" pad is in a tabular cell with no oldstyle/proportional values."
+        },
+        {
+          "text": "The numeric cells and the header cells above them are aligned to the end of their column (computed text-align end or right)",
+          "passed": true,
+          "evidence": "Q1-Q3 and Change td (display table-cell) compute text-align \"right\" (`tbody td { text-align: right; }`) and their th compute \"right\" (`thead th { text-align: right; }`)."
+        },
+        {
+          "text": "An @font-face rule loads fonts/SourceSerif4[opsz,wght].ttf and Chromium renders the numeric cells in Source Serif 4 (not a fallback face)",
+          "passed": true,
+          "evidence": "@font-face src `url(\"fonts/SourceSerif4%5Bopsz%2Cwght%5D.ttf\") format(\"truetype\")` resolves to the file (status loaded over http and file://); getPlatformFontsForNode reports only \"Source Serif 4\" (opsz110000 regular and wght 258 instances, isCustomFont true)."
+        },
+        {
+          "text": "Column headers are th elements with scope=\"col\" and each row's metric is a th with scope=\"row\"",
+          "passed": true,
+          "evidence": "th Metric, Q1, Q2, Q3, Change have scope=\"col\"; Revenue (EUR), Operating margin, Headcount, Churn are th scope=\"row\"."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "heldout-results-table",
+      "eval_name": "heldout-results-table",
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 166.5,
+        "tokens": 133970,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "In the rendered DOM, every negative change value uses U+2212 MINUS SIGN, never U+002D HYPHEN-MINUS",
+          "passed": true,
+          "evidence": "Probe (Playwright 1.64 Chromium, 1280px, after document.fonts.ready, served over http): Visible Change text \"−1.7%\", \"−1.3pp\", \"−1\", \"+0.5pp\"; negatives start with U+2212 (signed() uses MINUS); no U+002D. Hidden text noted: a visibility:hidden \".0\" dec-pad on Headcount; no sr-only text."
+        },
+        {
+          "text": "In the rendered DOM, every percentage-point change keeps its number and unit together with U+00A0 or U+202F (no plain U+0020 between the number and pp or percentage points)",
+          "passed": true,
+          "evidence": "Visible text has no code point between the number and \"pp\" (\"−1.3pp\", \"+0.5pp\"); the gap comes from `.change-unit { display: inline-block; margin-left: 0.2em; }`, so no U+0020 separates number and unit."
+        },
+        {
+          "text": "The numeric cells (Q1, Q2, Q3 and Change) render with tabular lining figures: their computed font-variant-numeric includes neither oldstyle-nums nor proportional-nums",
+          "passed": true,
+          "evidence": "Numeric td and .change-value, .change-unit, .dec-pad, abbr compute font-variant-numeric \"lining-nums tabular-nums\"; the invisible \".0\" padding sits in a tabular cell with no oldstyle/proportional values."
+        },
+        {
+          "text": "The numeric cells and the header cells above them are aligned to the end of their column (computed text-align end or right)",
+          "passed": true,
+          "evidence": "Q1-Q3 and Change td (display table-cell) and their th (class num) compute text-align \"right\" (`.num { text-align: right; }`)."
+        },
+        {
+          "text": "An @font-face rule loads fonts/SourceSerif4[opsz,wght].ttf and Chromium renders the numeric cells in Source Serif 4 (not a fallback face)",
+          "passed": true,
+          "evidence": "@font-face src `url(\"...%5Bopsz%2Cwght%5D.ttf\") format(\"truetype-variations\"), url(...) format(\"truetype\")` loads (status loaded over http and file://); getPlatformFontsForNode reports only \"Source Serif 4\" (opsz110000 and wght 258 instances, isCustomFont true)."
+        },
+        {
+          "text": "Column headers are th elements with scope=\"col\" and each row's metric is a th with scope=\"row\"",
+          "passed": true,
+          "evidence": "Static thead th Metric, Q1, Q2, Q3, Change have scope=\"col\"; each rendered row metric th has scope=\"row\"."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "heldout-sidenote-measure",
+      "eval_name": "heldout-sidenote-measure",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 108.5,
+        "tokens": 129737,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At a 1440px viewport, full lines of .prose p average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js .prose p at 1440: avgCharsPerLine 64.9 (28 full lines, inline size 540px = 30em)."
+        },
+        {
+          "text": "At a 1440px viewport, .notes sits beside .prose (to its right in LTR, overlapping it vertically) and full lines of .notes p average between 25 and 50 characters",
+          "passed": true,
+          "evidence": "At 1440 .notes left 850 >= .prose right 802, notes 168-406 within prose 72-1190.3; .notes p avgCharsPerLine 45 at 307px."
+        },
+        {
+          "text": "At a 375px viewport, the page has no horizontal scroll (document scrollWidth at most 375) and .notes sits below .prose",
+          "passed": true,
+          "evidence": "At 375: scrollWidth 375; .notes top 1630.7 >= .prose bottom 1582.7 (below)."
+        },
+        {
+          "text": "At 200% zoom on a 1280px window (CSS viewport 640px), the page has no horizontal scroll and full lines of .prose p average between 45 and 75 characters",
+          "passed": true,
+          "evidence": "At 640 CSS px (zoom 2): scrollWidth 640; .prose p avgCharsPerLine 64.9."
+        },
+        {
+          "text": "layout.css sets the .prose and .notes font sizes as fixed rem values (1.125rem and 0.875rem) with no vw or vi term",
+          "passed": true,
+          "evidence": ".prose font-size var(--prose-size) = 1.125rem and .notes font-size var(--notes-size) = 0.875rem, both fixed rem; vw appears only in the h1 title clamp and gutters, not in either font size."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "heldout-sidenote-measure",
+      "eval_name": "heldout-sidenote-measure",
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 103.4,
+        "tokens": 125851,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At a 1440px viewport, full lines of .prose p average between 58 and 74 characters",
+          "passed": true,
+          "evidence": "measure-line.js .prose p at 1440: avgCharsPerLine 63.6 (28 full lines, inline size 522px = 29em)."
+        },
+        {
+          "text": "At a 1440px viewport, .notes sits beside .prose (to its right in LTR, overlapping it vertically) and full lines of .notes p average between 25 and 50 characters",
+          "passed": true,
+          "evidence": "At 1440 .notes left 865 >= .prose right 817, notes 176-456 within prose 80-1198.3; .notes p avgCharsPerLine 39.4 at 259px."
+        },
+        {
+          "text": "At a 375px viewport, the page has no horizontal scroll (document scrollWidth at most 375) and .notes sits below .prose",
+          "passed": true,
+          "evidence": "At 375: scrollWidth 375; .notes top 1594.2 >= .prose bottom 1554.2 (below)."
+        },
+        {
+          "text": "At 200% zoom on a 1280px window (CSS viewport 640px), the page has no horizontal scroll and full lines of .prose p average between 45 and 75 characters",
+          "passed": true,
+          "evidence": "At 640 CSS px (zoom 2): scrollWidth 640; .prose p avgCharsPerLine 63.6."
+        },
+        {
+          "text": "layout.css sets the .prose and .notes font sizes as fixed rem values (1.125rem and 0.875rem) with no vw or vi term",
+          "passed": true,
+          "evidence": ".prose font-size var(--prose-size) = 1.125rem and .notes font-size var(--notes-size) = 0.875rem, both fixed rem; vw appears only in the h1 clamp and padding, not in either font size."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "heldout-swedish-narrow-docs",
+      "eval_name": "heldout-swedish-narrow-docs",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 171.0,
+        "tokens": 137492,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At a 320px viewport, the page has no horizontal scroll (document scrollWidth at most 320)",
+          "passed": true,
+          "evidence": "documentElement.scrollWidth = 320 at 320px (400 at 400px); pre wraps (pre-wrap, scrollWidth 285 = clientWidth), table 288 = 288."
+        },
+        {
+          "text": "Body paragraphs in the article compute hyphens: auto",
+          "passed": true,
+          "evidence": "Both article p compute hyphens: auto, auto at 320px and 400px; from `body { hyphens: auto }`, no justification."
+        },
+        {
+          "text": "Inline code and pre do not hyphenate: they compute hyphens none or manual",
+          "passed": true,
+          "evidence": "Computed: code: none; pre: none; code (in pre): none (same at 400px); from `code, pre { hyphens: none }`."
+        },
+        {
+          "text": "At a 320px viewport, every value cell in the settings table renders on a single line, so no number is split from its unit",
+          "passed": true,
+          "evidence": "At 320px every value cell (2,5 GB, 1 500 kr, 30 dagar, 12 h) has 1 client rect via Range, height 18px vs 21px line-height; `td:last-child { white-space: nowrap }`."
+        },
+        {
+          "text": "Body paragraphs are not justified (computed text-align is start or left)",
+          "passed": true,
+          "evidence": "Both article p compute text-align: start, start at 320px and 400px."
+        },
+        {
+          "text": "At a 320px viewport, the h1 does not overflow its own box (its scrollWidth is no larger than its clientWidth)",
+          "passed": true,
+          "evidence": "h1 scrollWidth 288 vs clientWidth 288 at 320px (368 vs 368 at 400px); h1 is 24px with hyphens auto."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "heldout-swedish-narrow-docs",
+      "eval_name": "heldout-swedish-narrow-docs",
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 0.833,
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "time_seconds": 114.8,
+        "tokens": 127662,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "At a 320px viewport, the page has no horizontal scroll (document scrollWidth at most 320)",
+          "passed": true,
+          "evidence": "documentElement.scrollWidth = 320 at 320px (400 at 400px); pre scrolls inside its box (overflow-x: auto, scrollWidth 668 vs clientWidth 288), table 288 = 288."
+        },
+        {
+          "text": "Body paragraphs in the article compute hyphens: auto",
+          "passed": true,
+          "evidence": "Both article p compute hyphens: auto, auto at 320px and 400px; from `.doc { hyphens: auto; text-align: start }`."
+        },
+        {
+          "text": "Inline code and pre do not hyphenate: they compute hyphens none or manual",
+          "passed": false,
+          "evidence": "pre computes hyphens: auto (inherited from `.doc { hyphens: auto }`; only `.doc code` sets manual), so it fails even though its code child computes manual. Computed: code: manual; pre: auto; code (in pre): manual."
+        },
+        {
+          "text": "At a 320px viewport, every value cell in the settings table renders on a single line, so no number is split from its unit",
+          "passed": true,
+          "evidence": "At 320px every value cell (2,5 GB, 1 500 kr, 30 dagar, 12 h) has 1 client rect via Range, height 18px vs 21px line-height; `.doc td:last-child { white-space: nowrap }`."
+        },
+        {
+          "text": "Body paragraphs are not justified (computed text-align is start or left)",
+          "passed": true,
+          "evidence": "Both article p compute text-align: start, start at 320px and 400px."
+        },
+        {
+          "text": "At a 320px viewport, the h1 does not overflow its own box (its scrollWidth is no larger than its clientWidth)",
+          "passed": true,
+          "evidence": "h1 scrollWidth 288 vs clientWidth 288 at 320px (368 vs 368 at 400px); h1 is 24px with hyphens auto."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1,
+        "max": 1
+      },
+      "time_seconds": {
+        "mean": 257.85,
+        "stddev": 81.023,
+        "min": 153.8,
+        "max": 368.1
+      },
+      "tokens": {
+        "mean": 165380.3333,
+        "stddev": 13795.629,
+        "min": 144730,
+        "max": 184784
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.9722,
+        "stddev": 0.0682,
+        "min": 0.833,
+        "max": 1
+      },
+      "time_seconds": {
+        "mean": 141.4167,
+        "stddev": 36.2782,
+        "min": 103.4,
+        "max": 184.3
+      },
+      "tokens": {
+        "mean": 132779.5,
+        "stddev": 6187.8604,
+        "min": 125851,
+        "max": 141965
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.03",
+      "time_seconds": "+116.4",
+      "tokens": "+32601"
+    }
+  },
+  "notes": [
+    "Held-out set rerun on content-freeze-2 (tuned description; skill body unchanged since content-freeze-1 apart from the description). Same three pre-registered cases, prompts and grader brief as heldout-1.",
+    "Pooled: with skill 34/34, without 33/34 (heldout-1: 32/34 vs 33/34). Per case: sidenote 10/10 vs 10/10; results-table 12/12 vs 12/12; swedish 12/12 vs 11/12.",
+    "The only miss is the same literal case as before: a pre element that inherits hyphens: auto while its code child resets it. Read by intent, both configurations score 34/34 again.",
+    "Swings between heldout-1 and heldout-2 on the with-skill side (two literal misses, then none) are run-to-run variance on identical skill content; the description does not reach these runs, which read SKILL.md directly.",
+    "Result: on these held-out problems the skill still makes no measurable difference; both configurations are at or near ceiling."
+  ]
+}

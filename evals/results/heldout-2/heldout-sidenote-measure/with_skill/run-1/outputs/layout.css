@@ -1,0 +1,163 @@
+/* layout.css for essay.html: a long-form essay with a sidenote column.
+ *
+ * Measures were counted in Chromium with Georgia (scripts/measure-line.js),
+ * not taken from a rule of thumb:
+ *   article  1.125rem Georgia, 30em   ->  about 66 characters per line (§2.1.2, 66 ideal)
+ *   notes    0.875rem Georgia, 22em   ->  about 46 characters per line (§2.1.2, 40-50 per column)
+ * Re-measure if the face, the sizes or either measure changes.
+ *
+ * Everything is in rem/em and logical properties, so the layout follows the
+ * reader's default size, zoom and writing direction.
+ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Shared tokens. Body line and note line are defined once and every vertical
+ * gap is a whole or half step of them (§2.2.2). They are calc()s of rem, so
+ * they scale with zoom; rlh would be wrong because the essay is not set at the
+ * root size.
+ * ------------------------------------------------------------------------ */
+.essay {
+  --body-size: 1.125rem;      /* 18px at default settings */
+  --body-leading: 1.55;       /* Georgia has a large x-height; 1.55 suits ~66 chars (§2.2.1) */
+  --line: calc(var(--body-size) * var(--body-leading));   /* 27.9px */
+
+  --note-size: 0.875rem;      /* 14px */
+  --note-leading: 1.45;       /* small text, shorter measure: a little less lead (§2.2.1) */
+  --note-line: calc(var(--note-size) * var(--note-leading)); /* 20.3px */
+
+  /* Measures, written as em of each column's own size so they read as
+     character counts, and converted to rem for the grid tracks. */
+  --prose-measure: calc(30 * var(--body-size));   /* 30em at 18px = 540px  */
+  --note-measure: calc(22 * var(--note-size));    /* 22em at 14px = 308px  */
+  --column-gap: calc(2 * var(--line));            /* ~56px: glanceable, yet clearly two blocks */
+  --gutter: 1.25rem;                              /* page edge on phones */
+
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, var(--prose-measure));
+  justify-content: center;
+  align-items: start;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  padding-block: calc(2 * var(--line)) calc(3 * var(--line));
+
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-kerning: normal;
+  font-synthesis: none;       /* Georgia ships real bold and italic; never fake them (§2.1.9) */
+  /* Georgia's default figures are already oldstyle (checked with
+     font-features.py: no onum/lnum/tnum features to switch), so no
+     font-variant-numeric here. */
+}
+
+/* ---------------------------------------------------------------------------
+ * The essay: reading text (§1).
+ * ------------------------------------------------------------------------ */
+.prose {
+  min-inline-size: 0;
+  max-inline-size: 30em;      /* same value as --prose-measure, in the prose's own em */
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  text-align: start;          /* ragged; hyphenation below keeps the rag even (§2.1.3) */
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 6 2 3;          /* §2.4.1 */
+  -webkit-hyphenate-limit-lines: 3;      /* §2.4.3, Safari only */
+  overflow-wrap: break-word;             /* long strings never force sideways scrolling */
+}
+
+/* Space with top margins only, so nothing collapses unexpectedly. */
+.prose > * {
+  margin-block: 0;
+}
+
+.prose > * + * {
+  margin-block-start: var(--line);
+}
+
+/* Display text: a fixed rem size, exactly 2x the body, on 1.5 body lines
+   (1.5 * 27.9px = 41.85px on 36px -> ratio 1.16, inside the 1.05-1.3 display range). */
+.prose > h1 {
+  font-size: 2.25rem;
+  font-weight: normal;        /* Georgia regular at 36px carries the hierarchy by size alone */
+  line-height: calc(1.5 * var(--line));
+  letter-spacing: normal;     /* no tracking on lowercase (§2.1.7) */
+  text-wrap: balance;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
+/* Paragraphs: first flush, later ones indented 1em, no space between (§2.3.1-2). */
+.prose > p {
+  text-wrap: pretty;          /* avoid one-word last lines (§2.4.8) */
+}
+
+.prose > p + p {
+  margin-block-start: 0;
+  text-indent: 1em;
+}
+
+/* ---------------------------------------------------------------------------
+ * The notes: smaller, narrower, spaced rather than indented, because each
+ * note is a separate aside rather than a continuation of an argument.
+ * ------------------------------------------------------------------------ */
+.notes {
+  min-inline-size: 0;
+  max-inline-size: 22em;      /* same value as --note-measure; also caps the stacked width */
+  font-size: var(--note-size);
+  line-height: var(--note-leading);
+  text-align: start;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 6 2 3;
+  -webkit-hyphenate-limit-lines: 3;
+  overflow-wrap: break-word;
+
+  /* Stacked (narrow) placement: after the essay, set off by space and a hairline. */
+  margin-block-start: calc(2 * var(--line));
+  padding-block-start: var(--line);
+  border-block-start: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+}
+
+.notes > p {
+  margin-block: 0;
+  text-wrap: pretty;
+}
+
+.notes > p + p {
+  margin-block-start: var(--note-line);
+}
+
+/* ---------------------------------------------------------------------------
+ * Wide screens: notes beside the article.
+ *
+ * Breakpoint = prose + gap + notes + gutters:
+ *   540 + 56 + 308 + 2 * 20 = 944px, so 60em (960px at the default 16px).
+ * In em, the query follows the reader's default size; under zoom the CSS
+ * viewport shrinks, so at 200% on a 1280px window (640 CSS px) the notes
+ * stack below the essay (WCAG 1.4.10).
+ * ------------------------------------------------------------------------ */
+@media (width >= 60em) {
+  .essay {
+    grid-template-columns:
+      minmax(0, var(--prose-measure))
+      minmax(0, var(--note-measure));
+    column-gap: var(--column-gap);
+  }
+
+  .notes {
+    margin-block-start: 0;
+    border-block-start: 0;
+    /* Start the notes level with the first paragraph instead of the title:
+       one h1 line (1.5 body lines) plus the one-line gap below it. */
+    padding-block-start: calc(2.5 * var(--line));
+  }
+}

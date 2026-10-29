@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "In the rendered DOM, every negative change value uses U+2212 MINUS SIGN, never U+002D HYPHEN-MINUS",
+      "passed": true,
+      "evidence": "Probe (Playwright 1.64 Chromium, 1280px, after document.fonts.ready, served over http): Visible Change text \"−1.7%\", \"−1.3pp\", \"−1\", \"+0.5pp\"; negatives start with U+2212 (MINUS constant); no U+002D. Hidden text noted: clipped .sr-only \" percentage points\" and \" (unfavourable)\" spans, plus a visibility:hidden \".0\" pad on Headcount."
+    },
+    {
+      "text": "In the rendered DOM, every percentage-point change keeps its number and unit together with U+00A0 or U+202F (no plain U+0020 between the number and pp or percentage points)",
+      "passed": true,
+      "evidence": "Visible text has no code point between the number and \"pp\" (\"−1.3pp\", \"+0.5pp\"); the gap is the abbr margin-left 0.15em inside the inline-block .u, so no U+0020 separates number and unit. The hidden sr-only \" percentage points\" follows \"pp\", not a number."
+    },
+    {
+      "text": "The numeric cells (Q1, Q2, Q3 and Change) render with tabular lining figures: their computed font-variant-numeric includes neither oldstyle-nums nor proportional-nums",
+      "passed": true,
+      "evidence": "Numeric td and .delta, .u, abbr, .pad, .sr-only all compute font-variant-numeric \"lining-nums tabular-nums\" (from the table rule); the invisible \".0\" pad is in a tabular cell with no oldstyle/proportional values."
+    },
+    {
+      "text": "The numeric cells and the header cells above them are aligned to the end of their column (computed text-align end or right)",
+      "passed": true,
+      "evidence": "Q1-Q3 and Change td (display table-cell) compute text-align \"right\" (`tbody td { text-align: right; }`) and their th compute \"right\" (`thead th { text-align: right; }`)."
+    },
+    {
+      "text": "An @font-face rule loads fonts/SourceSerif4[opsz,wght].ttf and Chromium renders the numeric cells in Source Serif 4 (not a fallback face)",
+      "passed": true,
+      "evidence": "@font-face src `url(\"fonts/SourceSerif4%5Bopsz%2Cwght%5D.ttf\") format(\"truetype\")` resolves to the file (status loaded over http and file://); getPlatformFontsForNode reports only \"Source Serif 4\" (opsz110000 regular and wght 258 instances, isCustomFont true)."
+    },
+    {
+      "text": "Column headers are th elements with scope=\"col\" and each row's metric is a th with scope=\"row\"",
+      "passed": true,
+      "evidence": "th Metric, Q1, Q2, Q3, Change have scope=\"col\"; Revenue (EUR), Operating margin, Headcount, Churn are th scope=\"row\"."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1
+  }
+}

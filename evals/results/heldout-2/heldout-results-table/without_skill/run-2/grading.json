@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "In the rendered DOM, every negative change value uses U+2212 MINUS SIGN, never U+002D HYPHEN-MINUS",
+      "passed": true,
+      "evidence": "Probe (Playwright 1.64 Chromium, 1280px, after document.fonts.ready, served over http): Visible Change text \"−1.7%\", \"−1.3pp\", \"−1\", \"+0.5pp\"; negatives start with U+2212 (signed() uses MINUS); no U+002D. Hidden text noted: a visibility:hidden \".0\" dec-pad on Headcount; no sr-only text."
+    },
+    {
+      "text": "In the rendered DOM, every percentage-point change keeps its number and unit together with U+00A0 or U+202F (no plain U+0020 between the number and pp or percentage points)",
+      "passed": true,
+      "evidence": "Visible text has no code point between the number and \"pp\" (\"−1.3pp\", \"+0.5pp\"); the gap comes from `.change-unit { display: inline-block; margin-left: 0.2em; }`, so no U+0020 separates number and unit."
+    },
+    {
+      "text": "The numeric cells (Q1, Q2, Q3 and Change) render with tabular lining figures: their computed font-variant-numeric includes neither oldstyle-nums nor proportional-nums",
+      "passed": true,
+      "evidence": "Numeric td and .change-value, .change-unit, .dec-pad, abbr compute font-variant-numeric \"lining-nums tabular-nums\"; the invisible \".0\" padding sits in a tabular cell with no oldstyle/proportional values."
+    },
+    {
+      "text": "The numeric cells and the header cells above them are aligned to the end of their column (computed text-align end or right)",
+      "passed": true,
+      "evidence": "Q1-Q3 and Change td (display table-cell) and their th (class num) compute text-align \"right\" (`.num { text-align: right; }`)."
+    },
+    {
+      "text": "An @font-face rule loads fonts/SourceSerif4[opsz,wght].ttf and Chromium renders the numeric cells in Source Serif 4 (not a fallback face)",
+      "passed": true,
+      "evidence": "@font-face src `url(\"...%5Bopsz%2Cwght%5D.ttf\") format(\"truetype-variations\"), url(...) format(\"truetype\")` loads (status loaded over http and file://); getPlatformFontsForNode reports only \"Source Serif 4\" (opsz110000 and wght 258 instances, isCustomFont true)."
+    },
+    {
+      "text": "Column headers are th elements with scope=\"col\" and each row's metric is a th with scope=\"row\"",
+      "passed": true,
+      "evidence": "Static thead th Metric, Q1, Q2, Q3, Change have scope=\"col\"; each rendered row metric th has scope=\"row\"."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1
+  }
+}

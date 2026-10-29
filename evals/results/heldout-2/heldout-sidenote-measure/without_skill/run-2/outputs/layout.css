@@ -1,0 +1,167 @@
+/*
+ * layout.css for essay.html: long-form essay with a sidenote column.
+ *
+ * Measure is set in em, not ch. Georgia's "0" (which defines 1ch) is
+ * 0.614em wide, while its average text character is about 0.43em, so
+ * "66ch" in Georgia would give roughly 95 characters per line. Measured
+ * against the Georgia metrics:
+ *   prose: 29em at 1.125rem (18px)  -> about 66-70 characters per line
+ *   notes: 20em at 0.875rem (14px)  -> about 45-48 characters per line
+ *
+ * Column widths are stated once, in rem, on .essay so the grid tracks and
+ * each column's own max-width agree. (Lengths in em or ch on the grid
+ * container would resolve against .essay's font size, not the columns'.)
+ *
+ * Breakpoints are in em so they follow the reader's default font size and
+ * browser zoom: zooming to 200% on a 1280px window gives a 640px viewport,
+ * which falls below the two-column breakpoint and stacks the notes.
+ */
+
+:root {
+  --text: #1f1d1a;
+  --text-muted: #4a4640;
+  --rule: #d9d4cb;
+  --page: #fdfcf9;
+  --accent: #8a3b12;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e8e4dc;
+    --text-muted: #bdb7ac;
+    --rule: #3d3a35;
+    --page: #171614;
+    --accent: #e0a07a;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- Page frame ---------- */
+
+.essay {
+  /* Single source of truth for both measures (em of each column x its rem size). */
+  --prose-size: 1.125rem;
+  --notes-size: 0.875rem;
+  --prose-measure: calc(29 * var(--prose-size)); /* 29em of prose = 32.625rem */
+  --notes-measure: calc(20 * var(--notes-size)); /* 20em of notes = 17.5rem */
+  --notes-measure-stacked: calc(32 * var(--notes-size)); /* about 75 characters */
+  --column-gap: 3rem;
+
+  display: grid;
+  grid-template-columns: minmax(0, var(--prose-measure));
+  justify-content: center;
+  row-gap: 2.5rem;
+  padding-block: clamp(2rem, 6vw, 5rem);
+  padding-inline: max(1rem, env(safe-area-inset-left)) max(1rem, env(safe-area-inset-right));
+}
+
+/* ---------- Article ---------- */
+
+.prose {
+  min-inline-size: 0;
+  max-inline-size: var(--prose-measure);
+  font-size: var(--prose-size);
+  line-height: 1.6;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.prose h1 {
+  margin: 0 0 1.25em;
+  font-size: clamp(1.75rem, 1.3rem + 2vw, 2.5rem);
+  font-weight: normal;
+  line-height: 1.15;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+  hyphens: manual;
+}
+
+.prose p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Notes ---------- */
+
+.notes {
+  min-inline-size: 0;
+  max-inline-size: var(--notes-measure-stacked);
+  font-size: var(--notes-size);
+  line-height: 1.5;
+  color: var(--text-muted);
+  overflow-wrap: break-word;
+  hyphens: auto;
+  border-block-start: 1px solid var(--rule);
+  padding-block-start: 1.5rem;
+}
+
+.notes p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+
+.notes p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Two columns on wide screens ----------
+ * Needed width: 32.625rem prose + 3rem gap + 17.5rem notes = 53.125rem,
+ * plus 2 x 2.5rem side padding = 58.125rem. Switch at 60em with headroom.
+ */
+
+@media (min-width: 60em) {
+  .essay {
+    grid-template-columns:
+      minmax(0, var(--prose-measure))
+      minmax(0, var(--notes-measure));
+    column-gap: var(--column-gap);
+    padding-inline: 2.5rem;
+    align-items: start;
+  }
+
+  .notes {
+    max-inline-size: var(--notes-measure);
+    border-block-start: 0;
+    border-inline-start: 1px solid var(--rule);
+    padding-block-start: 0;
+    padding-inline-start: 1.25rem;
+    /* Start the notes level with the first paragraph: one title line
+       (2.5rem x 1.15 line-height) plus its 1.25em bottom margin. */
+    margin-block-start: calc(2.5rem * 1.15 + 2.5rem * 1.25);
+  }
+
+  .prose h1 {
+    font-size: 2.5rem;
+  }
+}
+
+@media print {
+  .essay {
+    padding: 0;
+  }
+}

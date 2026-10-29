@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "In the rendered DOM, every negative change value uses U+2212 MINUS SIGN, never U+002D HYPHEN-MINUS",
+      "passed": true,
+      "evidence": "Probe (Playwright 1.64 Chromium, 1280px, after document.fonts.ready, served over http): Change cells render \"−1.7%\", \"−1.3 pp\", \"−1\", \"+0.5 pp\"; every negative starts with U+2212 (MINUS constant replaces Intl minusSign parts); no U+002D in any Change cell; no hidden text in the cells."
+    },
+    {
+      "text": "In the rendered DOM, every percentage-point change keeps its number and unit together with U+00A0 or U+202F (no plain U+0020 between the number and pp or percentage points)",
+      "passed": true,
+      "evidence": "Both pp cells: the only code point between the number and \"pp\" is U+00A0 (\"−1.3 pp\", \"+0.5 pp\", from `fracSpan.append(NBSP, abbr)`); no U+0020."
+    },
+    {
+      "text": "The numeric cells (Q1, Q2, Q3 and Change) render with tabular lining figures: their computed font-variant-numeric includes neither oldstyle-nums nor proportional-nums",
+      "passed": true,
+      "evidence": "Every numeric td and its text-bearing spans (.int, .frac, abbr) compute font-variant-numeric \"lining-nums tabular-nums\" (from `table { font-variant-numeric: lining-nums tabular-nums; }`)."
+    },
+    {
+      "text": "The numeric cells and the header cells above them are aligned to the end of their column (computed text-align end or right)",
+      "passed": true,
+      "evidence": "All Q1-Q3 and Change td (display table-cell) and their thead th compute text-align \"end\" (`.numeric { text-align: end; }` on both); decimal alignment is done with inline-block .frac slots inside the end-aligned cell."
+    },
+    {
+      "text": "An @font-face rule loads fonts/SourceSerif4[opsz,wght].ttf and Chromium renders the numeric cells in Source Serif 4 (not a fallback face)",
+      "passed": true,
+      "evidence": "@font-face src `url(\"fonts/SourceSerif4%5Bopsz,wght%5D.ttf\") format(\"truetype\")`, FontFace status loaded; CSS.getPlatformFontsForNode on every tbody td and descendant reports only \"Source Serif 4\" (SourceSerif4Roman-Regular_wght_opsz100000, isCustomFont true, 162 glyphs)."
+    },
+    {
+      "text": "Column headers are th elements with scope=\"col\" and each row's metric is a th with scope=\"row\"",
+      "passed": true,
+      "evidence": "thead: Metric, Q1, Q2, Q3, Change are th scope=\"col\"; tbody: Revenue (EUR), Operating margin, Headcount, Churn are th scope=\"row\"."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1
+  }
+}

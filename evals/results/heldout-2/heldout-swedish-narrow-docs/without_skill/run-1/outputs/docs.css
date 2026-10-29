@@ -1,0 +1,254 @@
+/*
+ * docs.css: Swedish product documentation, phone first (320 to 400 px).
+ *
+ * Main problems this stylesheet solves:
+ * 1. Swedish compounds ("Användarbehörighetsinställningar", 32 letters) are
+ *    wider than a 320 px screen at heading sizes. We rely on real Swedish
+ *    hyphenation (lang="sv" + hyphens: auto) and keep overflow-wrap as a
+ *    safety net for engines without a Swedish dictionary.
+ * 2. Table values such as "1 500 kr" use ordinary spaces in the markup, so
+ *    they could split into "1" / "500 kr". The value column never wraps.
+ * 3. Code must never get auto-inserted hyphens: a fake "-" in a command is a
+ *    bug, not a typographic nicety.
+ */
+
+:root {
+  --text: #1c1d1f;
+  --muted: #55595f;
+  --bg: #ffffff;
+  --surface: #f3f4f6;
+  --rule: #d9dce1;
+  --accent: #1f5fbf;
+
+  --gutter: 1rem;          /* 16 px side margin: 288 px measure at 320 px */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.25rem;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e7e8ea;
+    --muted: #a9adb3;
+    --bg: #141517;
+    --surface: #1f2124;
+    --rule: #34373c;
+    --accent: #8db4ff;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  /* Swedish hyphenation everywhere, code is opted out below. */
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+.doc {
+  max-width: 40rem;
+  margin-inline: auto;
+  padding: var(--space-3) var(--gutter) var(--space-4);
+  /* Safety net so nothing can widen the page sideways. */
+  min-width: 0;
+}
+
+/* ---------- Headings ---------- */
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  /*
+   * Fragments of at least 5 letters before and 4 after the break: no
+   * "An-" or "-ar" orphans. Words under 10 letters are never split.
+   */
+  -webkit-hyphenate-limit-before: 5;
+  -webkit-hyphenate-limit-after: 4;
+  hyphenate-limit-chars: 10 5 4;
+}
+
+/*
+ * 24 px at 320 px, about 26.5 px at 400 px, capped at 28 px. Mostly rem so
+ * it still follows the reader's text zoom. Large enough to lead, small
+ * enough that a 32-letter compound splits into two parts, not three.
+ */
+h1 {
+  font-size: clamp(1.5rem, 0.875rem + 3.125vw, 1.75rem);
+  margin-block-end: var(--space-2);
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin-block: var(--space-4) var(--space-1);
+}
+
+/* ---------- Running text ---------- */
+
+p,
+ul {
+  margin-block: 0 var(--space-2);
+}
+
+p,
+li {
+  text-wrap: pretty;
+  /*
+   * Body text: break only words of 10+ letters, keep 5 letters each side,
+   * so everyday words ("användare") stay whole. WebKit has no minimum word
+   * length, so the before/after limits do that job there.
+   */
+  -webkit-hyphenate-limit-before: 5;
+  -webkit-hyphenate-limit-after: 5;
+  hyphenate-limit-chars: 10 5 5;
+}
+
+ul {
+  padding-inline-start: 1.25rem;
+}
+
+li + li {
+  margin-block-start: var(--space-1);
+}
+
+li::marker {
+  color: var(--muted);
+}
+
+/* ---------- Code ---------- */
+
+code,
+pre {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.875em;
+  -webkit-hyphens: none;
+  hyphens: none;
+}
+
+/*
+ * Inline code stays in one piece: browsers otherwise break after "--",
+ * leaving "workspace storage --" on one line and "limit" on the next.
+ * The chip moves to the next line whole; if it is wider than the column
+ * it scrolls inside itself instead of widening the page.
+ */
+:not(pre) > code {
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+  vertical-align: bottom;
+  white-space: nowrap;
+  padding: 0 0.3em;
+  border-radius: 4px;
+  background: var(--surface);
+  line-height: 1.55;
+}
+
+/*
+ * Block code wraps instead of scrolling: on a phone, a hidden right half of
+ * a command is easy to miss. Soft wraps do not change what gets copied.
+ */
+pre {
+  margin-block: 0 var(--space-3);
+  padding: 0.75rem 0.875rem;
+  border-radius: 6px;
+  background: var(--surface);
+  border-inline-start: 3px solid var(--rule);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 2;
+}
+
+pre code {
+  font-size: 1em;
+}
+
+/* ---------- Settings table ---------- */
+
+table {
+  width: 100%;
+  margin-block: var(--space-1) var(--space-3);
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+th,
+td {
+  padding: 0.625rem 0;
+  border-block-end: 1px solid var(--rule);
+  vertical-align: top;
+  text-align: start;
+}
+
+thead th {
+  padding-block-start: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted);
+  border-block-end-width: 2px;
+}
+
+/* Label column: takes the remaining width, long compounds hyphenate. */
+th:first-child,
+td:first-child {
+  width: 100%;
+  padding-inline-end: var(--space-2);
+  /* Whole words first; only real long compounds get split. */
+  -webkit-hyphenate-limit-before: 6;
+  -webkit-hyphenate-limit-after: 6;
+  hyphenate-limit-chars: 12 6 6;
+}
+
+/*
+ * Value column: as narrow as its content, right aligned, never wraps.
+ * The markup uses plain spaces in "1 500 kr" and "2,5 GB", so nowrap is
+ * what keeps number and unit together. Tabular figures line up digits.
+ */
+th:last-child,
+td:last-child {
+  width: auto;
+  white-space: nowrap;
+  text-align: end;
+  -webkit-hyphens: none;
+  hyphens: none;
+}
+
+td:last-child {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 600;
+}
+
+/* ---------- Focus and links (none yet, ready for them) ---------- */
+
+a {
+  color: var(--accent);
+  text-underline-offset: 0.15em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

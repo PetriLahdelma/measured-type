@@ -1,0 +1,11 @@
+{
+  "eval_name": "heldout-sidenote-measure",
+  "prompt": "Write layout.css for essay.html (it is in the working directory). It is a long-form essay with sidenotes: `<main class=\"essay\">` holds `<article class=\"prose\">` and `<aside class=\"notes\">`. Body text is Georgia at 1.125rem; the notes are 0.875rem. On wide screens the notes sit in a column beside the article; on narrow screens they stack below it. Make both columns comfortable to read. Do not edit essay.html. Save layout.css.",
+  "assertions": [
+    "At a 1440px viewport, full lines of .prose p average between 58 and 74 characters",
+    "At a 1440px viewport, .notes sits beside .prose (to its right in LTR, overlapping it vertically) and full lines of .notes p average between 25 and 50 characters",
+    "At a 375px viewport, the page has no horizontal scroll (document scrollWidth at most 375) and .notes sits below .prose",
+    "At 200% zoom on a 1280px window (CSS viewport 640px), the page has no horizontal scroll and full lines of .prose p average between 45 and 75 characters",
+    "layout.css sets the .prose and .notes font sizes as fixed rem values (1.125rem and 0.875rem) with no vw or vi term"
+  ]
+}

@@ -1,0 +1,243 @@
+/*
+ * docs.css: Swedish product documentation, tuned for phones (320 to 400 px).
+ *
+ * Key problems this sheet solves:
+ * 1. Long Swedish compounds ("Användarbehörighetsinställningar", 32 letters)
+ *    are wider than a 288 px column at any heading size that still reads as a
+ *    heading. They hyphenate with the Swedish dictionary (lang="sv" is on
+ *    <html>), and overflow-wrap is a last-resort fallback for browsers
+ *    without a Swedish hyphenation dictionary, so nothing ever overflows.
+ * 2. Table values such as "2,5 GB" and "1 500 kr" use plain spaces in the
+ *    markup, so the value column is nowrap: a number never splits from its
+ *    unit or from its own thousands group.
+ * 3. Code: inline code may break anywhere; the long command in <pre>
+ *    scrolls inside its own box instead of widening the page.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --bg: #fdfdfc;
+  --text: #1c1d1f;
+  --muted: #55595f;
+  --rule: #d9dbde;
+  --code-bg: #f1f2f4;
+  --head-bg: #f6f7f8;
+
+  --gutter: 1rem;
+  --measure: 38rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141517;
+    --text: #e6e7e9;
+    --muted: #a3a8b0;
+    --rule: #3a3d42;
+    --code-bg: #212327;
+    --head-bg: #1b1d20;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+
+/* Column: 16 px gutters on a 320 px phone leave 288 px of text. */
+.doc {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding: 1.5rem var(--gutter) 3rem;
+
+  /* Swedish compounds: hyphenate, never overflow, never justify. */
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  text-align: start;
+}
+
+/* Only hyphenate words that are actually long (12+ letters, the
+   compounds), and keep at least five letters before and four after the
+   break, so shorter words like "arbetsytan" are never split. */
+.doc p,
+.doc li,
+.doc td,
+.doc th {
+  hyphenate-limit-chars: 12 5 4;
+  -webkit-hyphenate-limit-before: 5;
+  -webkit-hyphenate-limit-after: 4;
+}
+
+/* ---------- Headings ---------- */
+
+.doc h1,
+.doc h2 {
+  font-weight: 700;
+  color: var(--text);
+  text-wrap: balance;
+  hyphenate-limit-chars: 8 3 3;
+  -webkit-hyphenate-limit-before: 3;
+  -webkit-hyphenate-limit-after: 3;
+  /* Fallback when no Swedish dictionary exists: break the word rather
+     than push the page wider than the screen. */
+  overflow-wrap: anywhere;
+}
+
+/* 1.5rem at 320 px, rising slightly to 1.75rem on larger screens.
+   Kept moderate on purpose: a 32-letter word needs room to split into
+   two readable halves, not five fragments. */
+.doc h1 {
+  font-size: clamp(1.5rem, 1.1rem + 2vw, 1.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0 0 1rem;
+}
+
+.doc h2 {
+  font-size: 1.25rem;
+  line-height: 1.25;
+  margin: 2.25rem 0 0.75rem;
+}
+
+/* ---------- Body text ---------- */
+
+.doc p {
+  margin: 0 0 1rem;
+  text-wrap: pretty;
+}
+
+.doc ul {
+  margin: 0 0 1.25rem;
+  padding-inline-start: 1.25rem;
+}
+
+.doc li {
+  margin: 0 0 0.375rem;
+  padding-inline-start: 0.125rem;
+}
+
+.doc li::marker {
+  color: var(--muted);
+}
+
+/* ---------- Code ---------- */
+
+.doc code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.875em;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
+/* Inline code: a command such as "workspace storage --limit" must not
+   wrap, because browsers break after the hyphen in "--" and the reader
+   then sees "--" and "limit" on different lines. It stays on one line;
+   if a command is ever wider than the column, it scrolls inside itself
+   instead of widening the page. */
+.doc :not(pre) > code {
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+  vertical-align: bottom;
+  white-space: nowrap;
+  background: var(--code-bg);
+  border-radius: 0.25rem;
+  padding: 0 0.3125rem;
+  line-height: 1.5;
+}
+
+/* Block code: keep the command intact and scroll it inside its box. */
+.doc pre {
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 0.875rem;
+  background: var(--code-bg);
+  border-radius: 0.375rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  line-height: 1.45;
+  tab-size: 2;
+}
+
+.doc pre code {
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+/* ---------- Settings table ---------- */
+
+.doc table {
+  width: 100%;
+  margin: 0 0 1.5rem;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+.doc th,
+.doc td {
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: baseline;
+  text-align: start;
+}
+
+.doc thead th {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom-color: var(--text);
+  padding-top: 0;
+}
+
+/* Setting name: takes the remaining width and wraps (with hyphens). */
+.doc th:first-child,
+.doc td:first-child {
+  padding-inline-end: 1rem;
+}
+
+/* Value: shrink-to-fit, right aligned, never split.
+   "1 500 kr" and "2,5 GB" use plain spaces in the markup, so nowrap is
+   what keeps the number together with its unit. Tabular figures line
+   the digits up down the column. */
+.doc th:last-child,
+.doc td:last-child {
+  width: 1%;
+  white-space: nowrap;
+  text-align: end;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+  overflow-wrap: normal;
+}
+
+.doc td:last-child {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-weight: 600;
+}
+
+/* ---------- Wider phones and up ---------- */
+
+@media (min-width: 30rem) {
+  :root {
+    --gutter: 1.5rem;
+  }
+}

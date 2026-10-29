@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quarterly results</title>
+<style>
+  /* Source Serif 4, self-hosted variable font (wght 200-900, opsz 8-60).
+     Checked with font-features.py: roman only, default digits are already
+     tabular lining; onum, smcp, c2sc, case present; U+2212 minus and U+00A0
+     no-break space are in the cmap. Brackets in the file name are
+     percent-encoded in the URL. */
+  @font-face {
+    font-family: "Source Serif 4";
+    src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    /* Type scale: three sizes, each with one role (§3.1.1). */
+    --size-small: 0.875rem;   /* notes, column sub-labels */
+    --size-body: 1.125rem;    /* prose and table figures */
+    --size-title: 2rem;       /* the one display line */
+    --leading: 1.5;
+    --line: calc(var(--size-body) * var(--leading)); /* one body line (§2.2.2) */
+
+    --ink: #1c1b19;
+    --ink-muted: #5a5750;     /* 7:1 on --paper, still AA for small text */
+    --paper: #fbfaf7;
+    --rule: #cfcbc2;
+    --rule-strong: #1c1b19;
+    --row-hover: #f1eee6;
+    --shadow: rgb(0 0 0 / 0.18);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e9e6df;
+      --ink-muted: #b3aea4;
+      --paper: #1b1a18;
+      --rule: #4a4741;
+      --rule-strong: #e9e6df;
+      --row-hover: #26241f;
+      --shadow: rgb(0 0 0 / 0.7);
+    }
+    /* Light on dark reads heavier: a touch lighter and a touch looser. */
+    body { font-weight: 380; letter-spacing: 0.005em; }
+  }
+
+  html { font-size: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: var(--size-body);
+    line-height: var(--leading);
+    font-kerning: normal;
+    font-optical-sizing: auto;
+    font-synthesis: none;      /* no faux bold, italic or small caps (§2.1.9) */
+  }
+
+  .report {
+    max-inline-size: 46rem;
+    margin-inline: auto;
+    padding-block: calc(var(--line) * 2);
+    padding-inline: 1.25rem;
+  }
+
+  /* Display line */
+  h1 {
+    font-size: var(--size-title);
+    font-weight: 600;
+    line-height: calc(var(--line) * 1.5);  /* a whole number of half-lines */
+    letter-spacing: -0.005em;
+    margin-block: 0 calc(var(--line) / 2);
+    text-wrap: balance;
+  }
+
+  /* Reading text: text figures in prose, lining figures beside capitals. */
+  .prose {
+    max-inline-size: 34em;    /* measured with measure-line.js */
+    font-variant-numeric: oldstyle-nums proportional-nums;
+  }
+  .prose p {
+    margin-block: 0 var(--line);
+    text-wrap: pretty;
+    hyphens: auto;
+    hyphenate-limit-chars: 6 2 3;
+  }
+  .lf { font-variant-numeric: lining-nums; }   /* "Q3" sits with a capital */
+
+  /* ------------------------------------------------------------------
+     Results table: interface and data text. Lining tabular figures so
+     every digit is one width; numbers aligned on the decimal point so the
+     eye can run along a row (Q1 to Q3) and down the Change column.
+     ------------------------------------------------------------------ */
+  .table-wrap {
+    margin-block: var(--line);
+    overflow-x: auto;          /* data tables may scroll on very narrow screens */
+    /* Scroll cue: a soft shadow at the end edge appears only while more
+       columns are hidden (the "local" cover scrolls with the content). */
+    background:
+      linear-gradient(to left, var(--paper) 40%, transparent) 100% 0 / 2.5rem 100% no-repeat local,
+      radial-gradient(farthest-side at 100% 50%, var(--shadow), transparent) 100% 0 / 0.875rem 100% no-repeat scroll;
+    background-color: var(--paper);
+  }
+  .table-wrap:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+  table.results {
+    border-collapse: collapse;
+    inline-size: auto;         /* keep figures close to their labels (§2.1.10) */
+    font-variant-numeric: lining-nums tabular-nums;   /* §3.2.1 */
+    line-height: 1.4;
+  }
+
+  .results caption {
+    caption-side: top;
+    text-align: start;
+    font-weight: 600;
+    padding-block-end: calc(var(--line) / 2);
+  }
+
+  .results th,
+  .results td {
+    padding-block: calc(var(--line) / 4);
+    padding-inline: 0 1.5em;
+    vertical-align: baseline;
+  }
+  .results tr > :last-child { padding-inline-end: 0; }
+
+  .results thead th {
+    font-weight: 600;
+    text-align: end;
+    border-block-end: 1.5px solid var(--rule-strong);
+    vertical-align: bottom;
+    white-space: nowrap;
+  }
+  .results thead th:first-child { text-align: start; }
+  .results thead .sub {
+    display: block;
+    font-size: var(--size-small);
+    font-weight: 400;
+    color: var(--ink-muted);
+  }
+
+  .results tbody th {
+    text-align: start;
+    font-weight: 400;
+    padding-inline-end: 2em;
+    white-space: nowrap;
+  }
+  .results tbody tr { border-block-end: 1px solid var(--rule); }
+  .results tbody tr:last-child { border-block-end: 1.5px solid var(--rule-strong); }
+  .results tbody tr:hover { background: var(--row-hover); }
+
+  /* Unit labels such as (EUR): real small caps from c2sc, spaced (§3.2.2, §2.1.6). */
+  .unit {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.05em;
+    color: var(--ink-muted);
+  }
+
+  /* Change is derived from Q2 and Q3: set it apart with space and a hairline. */
+  .results .change {
+    padding-inline-start: 1.5em;
+    border-inline-start: 1px solid var(--rule);
+  }
+
+  /* Quarter columns: each row is one metric in one format, so right
+     alignment with tabular figures already lines up every digit from Q1
+     to Q3. */
+  .results td { text-align: end; white-space: nowrap; }
+
+  /* Change column mixes %, pp and a plain count, so it aligns on the
+     decimal point instead. Each figure is split into an integer part and a
+     tail (decimals plus unit); every tail gets the width of the widest one,
+     measured after the font loads (the em value is the fallback). */
+  .fig { display: inline-flex; justify-content: flex-end; }
+  .fig .tail {
+    display: inline-block;
+    min-inline-size: var(--tail, 2.2em);  /* min: grows rather than overflows under user text spacing */
+    text-align: start;
+  }
+  abbr[title] { text-decoration: none; }
+
+  .notes {
+    font-size: var(--size-small);
+    color: var(--ink-muted);
+    max-inline-size: 34em;
+    margin-block: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .notes li + li { margin-block-start: calc(var(--line) / 4); }
+
+  /* Narrow screens: tighter columns, metric names may wrap, and the metric
+     column stays in view while the figures scroll sideways. */
+  @media (max-width: 40rem) {
+    table.results { font-size: 1rem; }
+    .results th, .results td { padding-inline-end: 0.875em; }
+    .results td { padding-inline-start: 0.5em; }
+    .results .change { padding-inline-start: 0.875em; }
+    .results tbody th {
+      white-space: normal;
+      min-inline-size: 6.5em;
+      padding-inline-end: 0.875em;
+      position: sticky;
+      inset-inline-start: 0;
+      z-index: 1;
+      background: var(--paper);
+      border-inline-end: 1px solid var(--rule);
+    }
+    .results thead th:first-child {
+      position: sticky;
+      inset-inline-start: 0;
+      z-index: 1;
+      background: var(--paper);
+    }
+    .results tbody tr:hover th { background: var(--row-hover); }
+  }
+
+  @media print {
+    :root { --ink: #000; --ink-muted: #333; --paper: #fff; --rule: #999; --rule-strong: #000; }
+    .report { padding: 0; max-inline-size: none; }
+    .table-wrap { overflow: visible; }
+    table.results { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main class="report">
+  <h1>Quarterly results</h1>
+
+  <div class="prose">
+    <p>Revenue in <span class="lf">Q3</span> was 1.7% below <span class="lf">Q2</span>, and operating margin narrowed by 1.3&nbsp;percentage points to 11.8%. Headcount fell by one to 51, while churn rose by 0.5&nbsp;percentage points to 3.4%.</p>
+  </div>
+
+  <div class="table-wrap" role="region" aria-labelledby="results-caption" tabindex="0">
+    <table class="results" id="results">
+      <caption id="results-caption">Key metrics by quarter</caption>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <ul class="notes">
+    <li>Change compares Q3 with Q2.</li>
+    <li><abbr title="percentage points">pp</abbr> = percentage points, the arithmetic difference between two percentages. Revenue change is relative, in per cent.</li>
+  </ul>
+</main>
+
+<script>
+  /* Data: raw numbers only. Percentages are stored as percent values
+     (12.4 means 12.4%); all formatting happens at render time. */
+  const quarters = ["Q1", "Q2", "Q3"];
+
+  const results = [
+    { metric: "Revenue",          unit: "EUR", format: "integer", values: [1234567, 1310050, 1288400], change: { value: -1.7, unit: "percent" } },
+    { metric: "Operating margin", unit: null,  format: "percent", values: [12.4, 13.1, 11.8],           change: { value: -1.3, unit: "pp" } },
+    { metric: "Headcount",        unit: null,  format: "integer", values: [48, 52, 51],                 change: { value: -1,   unit: "count" } },
+    { metric: "Churn",            unit: null,  format: "percent", values: [3.2, 2.9, 3.4],              change: { value: 0.5,  unit: "pp" } },
+  ];
+
+  const LOCALE = document.documentElement.lang || "en";
+  const NBSP = " ";
+  const MINUS = "−";
+
+  const fmtInteger = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 0 });
+  const fmtOneDecimal = (signed) => new Intl.NumberFormat(LOCALE, {
+    minimumFractionDigits: 1, maximumFractionDigits: 1,
+    signDisplay: signed ? "exceptZero" : "auto",
+  });
+  const fmtSignedInteger = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 0, signDisplay: "exceptZero" });
+
+  /* English Intl output uses ASCII hyphen-minus; typeset it as U+2212 (§ punctuation glyphs). */
+  const typesetMinus = (s) => s.replace(/-/g, MINUS);
+
+  /* Returns { head, tail } split at the decimal point; the tail holds the
+     decimals and the unit, so the column can align on the point. */
+  function split(numberText, unitHTML) {
+    const i = numberText.indexOf(".");
+    const head = i === -1 ? numberText : numberText.slice(0, i);
+    const decimals = i === -1 ? "" : numberText.slice(i);
+    return { head, tail: decimals + (unitHTML || "") };
+  }
+
+  function formatValue(row, v) {
+    return row.format === "percent"
+      ? fmtOneDecimal(false).format(v) + "%"
+      : fmtInteger.format(v);
+  }
+
+  function formatChange(c) {
+    if (c.unit === "percent") return split(typesetMinus(fmtOneDecimal(true).format(c.value)), "%");
+    if (c.unit === "pp") {
+      return split(typesetMinus(fmtOneDecimal(true).format(c.value)),
+        NBSP + '<abbr title="percentage points">pp</abbr>');
+    }
+    return split(typesetMinus(fmtSignedInteger.format(c.value)), "");
+  }
+
+  const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+
+  /* tail is built only from formatter output and the fixed unit markup above. */
+  const figure = ({ head, tail }) =>
+    `<span class="fig"><span class="head">${esc(head)}</span><span class="tail">${tail}</span></span>`;
+
+  function render(table) {
+    const thead = table.tHead;
+    const tbody = table.tBodies[0];
+
+    thead.innerHTML = `<tr>
+      <th scope="col">Metric</th>
+      ${quarters.map((q) => `<th scope="col">${esc(q)}</th>`).join("")}
+      <th scope="col" class="change">Change<span class="sub">Q3 vs Q2</span></th>
+    </tr>`;
+
+    tbody.innerHTML = results.map((row) => `<tr>
+      <th scope="row">${esc(row.metric)}${row.unit ? `${NBSP}<span class="unit">(${esc(row.unit)})</span>` : ""}</th>
+      ${row.values.map((v) => `<td>${esc(formatValue(row, v))}</td>`).join("")}
+      <td class="change">${figure(formatChange(row.change))}</td>
+    </tr>`).join("");
+  }
+
+  /* Give every tail in the Change column the width of the widest tail, so
+     decimal points and integer ends share one vertical edge. Widths are
+     stored in em, so they survive zoom and the narrow-screen font size. */
+  function alignChange(table) {
+    const tails = [...table.querySelectorAll("td.change .tail")];
+    tails.forEach((t) => { t.style.minInlineSize = "0"; });
+    const em = parseFloat(getComputedStyle(tails[0]).fontSize);
+    const widest = Math.max(...tails.map((t) => t.getBoundingClientRect().width));
+    tails.forEach((t) => {
+      t.style.minInlineSize = "";
+      t.style.setProperty("--tail", `${(widest / em).toFixed(3)}em`);
+    });
+  }
+
+  const table = document.getElementById("results");
+  render(table);
+  alignChange(table);
+  document.fonts.ready.then(() => alignChange(table));
+</script>
+</body>
+</html>

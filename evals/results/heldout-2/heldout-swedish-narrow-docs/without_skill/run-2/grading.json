@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "At a 320px viewport, the page has no horizontal scroll (document scrollWidth at most 320)",
+      "passed": true,
+      "evidence": "documentElement.scrollWidth = 320 at 320px (400 at 400px); pre scrolls inside its box (overflow-x: auto, scrollWidth 668 vs clientWidth 288), table 288 = 288."
+    },
+    {
+      "text": "Body paragraphs in the article compute hyphens: auto",
+      "passed": true,
+      "evidence": "Both article p compute hyphens: auto, auto at 320px and 400px; from `.doc { hyphens: auto; text-align: start }`."
+    },
+    {
+      "text": "Inline code and pre do not hyphenate: they compute hyphens none or manual",
+      "passed": false,
+      "evidence": "pre computes hyphens: auto (inherited from `.doc { hyphens: auto }`; only `.doc code` sets manual), so it fails even though its code child computes manual. Computed: code: manual; pre: auto; code (in pre): manual."
+    },
+    {
+      "text": "At a 320px viewport, every value cell in the settings table renders on a single line, so no number is split from its unit",
+      "passed": true,
+      "evidence": "At 320px every value cell (2,5 GB, 1 500 kr, 30 dagar, 12 h) has 1 client rect via Range, height 18px vs 21px line-height; `.doc td:last-child { white-space: nowrap }`."
+    },
+    {
+      "text": "Body paragraphs are not justified (computed text-align is start or left)",
+      "passed": true,
+      "evidence": "Both article p compute text-align: start, start at 320px and 400px."
+    },
+    {
+      "text": "At a 320px viewport, the h1 does not overflow its own box (its scrollWidth is no larger than its clientWidth)",
+      "passed": true,
+      "evidence": "h1 scrollWidth 288 vs clientWidth 288 at 320px (368 vs 368 at 400px); h1 is 24px with hyphens auto."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 1,
+    "total": 6,
+    "pass_rate": 0.833
+  }
+}

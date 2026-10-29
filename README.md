@@ -281,18 +281,22 @@ measured its own line lengths and got minus signs, tabular figures, table
 header scopes, Swedish hyphenation and unbreakable table values right. Both
 with-skill misses are literal readings of the pre-registered wording (figures
 aligned by a grid track instead of `text-align`; `hyphens` reset on `code` but
-not on its `pre`); read by intent, both configurations score 34/34. On these
-problems, which nobody wrote answers for in advance, the skill made no
-measurable difference.
+not on its `pre`); read by intent, both configurations score 34/34. A rerun on
+`content-freeze-2` gave 34/34 against 33/34. On these problems, which nobody
+wrote answers for in advance, the skill made no measurable difference.
 
 **Does it load on its own?** Twenty prompts in
 [`evals/triggering/`](evals/triggering/), each run three times with the skill
 offered and user-level skills switched off. It never loaded for the ten near
 misses (Tailwind setup, a font-renaming script, a logo for a typography
 newsletter). It loaded reliably for one of the ten typography tasks ("Review
-the typography in landing.css") and one time in three for two more. A run
-counts only when opening the skill is the agent's first move, so this is a
-lower bound, but the message is plain: name the skill when you want it.
+the typography in landing.css") and one time in three for two more. Tuning the
+description with skill-creator's optimization loop (`content-freeze-2`) moved
+the average load rate on typography tasks from 13% to 23%, and from 17% to 22%
+on twelve fresh prompts written before the tuning finished: within noise, with
+still no false loads. A run counts only when opening the skill is the agent's
+first move, so these are lower bounds, but the message is plain: name the
+skill when you want it.
 
 **Scope.** Gains concentrate in specific cases. A current model without the
 skill already knows most typographic CSS, measures line length on its own when
@@ -309,8 +313,9 @@ references and running more checks.
 
 The outputs, grades and timings of every run are in
 [`evals/results/iteration-2/`](evals/results/iteration-2/),
-[`iteration-1/`](evals/results/iteration-1/) and
-[`heldout-1/`](evals/results/heldout-1/).
+[`iteration-1/`](evals/results/iteration-1/),
+[`heldout-1/`](evals/results/heldout-1/) and
+[`heldout-2/`](evals/results/heldout-2/).
 
 ## Running the evals
 

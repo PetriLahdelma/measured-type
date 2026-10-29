@@ -1,0 +1,211 @@
+/*
+ * docs.css: Swedish product documentation, read mostly on phones (320–400px).
+ *
+ * Text kinds (measured-type §1):
+ *   reading text  .doc p, .doc li           body 1rem system-ui, 1.5 leading
+ *   display text  .doc h1, .doc h2          fixed rem steps, on the body line
+ *   data          .doc table, .doc code     lining tabular figures, no hyphens
+ *
+ * Swedish builds long compounds (Användarbehörighetsinställningar is 32
+ * letters, wider than a 288px column at any heading size), so hyphenation is
+ * on everywhere words can break, headings included, with overflow-wrap as the
+ * last guard for strings no dictionary knows. Everything is logical (inline /
+ * block) so an RTL edition needs no CSS rewrite.
+ */
+
+:root {
+  font-size: 100%;                 /* keep the reader's default size (§3.1.1) */
+  -webkit-text-size-adjust: 100%;  /* no iOS landscape text inflation */
+  text-size-adjust: 100%;
+  color-scheme: light dark;
+
+  --ink: light-dark(#1d1d1f, #e8e6e3);
+  --ink-muted: light-dark(#4a4a4f, #b4b2ae);     /* AA on both grounds */
+  --paper: light-dark(#fdfdfc, #17171a);
+  --rule: light-dark(#d6d5d2, #3a3a3f);
+  --tint: light-dark(#f2f1ee, #222226);
+
+  /* One body line: 16px × 1.5 = 24px. Body is set at the root size. */
+  --body-size: 1rem;
+  --body-leading: 1.5;
+  --line: calc(var(--body-size) * var(--body-leading));
+
+  /* Scale: 14 / 16 / 20 / 28px. Steps 1.25 and 1.4 hold at phone widths. */
+  --text-s: 0.875rem;
+  --title-m: 1.25rem;
+  --title-l: 1.75rem;
+
+  --gutter: 1rem;                  /* 16px each side: 288px of text at 320px */
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
+    "Roboto Mono", "Liberation Mono", monospace;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: system-ui, sans-serif;
+  font-size: var(--body-size);
+  line-height: var(--body-leading);
+  font-kerning: normal;
+  font-synthesis: none;            /* system-ui ships real bold; never fake it */
+}
+
+/* ---- Page column ------------------------------------------------------ */
+
+.doc {
+  /* Phones get the full width minus the gutter: measured 37 characters a
+     line at 320px and 41 at 400px, a short measure that hyphenation keeps
+     even. Wider screens stop at 32.5em, about 70 characters of SF measured
+     at 1280px (§2.1.2). */
+  max-inline-size: 32.5em;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  padding-block: calc(1.5 * var(--line)) calc(2 * var(--line));
+
+  text-align: start;               /* ragged; never justify at this measure (§2.1.3) */
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  /* Bringhurst's floor is 2 before, 3 after (§2.4.1). Swedish compounds end
+     in short suffixes (-dot, -na, -ar), so carry at least four letters over
+     and leave three behind: fewer stubs like "Kommand-dot" on a 36-character
+     line. */
+  hyphenate-limit-chars: 7 3 4;
+  -webkit-hyphenate-limit-before: 3;
+  -webkit-hyphenate-limit-after: 4;
+  -webkit-hyphenate-limit-lines: 3;   /* no ladders, Safari (§2.4.3) */
+  overflow-wrap: break-word;       /* last resort for unknown long strings */
+}
+
+/* Vertical rhythm: every gap lives on the next block's top margin only, so
+   nothing collapses unexpectedly (§2.2.2). */
+.doc > * { margin-block: 0; }
+.doc > * + * { margin-block-start: var(--line); }
+
+/* ---- Headings --------------------------------------------------------- */
+
+.doc :is(h1, h2) {
+  font-weight: 700;
+  color: var(--ink);
+  text-wrap: balance;
+  /* Compounds must break or they overflow; ask for longer fragments than in
+     body text so a heading never splits off a two-letter piece. */
+  hyphenate-limit-chars: 8 3 4;
+  -webkit-hyphenate-limit-before: 3;
+  -webkit-hyphenate-limit-after: 4;
+}
+
+/* 28px on 1.5 body lines (36px, ratio 1.29). Two wrapped lines are exactly
+   three body lines, so the text below lands back on the beat. Å, Ä and Ö
+   have room above the caps at this leading. */
+.doc h1 {
+  font-size: var(--title-l);
+  line-height: calc(1.5 * var(--line));
+}
+
+/* 20px on one body line (24px, ratio 1.2). 1.5 lines above + 1 + 0.5 below
+   = 3 body lines per heading. */
+.doc h2 {
+  font-size: var(--title-m);
+  line-height: var(--line);
+}
+.doc > h2 { margin-block-start: calc(1.5 * var(--line)); }
+.doc > :is(h1, h2) + * { margin-block-start: calc(0.5 * var(--line)); }
+
+/* ---- Reading text ----------------------------------------------------- */
+
+/* Docs are skimmed: block paragraphs, spaced by one line, no indents (§2.3.2). */
+.doc p { text-wrap: pretty; }
+
+.doc :is(ul, ol) {
+  padding-inline-start: 1.25em;    /* marker sits just inside the 16px gutter edge */
+}
+.doc li::marker { color: var(--ink-muted); }
+.doc li + li { margin-block-start: calc(0.25 * var(--line)); }
+
+/* ---- Code ------------------------------------------------------------- */
+
+.doc :is(code, pre) {
+  font-family: var(--mono);
+  -webkit-hyphens: manual;         /* a hyphen in a command is part of the command */
+  hyphens: manual;
+}
+
+/* Inline code: slightly smaller so the mono face sits with the text. As an
+   inline-block it moves to the next line whole instead of splitting after a
+   flag's own hyphen ("--" / "limit"); only a span longer than the whole
+   column wraps inside itself, so it can never widen the page. Its baseline
+   is its last line's, so it stays on the text baseline. */
+.doc :not(pre) > code {
+  display: inline-block;
+  max-inline-size: 100%;
+  font-size: 0.875em;
+  padding-inline: 0.25em;
+  border-radius: 0.25em;
+  background: var(--tint);
+  overflow-wrap: anywhere;
+}
+
+/* Block code: wraps instead of scrolling sideways on a phone. Continuation
+   lines hang 2ch in, so a wrapped command still reads as one command;
+   copying it gives the original single line. */
+.doc pre {
+  font-size: var(--text-s);
+  line-height: 1.5;
+  padding-block: calc(0.5 * var(--line));
+  padding-inline: calc(0.75rem + 2ch) 0.75rem;
+  text-indent: -2ch;
+  background: var(--tint);
+  border-radius: 0.375rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 2;
+}
+.doc pre code { font-size: inherit; }
+
+/* ---- Settings table --------------------------------------------------- */
+
+.doc table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: lining-nums tabular-nums;   /* SF has tnum; §3.2.1 */
+}
+
+/* Labels are data, not reading text: they wrap at word spaces and are not
+   hyphenated (WebKit otherwise splits "an-vändare", "ses-sioner").
+   overflow-wrap: anywhere lowers the cell's min-content width, so a label
+   longer than the column still cannot push the table off the screen. */
+.doc :is(th, td) {
+  -webkit-hyphens: manual;
+  hyphens: manual;
+  overflow-wrap: anywhere;
+  padding-block: calc(0.25 * var(--line));
+  padding-inline: 0;
+  text-align: start;
+  vertical-align: baseline;
+  border-block-end: 1px solid var(--rule);
+}
+.doc :is(th, td) + :is(th, td) { padding-inline-start: 1em; }
+
+.doc thead th {
+  font-size: var(--text-s);
+  font-weight: 600;
+  color: var(--ink-muted);
+  border-block-end-color: currentColor;
+}
+
+/* Values: kept whole and aligned to the end edge. The HTML has plain spaces
+   in "2,5 GB" and "1 500 kr", so nowrap is what binds number, grouping and
+   unit (§2.4.6). The label column takes the remaining width. */
+.doc :is(th, td):last-child {
+  text-align: end;
+  white-space: nowrap;
+}
+
+/* ---- Print ------------------------------------------------------------ */
+
+@media print {
+  .doc p { widows: 3; orphans: 3; }
+  .doc :is(h1, h2) { break-after: avoid; }
+  .doc :is(pre, table) { break-inside: avoid; }
+}

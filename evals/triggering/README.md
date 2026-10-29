@@ -20,3 +20,23 @@ run. Detection counts only the agent's first tool call, so an agent that looks
 at files first and opens the skill later counts as a miss: the recall figure is
 a lower bound.
 
+## Description tuning, 29 October 2026 (content-freeze-2)
+
+skill-creator's `run_loop.py`, five iterations on `trigger-eval.json` split
+12 train and 8 test, three runs per prompt (`results/2026-10-29-description-loop/`).
+The best description scored 6/8 on the test split against 4/8 for the
+original; it is the description at `content-freeze-2`.
+
+Measured afterwards (rate = share of runs that opened the skill):
+
+| Set | Description | Typography tasks passed | Mean load rate | Near misses passed |
+|---|---|--:|--:|--:|
+| `trigger-eval.json` (tuning set) | freeze-1 | 1/10 | 13% | 10/10 |
+| `trigger-eval.json` (tuning set) | freeze-2 | 1/10 | 23% | 10/10 |
+| `trigger-holdout.json` (fresh, pre-registered) | freeze-1 | 1/6 | 17% | 6/6 |
+| `trigger-holdout.json` (fresh, pre-registered) | freeze-2 | 1/6 | 22% | 6/6 |
+
+The tuned description is no worse and slightly more eager, but the change is
+within run-to-run noise. Wording alone does not make the skill load on its own
+in this setup.
+

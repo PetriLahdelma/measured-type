@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quarterly results</title>
+<link rel="preload" href="fonts/SourceSerif4%5Bopsz,wght%5D.ttf" as="font" type="font/ttf" crossorigin>
+<style>
+  /* Self-hosted variable font, served unmodified. */
+  @font-face {
+    font-family: "Source Serif 4";
+    src: url("fonts/SourceSerif4%5Bopsz,wght%5D.ttf") format("truetype");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    /* Type scale: four sizes, each with one role. */
+    --text-note: 0.875rem;   /* footnotes, caption detail */
+    --text-data: 1rem;       /* table */
+    --text-body: 1.125rem;   /* reading text */
+    --text-title: 2.25rem;   /* page title */
+
+    --leading-body: 1.5;
+    --line: calc(var(--text-body) * var(--leading-body)); /* one body line */
+
+    --ground: #fbfaf7;
+    --ink: #1d1c1a;
+    --ink-muted: #57534d;     /* 7.3:1 on --ground */
+    --rule-strong: #1d1c1a;
+    --rule-soft: #d9d5cd;
+    --stripe: #f3f1ec;
+
+    color-scheme: light dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #1c1b19;
+      --ink: #ece9e3;
+      --ink-muted: #b4afa6;
+      --rule-strong: #ece9e3;
+      --rule-soft: #45423d;
+      --stripe: #24231f;
+    }
+    body { letter-spacing: 0.005em; } /* light on dark reads tighter */
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { font-size: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    font-optical-sizing: auto;
+    font-kerning: normal;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .report {
+    max-inline-size: 46rem;
+    margin-inline: auto;
+    padding-block: calc(var(--line) * 2) calc(var(--line) * 3);
+    padding-inline: 1rem;
+  }
+
+  /* ---------- Reading text ---------- */
+
+  h1 {
+    font-size: var(--text-title);
+    font-weight: 600;
+    line-height: 1.15;
+    margin-block: 0 calc(var(--line) * 0.5);
+    text-wrap: balance;
+  }
+
+  .lede {
+    max-inline-size: 31em;            /* measured: about 64 characters per line */
+    margin-block: 0 calc(var(--line) * 1.5);
+    font-variant-numeric: oldstyle-nums proportional-nums;
+    text-wrap: pretty;
+    hyphens: auto;
+  }
+
+  /* Quarter names are a capital plus a figure: lining figures sit with the cap. */
+  .q { font-variant-numeric: lining-nums; white-space: nowrap; }
+
+  /* ---------- Results table ---------- */
+
+  .results { margin: 0; }
+
+  /* Wide tables scroll on their own on narrow screens; the page never does. */
+  .scroller {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .scroller:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 4px;
+  }
+
+  table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-data);
+    line-height: 1.4;
+    /* Same-width lining figures so every digit lines up down a column.
+       Source Serif 4 defaults to tabular lining; stated so it survives a font swap. */
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  caption {
+    caption-side: top;
+    text-align: start;
+    font-weight: 600;
+    padding-block-end: calc(var(--line) * 0.5);
+  }
+
+  th, td {
+    padding-block: 0.6em;
+    padding-inline: 0.75em;
+    vertical-align: baseline;
+  }
+  th:first-child, td:first-child { padding-inline-start: 0; }
+  th:last-child,  td:last-child  { padding-inline-end: 0; }
+
+  thead th {
+    font-weight: 400;
+    font-variant-caps: all-small-caps;   /* true small caps: the font has c2sc + smcp */
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    border-block-start: 2px solid var(--rule-strong);
+    border-block-end: 1px solid var(--rule-strong);
+    white-space: nowrap;
+  }
+  thead th:first-child { text-align: start; }
+  /* letter-spacing trails the last letter; pull it back so headings end flush with the figures */
+  thead th > span { margin-inline-end: -0.06em; }
+
+  thead .sub {
+    display: block;
+    font-variant-caps: normal;
+    letter-spacing: 0;
+    font-size: var(--text-note);
+    margin-inline-end: 0;
+  }
+
+  tbody th {
+    text-align: start;
+    font-weight: 400;
+    min-inline-size: 8.5em;
+  }
+  tbody th .unit { color: var(--ink-muted); white-space: nowrap; }
+
+  tbody tr + tr > * { border-block-start: 1px solid var(--rule-soft); }
+  tbody tr:last-child > * { border-block-end: 2px solid var(--rule-strong); }
+
+  .numeric { text-align: end; white-space: nowrap; }
+
+  /* The change column is a different kind of number (a difference, not a level). */
+  .change {
+    border-inline-start: 1px solid var(--rule-soft);
+    padding-inline-start: 1em;
+  }
+  tbody td.change { background: var(--stripe); padding-inline-end: 0.5em; }
+  thead th.change { padding-inline-end: 0.5em; }
+
+  /* Decimal alignment: the integer part is right-aligned, the fraction and unit
+     sit in a slot of one width per column, so every decimal point (or the
+     place where it would be) lines up down the column. */
+  .int { display: inline; }
+  .frac {
+    display: inline-block;
+    min-inline-size: var(--frac, 2.2em);
+    text-align: start;
+  }
+
+  abbr[title] { text-decoration: none; cursor: help; }
+
+  /* The label column stays put while the figures scroll on a phone. */
+  @media (max-width: 34rem) {
+    tbody th, thead th:first-child {
+      position: sticky;
+      inset-inline-start: 0;
+      background: var(--ground);
+      z-index: 1;
+      padding-inline-end: 0.75em;
+    }
+    tbody th { min-inline-size: 7em; }
+  }
+
+  .notes {
+    margin-block: calc(var(--line) * 0.75) 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-note);
+    line-height: 1.5;
+    color: var(--ink-muted);
+    max-inline-size: 38em;
+    font-variant-numeric: oldstyle-nums proportional-nums;
+  }
+  .notes li + li { margin-block-start: 0.25em; }
+
+  @media print {
+    body { background: #fff; color: #000; }
+    .scroller { overflow: visible; }
+    table { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main class="report">
+  <h1>Quarterly results</h1>
+  <p class="lede">
+    Key figures for the first three quarters of the year. Revenue and the
+    operating margin both fell in <span class="q">Q3</span> from their
+    <span class="q">Q2</span> level, headcount stayed almost flat and churn
+    rose above its <span class="q">Q1</span> rate. The last column compares
+    <span class="q">Q3</span> with <span class="q">Q2</span>.
+  </p>
+
+  <figure class="results">
+    <div class="scroller" role="region" aria-labelledby="results-caption" tabindex="0">
+      <table id="results">
+        <caption id="results-caption">Results by quarter</caption>
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <ul class="notes">
+      <li>Revenue in euros.</li>
+      <li><abbr title="percentage points">pp</abbr>: percentage points, the difference between two percentages (13.1% to 11.8% is −1.3&nbsp;pp).</li>
+      <li>Change: <span class="q">Q3</span> compared with <span class="q">Q2</span>.</li>
+    </ul>
+  </figure>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const LOCALE = 'en-GB';
+
+  const columns = [
+    { key: 'metric', label: 'Metric' },
+    { key: 'q1', label: 'Q1' },
+    { key: 'q2', label: 'Q2' },
+    { key: 'q3', label: 'Q3' },
+    { key: 'change', label: 'Change', sub: 'Q3 vs Q2' },
+  ];
+
+  // kind: how a value is formatted. Percentages are stored as written (12.4 = 12.4%).
+  const rows = [
+    { metric: 'Revenue', unit: 'EUR', kind: 'amount',
+      values: [1234567, 1310050, 1288400], change: { value: -1.7, kind: 'percent' } },
+    { metric: 'Operating margin', kind: 'percent',
+      values: [12.4, 13.1, 11.8], change: { value: -1.3, kind: 'pp' } },
+    { metric: 'Headcount', kind: 'count',
+      values: [48, 52, 51], change: { value: -1, kind: 'count' } },
+    { metric: 'Churn', kind: 'percent',
+      values: [3.2, 2.9, 3.4], change: { value: 0.5, kind: 'pp' } },
+  ];
+
+  const MINUS = '−';   // true minus sign, same width as the plus in this font
+  const NBSP = ' ';
+
+  function formatter(kind, signed) {
+    const sign = signed ? { signDisplay: 'exceptZero' } : {};
+    switch (kind) {
+      case 'percent':
+        return new Intl.NumberFormat(LOCALE, { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1, ...sign });
+      case 'pp':
+        return new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1, ...sign });
+      default:
+        return new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 0, ...sign });
+    }
+  }
+
+  // Split a formatted number at the decimal mark: { int: "−1", frac: ".7%" }.
+  function split(value, kind, signed) {
+    const n = kind === 'percent' ? value / 100 : value;
+    const parts = formatter(kind, signed).formatToParts(n);
+    let int = '', frac = '', afterDecimal = false;
+    for (const p of parts) {
+      if (p.type === 'decimal') afterDecimal = true;
+      const text = p.type === 'minusSign' ? MINUS : p.value;
+      if (afterDecimal || p.type === 'percentSign') frac += text;
+      else int += text;
+    }
+    return { int, frac, pp: kind === 'pp' };
+  }
+
+  function el(tag, attrs = {}, ...children) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+    for (const c of children) node.append(c);
+    return node;
+  }
+
+  function numberCell(value, kind, signed, extraClass = '') {
+    const { int, frac, pp } = split(value, kind, signed);
+    const fracSpan = el('span', { class: 'frac' }, frac);
+    if (pp) {
+      fracSpan.append(NBSP, el('abbr', { title: 'percentage points' }, 'pp'));
+    }
+    return el('td', { class: ('numeric ' + extraClass).trim() },
+      el('span', { class: 'int' }, int), fracSpan);
+  }
+
+  const table = document.getElementById('results');
+
+  // Header
+  const headRow = el('tr');
+  columns.forEach((col, i) => {
+    const th = el('th', { scope: 'col' });
+    if (i > 0) th.classList.add('numeric');
+    if (col.key === 'change') th.classList.add('change');
+    th.append(el('span', {}, col.label));
+    if (col.sub) th.append(el('span', { class: 'sub' }, col.sub));
+    headRow.append(th);
+  });
+  table.tHead.append(headRow);
+
+  // Body
+  for (const row of rows) {
+    const label = el('th', { scope: 'row' }, row.metric);
+    if (row.unit) label.append(' ', el('span', { class: 'unit' }, '(' + row.unit + ')'));
+    const tr = el('tr', {}, label);
+    row.values.forEach(v => tr.append(numberCell(v, row.kind, false)));
+    tr.append(numberCell(row.change.value, row.change.kind, true, 'change'));
+    table.tBodies[0].append(tr);
+  }
+
+  // One fraction-slot width per column: the widest fraction in that column.
+  function alignDecimals() {
+    const body = table.tBodies[0];
+    for (let c = 1; c < columns.length; c++) {
+      const slots = [...body.rows].map(r => r.cells[c].querySelector('.frac'));
+      slots.forEach(s => s.style.removeProperty('--frac'));
+      slots.forEach(s => (s.style.minInlineSize = '0'));
+      const widest = Math.max(...slots.map(s => s.getBoundingClientRect().width));
+      const em = parseFloat(getComputedStyle(slots[0]).fontSize);
+      slots.forEach(s => {
+        s.style.minInlineSize = '';
+        s.style.setProperty('--frac', (widest / em).toFixed(3) + 'em');
+      });
+    }
+  }
+
+  alignDecimals();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(alignDecimals);
+})();
+</script>
+</body>
+</html>

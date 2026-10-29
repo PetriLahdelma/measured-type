@@ -1,0 +1,274 @@
+/*
+ * docs.css: Swedish product documentation, read mostly on phones (320-400px).
+ *
+ * Body is system-ui at 1rem, so one body line = 1rem x 1.5 = 1.5rem and every
+ * vertical gap below is a whole or half line (§2.2.2).
+ *
+ * Font check (font-features.py on macOS SF Pro, the usual system-ui):
+ * tnum is present, onum is absent, so prose keeps the default lining figures
+ * and only the table switches to tabular figures (§3.2.1).
+ */
+
+:root {
+  --body-size: 1rem;
+  --leading: 1.5;
+  --line: calc(var(--body-size) * var(--leading)); /* 24px at default size */
+  --half: calc(var(--line) / 2);
+
+  /* Scale: 0.875 / 1 / 1.25 / fluid 1.5-1.875 (§3.1.1). Only h1 is fluid,
+     and its vi term is small so it still roughly doubles at 200% zoom. */
+  --size-small: 0.875rem;
+  --size-h2: 1.25rem;
+  --size-h1: clamp(1.5rem, 1.25rem + 1.25vi, 1.875rem);
+
+  --text: #1b1d21;
+  --muted: #5a606b;
+  --rule: #d6d9de;
+  --code-bg: #f3f4f6;
+  --bg: #ffffff;
+  --shade: rgb(0 0 0 / 0.18);
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e6e7ea;
+    --muted: #a3a8b2;
+    --rule: #3a3e46;
+    --code-bg: #22252b;
+    --bg: #15171b;
+    --shade: rgb(0 0 0 / 0.6);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding-block: var(--line) calc(var(--line) * 2);
+  padding-inline: 1rem; /* 16px gutters: 288px of text at 320px */
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: var(--body-size);
+  line-height: var(--leading);
+  color: var(--text);
+  background: var(--bg);
+  font-kerning: normal;
+  font-synthesis: none;
+}
+
+/* ---------- Reading container ---------- */
+
+.doc {
+  /* On phones the measure is the screen: 288-368px is about 40-50 Swedish
+     characters, the low end of §2.1.2. 34em caps it on wider screens. */
+  max-inline-size: 34em;
+  margin-inline: auto;
+
+  /* Swedish builds long compounds; without hyphenation a 32-letter word
+     cannot fit 288px and leaves the line ragged or overflowing (§2.4.1). */
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  hyphenate-limit-chars: 6 2 3;
+  -webkit-hyphenate-limit-before: 2;
+  -webkit-hyphenate-limit-after: 3;
+  -webkit-hyphenate-limit-lines: 3; /* §2.4.3, Safari only */
+
+  /* Last defense for strings no dictionary knows. */
+  overflow-wrap: break-word;
+  text-align: start;
+}
+
+.doc > * {
+  margin-block: 0;
+}
+
+/* ---------- Paragraphs and lists ---------- */
+
+/* Docs are scanned, so paragraphs are spaced, not indented (§2.3.1). */
+.doc p,
+.doc ul,
+.doc ol,
+.doc pre,
+.doc table {
+  margin-block-start: var(--line);
+}
+
+.doc p {
+  text-wrap: pretty; /* avoid one-word last lines (§2.4.8) */
+}
+
+.doc ul,
+.doc ol {
+  padding-inline-start: 1.25em; /* logical, so RTL editions indent correctly */
+}
+
+.doc li + li {
+  margin-block-start: var(--half);
+}
+
+.doc li::marker {
+  color: var(--muted);
+}
+
+/* ---------- Headings ---------- */
+
+.doc h1,
+.doc h2 {
+  font-weight: 700;
+  text-wrap: balance;
+  /* Headings normally stay unhyphenated, but "Användarbehörighets-
+     inställningar" is about 1.7x the phone measure at h1 size; it must
+     break, and a dictionary break at a compound joint beats an arbitrary
+     overflow-wrap break. Stricter limits keep fragments readable. */
+  hyphenate-limit-chars: 8 4 4;
+  -webkit-hyphenate-limit-before: 4;
+  -webkit-hyphenate-limit-after: 4;
+}
+
+.doc h1 {
+  font-size: var(--size-h1);
+  line-height: 1.2; /* not tighter: Å, Ä, Ö reach above cap height */
+  letter-spacing: -0.01em;
+}
+
+.doc h2 {
+  font-size: var(--size-h2);
+  line-height: var(--line); /* one body line, so wrapped heads stay on beat */
+  margin-block-start: calc(var(--line) * 2);
+}
+
+/* A section head belongs to the text below it: a half line above the text,
+   two lines above the head. The h1 keeps a full line before the intro. */
+.doc h2 + p,
+.doc h2 + table {
+  margin-block-start: var(--half);
+}
+
+/* ---------- Code ---------- */
+
+.doc code,
+.doc pre {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: var(--size-small);
+  /* Never insert a hyphen into a command: it would change what is copied. */
+  -webkit-hyphens: manual;
+  hyphens: manual;
+}
+
+.doc :not(pre) > code {
+  padding-inline: 0.25em;
+  border-radius: 0.25em;
+  background: var(--code-bg);
+  /* Engines break after "-", so "--limit" could split into "--" / "limit"
+     (WebKit does at 320px). As an inline-block the command moves to the
+     next line as one unit; it wraps inside only when it is wider than the
+     whole line (large text settings), so nothing ever overflows the page. */
+  display: inline-block;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+.doc pre {
+  padding-block: var(--half);
+  padding-inline: 0.75rem;
+  border-radius: 0.375rem;
+  line-height: 1.5;
+  /* Scroll shadows: an edge darkens only while more code lies beyond it,
+     so a cut-off command reads as "swipe", not as a typo. */
+  background:
+    linear-gradient(90deg, var(--code-bg) 40%, transparent) 0 0 / 2rem 100% no-repeat local,
+    linear-gradient(270deg, var(--code-bg) 40%, transparent) 100% 0 / 2rem 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, var(--shade), transparent) 0 0 / 0.75rem 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, var(--shade), transparent) 100% 0 / 0.75rem 100% no-repeat scroll,
+    var(--code-bg);
+  /* Wrapping a command splits flags at their hyphens ("--set-" /
+     "default-role"), which misreads as two arguments. The block scrolls on
+     its own instead; the page itself never scrolls sideways (WCAG 1.4.10). */
+  white-space: pre;
+  overflow-x: auto;
+  overflow-inline: auto;
+  overscroll-behavior-inline: contain;
+  max-inline-size: 100%;
+}
+
+.doc pre code {
+  font-size: inherit;
+  padding: 0;
+  background: none;
+}
+
+/* ---------- Settings table ---------- */
+
+.doc table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: lining-nums tabular-nums; /* §3.2.1 */
+}
+
+.doc th,
+.doc td {
+  padding-block: var(--half) calc(var(--half) - 1px); /* -1px pays for the rule */
+  vertical-align: baseline;
+  text-align: start;
+  border-block-end: 1px solid var(--rule);
+}
+
+.doc th {
+  font-size: var(--size-small);
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.doc th:first-child,
+.doc td:first-child {
+  padding-inline-end: 1rem;
+}
+
+/* Labels are short phrases that wrap at spaces. Hyphenate only real
+   compounds: without these limits WebKit sets "an-vändare", "sessio-ner". */
+.doc td:first-child {
+  hyphenate-limit-chars: 12 5 5;
+  -webkit-hyphenate-limit-before: 5;
+  -webkit-hyphenate-limit-after: 5;
+  overflow-wrap: anywhere; /* lets the column shrink, never the page */
+}
+
+/* Values: "2,5 GB", "1 500 kr", "12 h". The HTML uses plain spaces, so
+   nowrap stands in for the missing no-break spaces (§2.4.6): a number is
+   never split from its unit or its own digit group. The column takes only
+   the width of its longest value and the labels get the rest. */
+.doc th:last-child,
+.doc td:last-child {
+  white-space: nowrap;
+  text-align: end;
+  inline-size: 1%;
+  -webkit-hyphens: manual;
+  hyphens: manual;
+}
+
+/* ---------- Print ---------- */
+
+@media print {
+  .doc p {
+    widows: 3;
+    orphans: 3;
+  }
+  .doc h2 {
+    break-after: avoid;
+  }
+  .doc pre,
+  .doc table {
+    break-inside: avoid;
+  }
+}

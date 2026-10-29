@@ -1,0 +1,185 @@
+/*
+ * layout.css for essay.html
+ *
+ * Two columns, two measures. Each is sized for its own type size:
+ *   - .prose  Georgia 1.125rem (18px), measure 30em = 33.75rem (540px)
+ *             -> about 60-75 characters per line, median ~67
+ *   - .notes  0.875rem (14px), measure 22em = 19.25rem (308px)
+ *             -> about 40-48 characters per line, median ~43
+ *
+ * Why em and not ch: `ch` is the width of "0", and Georgia's figures are
+ * wide (about 0.6em) while its average character in running text is about
+ * 0.44em. A 66ch cap measured out at roughly 90 characters per line.
+ *
+ * Every width and the breakpoint are in rem/em, so a larger browser text
+ * size or page zoom moves the page toward the stacked layout instead of
+ * squeezing either column. At 200% zoom on a 1280px window (640 CSS px)
+ * the notes stack below the essay.
+ */
+
+:root {
+  --text-color: #1d1d1b;
+  --muted-color: #4a4a46;
+  --rule-color: #d6d3cc;
+  --page-bg: #fbfaf7;
+
+  --prose-size: 1.125rem;
+  --notes-size: 0.875rem;
+  --title-size: clamp(1.75rem, 1.2rem + 2.4vw, 2.5rem);
+  --title-leading: 1.15;
+  --title-space: 1.25; /* space below the title, in title ems */
+
+  /* Measures expressed in rem so the grid (which is not set in either
+     column's font size) can use them directly. */
+  --prose-measure: 33.75rem; /* 30em at 1.125rem */
+  --notes-measure: 19.25rem; /* 22em at 0.875rem */
+  --notes-indent: 1.25rem;   /* space between the notes' rule and text */
+
+  --gutter: clamp(1rem, 4vw, 2rem);
+  --column-gap: 3rem;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-color: #e8e6e1;
+    --muted-color: #b9b6ae;
+    --rule-color: #45433e;
+    --page-bg: #171716;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--text-color);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: var(--prose-size);
+  line-height: 1.6;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Page frame: one column by default (phones, narrow or zoomed windows) ---- */
+
+.essay {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 3rem;
+  max-inline-size: calc(var(--prose-measure) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding: clamp(2rem, 6vw, 4.5rem) var(--gutter) 4rem;
+}
+
+/* ---- Article ---- */
+
+.prose {
+  min-inline-size: 0;
+  max-inline-size: var(--prose-measure);
+  font-size: var(--prose-size);
+  line-height: 1.6;
+  overflow-wrap: break-word;
+  hanging-punctuation: first;
+}
+
+.prose h1 {
+  margin: 0 0 calc(var(--title-space) * 1em);
+  font-size: var(--title-size);
+  font-weight: normal;
+  line-height: var(--title-leading);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.prose p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+
+.prose p:last-child {
+  margin-block-end: 0;
+}
+
+/* ---- Notes ---- */
+
+.notes {
+  min-inline-size: 0;
+  max-inline-size: var(--notes-measure);
+  font-size: var(--notes-size);
+  line-height: 1.5;
+  color: var(--muted-color);
+  overflow-wrap: break-word;
+
+  /* Stacked: a short rule marks where the essay ends and the notes begin. */
+  border-block-start: 1px solid var(--rule-color);
+  padding-block-start: 1.5rem;
+}
+
+.notes p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+
+.notes p:last-child {
+  margin-block-end: 0;
+}
+
+/*
+ * ---- Wide screens: notes beside the article ----
+ * Needed: prose 33.75rem + gap 3rem + notes (19.25rem + 1.25rem indent)
+ * + two 2rem gutters = 61.25rem. The query is in em (browser default
+ * size), so it switches at 992px with default settings.
+ */
+@media (min-width: 62em) {
+  .essay {
+    grid-template-columns:
+      minmax(0, var(--prose-measure))
+      calc(var(--notes-measure) + var(--notes-indent));
+    column-gap: var(--column-gap);
+    justify-content: center;
+    max-inline-size: none;
+  }
+
+  .prose {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .notes {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+    max-inline-size: none;
+
+    /* Beside the text a vertical rule replaces the top rule, and the notes
+       start level with the first paragraph rather than the title. */
+    border-block-start: 0;
+    padding-block-start: 0;
+    border-inline-start: 1px solid var(--rule-color);
+    padding-inline-start: var(--notes-indent);
+    margin-block-start: calc(var(--title-size) * (var(--title-leading) + var(--title-space)));
+  }
+}
+
+@media print {
+  body {
+    background: none;
+    color: #000;
+  }
+
+  .notes {
+    color: #333;
+  }
+}

@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quarterly Results</title>
+<style>
+  /* Self-hosted variable font: weight 200 to 900, optical size 8 to 60.
+     The file name contains [ , ] so it is percent-encoded in the URL. */
+  @font-face {
+    font-family: "Source Serif 4";
+    src: url("fonts/SourceSerif4%5Bopsz%2Cwght%5D.ttf") format("truetype");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --ink: #1c1b19;
+    --ink-muted: #5d5a54;
+    --paper: #fbfaf7;
+    --rule: #d9d5cc;
+    --rule-strong: #1c1b19;
+    --row-hover: #f1eee7;
+    --unfavourable: #9b2c1f;
+    --favourable: #23613a;
+    --edge-shadow: rgba(28, 27, 25, 0.16);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #ece9e2;
+      --ink-muted: #a7a298;
+      --paper: #191816;
+      --rule: #3a3833;
+      --rule-strong: #ece9e2;
+      --row-hover: #24221f;
+      --unfavourable: #f08a7a;
+      --favourable: #8fd1a5;
+      --edge-shadow: rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-optical-sizing: auto;          /* opsz follows font-size */
+    font-kerning: normal;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1.0625rem;               /* 17px */
+    line-height: 1.5;
+  }
+
+  main {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: clamp(2rem, 6vw, 4.5rem) 1rem 4rem;
+  }
+
+  .eyebrow {
+    margin: 0 0 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  h1 {
+    margin: 0 0 0.75rem;
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .lede {
+    margin: 0 0 2.5rem;
+    max-width: 36em;
+    color: var(--ink-muted);
+    text-wrap: pretty;
+  }
+
+  /* ---------- Table ---------- */
+
+  .table-wrap {
+    position: relative;                 /* contains the visually hidden spans */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Scroll hint: a soft shadow on the right edge while more columns are
+       hidden; the "local" cover slides over it once scrolled to the end. */
+    background:
+      linear-gradient(to left, var(--paper) 60%, transparent) right center / 2rem 100% no-repeat local,
+      radial-gradient(farthest-side at 100% 50%, var(--edge-shadow), transparent) right center / 0.75rem 100% no-repeat scroll;
+  }
+  .table-wrap:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 4px;
+  }
+  .scroll-hint { display: none; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    /* Numbers are compared down and across: lining, tabular figures
+       give every digit the same width so places line up. */
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  .notes {
+    margin: 0.875rem 0 0;
+    max-width: 40em;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--ink-muted);
+  }
+  .notes p { margin: 0; }
+  .notes p + p { margin-top: 0.25rem; }
+
+  /* On narrow screens the table scrolls sideways; the metric names stay put. */
+  thead th:first-child, tbody th {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--paper);
+  }
+
+  th, td {
+    padding: 0.625rem 0 0.625rem 1.5rem;
+    vertical-align: baseline;
+    white-space: nowrap;
+  }
+  th:first-child, td:first-child { padding-left: 0; }
+
+  thead th {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    text-align: right;
+    border-bottom: 2px solid var(--rule-strong);
+    padding-top: 0;
+    padding-bottom: 0.5rem;
+  }
+  thead th:first-child { text-align: left; }
+  thead .sub {
+    display: block;
+    font-weight: 400;
+    font-size: 0.8125rem;
+  }
+
+  tbody th {
+    text-align: left;
+    font-weight: 600;
+    white-space: normal;
+    min-width: 9rem;
+  }
+  tbody th .unit {
+    font-weight: 400;
+    color: var(--ink-muted);
+  }
+
+  tbody td { text-align: right; }
+
+  tbody tr { border-bottom: 1px solid var(--rule); }
+  tbody tr:last-child { border-bottom: 2px solid var(--rule-strong); }
+  @media (hover: hover) {
+    tbody tr:hover > * { background: var(--row-hover); }
+  }
+
+  /* Latest quarter carries slightly more weight: it is the comparison anchor. */
+  td.latest { font-weight: 600; }
+
+  /* Change column: a vertical rule separates derived values from reported ones. */
+  th.change, td.change {
+    padding-left: 1.75rem;
+    border-left: 1px solid var(--rule);
+  }
+  thead th.change { border-left-color: transparent; }
+
+  /* Decimal alignment inside the Change column:
+     [sign+integer][.fraction][unit], each part in a fixed slot. */
+  /* Decimal alignment inside the Change column. Cells are right-aligned and
+     every figure is tabular, so a fixed-width unit slot plus an invisible
+     ".0" on whole numbers puts all decimal points on one vertical line. */
+  .delta .u   { display: inline-block; min-width: 1.4em; text-align: left; }
+  .delta .u abbr { margin-left: 0.15em; }
+  .delta .pad { visibility: hidden; }
+
+  .unfavourable { color: var(--unfavourable); }
+  .favourable   { color: var(--favourable); }
+
+  abbr[title] { text-decoration: none; cursor: help; }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  noscript p {
+    padding: 1rem;
+    border: 1px solid var(--rule);
+  }
+
+  @media (max-width: 30rem) {
+    body { font-size: 1rem; }
+    th, td { padding-left: 1rem; }
+    th.change, td.change { padding-left: 1.125rem; }
+    tbody th { min-width: 6.5rem; }
+    .scroll-hint {
+      display: block;
+      margin: 0 0 0.5rem;
+      font-size: 0.8125rem;
+      color: var(--ink-muted);
+    }
+  }
+
+  @media print {
+    :root { --ink: #000; --ink-muted: #444; --paper: #fff; --rule: #bbb; --rule-strong: #000; }
+    body { font-size: 10.5pt; }
+    main { max-width: none; padding: 0; }
+    .table-wrap { background: none; overflow: visible; }
+    .scroll-hint { display: none; }
+    tbody tr:hover > * { background: none; }
+    table { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Client report</p>
+  <h1>Quarterly results</h1>
+  <p class="lede">Key operating metrics for the first three quarters. The Change column compares Q3 with Q2.</p>
+
+  <p class="scroll-hint" aria-hidden="true">Swipe the table sideways to see Q3 and Change.</p>
+  <div class="table-wrap" role="region" aria-labelledby="results-caption" tabindex="0">
+    <table id="results" aria-describedby="results-notes">
+      <caption id="results-caption" class="sr-only">Quarterly results, Q1 to Q3, with change from Q2 to Q3</caption>
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div class="notes" id="results-notes">
+    <p>Change is Q3 compared with Q2. Revenue change is relative (%). Margin and churn changes are absolute, in percentage points (pp). Headcount change is in people.</p>
+    <p>Changes in red moved in an unfavourable direction for the business.</p>
+  </div>
+
+  <noscript><p>This table is rendered with JavaScript. Please enable JavaScript to view the quarterly results.</p></noscript>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- Data -------------------------------------------------------------
+  // kind: how quarter values are formatted.
+  // change.unit: "%" relative change, "pp" percentage points, "" plain count.
+  // better: which direction is good for the business ("up", "down", or null).
+  var columns = ["Metric", "Q1", "Q2", "Q3", "Change"];
+
+  var rows = [
+    { metric: "Revenue",          unit: "EUR", kind: "integer", values: [1234567, 1310050, 1288400], change: { value: -1.7, unit: "%",  decimals: 1 }, better: "up"   },
+    { metric: "Operating margin", unit: "%",   kind: "percent", values: [12.4, 13.1, 11.8],          change: { value: -1.3, unit: "pp", decimals: 1 }, better: "up"   },
+    { metric: "Headcount",        unit: "",    kind: "integer", values: [48, 52, 51],                change: { value: -1,   unit: "",   decimals: 0 }, better: null   },
+    { metric: "Churn",            unit: "%",   kind: "percent", values: [3.2, 2.9, 3.4],             change: { value: 0.5,  unit: "pp", decimals: 1 }, better: "down" }
+  ];
+
+  // ---- Formatting -------------------------------------------------------
+  var LOCALE = "en-GB";
+  var MINUS = "−"; // true minus sign, same width as plus
+
+  var fmtInteger = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 0 });
+  var fmtOneDp   = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  function formatValue(row, v) {
+    if (row.kind === "percent") return fmtOneDp.format(v) + "%";
+    return fmtInteger.format(v);
+  }
+
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === "text") node.textContent = attrs[k];
+      else if (k === "className") node.className = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    return node;
+  }
+
+  // Whole-number changes get an invisible ".0" so their units digit sits
+  // under the units digit of the decimal changes.
+  function renderChange(change, maxDecimals) {
+    var sign = change.value > 0 ? "+" : change.value < 0 ? MINUS : "";
+    var text = sign + Math.abs(change.value).toFixed(change.decimals);
+    var wrap = el("span", { className: "delta" }, [document.createTextNode(text)]);
+
+    var missing = maxDecimals - change.decimals;
+    if (missing > 0) {
+      var pad = (change.decimals === 0 ? "." : "") + "0".repeat(missing);
+      wrap.appendChild(el("span", { className: "pad", "aria-hidden": "true", text: pad }));
+    }
+
+    var unit = el("span", { className: "u" });
+    if (change.unit === "pp") {
+      unit.appendChild(el("abbr", { title: "percentage points", "aria-hidden": "true", text: "pp" }));
+      unit.appendChild(el("span", { className: "sr-only", text: " percentage points" }));
+    } else if (change.unit === "%") {
+      unit.textContent = "%";
+    }
+    wrap.appendChild(unit);
+    return wrap;
+  }
+
+  function direction(row) {
+    if (!row.better || row.change.value === 0) return null;
+    var up = row.change.value > 0;
+    return (up === (row.better === "up")) ? "favourable" : "unfavourable";
+  }
+
+  // ---- Render -----------------------------------------------------------
+  var table = document.getElementById("results");
+  var thead = table.tHead;
+  var tbody = table.tBodies[0];
+  var maxDecimals = rows.reduce(function (m, r) { return Math.max(m, r.change.decimals); }, 0);
+
+  var headRow = el("tr");
+  columns.forEach(function (label, i) {
+    var th = el("th", { scope: "col" });
+    if (label === "Change") {
+      th.className = "change";
+      th.appendChild(document.createTextNode("Change"));
+      th.appendChild(el("span", { className: "sub", text: "Q3 vs Q2" }));
+    } else {
+      th.textContent = label;
+    }
+    headRow.appendChild(th);
+  });
+  thead.appendChild(headRow);
+
+  rows.forEach(function (row) {
+    var tr = el("tr");
+
+    var th = el("th", { scope: "row" }, [document.createTextNode(row.metric)]);
+    if (row.unit === "EUR") {
+      th.appendChild(document.createTextNode(" "));
+      th.appendChild(el("span", { className: "unit", text: "(EUR)" }));
+    }
+    tr.appendChild(th);
+
+    row.values.forEach(function (v, i) {
+      var td = el("td", { text: formatValue(row, v) });
+      if (i === row.values.length - 1) td.className = "latest";
+      tr.appendChild(td);
+    });
+
+    var dir = direction(row);
+    var changeTd = el("td", { className: "change" + (dir ? " " + dir : "") }, [renderChange(row.change, maxDecimals)]);
+    if (dir === "unfavourable") {
+      changeTd.appendChild(el("span", { className: "sr-only", text: " (unfavourable)" }));
+    }
+    tr.appendChild(changeTd);
+
+    tbody.appendChild(tr);
+  });
+})();
+</script>
+</body>
+</html>

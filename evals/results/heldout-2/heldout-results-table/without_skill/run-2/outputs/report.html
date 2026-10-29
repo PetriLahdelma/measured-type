@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quarterly Results</title>
+<style>
+  /* Self-hosted variable font: weight 200-900, optical size 8-60. File is used as shipped. */
+  @font-face {
+    font-family: "Source Serif 4";
+    src: url("fonts/SourceSerif4%5Bopsz%2Cwght%5D.ttf") format("truetype-variations"),
+         url("fonts/SourceSerif4%5Bopsz%2Cwght%5D.ttf") format("truetype");
+    font-weight: 200 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --ink: #1c1b19;
+    --ink-muted: #5f5b54;
+    --rule-strong: #1c1b19;
+    --rule: #d9d4cb;
+    --paper: #fbfaf7;
+    --row-hover: #f1eee8;
+    --measure: 44rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #ece8e1;
+      --ink-muted: #a7a197;
+      --rule-strong: #ece8e1;
+      --rule: #3c3934;
+      --paper: #171614;
+      --row-hover: #22201d;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    padding: 3rem 1rem 4rem;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-optical-sizing: auto;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    font-kerning: normal;
+  }
+
+  main {
+    max-width: var(--measure);
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    margin: 0 0 0.25rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.06em;
+    font-variant-caps: all-small-caps;
+    font-variant-numeric: lining-nums;
+    color: var(--ink-muted);
+  }
+
+  h1 {
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.75rem, 1.3rem + 2vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .lede {
+    margin: 0 0 2rem;
+    max-width: 36rem;
+    color: var(--ink-muted);
+    text-wrap: pretty;
+  }
+
+  /* Scroll container keeps the table intact on narrow screens instead of squashing figures. */
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table-scroll:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 4px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    /* Lining, tabular figures: every digit has the same advance, so columns line up digit for digit. */
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+
+  /* Title sits outside the scroll container so it never slides away with the figures. */
+  .table-title {
+    margin: 0;
+    padding-bottom: 0.75rem;
+    line-height: 1.3;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  th, td {
+    padding: 0.625rem 0 0.625rem 1.5rem;
+    vertical-align: baseline;
+  }
+  th:first-child, td:first-child { padding-left: 0; }
+
+  /* Metric labels stay in view when the figures scroll sideways on narrow screens. */
+  tr > :first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    padding-right: 0.75rem;
+    background: var(--paper);
+    text-align: left;
+  }
+  tbody tr:hover > * { background: var(--row-hover); }
+
+  thead th {
+    border-bottom: 1.5px solid var(--rule-strong);
+    padding-top: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+
+  tbody th {
+    text-align: left;
+    font-weight: 500;
+  }
+  tbody tr { border-bottom: 1px solid var(--rule); }
+  tbody tr:last-child { border-bottom: 1.5px solid var(--rule-strong); }
+
+  .unit {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--ink-muted);
+  }
+
+  /* Numeric columns: right-aligned, never wrapped. */
+  .num {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* Invisible ".0" so whole numbers sit on the same decimal point as one-decimal values. */
+  .dec-pad {
+    visibility: hidden;
+  }
+
+  /* Change column is set apart: a gap, a hairline and a heavier weight, read as the summary of the row. */
+  /* Keep the last quarter clear of the rule that opens the Change column. */
+  tr > :nth-child(4) { padding-right: 1rem; }
+  .change {
+    padding-left: 1.25rem;
+    border-left: 1px solid var(--rule);
+    font-weight: 600;
+  }
+  thead .change { font-weight: 600; }
+
+  /* Change values: figure right-aligned, unit in a fixed slot so the figures align regardless of unit. */
+  .change-value { display: inline-block; text-align: right; }
+  .change-unit {
+    display: inline-block;
+    width: 1.6em;
+    margin-left: 0.2em;
+    text-align: left;
+    font-weight: 400;
+    color: var(--ink-muted);
+  }
+
+  abbr[title] {
+    text-decoration: none;
+    border-bottom: 1px dotted currentColor;
+    cursor: help;
+  }
+
+  .notes {
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+  }
+  .notes li + li { margin-top: 0.25rem; }
+
+  @media (max-width: 30rem) {
+    body { padding-top: 2rem; font-size: 1rem; }
+    th, td { padding-left: 1rem; }
+    tr > :nth-child(4) { padding-right: 0.75rem; }
+    .change { padding-left: 0.75rem; }
+  }
+
+  @media print {
+    :root {
+      --ink: #000;
+      --ink-muted: #444;
+      --rule-strong: #000;
+      --rule: #bbb;
+      --paper: #fff;
+    }
+    body { padding: 0; }
+    tbody tr:hover > * { background: none; }
+    .table-scroll { overflow: visible; }
+    table { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Client report, financial year 2026</p>
+  <h1>Quarterly results, Q1 to Q3</h1>
+  <p class="lede">Key operating figures for the first three quarters. The Change column compares Q3 with Q2.</p>
+
+  <h2 id="results-title" class="table-title">Results by quarter</h2>
+  <div class="table-scroll" role="region" aria-labelledby="results-title" tabindex="0">
+    <table id="results" aria-labelledby="results-title">
+      <thead>
+        <tr>
+          <th scope="col">Metric</th>
+          <th scope="col" class="num">Q1</th>
+          <th scope="col" class="num">Q2</th>
+          <th scope="col" class="num">Q3</th>
+          <th scope="col" class="num change">Change</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <ul class="notes">
+    <li>Change is Q3 against Q2.</li>
+    <li><abbr title="percentage points">pp</abbr> = percentage points, the arithmetic difference between two percentages.</li>
+  </ul>
+</main>
+
+<script>
+  // Source data. Values are raw numbers; formatting happens at render time.
+  // change.unit: "percent" (relative change), "pp" (percentage points) or "count" (absolute).
+  const results = [
+    { metric: "Revenue",          unit: "EUR", decimals: 0, values: [1234567, 1310050, 1288400], change: { value: -1.7, unit: "percent", decimals: 1 } },
+    { metric: "Operating margin", unit: "%",   decimals: 1, values: [12.4, 13.1, 11.8],          change: { value: -1.3, unit: "pp",      decimals: 1 } },
+    { metric: "Headcount",        unit: null,  decimals: 0, values: [48, 52, 51],                change: { value: -1,   unit: "count",   decimals: 0 } },
+    { metric: "Churn",            unit: "%",   decimals: 1, values: [3.2, 2.9, 3.4],             change: { value: 0.5,  unit: "pp",      decimals: 1 } },
+  ];
+
+  const LOCALE = "en-GB";
+  const MINUS = "−"; // true minus sign, same width as plus in this font
+  const COLUMN_DECIMALS = 1; // widest decimal count used in any numeric column
+
+  function formatNumber(value, decimals) {
+    return new Intl.NumberFormat(LOCALE, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    }).format(Math.abs(value));
+  }
+
+  function signed(value, decimals) {
+    const sign = value > 0 ? "+" : value < 0 ? MINUS : "";
+    return sign + formatNumber(value, decimals);
+  }
+
+  function decimalPad(decimals) {
+    const missing = COLUMN_DECIMALS - decimals;
+    if (missing <= 0) return null;
+    const pad = document.createElement("span");
+    pad.className = "dec-pad";
+    pad.setAttribute("aria-hidden", "true");
+    pad.textContent = "." + "0".repeat(missing);
+    return pad;
+  }
+
+  function el(tag, attrs, children) {
+    const node = document.createElement(tag);
+    Object.entries(attrs || {}).forEach(([k, v]) => {
+      if (k === "className") node.className = v;
+      else node.setAttribute(k, v);
+    });
+    (children || []).forEach((c) => {
+      if (c == null) return;
+      node.append(typeof c === "string" ? document.createTextNode(c) : c);
+    });
+    return node;
+  }
+
+  const CHANGE_UNITS = {
+    percent: { text: "%", title: null },
+    pp: { text: "pp", title: "percentage points" },
+    count: { text: "", title: null },
+  };
+
+  function renderRow(row) {
+    const unitLabel = row.unit
+      ? el("span", { className: "unit" }, [row.unit])
+      : null;
+    const header = el("th", { scope: "row" }, [row.metric, unitLabel]);
+
+    const valueCells = row.values.map((v) =>
+      el("td", { className: "num" }, [formatNumber(v, row.decimals), decimalPad(row.decimals)])
+    );
+
+    const u = CHANGE_UNITS[row.change.unit];
+    const unitNode = u.title
+      ? el("abbr", { title: u.title }, [u.text])
+      : document.createTextNode(u.text);
+    const changeCell = el("td", { className: "num change" }, [
+      el("span", { className: "change-value" }, [
+        signed(row.change.value, row.change.decimals),
+        decimalPad(row.change.decimals),
+      ]),
+      el("span", { className: "change-unit" }, [unitNode]),
+    ]);
+
+    return el("tr", {}, [header, ...valueCells, changeCell]);
+  }
+
+  document.querySelector("#results tbody").append(...results.map(renderRow));
+</script>
+</body>
+</html>
