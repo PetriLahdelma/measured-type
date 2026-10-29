@@ -9,7 +9,7 @@
 [![Text: CC BY-NC 4.0](https://img.shields.io/badge/text-CC_BY--NC_4.0-61645E)](LICENSE-CC-BY-NC-4.0.txt)
 [![Code: MIT](https://img.shields.io/badge/code-MIT-61645E)](LICENSE-MIT.txt)
 [![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
-[![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
 [![Sponsor](https://img.shields.io/badge/Sponsor-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/PetriLahdelma)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/petrilahdey)
 
