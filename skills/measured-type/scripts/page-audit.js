@@ -381,6 +381,12 @@ function productChecks() {
         return !(a === 'end' || a === (rtl ? 'left' : 'right'));
       });
       if (lengths.size > 1 && off.length >= nums.length / 2) out.align.push({ path: where, align: getComputedStyle(off[0]).textAlign });
+      else if (lengths.size > 1) {
+        // Cells aligned at the end under a header that is not: the header should share the edge.
+        const head = t.tagName === 'TABLE' && t.tHead && t.tHead.rows[0] && t.tHead.rows[0].cells[c];
+        const ha = head && getComputedStyle(head).textAlign;
+        if (head && head.textContent.trim() && !(ha === 'end' || ha === (rtl ? 'left' : 'right'))) out.align.push({ path: `${where} header`, align: ha, header: true });
+      }
     }
   }
   const reading = new Set(mt.reading());
@@ -429,7 +435,6 @@ function truncatedText() {
   }));
 }
 
-const SPACING_CSS = '* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } p { margin-block-end: 2em !important; }';
 
 function parseColor(s) {
   const m = /rgba?\(([^)]+)\)/.exec(s);
@@ -689,7 +694,10 @@ async function audit(target, opts = {}) {
       const fix = t.fixable ? 'font-variant-numeric: lining-nums tabular-nums on the column' : `${face} has no tabular figures: set number columns in a face that has them (check tnum with font-features.py)`;
       add('MT-TABULAR', 'MEDIUM', t.path, `1 and 0 differ by ${t.diff.toFixed(1)}% in width, so digits do not line up`, fix);
     }
-    for (const a of product.align) add('MT-NUM-ALIGN', 'LOW', a.path, `numbers of different lengths set text-align: ${a.align}`, 'text-align: end on the number cells and their header, so place values line up');
+    for (const a of product.align) {
+      if (a.header) add('MT-NUM-ALIGN', 'LOW', a.path, `the numbers are aligned at the end but their header is set text-align: ${a.align}`, 'text-align: end on the header too, so it sits over the place values');
+      else add('MT-NUM-ALIGN', 'LOW', a.path, `numbers of different lengths set text-align: ${a.align}`, 'text-align: end on the number cells and their header, so place values line up');
+    }
     for (const c of product.caps) add('MT-CAPS-TRACKING', 'LOW', c.path, `capitals at ${c.size}px with letter-spacing ${+c.tracking.toFixed(2)}px (under 0.03em)`, 'letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6)');
     for (const s of product.small) add('MT-UI-SIZE', 'LOW', s.path, `${s.size}px interface text (house floor 12px)`, 'font-size: 0.75rem or more');
     const cutAt1280 = await page.evaluate(truncatedText);
@@ -707,24 +715,53 @@ async function audit(target, opts = {}) {
 
     // ---- text spacing override (WCAG 1.4.12)
     const spacing = await open(1280);
-    // A box that already clips its text without the override (screen-reader
-    // text, a closed accordion panel, a spam trap) is hidden by design; only
-    // boxes the override itself makes overflow count against 1.4.12.
-    const overflows = () => [...document.body.querySelectorAll('*')].filter((el) => {
-      const cs = getComputedStyle(el);
-      const hides = /hidden|clip/.test(cs.overflowX + cs.overflowY);
-      return hides && el.textContent.trim() && (el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1);
+    // The override goes on every element inline with !important, which beats an author !important rule,
+    // as a reader's own stylesheet or bookmarklet would. A box that already clipped without the override
+    // counts only if it clips more after it and is not a 1px or collapsed box (screen-reader text, a closed
+    // panel, a spam trap), which hide their text by design.
+    const spaced = await spacing.evaluate(() => {
+      const mt = window.__mt;
+      const boxes = [...document.body.querySelectorAll('*')].filter((el) => el.textContent.trim());
+      const clip = (el) => {
+        const cs = getComputedStyle(el);
+        if (!/hidden|clip/.test(cs.overflowX + cs.overflowY)) return 0;
+        return Math.max(el.scrollHeight - el.clientHeight, el.scrollWidth - el.clientWidth);
+      };
+      const spill = (el) => {
+        const cs = getComputedStyle(el);
+        if (/hidden|clip|auto|scroll/.test(cs.overflowY) || cs.display === 'inline') return 0;
+        return el.scrollHeight - el.clientHeight;
+      };
+      const before = new Map(boxes.map((el) => [el, { clip: clip(el), spill: spill(el) }]));
+      for (const el of document.querySelectorAll('*')) {
+        el.style.setProperty('line-height', '1.5', 'important');
+        el.style.setProperty('letter-spacing', '0.12em', 'important');
+        el.style.setProperty('word-spacing', '0.16em', 'important');
+        if (el.tagName === 'P') el.style.setProperty('margin-block-end', '2em', 'important');
+      }
+      const out = [];
+      for (const el of boxes) {
+        const r = el.getBoundingClientRect();
+        if (r.width <= 1 || r.height <= 1 || el.closest('[aria-hidden="true"]')) continue;
+        const was = before.get(el);
+        const c = clip(el);
+        // Text cut on purpose by an ellipsis or a line clamp is MT-TRUNCATE's finding, not this one's.
+        const ecs = getComputedStyle(el);
+        const truncated = was.clip > 1 && (ecs.textOverflow === 'ellipsis' || (ecs.webkitLineClamp && ecs.webkitLineClamp !== 'none'));
+        if (c > 1 && c > was.clip + 1 && !truncated) out.push({ path: mt.path(el), over: c, kind: 'clip' });
+        const sp = spill(el);
+        const next = el.nextElementSibling;
+        if (sp > 1 && sp > was.spill + 1 && next && mt.visible(next)) {
+          const overlap = r.top + el.scrollHeight - next.getBoundingClientRect().top;
+          if (overlap > 1) out.push({ path: mt.path(el), over: Math.round(overlap), kind: 'overlap' });
+        }
+      }
+      return out;
     });
-    await spacing.evaluate(`window.__mtOverflows = ${overflows.toString()}`);
-    const clipped = await spacing.evaluate((css) => {
-      const before = new Set(window.__mtOverflows());
-      const style = document.createElement('style');
-      style.textContent = css;
-      document.head.append(style);
-      return window.__mtOverflows().filter((el) => !before.has(el))
-        .map((el) => ({ path: window.__mt.path(el), over: Math.max(el.scrollHeight - el.clientHeight, el.scrollWidth - el.clientWidth) }));
-    }, SPACING_CSS);
-    for (const c of clipped) add('MT-TEXT-SPACING', 'HIGH', `${c.path} under the 1.4.12 override`, `${c.over}px of text clipped`, 'remove the fixed height or overflow: hidden on text boxes');
+    for (const c of spaced) {
+      if (c.kind === 'clip') add('MT-TEXT-SPACING', 'HIGH', `${c.path} under the 1.4.12 override`, `${c.over}px of text clipped`, 'remove the fixed height or overflow: hidden on text boxes');
+      else add('MT-TEXT-SPACING', 'HIGH', `${c.path} under the 1.4.12 override`, `text spills out of its fixed height and overlaps the next block by ${c.over}px`, 'remove the fixed height, or use min-block-size');
+    }
     await spacing.close();
 
     // ---- reflow and narrow measure
@@ -793,7 +830,7 @@ async function audit(target, opts = {}) {
 
   findings.sort((a, b) => ORDER[a.severity] - ORDER[b.severity] || a.rule.localeCompare(b.rule));
   const high = findings.filter((f) => f.severity === 'HIGH').length;
-  return { target: url, files: [url], findings, verdict: high ? `Block (${high} HIGH)` : 'Approve', notVerified: [...notVerified] };
+  return { mode: 'rendered', target: url, files: [url], findings, verdict: high ? `Block (${high} HIGH)` : 'Approve', notVerified: [...notVerified] };
 }
 
 if (require.main === module) {

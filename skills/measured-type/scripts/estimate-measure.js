@@ -75,8 +75,14 @@ function widthPx(width, size, zeroEm) {
 
 const perLine = (px, size, avgEm) => Math.round((px / (avgEm * size) - WRAP_LOSS) * 10) / 10;
 
+const GENERIC = /^(serif|sans-serif|monospace|cursive|fantasy|ui-serif|ui-sans-serif|ui-monospace|ui-rounded|emoji|math)$/i;
+
 function estimate({ family, width, size = ROOT_PX }) {
-  const face = lookup(family);
+  // Only the first named face is what renders when it is installed; a later face in the stack is a guess.
+  const names = String(family).split(',').map((n) => n.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+  const first = names.find((n) => !GENERIC.test(n));
+  const face = first && lookup(first);
+  const fallback = !face && lookup(family);
   if (face) {
     const [avgEm, zeroEm] = FACES[face];
     const px = widthPx(width, size, zeroEm);
@@ -84,12 +90,20 @@ function estimate({ family, width, size = ROOT_PX }) {
   }
   const values = Object.entries(FACES).filter(([k]) => !MONO.has(k))
     .map(([, [avgEm, zeroEm]]) => perLine(widthPx(width, size, zeroEm), size, avgEm));
-  return { family: String(family), known: false, width, size, cpl: null, low: Math.min(...values), high: Math.max(...values) };
+  const out = { family: String(family), first: first || null, known: false, width, size, cpl: null, low: Math.min(...values), high: Math.max(...values) };
+  if (fallback) {
+    const [avgEm, zeroEm] = FACES[fallback];
+    out.fallback = fallback;
+    out.fallbackCpl = perLine(widthPx(width, size, zeroEm), size, avgEm);
+  }
+  return out;
 }
 
 function describe(e) {
   if (e.known) return `about ${Math.round(e.cpl)} characters per line in ${e.family} at ${e.width}`;
-  return `${Math.round(e.low)} to ${Math.round(e.high)} characters per line at ${e.width}, depending on the face`;
+  const range = `${Math.round(e.low)} to ${Math.round(e.high)} characters per line at ${e.width}, depending on the face`;
+  if (!e.fallback) return range;
+  return `${e.first} is not in the calibration table: ${range}; if ${e.first} is missing and ${e.fallback} renders instead, about ${Math.round(e.fallbackCpl)}`;
 }
 
 if (require.main === module) {

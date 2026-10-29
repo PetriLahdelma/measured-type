@@ -149,7 +149,7 @@ about 81 characters per line in Verdana at 66ch (estimate from a Chromium calibr
 | Script | What it does |
 |---|---|
 | [`page-audit.js`](skills/measured-type/scripts/page-audit.js) | Audits a rendered page at 1280, 768 and 375px and at 200%, 400% and 500% zoom: reflow, characters per line, contrast in light and dark schemes, the WCAG 1.4.12 spacing override, fonts that fell back, zoom growth and the screen and product UI checks. `--lite` lints instead when there is no browser |
-| [`lint-css.js`](skills/measured-type/scripts/lint-css.js) | Lints CSS, SCSS, Less, HTML, component style blocks and literal Tailwind class strings, or only what a branch changed (`--diff`). Fluid sizes are evaluated at zoom. No dependencies |
+| [`lint-css.js`](skills/measured-type/scripts/lint-css.js) | Lints CSS, SCSS, Less, HTML, component style blocks and Tailwind classes (also inside `cn()`, `clsx()`, Vue `:class` and Svelte `class:`), or only what a branch changed (`--diff`). Fluid sizes are evaluated at zoom. No dependencies |
 | [`measure-line.js`](skills/measured-type/scripts/measure-line.js) | Counts characters per line of one selector, graphemes and columns counted correctly |
 | [`estimate-measure.js`](skills/measured-type/scripts/estimate-measure.js) | Estimates characters per line without a browser, from a Chromium calibration of 30 faces |
 | [`font-features.py`](skills/measured-type/scripts/font-features.py) | Reports which OpenType features a font file really covers, per file (roman and italic can differ) |

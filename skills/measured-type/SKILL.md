@@ -171,8 +171,9 @@ exits 1 naming any step that fails. The rules it applies:
    ```
    Add `--rtl` to the lint when a right-to-left edition is planned. The lint
    also reads `.scss`, `.less`, the `<style>` blocks of `.vue`, `.svelte` and
-   `.astro` files and literal Tailwind class strings in markup and JSX, so point
-   it at `src`; class lists built by expressions are listed as not verified.
+   `.astro` files and Tailwind classes in markup and JSX, including `cn()`,
+   `clsx()`, Vue `:class` and Svelte `class:`, so point it at `src`; only the
+   interpolated parts of template literals are listed as not verified.
 
    **No browser installed?** `lint-css.js` and `estimate-measure.js` need only
    Node, no `npm install`. `page-audit.js --lite` (and any run where
@@ -242,7 +243,7 @@ and no decorative effects standing in for hierarchy.
 | `references/audit.md` | any review or audit: severities, verdict, report table and the rule catalog |
 | `references/screen-and-ui.md` | inline code, icons beside labels, heading hierarchy and spacing, choosing or combining faces, kerning, thin weights or light text on dark |
 | `references/product-ui.md` | dashboards, admin tools and data tables: number columns, labels, badges and status text, truncation |
-| `scripts/lint-css.js` | auditing source (CSS, SCSS, Less, HTML, Vue, Svelte, Astro, JSX and literal Tailwind class strings) or a pull request (`--diff`) |
+| `scripts/lint-css.js` | auditing source (CSS, SCSS, Less, HTML, Vue, Svelte, Astro, JSX and Tailwind classes, expressions included) or a pull request (`--diff`) |
 | `scripts/page-audit.js` | auditing a rendered page: reflow, measure, contrast, text spacing, fonts, zoom, plus the `screen-and-ui.md` checks; `--lite` without a browser |
 | `scripts/estimate-measure.js` | no browser available: characters per line estimated for a face and width |
 | `scripts/apca.js` | a contrast question where weight matters: APCA Lc next to the WCAG ratio (advisory; the WCAG 2 ratio governs conformance) |

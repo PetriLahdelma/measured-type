@@ -12,7 +12,8 @@
  * .astro, .jsx and .tsx files (node_modules, dist, build, coverage, vendor and
  * dot folders skipped). Sass and Less `//` comments are blanked; components
  * contribute their <style> blocks; Tailwind classes in class and className
- * attributes are checked for justify, vw sizes, physical sides, untracked
+ * attributes, in cn(), clsx() and similar calls, Vue :class, Astro class:list
+ * and Svelte class: directives are checked for justify, vw sizes, physical sides, untracked
  * capitals, px tracking, ch measures and thin or tight reading text. Template
  * text in components and JSX is code and is not checked for quotes or dashes.
  * Fluid sizes are evaluated, not pattern-matched: each
@@ -280,7 +281,7 @@ function lintCss(blocks, file, opts, out) {
 // ---------- HTML ----------
 
 function lintHtml(source, file, opts, out) {
-  const lineAt = (index) => source.slice(0, index).split('\n').length;
+  const lineAt = lineIndex(source);
   for (const m of source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)) {
     lintCss(parseCss(m[1], lineAt(m.index + m[0].indexOf('>') + 1) - 1), file, opts, out);
   }
@@ -305,7 +306,10 @@ function lintHtml(source, file, opts, out) {
   for (const [rule, re, what, fix] of checks) {
     for (const m of text.matchAll(re)) {
       if (rule === 'MT-RANGE' && /\d{4}-\d{2}-\d{2}/.test(text.slice(Math.max(0, m.index - 5), m.index + 12))) continue;
-      out.push({ rule, severity: 'LOW', file, line: lineAt(m.index), measured: `${what}: ${m[0].trim()}`, fix });
+      // A leading zero (040-123) is a phone or code fragment, and a numbered standard (ISO 8601-1) is a name.
+      if (rule === 'MT-RANGE' && (/^0\d/.test(m[0]) || /\b[A-Z]{2,5}\s?$/.test(text.slice(Math.max(0, m.index - 8), m.index)))) continue;
+      const at = m.index + (rule === 'MT-MINUS' ? m[1].length : 0); // the prefix may be the newline before the sign
+      out.push({ rule, severity: 'LOW', file, line: lineAt(at), measured: `${what}: ${m[0].trim()}`, fix });
     }
   }
 }
@@ -357,7 +361,7 @@ function stripLineComments(text) {
 
 // .vue, .svelte and .astro: style blocks and classes only; template text is code, not prose.
 function lintComponent(source, file, opts, out) {
-  const lineAt = (index) => source.slice(0, index).split('\n').length;
+  const lineAt = lineIndex(source);
   for (const m of source.matchAll(/<style([^>]*)>([\s\S]*?)<\/style>/gi)) {
     if (/lang=["']?(sass|stylus|styl)\b/i.test(m[1])) {
       opts.skipped?.push(`${path.basename(file)}: <style${m[1]}> is indented syntax this linter does not read`);
@@ -384,45 +388,147 @@ function logicalClass(base) {
   return null;
 }
 
-function lintTailwind(source, file, opts, out) {
-  const lineAt = (index) => source.slice(0, index).split('\n').length;
-  if (/class(?:Name)?=\{\s*(?!["'`]|\s)|class(?:Name)?=\{\s*`[^`]*\$\{|\s:class=|\bclass:[\w-]+=|\b(?:cn|clsx|classnames|classNames|cva|twMerge|twJoin)\(/.test(source)) {
-    opts.skipped?.push(`${path.basename(file)}: class lists built by expressions (cn(), clsx(), template literals, :class, class:) are not read`);
-  }
-  const ATTR = /<([a-zA-Z][\w.-]*)\b[^<]*?\bclass(?:Name)?\s*=\s*(?:"([^"]*)"|'([^']*)'|\{\s*(?:"([^"]*)"|'([^']*)'|`([^`]*)`)\s*\})/g;
-  for (const m of source.matchAll(ATTR)) {
-    const tag = m[1].toLowerCase();
-    const raw = (m[2] ?? m[3] ?? m[4] ?? m[5] ?? m[6] ?? '').split(/\s+/).filter(Boolean);
-    const base = raw.map((c) => c.split(':').pop().replace(/^!/, ''));
-    const has = (c) => base.includes(c);
-    const line = lineAt(m.index + m[0].search(/\bclass(Name)?\s*=/));
-    const add = (rule, severity, measured, fix) => out.push({ rule, severity, file, line, measured, fix });
-    const reading = READING_TAG.test(tag);
-    // Physical utilities on both sides with the same value, or left-1/2 pulled back by -translate-x-1/2, read the same in either direction.
-    const twinOf = (b) => b.replace(/(^-?(?:m|p|scroll-m|scroll-p))([lr])(-)/, (x, a, side, dash) => `${a}${side === 'l' ? 'r' : 'l'}${dash}`)
-      .replace(/^(-?)(left|right)-/, (x, neg, side) => `${neg}${side === 'left' ? 'right' : 'left'}-`)
-      .replace(/^(border|rounded)-([lr])(-|$)/, (x, a, side, rest) => `${a}-${side === 'l' ? 'r' : 'l'}${rest}`);
-    const neutral = (b) => (twinOf(b) !== b && base.includes(twinOf(b))) || (/^(left|right)-1\/2$/.test(b) && base.some((t) => /^-translate-x-1\/2$/.test(t)));
-
-    if (has('text-justify') && !has('hyphens-auto')) add('MT-JUSTIFY', 'MEDIUM', `<${tag}> class text-justify without hyphens-auto`, 'text-start, or hyphens-auto on a wide measure');
-    base.forEach((b, i) => {
-      const size = /^text-\[(.+)\]$/.exec(b);
-      const hit = size && fluid(size[1].replace(/_/g, ' '), `<${tag}> class ${raw[i]}`);
-      if (hit) add(...hit);
-      const logical = logicalClass(b);
-      if (logical && !neutral(b)) add('MT-PHYSICAL', opts.rtl ? 'HIGH' : 'LOW', `<${tag}> class ${raw[i]}`, `${raw[i].replace(b, logical)} (the logical utility)`);
-      const ls = /^tracking-\[(-?[\d.]+)px\]$/.exec(b);
-      if (ls && parseFloat(ls[1]) !== 0) add('MT-LS-PX', 'LOW', `<${tag}> class ${raw[i]}`, `tracking-[${+(parseFloat(ls[1]) / 16).toFixed(3)}em]`);
-      const ch = /^max-w-\[([\d.]+)ch\]$/.exec(b);
-      if (b === 'max-w-prose' || (ch && parseFloat(ch[1]) >= 30)) {
-        add('MT-MEASURE-CH', 'LOW', `<${tag}> class ${raw[i]}${b === 'max-w-prose' ? ' (65ch)' : ''}: 1ch is the width of the zero, not the average letter`, 'count it: node scripts/measure-line.js page.html "selector"');
-      }
-      if (reading && /^font-(thin|extralight|light)$/.test(b)) add('MT-WEIGHT-THIN', 'MEDIUM', `<${tag}> class ${raw[i]} on reading text`, 'font-normal or heavier for reading text');
-      if (reading && /^leading-(none|tight)$/.test(b)) add('MT-LH-TIGHT', 'MEDIUM', `<${tag}> class ${raw[i]} on reading text`, 'leading-relaxed (1.625) or leading-normal (1.5) for body text');
-    });
-    if (has('uppercase') && !base.some((b) => /^tracking-(wider|widest|\[|\()/.test(b))) {
-      add('MT-CAPS-TRACKING', 'LOW', `<${tag}> class uppercase without enough tracking (tracking-wide is 0.025em, under 5%)`, 'tracking-wider (0.05em) or tracking-[0.06em]');
+// Line numbers from a precomputed index of line starts, so large files stay linear.
+function lineIndex(source) {
+  const starts = [0];
+  for (let i = 0; i < source.length; i++) if (source.charCodeAt(i) === 10) starts.push(i + 1);
+  return (index) => {
+    let lo = 0;
+    let hi = starts.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (starts[mid] <= index) lo = mid; else hi = mid - 1;
     }
+    return lo + 1;
+  };
+}
+
+// The index of the bracket that closes the one at `open`, skipping strings and template literals.
+function closing(source, open) {
+  const pair = { '{': '}', '(': ')', '[': ']' };
+  const stack = [pair[source[open]]];
+  for (let i = open + 1; i < source.length; i++) {
+    const c = source[i];
+    if (c === '"' || c === "'" || c === '`') {
+      for (i++; i < source.length && source[i] !== c; i++) if (source[i] === '\\') i++;
+      continue;
+    }
+    if (pair[c]) stack.push(pair[c]);
+    else if (c === stack[stack.length - 1]) {
+      stack.pop();
+      if (!stack.length) return i;
+    }
+  }
+  return -1;
+}
+
+// Class names inside an expression: string literals, quoted and bare object keys, and the static parts
+// of template literals. A token that touches an interpolation is partial and left out.
+function classTokens(expr) {
+  const tokens = [];
+  let dynamic = false;
+  for (const m of expr.matchAll(/"([^"\\]*)"|'([^'\\]*)'|`([^`\\]*)`|[{,]\s*([a-zA-Z][\w-]*)\s*:/g)) {
+    if (m[4]) { tokens.push(m[4]); continue; }
+    const text = m[1] ?? m[2] ?? m[3] ?? '';
+    if (m[3] !== undefined && text.includes('${')) {
+      dynamic = true;
+      const parts = text.split(/\$\{[^}]*\}/);
+      parts.forEach((part, i) => {
+        const words = part.split(/\s+/);
+        if (i > 0 && !/^\s/.test(part)) words.shift();
+        if (i < parts.length - 1 && !/\s$/.test(part)) words.pop();
+        tokens.push(...words);
+      });
+    } else tokens.push(...text.split(/\s+/));
+  }
+  return { tokens: tokens.filter((t) => /^[!-]?[\w[\]().:/%#-]+$/.test(t)), dynamic };
+}
+
+const CLASS_CALL = /\b(?:cn|clsx|classnames|classNames|cva|twMerge|twJoin)\(/g;
+
+function lintTailwind(source, file, opts, out) {
+  const lineAt = lineIndex(source);
+  const tagBefore = (index) => {
+    const open = source.lastIndexOf('<', index);
+    const m = open >= 0 && /^<([a-zA-Z][\w.-]*)/.exec(source.slice(open, open + 40));
+    return m ? m[1].toLowerCase() : '?';
+  };
+  let dynamic = false;
+  const handled = [];
+  const lists = [];
+  // 1. Literal attributes: class="...", className="...", className={"..."}, className={`...`} without ${}.
+  const ATTR = /<([a-zA-Z][\w.-]*)\b[^<]*?(?<![:\w-])class(?:Name)?\s*=\s*(?:"([^"]*)"|'([^']*)'|\{\s*(?:"([^"]*)"|'([^']*)'|`([^`$]*)`)\s*\})/g;
+  for (const m of source.matchAll(ATTR)) {
+    lists.push({ tag: m[1].toLowerCase(), raw: (m[2] ?? m[3] ?? m[4] ?? m[5] ?? m[6] ?? '').split(/\s+/).filter(Boolean), at: m.index + m[0].search(/class(Name)?\s*=/) });
+  }
+  // 2. Expression attributes: className={...}, class={...}, class:list={...}, Vue :class="..." and v-bind:class="...".
+  for (const m of source.matchAll(/(?<![\w-])(className|class|class:list|:class|v-bind:class)\s*=\s*([{"])/g)) {
+    const open = m.index + m[0].length - 1;
+    let end;
+    let expr;
+    if (m[2] === '"') {
+      if (!/:class$/.test(m[1])) continue; // a plain class="..." is a literal, read above
+      end = source.indexOf('"', open + 1);
+      expr = source.slice(open + 1, end);
+    } else {
+      end = closing(source, open);
+      if (end < 0) continue;
+      expr = source.slice(open + 1, end);
+      if (/^\s*(["'])[^"'`]*\1\s*$/.test(expr) || /^\s*`[^`$]*`\s*$/.test(expr)) continue; // literal, read above
+    }
+    handled.push([open, end]);
+    const t = classTokens(expr);
+    dynamic ||= t.dynamic;
+    lists.push({ tag: tagBefore(m.index), raw: t.tokens, at: m.index });
+  }
+  // 3. Svelte class:name={...} directives.
+  for (const m of source.matchAll(/(?<![\w-])class:(?!list\b)([\w[\]().:/%#-]+?)(?==|\s|\/?>)/g)) {
+    lists.push({ tag: tagBefore(m.index), raw: [m[1]], at: m.index });
+  }
+  // 4. cn(), clsx() and friends anywhere else, such as a constant built before the JSX.
+  for (const m of source.matchAll(CLASS_CALL)) {
+    const open = m.index + m[0].length - 1;
+    if (handled.some(([a, b]) => open > a && open < b)) continue;
+    const end = closing(source, open);
+    if (end < 0) continue;
+    const t = classTokens(source.slice(open + 1, end));
+    dynamic ||= t.dynamic;
+    lists.push({ tag: '?', raw: t.tokens, at: m.index });
+  }
+  if (dynamic) opts.skipped?.push(`${path.basename(file)}: interpolated parts of class expressions (\${...} in template literals) are not read`);
+  for (const l of lists) checkClasses(l.tag, l.raw, lineAt(l.at), file, opts, out);
+}
+
+function checkClasses(tag, raw, line, file, opts, out) {
+  const base = raw.map((c) => c.split(':').pop().replace(/^!/, ''));
+  const has = (c) => base.includes(c);
+  const add = (rule, severity, measured, fix) => out.push({ rule, severity, file, line, measured, fix });
+  const reading = READING_TAG.test(tag);
+  const label = tag === '?' ? 'class list' : `<${tag}> class`;
+  // Physical utilities on both sides with the same value, or left-1/2 pulled back by -translate-x-1/2, read the same in either direction.
+  const twinOf = (b) => b.replace(/(^-?(?:m|p|scroll-m|scroll-p))([lr])(-)/, (x, a, side, dash) => `${a}${side === 'l' ? 'r' : 'l'}${dash}`)
+    .replace(/^(-?)(left|right)-/, (x, neg, side) => `${neg}${side === 'left' ? 'right' : 'left'}-`)
+    .replace(/^(border|rounded)-([lr])(-|$)/, (x, a, side, rest) => `${a}-${side === 'l' ? 'r' : 'l'}${rest}`);
+  const neutral = (b) => (twinOf(b) !== b && base.includes(twinOf(b))) || (/^(left|right)-1\/2$/.test(b) && base.some((t) => /^-translate-x-1\/2$/.test(t)));
+
+  if (has('text-justify') && !has('hyphens-auto')) add('MT-JUSTIFY', 'MEDIUM', `${label} text-justify without hyphens-auto`, 'text-start, or hyphens-auto on a wide measure');
+  base.forEach((b, i) => {
+    const size = /^text-\[(.+)\]$/.exec(b);
+    const hit = size && fluid(size[1].replace(/_/g, ' '), `${label} ${raw[i]}`);
+    if (hit) add(...hit);
+    const logical = logicalClass(b);
+    if (logical && !neutral(b)) add('MT-PHYSICAL', opts.rtl ? 'HIGH' : 'LOW', `${label} ${raw[i]}`, `${raw[i].replace(b, logical)} (the logical utility)`);
+    const ls = /^tracking-\[(-?[\d.]+)px\]$/.exec(b);
+    if (ls && parseFloat(ls[1]) !== 0) add('MT-LS-PX', 'LOW', `${label} ${raw[i]}`, `tracking-[${+(parseFloat(ls[1]) / 16).toFixed(3)}em]`);
+    const ch = /^max-w-\[([\d.]+)ch\]$/.exec(b);
+    if (b === 'max-w-prose' || (ch && parseFloat(ch[1]) >= 30)) {
+      add('MT-MEASURE-CH', 'LOW', `${label} ${raw[i]}${b === 'max-w-prose' ? ' (65ch)' : ''}: 1ch is the width of the zero, not the average letter`, 'count it: node scripts/measure-line.js page.html "selector"');
+    }
+    if (reading && /^font-(thin|extralight|light)$/.test(b)) add('MT-WEIGHT-THIN', 'MEDIUM', `${label} ${raw[i]} on reading text`, 'font-normal or heavier for reading text');
+    if (reading && /^leading-(none|tight)$/.test(b)) add('MT-LH-TIGHT', 'MEDIUM', `${label} ${raw[i]} on reading text`, 'leading-relaxed (1.625) or leading-normal (1.5) for body text');
+  });
+  if (has('uppercase') && !base.some((b) => /^tracking-(wider|widest|\[|\()/.test(b))) {
+    add('MT-CAPS-TRACKING', 'LOW', `${label} uppercase without enough tracking (tracking-wide is 0.025em, under 5%)`, 'tracking-wider (0.05em) or tracking-[0.06em]');
   }
 }
 
@@ -481,12 +587,14 @@ function lint(targets, options = {}) {
         for (let l = f.line; l <= (f.endLine || f.line); l++) if (changed.has(l)) return true;
         return false;
       };
-      findings.push(...(changed ? out.filter(touched) : out));
-    } else findings.push(...out);
+      for (const f of changed ? out.filter(touched) : out) findings.push(f);
+    } else for (const f of out) findings.push(f);
   }
   findings = findings.sort((a, b) => ORDER[a.severity] - ORDER[b.severity] || a.rule.localeCompare(b.rule) || a.file.localeCompare(b.file) || a.line - b.line);
+  for (const f of findings) f.location = `${path.relative(process.cwd(), f.file) || f.file}:${f.line}`;
   const high = findings.filter((f) => f.severity === 'HIGH').length;
   return {
+    mode: 'lint',
     files,
     findings,
     verdict: high ? `Block (${high} HIGH)` : 'Approve',

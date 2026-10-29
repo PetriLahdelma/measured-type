@@ -103,7 +103,7 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 
 Anything a check cannot compute is listed under **Not verified**, never passed
 in silence: colours it cannot read, opacity that fades text and ground
-together, container units, indented Sass, class lists built by expressions and
+together, container units, indented Sass, interpolated parts of class expressions and
 stylesheets lite mode cannot open. Disabled controls are exempt from
 MT-CONTRAST (WCAG 1.4.3); contrast is also measured in the dark colour scheme.
 

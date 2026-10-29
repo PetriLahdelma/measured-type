@@ -82,8 +82,9 @@ test('P9 inputs the linter cannot read are listed under Not verified, not report
   assert.match(sass.notVerified.join(' '), /a\.sass/);
   const vue = lintOne('B.vue', '<template><p>x</p></template>\n<style lang="sass">\n.a\n  font-size: 5vw\n</style>\n');
   assert.match(vue.notVerified.join(' '), /B\.vue/);
+  // Spec 0006 G2 supersedes this part of P9: class expressions are now read, so cn("text-[5vw]") is caught.
   const jsx = lintOne('C.jsx', 'export const C = () => <h1 className={cn("text-[5vw]")}>x</h1>;\n');
-  assert.match(jsx.notVerified.join(' '), /class lists built by expressions/);
+  assert.ok(jsx.findings.some((f) => f.rule === 'MT-ZOOM-VW'), JSON.stringify(jsx.findings));
 });
 
 test('P9 lite mode lists stylesheets it could not read', async () => {
