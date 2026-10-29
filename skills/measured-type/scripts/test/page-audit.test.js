@@ -1,6 +1,7 @@
 // Spec 0001 part C: scripts/page-audit.js. Test names carry the spec IDs.
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { chromium } = require('playwright');
@@ -8,6 +9,8 @@ const { chromium } = require('playwright');
 const SCRIPT = path.join(__dirname, '..', 'page-audit.js');
 const FIX = path.join(__dirname, 'audit');
 const EXAMPLES = path.join(__dirname, '..', '..', '..', '..', 'examples', 'editorial');
+// examples/ lives in the repository; an installed copy of the skill does not ship it.
+const noExamples = !fs.existsSync(EXAMPLES) && 'examples/ is not shipped with an installed skill';
 const { audit } = require(SCRIPT);
 
 let browser;
@@ -82,14 +85,15 @@ test('C10 more than 8 distinct text sizes is MT-SIZE-COUNT LOW', async () => {
 });
 
 test('C11 no HIGH or MEDIUM findings on clean pages', async () => {
-  for (const [name, dir] of [['clean.html', FIX], ['after.html', EXAMPLES]]) {
+  const pages = [['clean.html', FIX], ...(noExamples ? [] : [['after.html', EXAMPLES]])];
+  for (const [name, dir] of pages) {
     const r = await run(name, dir);
     const serious = r.findings.filter((f) => f.severity !== 'LOW');
     assert.deepEqual(serious, [], `${name}: ${JSON.stringify(serious)}`);
   }
 });
 
-test('C12 the known bad example yields its expected rules', async () => {
+test('C12 the known bad example yields its expected rules', { skip: noExamples }, async () => {
   const r = await run('before.html', EXAMPLES);
   for (const rule of ['MT-MEASURE-LONG', 'MT-ZOOM-VW', 'MT-JUSTIFY', 'MT-CONTRAST']) {
     assert.ok(find(r, rule).length, `expected ${rule}`);

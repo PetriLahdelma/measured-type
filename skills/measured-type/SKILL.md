@@ -92,6 +92,12 @@ Details, language tables and code: `references/logical-and-language.md`.
 
 ## 4. Workflows
 
+Match the work to the question. A single fact (does this font have true small
+caps, which rule covers line length, what does `66ch` set in this face) gets
+the one check that answers it and a short reply with the number, not a full
+audit. Run a workflow below only when the task is to set, scale or review
+text.
+
 ### Setting reading text
 
 1. Confirm the font files: which weights, italics and OpenType features

@@ -30,7 +30,18 @@ font file. The number goes into the answer.
 
 ## Install
 
-**Claude Code**, as a personal skill available in every project:
+**skills CLI** ([skills.sh](https://skills.sh)), for Claude Code as a personal
+skill available in every project:
+
+```bash
+npx skills add PetriLahdelma/measured-type --skill measured-type --agent claude-code -g
+```
+
+Leave out `-g` to install into the current project's `.claude/skills/`, or
+leave out `--agent` to choose other agents interactively. Tested with skills
+1.7.4 on macOS, 29 October 2026.
+
+**Claude Code without the CLI**, as a personal skill:
 
 ```bash
 git clone https://github.com/PetriLahdelma/measured-type.git
@@ -61,7 +72,9 @@ pip install fonttools brotli
 ```
 
 **Check the install.** The scripts ship with regression fixtures; run them in
-the folder the skill was installed to and every line should read `ok`:
+the folder the skill was installed to and every test should pass. A few skip in
+an installed copy because their fixtures (the editorial example, the test
+fonts) live in this repository:
 
 ```bash
 cd ~/.claude/skills/measured-type && npm test
@@ -73,8 +86,12 @@ cite §2.1.2 and point to `measure-line.js`.
 
 Then ask by name to be sure the skill loads. In a test of twenty prompts
 it loaded on its own reliably for only one of ten typography tasks; a prompt
-that names it (*Use measured-type to …*) loaded it every time. Tasks it is
-written for:
+that names it (*Use measured-type to …*) loaded it every time. A first task
+that shows what it adds, run in a project with a stylesheet:
+
+> *Use measured-type to audit the typography in styles.css and fix the HIGH findings. Measure the line length in the browser.*
+
+Tasks it is written for:
 
 - *Set the article body for our docs in Verdana at 1.125rem, about 66 characters per line.*
 - *Build a type scale for this site that still works at 200% zoom.*
@@ -424,6 +441,13 @@ SIL Open Font License. The Measured Type name and the artwork in
 `.github/brand/` identify this project and are not licensed for other use.
 See [LICENSE](LICENSE); the skill folder carries its own copy of the notices,
 so an installed skill keeps them.
+
+**Can I use it in paid work?** The scripts, MIT, can be used anywhere. The
+text is CC BY-NC 4.0, which restricts uses primarily intended for commercial
+advantage. Whether an agent consulting it during paid client work is such a
+use has not been settled with the rights holders, and this README does not
+settle it. If it matters for your work, read the license or ask before you
+rely on it.
 
 The rules follow Robert Bringhurst's
 [*The Elements of Typographic Style*](https://www.amazon.com/dp/0881792128) and

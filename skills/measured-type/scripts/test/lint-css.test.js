@@ -8,6 +8,8 @@ const { execFileSync, spawnSync } = require('node:child_process');
 
 const SCRIPT = path.join(__dirname, '..', 'lint-css.js');
 const EXAMPLES = path.join(__dirname, '..', '..', '..', '..', 'examples', 'editorial');
+// examples/ lives in the repository; an installed copy of the skill does not ship it.
+const noExamples = !fs.existsSync(EXAMPLES) && 'examples/ is not shipped with an installed skill';
 const { lint } = require(SCRIPT);
 
 function tmpFile(name, content) {
@@ -162,13 +164,13 @@ test('A4 repeated root causes collapse into one row listing every location', () 
   assert.match(rows[0], /a\.css:1`, `.*a\.css:2/);
 });
 
-test('B19 no HIGH or MEDIUM findings on the good example', () => {
+test('B19 no HIGH or MEDIUM findings on the good example', { skip: noExamples }, () => {
   const f = lint([path.join(EXAMPLES, 'after.css'), path.join(EXAMPLES, 'after.html')]).findings;
   const serious = f.filter((x) => x.severity !== 'LOW');
   assert.deepEqual(serious, []);
 });
 
-test('B20 the known bad example yields its expected rules', () => {
+test('B20 the known bad example yields its expected rules', { skip: noExamples }, () => {
   const f = lint([path.join(EXAMPLES, 'before.css'), path.join(EXAMPLES, 'before.html')]).findings;
   for (const rule of ['MT-ZOOM-VW', 'MT-ROOT-PX', 'MT-LH-TIGHT', 'MT-JUSTIFY', 'MT-MINUS', 'MT-RANGE', 'MT-QUOTES']) {
     assert.ok(has(f, rule), `expected ${rule}`);
