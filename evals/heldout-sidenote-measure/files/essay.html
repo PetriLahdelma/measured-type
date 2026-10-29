@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>On reading slowly</title>
+<link rel="stylesheet" href="layout.css">
+</head>
+<body>
+<main class="essay">
+<article class="prose">
+<h1>On reading slowly</h1>
+<p>Most of what we read on screens is read in passing. A headline, a notification, the first two lines of a message before the thumb moves on. Long reading is different in kind, not only in length: it asks the reader to hold a thread across pages, to return to a sentence and find it unchanged, to trust that the page will not shift under the eye. The layout either supports that trust or quietly works against it.</p>
+<p>The first thing a careful layout settles is the width of the column. Lines that run too long make the return sweep uncertain; the eye lands on the wrong line and has to search for its place. Lines that are too short break phrases apart and fill the page with ragged edges. Somewhere between the two is a width that disappears, and a reader who never thinks about it is the best evidence that it was chosen well.</p>
+<p>Notes complicate the picture. An essay that argues with its sources wants those sources close at hand, but not in the way. Footnotes send the reader to the bottom of the page and back; endnotes send them to the back of the book and rarely return them at all. Sidenotes keep the aside in view while leaving the main text uninterrupted, which is why they suit essays that are read slowly and reread.</p>
+<p>A sidenote column has its own measure. It is set smaller than the text it accompanies, so the same width that suits the essay would give the notes far too many characters per line. The notes want a narrower column of their own, close enough to the text that the reader can glance across, and far enough away that the two never read as one block.</p>
+<p>On a phone there is no room for two columns, and pretending otherwise produces text too small to read or a page that scrolls sideways. There the notes belong after the text, still set smaller, still distinct. The order of the markup already says this; the stylesheet only has to agree with it at every width the reader might choose, including the width a reader gets by zooming in.</p>
+</article>
+<aside class="notes">
+<p>Readers who return to a passage often remember where it sat on the page. A layout that reflows unpredictably takes that memory away.</p>
+<p>The same holds for print: a column that is comfortable at one type size becomes cramped or loose at another, so width and size are chosen together.</p>
+<p>Zooming in narrows the effective viewport, so a layout that works at 1280 pixels must also work as if the window were half as wide.</p>
+</aside>
+</main>
+</body>
+</html>

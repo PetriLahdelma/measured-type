@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: heldout-swedish-narrow-docs
+expected_outcome: |
+  Swedish text that fits a 320px screen: hyphenation for prose but not for code, unjustified text, long compounds that wrap and table values that never split from their units.

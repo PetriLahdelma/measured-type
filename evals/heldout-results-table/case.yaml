@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: heldout-results-table
+expected_outcome: |
+  A data table whose numbers align and compare: tabular lining figures, true minus signs, units bound to numbers, end-aligned numeric columns, real table headers, in the self-hosted face.

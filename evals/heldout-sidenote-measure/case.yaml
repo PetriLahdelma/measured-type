@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: heldout-sidenote-measure
+expected_outcome: |
+  Two measures chosen for two sizes: an essay column near 66 characters and a narrower notes column, stacking without sideways scroll on phones and under zoom.
