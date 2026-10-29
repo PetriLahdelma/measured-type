@@ -649,19 +649,30 @@ async function audit(target, opts = {}) {
     for (const s of short) add('MT-MEASURE-SHORT', 'LOW', `${s.path} at 768px`, `${s.avg} characters per line`, 'widen the column or reduce the size');
     await tablet.close();
 
-    // ---- zoom growth of headings: size in device px at zoom z is z * size at width 1280 / z
-    const headingSizes = async (width) => {
+    // ---- zoom growth: size in device px at zoom z is z * size at width 1280 / z.
+    // Every text element must reach 2× by 500% (MT-ZOOM-VW); headings also get the 1.6× house bar.
+    // Elements are taken in DOM order without a visibility filter, so the three loads line up.
+    const textSizes = async (width) => {
       const p = await open(width);
-      const s = await p.evaluate(() => [...document.querySelectorAll('h1, h2, h3, h4, h5, h6')].map((h) => ({ path: window.__mt.path(h), size: parseFloat(getComputedStyle(h).fontSize) })));
+      const s = await p.evaluate(() => [...document.body.querySelectorAll('*')]
+        .filter((el) => window.__mt.directText(el) && !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(el.tagName))
+        .map((el) => ({ path: window.__mt.path(el), heading: /^H[1-6]$/.test(el.tagName), size: parseFloat(getComputedStyle(el).fontSize) })));
       await p.close();
       return s;
     };
-    const [z1, z2, z5] = [await headingSizes(1280), await headingSizes(640), await headingSizes(256)];
-    z1.forEach((h, i) => {
-      const g200 = (2 * z2[i].size) / h.size;
-      const g500 = (5 * z5[i].size) / h.size;
-      if (g500 < 1.99) add('MT-ZOOM-VW', 'HIGH', h.path, `${h.size}px grows ${g200.toFixed(2)}× at 200% and ${g500.toFixed(2)}× at 500% zoom`, 'clamp(min-rem, rem + vi, max-rem) with a range near 1.4×');
-      else if (g200 < 1.6) add('MT-ZOOM-GROWTH', 'LOW', h.path, `${g200.toFixed(2)}× at 200% zoom on a 1280px window (house bar 1.6×)`, 'narrow the fluid range');
+    const [z1, z2, z5] = [await textSizes(1280), await textSizes(640), await textSizes(256)];
+    const zoomSeen = new Set();
+    z1.forEach((t, i) => {
+      if (!t.size || zoomSeen.has(t.path)) return;
+      const g200 = (2 * z2[i].size) / t.size;
+      const g500 = (5 * z5[i].size) / t.size;
+      if (g500 < 1.99) {
+        zoomSeen.add(t.path);
+        add('MT-ZOOM-VW', 'HIGH', t.path, `${t.size}px grows ${g200.toFixed(2)}× at 200% and ${g500.toFixed(2)}× at 500% zoom`, 'clamp(min-rem, rem + vi, max-rem) with a range near 1.4×');
+      } else if (t.heading && g200 < 1.6) {
+        zoomSeen.add(t.path);
+        add('MT-ZOOM-GROWTH', 'LOW', t.path, `${g200.toFixed(2)}× at 200% zoom on a 1280px window (house bar 1.6×)`, 'narrow the fluid range');
+      }
     });
   } finally {
     if (own) await browser.close();

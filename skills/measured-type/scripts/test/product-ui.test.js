@@ -78,6 +78,13 @@ test('L5 interface text under 12px is MT-UI-SIZE LOW with the size', async () =>
   assert.match(hit[0].measured, /11px/);
 });
 
+test('L7 a fluid KPI value that is not a heading is MT-ZOOM-VW HIGH; a rem size is not', async () => {
+  const r = await run(fx('zoom-text.html'));
+  const hit = find(r, 'MT-ZOOM-VW', 'HIGH');
+  assert.equal(hit.length, 1, JSON.stringify(r.findings));
+  assert.match(hit[0].location, /kpi/);
+});
+
 test('L6 a well-set product page triggers none of the product checks', async () => {
   const r = await run(fx('product-good.html'));
   assert.deepEqual(r.findings.filter((f) => NEW.includes(f.rule)), []);
