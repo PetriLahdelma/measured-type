@@ -4,6 +4,15 @@
   <img alt="Measured Type. Type, with proof. An agent skill for considered web typography." src=".github/brand/readme-header-light.svg" width="100%">
 </picture>
 
+[![Agent skill: Claude Code](https://img.shields.io/badge/agent_skill-Claude_Code-20211F)](skills/measured-type/SKILL.md)
+[![Evals: 5 cases with baseline](https://img.shields.io/badge/evals-5_cases%2C_with_baseline-B33A32)](evals/results/iteration-1/benchmark.md)
+[![Text: CC BY-NC 4.0](https://img.shields.io/badge/text-CC_BY--NC_4.0-61645E)](LICENSE-CC-BY-NC-4.0.txt)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-61645E)](LICENSE-MIT.txt)
+[![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
+[![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
+[![Sponsor](https://img.shields.io/badge/Sponsor-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/PetriLahdelma)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/petrilahdey)
+
 **[Install](#install)**&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[View the evaluations](evals/results/iteration-1/benchmark.md)&emsp;[License](#license)
 
 Measured Type brings typographic judgment into a coding agent's workflow, with
@@ -211,6 +220,15 @@ node skills/measured-type/scripts/measure-line.js --css evals/results/iteration-
 The `ofl-feature-check` outputs reference `fonts/`; copy
 `evals/ofl-feature-check/files/fonts/` next to them first. The results folder
 does not duplicate the font files.
+
+## Support Measured Type
+
+Measured Type is free to use. If it saves you time, optional sponsorship helps
+keep it measured and maintained. Issues with a reproducible case, new eval
+cases and corrections to the references are welcome contributions too.
+
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_on_GitHub-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/PetriLahdelma)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/petrilahdey)
 
 ## License
 
