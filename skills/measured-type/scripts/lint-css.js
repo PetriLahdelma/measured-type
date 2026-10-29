@@ -324,7 +324,7 @@ function toMarkdown(report) {
   for (const f of report.findings) {
     const key = `${f.severity}|${f.rule}|${f.measured}`;
     if (!rows.has(key)) rows.set(key, { ...f, locations: [] });
-    rows.get(key).locations.push(`\`${path.relative(process.cwd(), f.file)}:${f.line}\``);
+    rows.get(key).locations.push(f.location ? `\`${f.location}\`` : `\`${path.relative(process.cwd(), f.file)}:${f.line}\``);
   }
   const cell = (s) => String(s).replace(/\|/g, '\\|');
   let md = '| Severity | Rule | Location | Measured | Fix |\n|---|---|---|---|---|\n';
