@@ -1,0 +1,13 @@
+/* A typical starting point: template habits, none chosen for this text. */
+html { font-size: 62.5%; }
+body { margin: 0; padding: 40px; font-family: Helvetica, Arial, sans-serif; font-size: 1.7rem; line-height: 1.2; color: #333; background: #fff; }
+.prose { width: 100%; text-align: justify; }
+.kicker { text-transform: uppercase; font-size: 1.2rem; color: #999; margin: 0; }
+h1 { font-size: 4.4vw; margin: 10px 0 10px; }
+.standfirst { font-size: 2.2rem; color: #888; }
+h2 { font-size: 2.4rem; margin: 30px 0 30px; }
+p { margin: 0 0 20px; }
+blockquote { margin: 20px 0 20px 40px; font-style: italic; }
+table { margin-bottom: 20px; }
+td, th { text-align: left; padding: 4px 16px 4px 0; }
+caption { text-align: left; font-weight: bold; }
