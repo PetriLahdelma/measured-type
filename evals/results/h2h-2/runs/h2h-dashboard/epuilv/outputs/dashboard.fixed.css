@@ -1,0 +1,198 @@
+/* Ops dashboard: interface and data text.
+   Sizes in rem so the reader's default size and browser zoom scale them. */
+
+:root {
+  --text: #222;
+  --text-muted: #555;          /* 7.0:1 on #fafafa, 7.5:1 on #fff */
+  --ground: #fafafa;
+  --surface: #fff;
+  --rule: #e4e4e4;
+  --rule-strong: #c8c8c8;
+
+  --size-label: 0.8125rem;     /* 13px: eyebrow, column heads, KPI labels */
+  --size-small: 0.8125rem;     /* 13px: timestamp, footnote */
+  --size-ui: 0.875rem;         /* 14px: table cells, body */
+  --size-h1: 1.5rem;           /* 24px */
+  /* KPI figures: 28px to 36px; the rem term keeps them growing with zoom */
+  --size-kpi: clamp(1.75rem, 1.5rem + 1vi, 2.25rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+}
+
+body {
+  margin: 0;
+  padding: var(--space-6);
+  font-family: system-ui, sans-serif;
+  font-size: var(--size-ui);
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--ground);
+}
+
+/* Labels in sentence case: "p95" stays "p95" instead of becoming "P95",
+   and lowercase words keep their shapes, which scan faster than capitals.
+   Only the one-word eyebrow stays in capitals, tracked. */
+.eyebrow,
+.kpi-label,
+.services thead th {
+  font-size: var(--size-label);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-muted);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.eyebrow { margin: 0 0 var(--space-1); }
+
+h1 {
+  font-size: var(--size-h1);
+  line-height: 1.2;
+  margin: 0 0 var(--space-1);
+}
+
+.updated {
+  font-size: var(--size-small);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-6);
+}
+
+/* All figures: lining and tabular, so digits sit in fixed columns and
+   a value that refreshes in place does not jitter */
+.kpi-value,
+.updated time,
+.services .num {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* KPI cards share the row and wrap on narrow screens */
+.kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  max-inline-size: 60rem;
+  margin-block-end: var(--space-6);
+}
+
+.kpi {
+  flex: 1 1 12rem;
+  background: var(--surface);
+  padding: var(--space-4);
+}
+
+.kpi-label { margin: 0 0 var(--space-2); }
+
+.kpi-value {
+  font-size: var(--size-kpi);
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.kpi-value .unit {
+  font-size: 0.6em;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* The table scrolls inside its own box; the page never scrolls sideways */
+.table-wrap {
+  max-inline-size: 60rem;
+  overflow-x: auto;
+  background: var(--surface);
+}
+
+.table-wrap:focus-visible {
+  outline: 2px solid #1a56db;
+  outline-offset: 2px;
+}
+
+.services {
+  inline-size: 100%;
+  border-collapse: collapse;
+  line-height: 1.3;
+}
+
+.services caption {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: start;
+  padding: var(--space-3) var(--space-3) var(--space-2);
+}
+
+.services th,
+.services td {
+  padding: var(--space-2) var(--space-3);
+  text-align: start;
+  vertical-align: baseline;
+  border-block-end: 1px solid var(--rule);
+}
+
+.services thead th {
+  vertical-align: bottom;
+  white-space: nowrap;
+  border-block-end-color: var(--rule-strong);
+}
+
+/* Row headers: service names wrap instead of being cut off */
+.services tbody th {
+  font-weight: 500;
+  min-inline-size: 10rem;
+  max-inline-size: 20rem;
+}
+
+/* Number columns: end-aligned, header included, so place values line up */
+.services .num {
+  text-align: end;
+  white-space: nowrap;
+}
+
+/* Status: a word plus a coloured dot, never colour alone.
+   Text colours are 4.5:1 or better against their own tint. */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: var(--size-small);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status .dot {
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.status.ok   { color: #1b5e20; background: #e8f5e9; }
+.status.warn { color: #6b4500; background: #fff3d1; }
+.status.down { color: #a31515; background: #fde8e8; }
+
+/* Rows that need attention carry a mark at the start edge as well */
+.services tr.is-warn > :first-child { box-shadow: inset 3px 0 0 #e0a100; }
+.services tr.is-down > :first-child { box-shadow: inset 3px 0 0 #d32f2f; }
+.services tr.is-down { background: #fffafa; }
+
+.foot {
+  font-size: var(--size-small);
+  color: var(--text-muted);
+  max-inline-size: 40em;
+  margin-block: var(--space-4) 0;
+}
+
+/* Logical direction for the attention mark in right-to-left editions */
+:dir(rtl) .services tr.is-warn > :first-child { box-shadow: inset -3px 0 0 #e0a100; }
+:dir(rtl) .services tr.is-down > :first-child { box-shadow: inset -3px 0 0 #d32f2f; }

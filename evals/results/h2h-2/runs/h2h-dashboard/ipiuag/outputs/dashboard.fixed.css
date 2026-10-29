@@ -1,0 +1,198 @@
+/* Ops dashboard: interface and data text. Sizes in rem so they follow the
+   reader's default size and zoom; spacing on one 0.25rem-based scale. */
+
+:root {
+  color-scheme: light;
+
+  /* Type scale (rem): label, body, KPI value, title */
+  --size-label: 0.75rem;   /* 12px: labels, captions, footnote */
+  --size-body: 0.875rem;   /* 14px: table cells, metadata */
+  --size-kpi: clamp(1.5rem, 1.25rem + 0.75vi, 2rem);
+  --size-title: 1.75rem;   /* 28px */
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Colour: every text colour clears 4.5:1 on both grounds */
+  --ground: #fafafa;
+  --surface: #ffffff;
+  --ink: #1f1f1f;
+  --ink-muted: #595959;    /* 6.9:1 on white, 6.6:1 on #fafafa */
+  --rule: #e2e2e2;
+  --ok: #2e7d32;
+  --warn: #b26a00;
+  --down: #c62828;
+}
+
+body {
+  margin: 0;
+  padding: var(--space-6);
+  font-family: system-ui, sans-serif;
+  font-size: var(--size-body);
+  line-height: 1.4;
+  color: var(--ink);
+  background: var(--ground);
+  font-kerning: normal;
+  font-synthesis-small-caps: none;
+}
+
+.page {
+  max-inline-size: 60rem;
+}
+
+/* Header */
+.top p { margin: 0; }
+
+.eyebrow,
+.kpi-label,
+thead th,
+caption {
+  font-size: var(--size-label);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink-muted);
+}
+
+/* Only the one-word eyebrow is set in capitals (tracked). Labels and column
+   heads stay in sentence case: "p95" and "ms" are case-sensitive and turn
+   into "P95" and "MS" (megasiemens) when uppercased. */
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+h1 {
+  font-size: var(--size-title);
+  line-height: 1.2;
+  font-weight: 650;
+  margin-block: var(--space-1) var(--space-2);
+  text-wrap: balance;
+}
+
+.updated {
+  font-size: var(--size-body);
+  color: var(--ink-muted);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* KPI tiles: equal columns that wrap to one column on narrow screens */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--space-4);
+  margin-block-start: var(--space-6);
+}
+
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: var(--space-4);
+}
+
+.kpi-label { margin: 0 0 var(--space-2); }
+
+.kpi-value {
+  margin: 0;
+  font-size: var(--size-kpi);
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+
+.kpi-value .unit {
+  font-size: 0.6em;
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+
+/* Table: scrolls inside its own box so the page never scrolls sideways */
+.table-scroll {
+  margin-block-start: var(--space-8);
+  overflow-x: auto;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  /* Edge shadows appear only while more columns are hidden to either side */
+  background:
+    linear-gradient(to right, var(--surface) 30%, rgb(255 255 255 / 0)) left / 2.5rem 100% no-repeat local,
+    linear-gradient(to left, var(--surface) 30%, rgb(255 255 255 / 0)) right / 2.5rem 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, rgb(0 0 0 / 0.14), rgb(0 0 0 / 0)) left / 0.75rem 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, rgb(0 0 0 / 0.14), rgb(0 0 0 / 0)) right / 0.75rem 100% no-repeat scroll,
+    var(--surface);
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+table {
+  inline-size: 100%;
+  border-collapse: collapse;
+}
+
+caption {
+  text-align: start;
+  padding: var(--space-3) var(--space-3) var(--space-1);
+}
+
+th,
+td {
+  padding: var(--space-2) var(--space-3);
+  text-align: start;
+  vertical-align: baseline;
+  border-block-end: 1px solid var(--rule);
+}
+
+tbody tr:last-child > * { border-block-end: 0; }
+
+thead th { white-space: nowrap; }
+
+/* Service names wrap instead of being cut off */
+tbody th {
+  font-weight: 500;
+  min-inline-size: 10rem;
+  max-inline-size: 22rem;
+}
+
+/* Number columns: tabular lining figures, aligned at the end so place
+   values line up; never broken across lines */
+.num {
+  text-align: end;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+
+/* Status: the word carries the meaning, the coloured dot only reinforces it */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.dot {
+  flex: none;
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-ok .dot { color: var(--ok); }
+.status-warn .dot { color: var(--warn); }
+.status-down .dot { color: var(--down); }
+.status-down { color: var(--down); font-weight: 600; }
+
+.foot {
+  margin-block: var(--space-4) 0;
+  max-inline-size: 40em;
+  font-size: var(--size-label);
+  color: var(--ink-muted);
+}

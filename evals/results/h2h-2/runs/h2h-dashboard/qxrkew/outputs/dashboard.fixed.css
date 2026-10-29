@@ -1,0 +1,231 @@
+/* Service health dashboard: corrected stylesheet */
+
+:root {
+  --bg: #f6f6f6;
+  --surface: #ffffff;
+  --text: #1c1c1c;
+  --text-muted: #555555;    /* 7.0:1 on surface, 6.6:1 on bg */
+  --rule: #e2e2e2;
+  --rule-strong: #c8c8c8;
+
+  --ok-fg: #1b5e20;   --ok-bg: #e7f4e8;   --ok-dot: #2e7d32;
+  --warn-fg: #6d4400; --warn-bg: #fff1cc; --warn-dot: #c77800;
+  --down-fg: #a61b1b; --down-bg: #fde8e8; --down-dot: #c62828;
+  --row-warn: #fffaeb;
+  --row-down: #fff4f4;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .page { padding: var(--space-6); }
+}
+
+/* Labels: readable size, AA contrast. Only the eyebrow is uppercased;
+   column and KPI labels keep their case so "ms" never becomes "MS". */
+.eyebrow,
+.kpi-label,
+.services thead th {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Header */
+.eyebrow { margin: 0; }
+
+h1 {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin: var(--space-1) 0 var(--space-1);
+}
+
+.updated {
+  margin: 0 0 var(--space-6);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* KPI tiles: fluid grid instead of fixed 260px boxes */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: var(--space-4);
+  min-width: 0;
+}
+
+.kpi-label { margin: 0 0 var(--space-1); }
+
+/* Fixed, rem-based size: no longer shrinks to ~11px on phones or balloons on wide screens */
+.kpi-value {
+  margin: 0;
+  font-size: clamp(1.5rem, 1.25rem + 0.75vw, 2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Table: fills its column, scrolls inside its own box on narrow screens */
+.table-scroll {
+  margin-top: var(--space-6);
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid #1a56db;
+  outline-offset: 2px;
+}
+
+.services {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.services caption {
+  caption-side: top;
+  text-align: left;
+  padding: var(--space-3) var(--space-3) var(--space-2);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.services th,
+.services td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--rule);
+}
+
+.services thead th {
+  border-bottom: 1px solid var(--rule-strong);
+  white-space: nowrap;
+}
+
+.services tbody tr:last-child > * { border-bottom: 0; }
+
+/* Service names wrap instead of being cut off */
+.services .name {
+  font-weight: 500;
+  min-width: 12rem;
+  max-width: 22rem;
+}
+
+/* Numbers: right-aligned, equal-width digits, never split across lines */
+.services .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Status: text label plus colour, so it reads without colour vision */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px var(--space-2);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status.ok   { color: var(--ok-fg);   background: var(--ok-bg); }
+.status.warn { color: var(--warn-fg); background: var(--warn-bg); }
+.status.down { color: var(--down-fg); background: var(--down-bg); }
+.status.ok   .dot { background: var(--ok-dot); }
+.status.warn .dot { background: var(--warn-dot); }
+.status.down .dot { background: var(--down-dot); }
+
+/* Problem rows stand out when scanning the list */
+.services tr.row-warn > * { background: var(--row-warn); }
+.services tr.row-down > * { background: var(--row-down); }
+.services tr.row-warn > :first-child { box-shadow: inset 3px 0 0 var(--warn-dot); }
+.services tr.row-down > :first-child { box-shadow: inset 3px 0 0 var(--down-dot); }
+
+.foot {
+  margin: var(--space-3) 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+/* Phones: each service becomes a compact block so every figure stays in view,
+   instead of hiding three columns behind a sideways scroll. */
+@media (max-width: 559px) {
+  .services { min-width: 0; }
+  .services thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .services, .services tbody { display: block; }
+  .services tbody tr {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: var(--space-3);
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--rule);
+  }
+  .services tbody tr:last-child { border-bottom: 0; }
+  .services tbody tr > * { display: block; padding: 0; border: 0; background: none; }
+  .services tbody tr.row-warn { background: var(--row-warn); box-shadow: inset 3px 0 0 var(--warn-dot); }
+  .services tbody tr.row-down { background: var(--row-down); box-shadow: inset 3px 0 0 var(--down-dot); }
+  .services tbody tr.row-warn > :first-child,
+  .services tbody tr.row-down > :first-child { box-shadow: none; }
+  .services .name { grid-column: 1 / -1; min-width: 0; max-width: none; }
+  .services td:nth-child(2) { grid-column: 1 / -1; margin: var(--space-1) 0 var(--space-2); }
+  .services .num { text-align: left; }
+  .services .num::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+}

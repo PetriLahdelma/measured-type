@@ -1,0 +1,8 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+/* Reading column: 35em averages about 66 characters per line in Verdana at 17px
+   (measured in the browser). "66ch" would overshoot to ~78, because Verdana's
+   zero glyph is wider than its average letter. Em-based so it scales with font size. */
+article { max-width: 35em; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { margin: 0 0 1em; }
+article p { max-width: 35em; }

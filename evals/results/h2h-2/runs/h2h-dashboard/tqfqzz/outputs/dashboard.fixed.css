@@ -1,0 +1,202 @@
+:root {
+  --text: #1f1f1f;
+  --text-muted: #595959;   /* 7:1 on white, 6.6:1 on the page background */
+  --page: #f6f6f6;
+  --surface: #ffffff;
+  --border: #d9d9d9;
+  --rule: #e6e6e6;
+
+  --ok: #1b7a3a;
+  --warn: #8f5b00;
+  --down: #b3261e;
+  --warn-tint: #fff6e0;
+  --down-tint: #fdecea;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Root size left to the browser so user font settings apply; rem everywhere. */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--page);
+}
+
+.page {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2rem;
+}
+
+/* Header */
+.top { margin-bottom: 1.5rem; }
+.eyebrow {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+h1 {
+  margin: 0.25rem 0 0.25rem;
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  line-height: 1.2;
+}
+.updated {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+.updated time {
+  color: var(--text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* KPI tiles: fluid grid instead of fixed 260px boxes */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+}
+.kpi-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.kpi-value {
+  margin: 0;
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  font-weight: 650;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Table */
+.table-scroll {
+  margin-top: 2rem;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.table-scroll:focus-visible {
+  outline: 2px solid #1a5fb4;
+  outline-offset: 2px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+caption {
+  padding: 0.875rem 1rem 0.5rem;
+  text-align: left;
+  font-size: 1.0625rem;
+  font-weight: 650;
+}
+th, td {
+  padding: 0.625rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--rule);
+}
+tbody tr:last-child > * { border-bottom: 0; }
+
+thead th {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+
+/* Service names wrap in full; never truncated. */
+th.name {
+  font-weight: 500;
+  min-width: 12rem;
+  max-width: 22rem;
+}
+
+/* Numbers: right-aligned, equal-width digits, no wrapping inside a value. */
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Status: text label plus a distinct shape per state, colour is a third cue. */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status .dot {
+  flex: none;
+  width: 0.625rem;
+  height: 0.625rem;
+  background: currentColor;
+}
+.status.ok   { color: var(--ok); }
+.status.ok .dot { border-radius: 50%; }
+.status.warn { color: var(--warn); }
+.status.warn .dot { clip-path: polygon(50% 0, 100% 100%, 0 100%); width: 0.75rem; }
+.status.down { color: var(--down); }
+.status.down .dot { border-radius: 1px; }
+
+/* Problem rows stand out when scanning down the table. */
+tr.row-down > * { background: var(--down-tint); }
+tr.row-warn > * { background: var(--warn-tint); }
+tr.row-down > :first-child { box-shadow: inset 4px 0 0 var(--down); }
+tr.row-warn > :first-child { box-shadow: inset 4px 0 0 var(--warn); }
+tr.row-down .num, tr.row-warn .num { font-weight: 600; }
+
+.foot {
+  margin: 1rem 0 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Narrow screens: the table scrolls sideways inside its card. The service
+   column stays pinned so every number keeps its row label, and a shadow on
+   the right edge shows there are more columns. */
+@media (max-width: 40rem) {
+  th, td { padding: 0.5rem 0.625rem; }
+  caption { padding-inline: 0.625rem; }
+  th.name { min-width: 8.5rem; max-width: 9.5rem; }
+  thead th:first-child, th.name {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--surface);
+    box-shadow: inset -1px 0 0 var(--rule);
+  }
+  tr.row-down > th.name { background: var(--down-tint); box-shadow: inset 4px 0 0 var(--down), inset -1px 0 0 var(--rule); }
+  tr.row-warn > th.name { background: var(--warn-tint); box-shadow: inset 4px 0 0 var(--warn), inset -1px 0 0 var(--rule); }
+  .table-scroll {
+    background:
+      linear-gradient(to left, var(--surface) 40%, rgb(255 255 255 / 0)) right / 2rem 100% no-repeat local,
+      radial-gradient(farthest-side at 100% 50%, rgb(0 0 0 / 0.18), rgb(0 0 0 / 0)) right / 0.75rem 100% no-repeat scroll,
+      var(--surface);
+  }
+}
+
+@media (forced-colors: active) {
+  .status .dot { background: CanvasText; }
+  tr.row-down > :first-child, tr.row-warn > :first-child { box-shadow: none; border-left: 4px solid CanvasText; }
+}

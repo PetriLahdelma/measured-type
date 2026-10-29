@@ -1,0 +1,8 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+/* Reading measure: about 66 characters per line. Set in em, not ch:
+   Verdana's "0" is far wider than its average letter, so 66ch would
+   give roughly 79 characters. 35em measured at ~66 in this face. */
+article { max-width: 35em; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { margin: 0 0 1em; }
+article p { max-width: 35em; }

@@ -1,0 +1,8 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+/* Measure: 35em of 17px Verdana renders about 66 characters per line
+   (counted in Chromium at 1280px: average 66.3, range 59-70). The old
+   1000px box set about 113. em keeps the count steady under zoom, and
+   max-inline-size lets the column shrink on narrow screens. */
+article { max-inline-size: 35em; margin-inline: auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { margin: 0 0 1em; }

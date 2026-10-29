@@ -1,0 +1,9 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 1.0625rem; line-height: 1.6; color: #222; background: #fff; }
+/* Measure: about 66 characters per line of body text.
+   Set in em so it follows the text size; measured in Chromium with Verdana
+   at 17px, 1.0625rem (35em = 595px, 66 characters on average, 59-70 per line).
+   Do not swap this for 66ch: in Verdana one ch is the wide zero, so 66ch
+   measured 79 characters per line. */
+article { max-inline-size: 35em; margin-inline: auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; text-wrap: balance; }
+p { margin: 0 0 1em; text-wrap: pretty; }

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service health</title>
+<link rel="stylesheet" href="dashboard.fixed.css">
+</head>
+<body>
+<main class="page">
+<header class="top">
+  <p class="eyebrow">Operations</p>
+  <h1>Service health</h1>
+  <p class="updated">Updated <time datetime="2026-10-29T14:05">29&nbsp;October 2026, 14:05</time></p>
+</header>
+<section class="kpis" aria-label="Totals today">
+  <div class="kpi"><p class="kpi-label">Requests today</p><p class="kpi-value">1&#8239;184&#8239;220</p></div>
+  <div class="kpi"><p class="kpi-label">Error rate</p><p class="kpi-value">0.41%</p></div>
+  <div class="kpi"><p class="kpi-label">p95 latency</p><p class="kpi-value">118&nbsp;<span class="unit">ms</span></p></div>
+</section>
+<div class="table-scroll" role="region" aria-labelledby="services-caption" tabindex="0">
+<table class="services">
+  <caption id="services-caption">Services, last hour</caption>
+  <thead>
+    <tr><th scope="col">Service</th><th scope="col">Status</th><th scope="col" class="num">Requests</th><th scope="col" class="num">Errors</th><th scope="col" class="num">p95 (ms)</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row">Authentication gateway for partner accounts</th><td><span class="status status-ok"><span class="dot" aria-hidden="true"></span>Healthy</span></td><td class="num">411&#8239;108</td><td class="num">18</td><td class="num">96</td></tr>
+    <tr><th scope="row">Billing and invoicing</th><td><span class="status status-warn"><span class="dot" aria-hidden="true"></span>Degraded</span></td><td class="num">80&#8239;011</td><td class="num">1&#8239;104</td><td class="num">311</td></tr>
+    <tr><th scope="row">Search</th><td><span class="status status-ok"><span class="dot" aria-hidden="true"></span>Healthy</span></td><td class="num">690&#8239;101</td><td class="num">111</td><td class="num">88</td></tr>
+    <tr><th scope="row">Notifications</th><td><span class="status status-down"><span class="dot" aria-hidden="true"></span>Down</span></td><td class="num">3&#8239;000</td><td class="num">2&#8239;911</td><td class="num">1&#8239;040</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="foot">Figures refresh every 60&nbsp;seconds. Latency is the 95th percentile over the last hour.</p>
+</main>
+</body>
+</html>

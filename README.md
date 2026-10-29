@@ -5,7 +5,7 @@
 </picture></h1>
 
 [![Agent skill: Claude Code and gh skill](https://img.shields.io/badge/agent_skill-Claude_Code_and_gh_skill-20211F)](skills/measured-type/SKILL.md)
-[![Evals: 5 development, 3 held-out and 3 head-to-head cases](https://img.shields.io/badge/evals-5_dev_%2B_3_held--out_%2B_3_head--to--head-B33A32)](#evidence)
+[![Evals: 5 development, 3 held-out and 5 head-to-head cases](https://img.shields.io/badge/evals-5_dev_%2B_3_held--out_%2B_5_head--to--head-B33A32)](#evidence)
 [![License: CC BY-NC 4.0 text, MIT code](https://img.shields.io/badge/license-CC_BY--NC_4.0_text%2C_MIT_code-61645E)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
@@ -408,6 +408,15 @@ instead of the rendered page and failed nine correct answers; the
 spread is small: no configuration fell below 37 of 40. What separated them
 was counting every reading block (five runs left a byline at 79 characters
 per line) and not mirroring a `›` the browser already mirrors.
+
+**Head-to-head 2** added two harder cases after an outside review asked for
+dense product UI: an ops dashboard (9 rendered assertions) and "about 66
+characters per line" in Verdana, where `66ch` sets 79. Measured Type and no
+skill both scored 24 of 24; the skill used 9 to 12% more tokens. Every run was
+told a browser was available, and every run without the skill used it to
+measure, found the `66ch` trap and fixed all nine dashboard faults. On this
+model, with a browser in reach, the skill's measured advantage is small to
+none ([results and limits](evals/results/h2h-2/)).
 
 **Scope.** Gains concentrate in specific cases. A current model without the
 skill already knows most typographic CSS, measures line length on its own when

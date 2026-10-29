@@ -1,0 +1,16 @@
+body { margin: 0; padding: 24px; font-family: system-ui, sans-serif; font-size: 14px; color: #222; background: #fafafa; }
+.eyebrow, th, .kpi-label { font-size: 11px; text-transform: uppercase; color: #8a8a8a; }
+h1 { font-size: 28px; margin: 4px 0 16px; }
+.updated { font-size: 11px; color: #999; }
+.kpis { display: flex; gap: 16px; }
+.kpi { background: #fff; padding: 16px; width: 260px; }
+.kpi-label { margin: 0 0 4px; }
+.kpi-value { font-size: 3vw; font-weight: 600; margin: 0; }
+table { width: 900px; border-collapse: collapse; background: #fff; margin-top: 24px; }
+th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
+.name { display: block; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+.dot.ok { background: #4caf50; }
+.dot.warn { background: #ffb300; }
+.dot.down { background: #e53935; }
+.foot { font-size: 10px; color: #aaa; }
