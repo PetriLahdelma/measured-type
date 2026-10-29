@@ -1235,6 +1235,10 @@
     "Non-discriminating assertions (pass in all four runs of their case): fixed-rem body size, logical properties in prose.css, font feature statements in notes.md, oldstyle body figures, U+00A0 number-unit binding, Finnish decimal commas, html lang switch, tabular-nums in the spec table, label and hero tracking. They stay as regression guards.",
     "Cost: with skill +35 s and +21k tokens per run on average (reading references and running the scripts).",
     "Variance: n=2 per configuration. Treat per-case differences of one assertion as noise; the zoom gap (6 of 10 assertions) and the RTL audit gap are the stable signals.",
-    "The skill's locale reference got a structural heading edit (a generic 'locale pattern' list above the EN/FI/SV table) while runs were in flight; rule content was unchanged."
+    "The skill's locale reference got a structural heading edit (a generic 'locale pattern' list above the EN/FI/SV table) while runs were in flight; rule content was unchanged.",
+    "Addendum 2026-10-29: a development set; the references contain worked answers for parts of these cases.",
+    "Addendum 2026-10-29: the 1.6x zoom threshold is a project heuristic, not WCAG; both baseline heroes pass max/min <= 2.5.",
+    "Addendum 2026-10-29: of 15 baseline misses, 2 are rendered errors, 1 is a content-portability requirement and 12 are conventions or house thresholds.",
+    "Addendum 2026-10-29: runs predate the script and wording fixes made after review and have not been rerun."
   ]
 }

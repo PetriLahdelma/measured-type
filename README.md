@@ -56,8 +56,10 @@ cd ~/.claude/skills/measured-type && npm install && npx playwright install chrom
 pip install fonttools brotli
 ```
 
-Then ask the way you normally would. The skill loads whenever the work sets
-text people read, whether or not the word typography appears:
+Then ask the way you normally would. The skill's description is written to
+load it whenever the work sets text people read, even when the word typography
+never comes up. That triggering is not benchmarked yet; the evals read the
+skill directly. Prompts it is written for:
 
 - *Set the article body for our docs in Verdana at 1.125rem, about 66 characters per line.*
 - *Build a type scale for this site that still works at 200% zoom.*
@@ -67,14 +69,15 @@ text people read, whether or not the word typography appears:
 ## What it catches
 
 Each row is a finding from the committed benchmark, in the words the skill
-uses to report it.
+uses to report it. The right column says whether the baseline's miss was an
+error a reader would see or a convention the skill teaches.
 
 | Observation | In the benchmark |
 |---|---|
-| **The heading grows too little under zoom.** A `clamp()` with a viewport term does not double when the reader zooms to 200%. | Without the skill, both runs let the hero grow only 1.44× at 200% zoom; the case asks for at least 1.6×. With the skill, both runs did the ratio math first and passed. |
-| **`75ch` in Verdana is not 75 characters.** `1ch` is the width of the zero, which is wider than the average letter. | Neither run without the skill noticed that the audited column renders 92 characters per line. |
-| **The shadow is decoration, not direction.** An RTL audit converts text flow and leaves decorative offsets alone. | Both runs without the skill mirrored a decorative `box-shadow` and `rotate()`. |
-| **The qualifier can break from its number.** "up to 18 h" needs hard spaces in two places, not one. | One run without the skill left a breakable space inside "up to". |
+| **The heading grows too little under zoom.** A `clamp()` with a viewport term does not double when the reader zooms to 200%. | Without the skill, both runs let the hero grow only 1.44× at 200% zoom, under the grader's 1.6× bar. That bar is this project's, not WCAG's: 1.4.4 sets no ratio, and both heroes pass the common max ÷ min ≤ 2.5 heuristic. With the skill, both runs did the ratio math first and cleared it. |
+| **`75ch` in Verdana is not 75 characters.** `1ch` is the width of the zero, which is wider than the average letter. | Both runs without the skill knew that `1ch` is the zero. Neither counted: they kept measures that render 86 and 92 characters per line. A reader would see this one. |
+| **The shadow is decoration, not direction.** An RTL audit converts text flow and leaves decorative offsets alone. | Both runs without the skill mirrored a decorative `box-shadow` and `rotate()`. Whether decoration mirrors is a design call; the skill's answer is no. |
+| **The qualifier can break from its number.** "up to 18 h" needs hard spaces in two places, not one. | One run without the skill left a plain space inside "up to". Its `white-space: nowrap` kept the page from breaking there; the hard space keeps the phrase together wherever the text is reused. |
 | **The italic file has no small-cap substitutions.** A feature tag in the roman says nothing about the italic. | All four runs caught this; the bundled script makes it a one-command check instead of a careful reading. |
 
 The references also cover traps the benchmark does not test: `rlh` is the body
@@ -135,14 +138,15 @@ check smcp: absent
 
 (Excerpt; the full report lists every feature with its coverage.)
 
-The same habit applies to metrics. Font metadata describes the design, while
-the outline is what the reader sees:
+The same habit applies to metrics. A variable font's metadata describes one
+instance, while the outline at the size you set is what the reader sees:
 
 <img alt="Source Serif 4 lowercase a and x on a baseline, with the x-height line at the top of the x. The rounded a extends slightly above it." src=".github/brand/x-height-specimen.png" width="100%">
 
 At weight 450 and optical size 60, the drawn x of Source Serif 4 is 0.453em
-tall, while the `OS/2` table's `sxHeight` field says 475 units. Position a rule
-from the outline and it lands on the letter.
+tall. The `OS/2` table's `sxHeight` says 475 units, which matches the outline
+only at the default optical size of 20; at 8 the x stands 0.509em. Position a
+rule from the outline at the optical size in use and it lands on the letter.
 
 ## How it works
 
@@ -182,20 +186,40 @@ on Claude Opus 5.5 on 29 October 2026. Graders read only the files each run
 produced. Rendered claims (line length, zoom ratios, the characters in the DOM)
 were measured in Chromium, not read off the source.
 
+**A development set, not a held-out test.** The references were written while
+these cases existed and contain worked answers for some of them: the three
+faces measured at 18px, the italic without small caps, `jopa 18 h` and the
+list-indent trap. The results show that the skill's content reaches the agent
+and changes its output; they do not show how it does on problems nobody wrote
+down in advance. The runs also predate the script and wording fixes made on
+29 October 2026 after review, and have not been rerun.
+
 | Case | With skill | Without | What decides it |
 |---|--:|--:|---|
-| zoom-safe-scale | 10/10 | 4/10 | Hero kept to 1.6× or more at 200% zoom; h3 and h4 still 1.15× apart at 360px; spacing from the body line |
+| zoom-safe-scale | 10/10 | 4/10 | Hero at 1.6× or more at 200% zoom (a house bar); h3 and h4 still 1.15× apart at 360px; spacing from the body line |
 | rendered-nbsp-spec-table | 12/12 | 9/12 | Logical properties; "up to" bound to its number |
 | physical-props-audit | 25/26 | 22/26 | Decorative shadow and rotation left physical; `75ch` in Verdana named as 92 characters |
 | ofl-feature-check | 16/16 | 15/16 | All font synthesis disabled, not only small caps |
 | measure-wide-face | 14/14 | 13/14 | An h3 after an h2 spaced a full body line |
 | **All assertions** | **77/78** | **63/78** | Mean per-run pass rate 99% against 77% |
 
+**What the 15 baseline misses are.** Two are errors a reader would see: both
+audits kept a `ch` measure that renders 86 and 92 characters. One is a content
+requirement the page did not show: the plain space in "up to" that CSS already
+kept from breaking. The other twelve are conventions and house thresholds the
+skill teaches: the 1.6× zoom bar and the 1.15× step floor, spacing tokens
+derived from the body line, logical properties on a page with no RTL
+requirement, decoration left unmirrored, every kind of font synthesis off and
+a full body line between an h2 and an h3. They are deliberate positions and
+the graders hold them strictly; another careful typographer could choose
+differently on several.
+
 **Scope.** Gains concentrate in specific cases. A current model without the
 skill already knows most typographic CSS, measures line length on its own when
 it can and gets locale number formatting right. The skill earns its place where
-the model would otherwise trust a formula: fluid type under zoom (the clearest
-gap, matching an earlier run of the same case), RTL audits that convert text
+the model would otherwise trust a formula: fluid type under zoom (the largest
+gap, measured against the house bar and matching an earlier run of the same
+case), RTL audits that convert text
 flow without touching decoration and small details such as binding a
 qualifier to its number. On line length alone the baseline now measures Verdana
 correctly by itself, so that case no longer separates the two. With two runs

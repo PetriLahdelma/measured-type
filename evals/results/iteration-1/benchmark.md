@@ -26,3 +26,21 @@
 - Cost: with skill +35 s and +21k tokens per run on average (reading references and running the scripts).
 - Variance: n=2 per configuration. Treat per-case differences of one assertion as noise; the zoom gap (6 of 10 assertions) and the RTL audit gap are the stable signals.
 - The skill's locale reference got a structural heading edit (a generic 'locale pattern' list above the EN/FI/SV table) while runs were in flight; rule content was unchanged.
+
+## Addendum, 29 October 2026 (after review)
+
+- Read this as a development set. The references contain worked answers for
+  parts of these cases (rules.md: the three faces at 18px, italic small caps,
+  `jopa 18 h`; logical-and-language.md: the list indent).
+- The 1.6x zoom threshold in zoom-safe-scale is a project heuristic. WCAG 1.4.4
+  sets no ratio; both baseline heroes (ranges 1.78x and 1.8x) pass the common
+  max / min <= 2.5 heuristic that the skill itself cites.
+- The 15 baseline misses: 2 rendered errors a reader would see (75ch and 70ch
+  kept in Verdana, 91.6 and 85.7 chars/line; both runs did explain that 1ch is
+  the zero), 1 content-portability requirement (plain space in "up to" while
+  `white-space: nowrap` prevented the break on the page) and 12 conventions or
+  house thresholds (1.6x zoom bar x2, 1.15x step floor x2, spacing from the
+  body line x2, logical properties without an RTL requirement x2, decoration
+  left unmirrored x2, all font synthesis off, a full line between h2 and h3).
+- These runs predate the script and wording fixes made after review on
+  29 October 2026 and have not been rerun.
