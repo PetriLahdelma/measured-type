@@ -1,0 +1,55 @@
+{
+  "expectations": [
+    {
+      "text": "In the services table, every number column (Requests, Errors, p95) renders the digits 1 and 0 at the same width in its cells' font, so figures line up",
+      "passed": true,
+      "evidence": "columns 2, 3, 4: 1 against 0 0.0%, 0.0%, 0.0%"
+    },
+    {
+      "text": "The number cells of those columns are aligned at the end (text-align end, or right in a left-to-right page)",
+      "passed": true,
+      "evidence": "alignments end, end, end"
+    },
+    {
+      "text": "Every visible text set in capitals under 20px (text-transform uppercase, or 4 or more capital letters) has letter-spacing of at least 0.03em",
+      "passed": true,
+      "evidence": "no untracked capitals under 20px"
+    },
+    {
+      "text": "At 1280px no visible text renders smaller than 12px",
+      "passed": true,
+      "evidence": "no text under 12px"
+    },
+    {
+      "text": "Each service's status is given in visible words in its status cell, not by colour alone",
+      "passed": true,
+      "evidence": "status column 1, letters per row 7, 8, 7, 4"
+    },
+    {
+      "text": "Every visible text element meets the WCAG 1.4.3 contrast ratio against its background (4.5:1, or 3:1 at 24px or 18.66px bold)",
+      "passed": true,
+      "evidence": "all 35 text elements pass"
+    },
+    {
+      "text": "The KPI values grow to at least 1.99 times their size by 500% browser zoom (size at a 256px viewport times 5, against 1280px)",
+      "passed": true,
+      "evidence": "KPI values 35.2/35.2/35.2px at 1280, 28/28/28px at 256: 3.98, 3.98, 3.98× by 500% zoom"
+    },
+    {
+      "text": "No text is cut off by an ellipsis or line clamp without its full text in a title or accessible name, at 1280px or at 640px (200% zoom)",
+      "passed": true,
+      "evidence": "cut without full text: 1280 [], 640 []"
+    },
+    {
+      "text": "At a 320px viewport the page does not scroll sideways (a table may scroll inside its own container)",
+      "passed": true,
+      "evidence": "scrollWidth 320 in a 320px viewport"
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "pass_rate": 1
+  }
+}

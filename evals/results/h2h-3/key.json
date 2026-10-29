@@ -1,0 +1,98 @@
+{
+ "pkfafu": {
+  "case": "h2h-dashboard",
+  "model": "opus",
+  "config": "measured-type",
+  "run": 1
+ },
+ "niooxx": {
+  "case": "h2h-dashboard",
+  "model": "opus",
+  "config": "measured-type",
+  "run": 2
+ },
+ "wymcgs": {
+  "case": "h2h-dashboard",
+  "model": "opus",
+  "config": "none",
+  "run": 1
+ },
+ "okqnkt": {
+  "case": "h2h-dashboard",
+  "model": "opus",
+  "config": "none",
+  "run": 2
+ },
+ "nmagwy": {
+  "case": "h2h-dashboard",
+  "model": "sonnet",
+  "config": "measured-type",
+  "run": 1
+ },
+ "qnhncb": {
+  "case": "h2h-dashboard",
+  "model": "sonnet",
+  "config": "measured-type",
+  "run": 2
+ },
+ "zmzose": {
+  "case": "h2h-dashboard",
+  "model": "sonnet",
+  "config": "none",
+  "run": 1
+ },
+ "owdgzg": {
+  "case": "h2h-dashboard",
+  "model": "sonnet",
+  "config": "none",
+  "run": 2
+ },
+ "kztnve": {
+  "case": "h2h-measure-ideal",
+  "model": "opus",
+  "config": "measured-type",
+  "run": 1
+ },
+ "yesalh": {
+  "case": "h2h-measure-ideal",
+  "model": "opus",
+  "config": "measured-type",
+  "run": 2
+ },
+ "rmwtas": {
+  "case": "h2h-measure-ideal",
+  "model": "opus",
+  "config": "none",
+  "run": 1
+ },
+ "iakkcb": {
+  "case": "h2h-measure-ideal",
+  "model": "opus",
+  "config": "none",
+  "run": 2
+ },
+ "dqawnh": {
+  "case": "h2h-measure-ideal",
+  "model": "sonnet",
+  "config": "measured-type",
+  "run": 1
+ },
+ "sptvkl": {
+  "case": "h2h-measure-ideal",
+  "model": "sonnet",
+  "config": "measured-type",
+  "run": 2
+ },
+ "pbtmyc": {
+  "case": "h2h-measure-ideal",
+  "model": "sonnet",
+  "config": "none",
+  "run": 1
+ },
+ "rquwfw": {
+  "case": "h2h-measure-ideal",
+  "model": "sonnet",
+  "config": "none",
+  "run": 2
+ }
+}

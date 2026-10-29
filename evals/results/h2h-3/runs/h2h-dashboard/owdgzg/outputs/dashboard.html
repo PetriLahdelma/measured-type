@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service health</title>
+<link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+<header class="top">
+  <p class="eyebrow">Operations</p>
+  <h1>Service health</h1>
+  <p class="updated">Updated 29 October 2026, 14:05</p>
+</header>
+<section class="kpis">
+  <div class="kpi"><p class="kpi-label">Requests today</p><p class="kpi-value">1 184 220</p></div>
+  <div class="kpi"><p class="kpi-label">Error rate</p><p class="kpi-value">0.41%</p></div>
+  <div class="kpi"><p class="kpi-label">p95 latency</p><p class="kpi-value">118 ms</p></div>
+</section>
+<table class="services">
+  <thead>
+    <tr><th>Service</th><th>Status</th><th>Requests</th><th>Errors</th><th>p95 (ms)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><span class="name">Authentication gateway for partner accounts</span></td><td><span class="dot ok"></span></td><td>411 108</td><td>18</td><td>96</td></tr>
+    <tr><td><span class="name">Billing and invoicing</span></td><td><span class="dot warn"></span></td><td>80 011</td><td>1 104</td><td>311</td></tr>
+    <tr><td><span class="name">Search</span></td><td><span class="dot ok"></span></td><td>690 101</td><td>111</td><td>88</td></tr>
+    <tr><td><span class="name">Notifications</span></td><td><span class="dot down"></span></td><td>3 000</td><td>2 911</td><td>1 040</td></tr>
+  </tbody>
+</table>
+<p class="foot">Figures refresh every 60 seconds. Latency is the 95th percentile over the last hour.</p>
+</body>
+</html>

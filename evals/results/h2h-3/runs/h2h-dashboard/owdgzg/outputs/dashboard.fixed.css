@@ -1,0 +1,82 @@
+:root {
+  --text: #1f2328;
+  --text-muted: #57606a;      /* 6.4:1 on white, 5.9:1 on page bg */
+  --bg: #f6f7f8;
+  --surface: #ffffff;
+  --line: #d0d7de;
+  --ok: #1a7f37;              /* 5.4:1 on white */
+  --warn: #8a4b00;            /* 6.4:1 on white */
+  --down: #b3261e;            /* 6.3:1 on white */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px;
+  max-width: 1100px;
+  font-family: system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.eyebrow, th, .kpi-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.eyebrow { margin: 0; }
+h1 { font-size: 28px; line-height: 1.2; margin: 4px 0 8px; }
+.updated { font-size: 14px; color: var(--text-muted); margin: 0 0 24px; }
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; }
+.kpi-label { margin: 0 0 4px; }
+.kpi-value {
+  font-size: clamp(24px, 4vw, 36px);
+  line-height: 1.2;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+.table-wrap {
+  margin-top: 24px;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.table-wrap:focus-visible { outline: 2px solid #0969da; outline-offset: 2px; }
+
+table { width: 100%; min-width: 560px; border-collapse: collapse; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+tbody th { font-size: 16px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--text); }
+
+/* Numbers: right-aligned, equal-width digits so magnitudes line up. */
+.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Service names wrap in full instead of being cut off. */
+.name { display: block; max-width: 28ch; overflow-wrap: anywhere; }
+
+/* Status: dot is decoration, the text label carries the meaning. */
+.status { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: currentColor; }
+.status.ok { color: var(--ok); }
+.status.warn { color: var(--warn); }
+.status.down { color: var(--down); }
+/* Distinct shapes so status survives without colour perception. */
+.status.warn .dot { border-radius: 2px; transform: rotate(45deg); }
+.status.down .dot { border-radius: 0; }
+
+.foot { font-size: 14px; color: var(--text-muted); margin: 16px 0 0; }

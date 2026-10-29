@@ -1,0 +1,186 @@
+/* Ops dashboard: interface and data text, not reading text. */
+:root {
+  --text: #222;
+  --text-muted: #595959;   /* 6.7:1 on #fafafa, 7.0:1 on #fff */
+  --surface: #fff;
+  --page: #fafafa;
+  --rule: #e2e2e2;
+  --ok: #2e7d32;
+  --warn: #b26a00;
+  --down: #c62828;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+}
+
+body {
+  margin: 0;
+  padding: var(--space-6);
+  font-family: system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--page);
+  font-synthesis-small-caps: none;
+}
+
+@media (max-width: 30em) {
+  body { padding: var(--space-4); }
+}
+
+/* Uppercase labels: tracked, at least 12px, readable grey. */
+.eyebrow,
+thead th,
+.kpi-label,
+caption {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.eyebrow { margin: 0; }
+
+h1 {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin-block: var(--space-1) var(--space-2);
+  text-wrap: balance;
+}
+
+.updated {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-block: 0 var(--space-6);
+}
+
+.updated time { font-variant-numeric: lining-nums tabular-nums; }
+
+/* KPI tiles: wrap instead of overflowing; values in fixed rem so zoom scales them. */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--space-4);
+  max-inline-size: 60rem;
+  margin: 0;
+}
+
+.kpi {
+  background: var(--surface);
+  padding: var(--space-4);
+}
+
+.kpi-label { margin: 0 0 var(--space-1); }
+
+.kpi-value {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.15;
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+
+.kpi-value .unit {
+  font-size: 0.6em;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* The table scrolls inside its own box; the page never scrolls sideways. */
+.table-scroll {
+  max-inline-size: 60rem;
+  margin-block-start: var(--space-6);
+  overflow-x: auto;
+  /* Edge shadows appear only while more columns sit off-screen. */
+  background:
+    linear-gradient(to left, var(--surface) 30%, rgb(255 255 255 / 0)) right / 2.5rem 100% no-repeat local,
+    radial-gradient(farthest-side at 100% 50%, rgb(0 0 0 / 0.14), rgb(0 0 0 / 0)) right / 0.75rem 100% no-repeat scroll,
+    var(--surface);
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+table {
+  inline-size: 100%;
+  border-collapse: collapse;
+}
+
+caption {
+  text-align: start;
+  padding: var(--space-3) var(--space-3) var(--space-1);
+}
+
+th,
+td {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  text-align: start;
+  vertical-align: baseline;
+  border-block-end: 1px solid var(--rule);
+}
+
+thead th { white-space: nowrap; }
+
+/* Service names wrap rather than being cut off, and stay in view while
+   the number columns scroll on narrow screens. */
+tbody th.name {
+  font-weight: 500;
+  min-inline-size: 12rem;
+  max-inline-size: 22rem;
+}
+
+thead th:first-child,
+tbody th.name {
+  position: sticky;
+  inset-inline-start: 0;
+  background: var(--surface);
+}
+
+@media (max-width: 30em) {
+  tbody th.name { min-inline-size: 8.5rem; }
+  th, td { padding-inline: var(--space-2); }
+}
+
+/* Number columns: tabular lining figures, aligned at the end so place values line up. */
+.num {
+  text-align: end;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+
+/* Status: colour plus a word, never colour alone. */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+.dot {
+  flex: none;
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status.ok .dot { background: var(--ok); }
+.status.warn .dot { background: var(--warn); }
+.status.down .dot { background: var(--down); }
+.status.warn,
+.status.down { font-weight: 600; }
+
+.foot {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  max-inline-size: 40em;
+  margin-block: var(--space-4) 0;
+}

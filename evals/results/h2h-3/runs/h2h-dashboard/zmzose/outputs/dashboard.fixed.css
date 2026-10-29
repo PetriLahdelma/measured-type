@@ -1,0 +1,104 @@
+:root {
+  --text: #1a1a1a;
+  --text-muted: #595959;      /* 6.9:1 on the page background */
+  --bg: #fafafa;
+  --surface: #fff;
+  --line: #d4d4d4;
+  --ok: #1b6e2a;
+  --warn: #8a5300;
+  --down: #b3261e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px;
+  font-family: system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.top { max-width: 60rem; }
+.eyebrow, .kpi-label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+h1 { font-size: 28px; line-height: 1.2; margin: 4px 0 8px; }
+.updated { margin: 0 0 20px; font-size: 14px; color: var(--text-muted); }
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 16px;
+  max-width: 60rem;
+}
+.kpi { background: var(--surface); border: 1px solid var(--line); padding: 16px; }
+.kpi-label { margin-bottom: 4px; }
+.kpi-value {
+  margin: 0;
+  font-size: clamp(1.5rem, 1rem + 1.5vw, 2rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table-wrap {
+  max-width: 60rem;
+  margin-top: 24px;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.table-wrap:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+table { width: 100%; border-collapse: collapse; }
+caption {
+  padding: 12px;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 600;
+}
+th, td {
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: baseline;
+  border-bottom: 1px solid var(--line);
+}
+th {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+tbody th { font-size: 16px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--text); white-space: normal; }
+
+/* numeric columns: right-aligned, tabular figures, header aligned with data */
+.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* status: dot + text, so meaning never depends on colour alone */
+.status { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; white-space: nowrap; }
+.dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: currentColor; }
+.ok { color: var(--ok); }
+.warn { color: var(--warn); }
+.down { color: var(--down); }
+/* distinct shapes as a second non-colour cue */
+.warn .dot { border-radius: 2px; transform: rotate(45deg); }
+.down .dot { border-radius: 0; }
+
+tr.is-down { background: #fdecea; }
+
+.foot { max-width: 60rem; margin: 16px 0 0; font-size: 14px; color: var(--text-muted); }
+
+@media (max-width: 40rem) {
+  body { padding: 16px; }
+}

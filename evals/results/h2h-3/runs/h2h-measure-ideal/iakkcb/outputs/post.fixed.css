@@ -1,0 +1,17 @@
+/*
+  Reading measure: about 66 characters per line.
+  Verdana is a wide face, so the `ch` unit (the width of "0", about 0.64em)
+  overstates the average character in running English text (about 0.51em).
+  66ch here would hold roughly 83 characters. The measure is set in em
+  instead: a wrap simulation of this post at 35em averages 66 characters
+  per full line (range 59 to 71). Being in em, it scales with font-size
+  and with the reader's zoom or default text size.
+*/
+:root { --measure: 35em; }
+
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+/* The column itself is the measure, so the text block stays centred. */
+article { max-width: var(--measure); margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+/* Paragraphs keep the measure even if wider content is added to the article later. */
+article p { max-width: var(--measure); margin: 0 0 1em; }

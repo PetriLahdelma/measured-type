@@ -1,0 +1,149 @@
+/* Service health dashboard. Contrast ratios noted are against the surface they sit on. */
+:root {
+  --text: #222222;          /* 15.2:1 on page */
+  --muted: #595959;         /* 6.7:1 on page, 7.0:1 on white */
+  --page: #fafafa;
+  --surface: #ffffff;
+  --rule: #e2e2e2;
+  --rule-strong: #c8c8c8;
+
+  --ok: #1e7b34;            /* 5.3:1 on white */
+  --warn: #8a5300;          /* 5.8:1 on warn tint */
+  --warn-tint: #fff4dc;
+  --down: #b3261e;          /* 5.7:1 on down tint */
+  --down-tint: #fdecea;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px 16px;
+  font-family: system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--page);
+}
+
+.page { max-width: 960px; margin: 0 auto; }
+
+/* Small labels: larger and darker than before so they stay legible. */
+.eyebrow, .kpi-label, thead th {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.eyebrow { margin: 0; }
+h1 { font-size: 28px; line-height: 1.2; margin: 4px 0 4px; }
+
+/* Data freshness matters on an ops screen: readable, not faded out. */
+.updated { margin: 0 0 20px; font-size: 14px; color: var(--muted); }
+.updated time { color: var(--text); font-weight: 600; }
+
+/* KPIs: wrap instead of overflowing, share the row evenly. */
+.kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.kpi {
+  flex: 1 1 200px;
+  margin: 0;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.kpi-label { margin: 0 0 4px; }
+.kpi-value {
+  margin: 0;
+  /* Bounded size: no longer shrinks to unreadable on phones or balloons on wide screens. */
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Table scrolls inside its own box on narrow screens; the page never scrolls sideways. */
+.table-wrap {
+  margin-top: 24px;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.table-wrap:focus-visible { outline: 2px solid #1a5fb4; outline-offset: 2px; }
+
+table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+caption {
+  padding: 12px 12px 8px;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+th, td {
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--rule);
+}
+thead th { border-bottom: 2px solid var(--rule-strong); vertical-align: bottom; }
+tbody tr:last-child > * { border-bottom: 0; }
+
+/* Numbers right-aligned so digits line up by place value and magnitudes compare at a glance. */
+.num { text-align: right; white-space: nowrap; }
+
+/* Service names wrap instead of being cut off with an ellipsis. */
+.name {
+  font-weight: 600;
+  min-width: 12em;
+  overflow-wrap: anywhere;
+}
+
+/* Status: always a word, plus a shape that differs per state, so it never depends on color alone. */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status::before {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 10px;
+  background: currentColor;
+}
+.status.ok   { color: var(--ok); }
+.status.ok::before { border-radius: 50%; }                                 /* circle */
+.status.warn { color: var(--warn); }
+.status.warn::before { clip-path: polygon(50% 0, 100% 100%, 0 100%); }     /* triangle */
+.status.down { color: var(--down); }
+.status.down::before { border-radius: 1px; }                               /* square */
+
+/* Problem rows stand out from healthy ones. */
+.row-warn > * { background: var(--warn-tint); }
+.row-down > * { background: var(--down-tint); }
+.row-warn > :first-child { box-shadow: inset 4px 0 0 var(--warn); }
+.row-down > :first-child { box-shadow: inset 4px 0 0 var(--down); }
+
+/* The footnote defines how to read the numbers, so it has to be readable. */
+.foot { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+
+@media (forced-colors: active) {
+  .status::before { background: CanvasText; }
+  .row-warn > :first-child, .row-down > :first-child { border-left: 4px solid CanvasText; }
+}

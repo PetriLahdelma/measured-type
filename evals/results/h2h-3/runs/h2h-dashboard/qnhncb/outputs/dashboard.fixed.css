@@ -1,0 +1,60 @@
+/* Base: interface text on a 0.875rem body, sizes in rem so zoom and user defaults apply. */
+body {
+  margin: 0;
+  padding: 1.5rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #222;
+  background: #fafafa;
+  font-kerning: normal;
+}
+@media (max-width: 30em) { body { padding: 1rem; } }
+
+/* Small caps-style labels: capitals are tracked, grey darkened to pass 4.5:1. */
+.eyebrow, th, .kpi-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #595959;
+}
+.eyebrow { margin: 0; }
+h1 { font-size: 1.75rem; line-height: 1.2; margin: 0.25rem 0 0.25rem; text-wrap: balance; }
+.updated { font-size: 0.75rem; color: #595959; margin: 0 0 1rem; }
+
+/* KPI tiles: wrap instead of overflowing; values scale with zoom (rem term in clamp). */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: 1rem; }
+.kpi { background: #fff; padding: 1rem; border: 1px solid #e4e4e4; }
+.kpi-label { margin: 0 0 0.25rem; }
+.kpi-value {
+  font-size: clamp(1.75rem, 1.4rem + 1vi, 2.25rem);
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+
+/* Table: scrolls inside its own box, never the page. */
+.table-wrap { margin-block-start: 1.5rem; overflow-x: auto; background: #fff; border: 1px solid #e4e4e4; }
+.table-wrap:focus-visible { outline: 2px solid #1a56c4; outline-offset: 2px; }
+table { inline-size: 100%; min-inline-size: 38rem; border-collapse: collapse; background: #fff; }
+th, td { padding: 0.5rem 0.75rem; text-align: start; vertical-align: middle; border-block-end: 1px solid #e4e4e4; }
+tbody tr:last-child td { border-block-end: 0; }
+thead th { border-block-end: 1px solid #bdbdbd; white-space: nowrap; }
+
+/* Number columns: tabular lining figures, right-aligned (header too) so place values line up. */
+.num { text-align: end; white-space: nowrap; font-variant-numeric: lining-nums tabular-nums; }
+
+/* Service names wrap in full; nothing is cut off. */
+.name { display: block; max-inline-size: 22rem; overflow-wrap: anywhere; }
+
+/* Status: word plus dot; the word carries the meaning, the dot only reinforces it. */
+.status { display: inline-flex; align-items: center; gap: 0.5rem; white-space: nowrap; font-weight: 500; }
+.dot { flex: none; inline-size: 0.5rem; block-size: 0.5rem; border-radius: 50%; }
+.status.ok .dot { background: #2e7d32; }
+.status.warn .dot { background: #b26a00; }
+.status.down .dot { background: #c62828; }
+
+.foot { font-size: 0.75rem; color: #595959; max-inline-size: 60ch; margin-block-start: 1rem; }

@@ -418,6 +418,15 @@ measure, found the `66ch` trap and fixed all nine dashboard faults. On this
 model, with a browser in reach, the skill's measured advantage is small to
 none ([results and limits](evals/results/h2h-2/)).
 
+**Head-to-head 3** removed the hint: no browser in the brief, nothing to
+install, and Sonnet 5.5 added next to Opus 5.5. All 16 runs again passed
+every assertion. The difference showed in how close they came: with the
+skill, every run measured in Chromium and set 66.0 to 66.4 characters per
+line; without it, two runs estimated Verdana's widths from memory and landed
+at 62.5 and 63.4, inside the graded band but short of the 66 asked for. The
+skill buys precision and a measured claim instead of an estimate, at 7 to 14%
+more tokens ([results and limits](evals/results/h2h-3/)).
+
 **Scope.** Gains concentrate in specific cases. A current model without the
 skill already knows most typographic CSS, measures line length on its own when
 it can, reads font files correctly and gets locale number formatting right. The

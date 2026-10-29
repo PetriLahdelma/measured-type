@@ -1,6 +1,6 @@
 # Spec 0003: product UI, a lite mode, a softer trigger and more sources
 
-Status: accepted and implemented, 29 October 2026 (N2 result: a tie, see `evals/results/h2h-2`). Each requirement has an ID; the test that
+Status: accepted and implemented, 29 October 2026 (N2 and N3 results: ties on pass rate, see `evals/results/h2h-2` and `h2h-3`). Each requirement has an ID; the test that
 proves it carries the same ID in its name.
 
 ## Why
