@@ -43,6 +43,8 @@
  *
  * Requires Playwright for modes 1 and 2: npm install (see package.json), then
  * npx playwright install chromium. `npm test` runs the regression fixtures.
+ * Exit code 0, or 2 on a usage error, a missing page or a selector that
+ * matches nothing (spec 0005 R4).
  */
 
 // Runs inside the page. Keep it self-contained so it can be pasted into a console.
@@ -198,6 +200,12 @@ async function main() {
   const className = opt('class', 'prose');
   const lang = opt('lang', 'en');
   const json = flag('json');
+  const fail = (message) => {
+    console.error(message);
+    process.exit(2);
+  };
+  if (!Number.isFinite(width) || width <= 0) fail('--width needs a number of CSS px');
+  if (!Number.isFinite(zoom) || zoom <= 0) fail('--zoom needs a number, for example 2 for 200%');
 
   if (!css && !args.length) {
     console.error('usage: measure-line.js <url|file.html> [selector] | --css file.css [--class prose]');
@@ -229,6 +237,7 @@ async function main() {
     selector = args[0] || `.${className} > p`;
   } else {
     const input = args[0];
+    if (!/^[a-z]+:\/\//i.test(input) && !fs.existsSync(path.resolve(input))) fail(`no such file: ${input}`);
     target = /^[a-z]+:\/\//i.test(input) ? input : pathToFileURL(path.resolve(input)).href;
     selector = args[1] || 'p';
   }
@@ -247,12 +256,12 @@ async function main() {
   result.viewport = { width, zoom, cssWidth: Math.round(width / zoom) };
   if (json) {
     console.log(JSON.stringify(result, null, 2));
-    if (result.error) process.exit(1);
+    if (result.error) process.exit(2);
     return;
   }
   if (result.error) {
     console.error(result.error);
-    process.exit(1);
+    process.exit(2);
   }
   const verdict =
     result.avgCharsPerLine == null ? 'no full lines'
@@ -293,8 +302,8 @@ async function renderedFonts(page, selector) {
 
 if (typeof module !== 'undefined' && require.main === module) {
   main().catch((err) => {
-    console.error(err);
-    process.exit(1);
+    console.error(err.message || err);
+    process.exit(2);
   });
 }
 

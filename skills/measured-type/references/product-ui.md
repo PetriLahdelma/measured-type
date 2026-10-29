@@ -74,9 +74,11 @@ every text element, badges included.
 ## Truncation
 
 **Cut text must be recoverable** (WCAG 1.4.4 at zoom; convention at 100%). An
-ellipsis hides content. At the default size that is a design choice when the
-full text is one step away (a `title`, a tooltip keyboard users can reach, a
-detail view). When text fits at 100% and is cut only at 200% zoom, content is
+ellipsis, or `text-overflow: clip`, hides content. At the default size that is
+a design choice when the full text is one visible step away: a disclosure
+(`<details>`), an expand control or a detail view. A `title` is not that step:
+keyboard and touch users never see it, and an `aria-label` is read aloud but
+not shown. When text fits at 100% and is cut only at 200% zoom, content is
 lost to zoom, which 1.4.4 does not allow. Prefer wrapping; use
-`-webkit-line-clamp` with a way to expand when space is truly fixed. Check:
-`MT-TRUNCATE`, LOW at 1280px, MEDIUM when the cut appears only at 200% zoom.
+`-webkit-line-clamp` with an expand control when space is truly fixed. Check:
+`MT-TRUNCATE`, LOW at 1280px, HIGH when the cut appears only at 200% zoom.

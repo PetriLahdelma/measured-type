@@ -100,10 +100,10 @@ function cli(args) {
   await browser.close();
 
   const missingJson = cli([fixture, '#nope', '--json']);
-  check('--json with no match exits 1', missingJson.code === 1 && /no element matches/.test(missingJson.out),
+  check('--json with no match exits 2 (spec 0005 R4)', missingJson.code === 2 && /no element matches/.test(missingJson.out),
     `exit ${missingJson.code}: ${missingJson.out.trim()}`);
   const missingText = cli([fixture, '#nope']);
-  check('text mode with no match exits 1', missingText.code === 1, `exit ${missingText.code}`);
+  check('text mode with no match exits 2 (spec 0005 R4)', missingText.code === 2, `exit ${missingText.code}`);
   const sample = cli(['--css', path.join(__dirname, 'sample.css')]);
   check('--css mode measures the built-in sample', sample.code === 0 && /chars\/line/.test(sample.out),
     `exit ${sample.code}: ${sample.out.trim()}`);

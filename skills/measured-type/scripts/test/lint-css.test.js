@@ -46,8 +46,8 @@ test('B3 size tokens in custom properties are evaluated like font-size', () => {
   assert.ok(has(f, 'MT-ZOOM-VW', 'HIGH'));
 });
 
-test('B4 px root size is MT-ROOT-PX HIGH, 62.5% is LOW', () => {
-  assert.ok(has(run('html { font-size: 10px; }'), 'MT-ROOT-PX', 'HIGH'));
+test('B4 px root size is MT-ROOT-PX MEDIUM (spec 0005 S2), 62.5% is LOW', () => {
+  assert.ok(has(run('html { font-size: 10px; }'), 'MT-ROOT-PX', 'MEDIUM'));
   assert.ok(has(run(':root { font-size: 62.5%; }'), 'MT-ROOT-PX', 'LOW'));
   assert.ok(!has(run('html { font-size: 100%; }'), 'MT-ROOT-PX'));
 });

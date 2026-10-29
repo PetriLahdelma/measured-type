@@ -96,7 +96,11 @@ if (require.main === module) {
   const args = process.argv.slice(2);
   const json = args.includes('--json');
   const i = args.indexOf('--size');
-  const size = i >= 0 ? parseFloat(args[i + 1]) : ROOT_PX;
+  const size = i >= 0 ? Number(args[i + 1]) : ROOT_PX;
+  if (!Number.isFinite(size) || size <= 0) {
+    console.error(`--size needs a number of px, got ${i >= 0 && args[i + 1] !== undefined ? args[i + 1] : 'nothing'}`);
+    process.exit(2);
+  }
   const [family, width] = args.filter((a, j) => !a.startsWith('--') && (i < 0 || j !== i + 1));
   if (!family || !width) {
     console.error('usage: estimate-measure.js <font-family> <width: 66ch | 34em | 34rem | 600px> [--size px] [--json]');

@@ -65,10 +65,10 @@ test('L4 a cell cut by an ellipsis with no title is MT-TRUNCATE LOW', async () =
   assert.match(hit[0].measured, /Authentication gateway/);
 });
 
-test('L4 text that fits at 1280px and is cut only at 200% zoom is MT-TRUNCATE MEDIUM', async () => {
+test('L4 text that fits at 1280px and is cut only at 200% zoom is MT-TRUNCATE HIGH (spec 0005 S1)', async () => {
   const hit = find(await run(fx('product-zoom.html')), 'MT-TRUNCATE');
   assert.equal(hit.length, 1, JSON.stringify(hit));
-  assert.equal(hit[0].severity, 'MEDIUM');
+  assert.equal(hit[0].severity, 'HIGH');
   assert.match(hit[0].measured, /200% zoom/);
 });
 

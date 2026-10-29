@@ -36,7 +36,7 @@ test('K3 an unknown face gets a labelled range instead of a single number', () =
   assert.ok(v.low >= 60 && v.high <= 110, JSON.stringify(v));
 });
 
-test('K3 estimates are within 6% of the rendered count at widths not used for calibration', async () => {
+test('K3 estimates are within 6% of the rendered count at widths not used for calibration', async (t) => {
   const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
@@ -64,6 +64,8 @@ test('K3 estimates are within 6% of the rendered count at widths not used for ca
   }
   await browser.close();
   assert.deepEqual(errors, []);
+  // T3 (spec 0005): the calibration faces are macOS fonts; elsewhere too few render to test against.
+  if (checked < 10) return t.skip(`only ${checked} face and width pairs rendered; the calibration faces are not installed here`);
   assert.ok(checked >= 30, `only ${checked} face and width pairs rendered`);
 });
 
@@ -79,7 +81,7 @@ test('K1 audit with lite: true lints the page and its local stylesheets and list
   const page = write('lite.html', '<!doctype html><html lang="en"><head><link rel="stylesheet" href="lite.css"><style>p { text-align: justify; }</style></head><body><p>Text.</p></body></html>');
   const r = await audit(page, { lite: true });
   assert.equal(r.mode, 'lite');
-  assert.ok(r.findings.some((f) => f.rule === 'MT-ROOT-PX' && f.severity === 'HIGH'), JSON.stringify(r.findings));
+  assert.ok(r.findings.some((f) => f.rule === 'MT-ROOT-PX' && f.severity === 'MEDIUM'), JSON.stringify(r.findings));
   assert.ok(r.findings.some((f) => f.rule === 'MT-JUSTIFY'), JSON.stringify(r.findings));
   const skipped = r.notVerified.join(' ');
   for (const word of ['measure', 'contrast', 'reflow', 'zoom']) assert.match(skipped, new RegExp(word));

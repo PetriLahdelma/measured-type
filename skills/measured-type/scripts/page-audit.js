@@ -394,7 +394,7 @@ function productChecks() {
     const tracking = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing);
     const p = mt.path(el);
     const cased = letters.toUpperCase() !== letters.toLowerCase(); // Arabic, CJK and other caseless scripts have no capitals to track
-    if ((cs.textTransform === 'uppercase' || allCaps) && cased && letters.length >= 2 && size < 20 && tracking <= 0 && once(`caps|${p}`)) {
+    if ((cs.textTransform === 'uppercase' || allCaps) && cased && letters.length >= 2 && size < 20 && tracking < 0.03 * size - 0.01 && once(`caps|${p}`)) {
       out.caps.push({ path: p, size, tracking });
     }
     if (size < 12 && !inReading(el) && !['SUP', 'SUB'].includes(el.tagName) && !el.closest('[aria-hidden="true"]') && once(`small|${p}`)) {
@@ -405,15 +405,28 @@ function productChecks() {
 }
 
 // L4: text cut by an ellipsis or a line clamp that no title or accessible name carries in full.
+// Only a recovery a sighted keyboard, touch or zoom user can reach counts: a <details> disclosure or
+// an expand control in the same row. A title or an accessible name does not show the text.
 function truncatedText() {
   const mt = window.__mt;
   const named = (e) => e && (e.title || e.getAttribute('aria-label') || e.getAttribute('aria-describedby'));
+  const recoverable = (el) => {
+    if (el.closest('details')) return true;
+    const row = el.closest('tr, li, [role=row]') || el.parentElement;
+    return Boolean(row && row.querySelector('[aria-expanded], [aria-controls]'));
+  };
   return [...document.body.querySelectorAll('*')].filter(mt.visible).filter((el) => {
     const cs = getComputedStyle(el);
-    const ellipsis = cs.textOverflow === 'ellipsis' && el.scrollWidth > el.clientWidth + 1;
+    const over = el.scrollWidth > el.clientWidth + 1;
+    const ellipsis = cs.textOverflow === 'ellipsis' && over;
+    const clip = cs.textOverflow === 'clip' && over && /hidden|clip/.test(cs.overflowX) && /nowrap|pre/.test(cs.whiteSpace) && mt.directText(el);
     const clamp = cs.webkitLineClamp && cs.webkitLineClamp !== 'none' && el.scrollHeight > el.clientHeight + 1;
-    return (ellipsis || clamp) && !named(el) && !named(el.parentElement) && !named(el.closest('a, button, [role=button], [role=link]'));
-  }).map((el) => ({ path: mt.path(el), text: el.textContent.trim().replace(/\s+/g, ' ').slice(0, 48) }));
+    return (ellipsis || clip || clamp) && !recoverable(el);
+  }).map((el) => ({
+    path: mt.path(el),
+    text: el.textContent.trim().replace(/\s+/g, ' ').slice(0, 48),
+    titled: Boolean(named(el) || named(el.parentElement) || named(el.closest('a, button, [role=button], [role=link]'))),
+  }));
 }
 
 const SPACING_CSS = '* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } p { margin-block-end: 2em !important; }';
@@ -652,7 +665,7 @@ async function audit(target, opts = {}) {
       const bg = parseColor(w.bg);
       const text = fg && bg ? over(fg, bg) : null;
       const ratio = text ? `${contrast(text, bg).toFixed(1)}:1` : 'contrast unknown';
-      const lc = text ? ` APCA Lc ${apcaLc([text.r, text.g, text.b], [bg.r, bg.g, bg.b]).toFixed(0)}` : '';
+      const lc = text ? ` APCA Lc ${apcaLc([text.r, text.g, text.b], [bg.r, bg.g, bg.b]).toFixed(0)} (advisory)` : '';
       add('MT-WEIGHT-THIN', 'MEDIUM', w.path, `weight ${w.weight} at ${w.size}px; WCAG ${ratio},${lc}`, 'font-weight: 400 or more for reading text');
     }
     for (const d of book.hairline) add('MT-DARK-HAIRLINE', 'LOW', d.path, `thinnest stroke ${d.stroke.toFixed(2)}px at ${d.size}px, light on dark`, 'a sturdier weight or a lower-contrast face below 18px, and letter-spacing of 0.01 to 0.02em');
@@ -677,15 +690,18 @@ async function audit(target, opts = {}) {
       add('MT-TABULAR', 'MEDIUM', t.path, `1 and 0 differ by ${t.diff.toFixed(1)}% in width, so digits do not line up`, fix);
     }
     for (const a of product.align) add('MT-NUM-ALIGN', 'LOW', a.path, `numbers of different lengths set text-align: ${a.align}`, 'text-align: end on the number cells and their header, so place values line up');
-    for (const c of product.caps) add('MT-CAPS-TRACKING', 'LOW', c.path, `capitals at ${c.size}px with letter-spacing ${c.tracking}px`, 'letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6)');
+    for (const c of product.caps) add('MT-CAPS-TRACKING', 'LOW', c.path, `capitals at ${c.size}px with letter-spacing ${+c.tracking.toFixed(2)}px (under 0.03em)`, 'letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6)');
     for (const s of product.small) add('MT-UI-SIZE', 'LOW', s.path, `${s.size}px interface text (house floor 12px)`, 'font-size: 0.75rem or more');
     const cutAt1280 = await page.evaluate(truncatedText);
-    for (const t of cutAt1280) add('MT-TRUNCATE', 'LOW', t.path, `"${t.text}" cut at 1280px with no title or accessible name`, 'let it wrap, or put the full text in a title or tooltip that keyboard users can reach');
+    for (const t of cutAt1280) {
+      const why = t.titled ? '; its title or accessible name is not shown to sighted keyboard, touch or zoom users' : '';
+      add('MT-TRUNCATE', 'LOW', t.path, `"${t.text}" cut at 1280px${why}`, 'let it wrap, or offer a visible way to read it (a disclosure or an expand control)');
+    }
     await page.close();
     const zoomed = await open(640, null, { height: 450 });
     const known = new Set(cutAt1280.map((t) => t.path));
     for (const t of await zoomed.evaluate(truncatedText)) {
-      if (!known.has(t.path)) add('MT-TRUNCATE', 'MEDIUM', t.path, `"${t.text}" fits at 1280px but is cut at 200% zoom (WCAG 1.4.4)`, 'let it wrap at narrow widths instead of truncating');
+      if (!known.has(t.path)) add('MT-TRUNCATE', 'HIGH', t.path, `"${t.text}" fits at 1280px but is cut at 200% zoom: content lost to zoom (WCAG 1.4.4)`, 'let it wrap at narrow widths instead of truncating');
     }
     await zoomed.close();
 
@@ -782,6 +798,11 @@ async function audit(target, opts = {}) {
 
 if (require.main === module) {
   const args = process.argv.slice(2);
+  const unknown = args.find((a) => a.startsWith('--') && !['--json', '--lite'].includes(a));
+  if (unknown) {
+    console.error(`unknown option ${unknown}; usage: page-audit.js <url|file.html> [--lite] [--json]`);
+    process.exit(2);
+  }
   const json = args.includes('--json');
   const target = args.find((a) => !a.startsWith('--'));
   if (!target) {

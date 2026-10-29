@@ -55,7 +55,7 @@ function parseCss(source, lineOffset = 0) {
       const prop = raw.slice(0, i).trim().toLowerCase();
       if (/^(--[\w-]+|[-a-z]+)$/.test(prop)) {
         const value = raw.slice(i + 1).trim().replace(/\s*!important$/i, '');
-        stack[stack.length - 1].decls.push({ prop, value, line: bufLine });
+        stack[stack.length - 1].decls.push({ prop, value, line: bufLine, endLine: line });
       }
     }
     reset();
@@ -194,8 +194,10 @@ function lintCss(blocks, file, opts, out) {
   const smallCapsSynthOff = decls.some((d) =>
     (d.prop === 'font-synthesis' && !/small-caps/.test(d.value)) ||
     (d.prop === 'font-synthesis-small-caps' && /none/.test(d.value)));
+  // Selectors that get letter-spacing in any rule of this file, so tracking split across rules counts.
+  const tracked = new Set(blocks.filter((b) => b.decls.some((x) => x.prop === 'letter-spacing')).map((b) => b.prelude.trim()));
   const add = (rule, severity, d, measured, fix) =>
-    out.push({ rule, severity, file, line: d.line, measured, fix });
+    out.push({ rule, severity, file, line: d.line, endLine: d.endLine, measured, fix });
 
   for (const b of blocks) {
     const sel = b.prelude;
@@ -221,7 +223,7 @@ function lintCss(blocks, file, opts, out) {
       if (sizeish && /\d(cq[wihb]|cqmin|cqmax)\b/.test(v)) opts.skipped?.push(`container units in ${path.basename(file)}:${d.line} (${d.prop}: ${d.value}) need the container's size; measure with page-audit.js`);
       if (fluidHit) add(fluidHit[0], fluidHit[1], d, fluidHit[2], fluidHit[3]);
       if (d.prop === 'font-size' && isRoot) {
-        if (/^[\d.]+px$/.test(v)) add('MT-ROOT-PX', 'HIGH', d, `${rule} overrides the reader's default size`, 'font-size: 100% (or leave it unset)');
+        if (/^[\d.]+px$/.test(v)) add('MT-ROOT-PX', 'MEDIUM', d, `${rule} overrides the reader's default size`, 'font-size: 100% (or leave it unset)');
         else if (/^[\d.]+%$/.test(v) && parseFloat(v) < 100) add('MT-ROOT-PX', 'LOW', d, `${rule} makes 1rem ${(parseFloat(v) * 0.16).toFixed(1)}px`, 'font-size: 100% with rem tokens');
       }
       if (d.prop === 'font-size' && !isRoot && /^[\d.]+px$/.test(v) && READING.test(sel) && !HEADING.test(sel)) {
@@ -255,7 +257,7 @@ function lintCss(blocks, file, opts, out) {
       if ((d.prop === 'font-kerning' && v === 'none') || (d.prop === 'font-feature-settings' && /["']kern["']\s+(0|off)\b/.test(v))) {
         add('MT-KERN-OFF', 'LOW', d, `${rule} switches the font's kerning off`, 'font-kerning: normal (auto already kerns at every size in Chromium and WebKit)');
       }
-      if (d.prop === 'text-transform' && v === 'uppercase' && !b.decls.some((x) => x.prop === 'letter-spacing')) {
+      if (d.prop === 'text-transform' && v === 'uppercase' && !b.decls.some((x) => x.prop === 'letter-spacing') && !tracked.has(sel.trim())) {
         add('MT-CAPS-TRACKING', 'LOW', d, `${rule} without letter-spacing`, 'letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6)');
       }
       if (d.prop === 'letter-spacing' && /^-?[\d.]+px$/.test(v) && parseFloat(v) !== 0) {
@@ -311,9 +313,12 @@ function lintHtml(source, file, opts, out) {
 // ---------- Sass, Less and single-file components ----------
 
 // Sass and Less `//` comments, blanked so line numbers stay; `url(http://...)` and strings are kept.
+// Sass and Less comments, blanked so line numbers stay. One pass handles block comments (which may
+// hold apostrophes or //), line comments, strings and unquoted url(...) together.
 function stripLineComments(text) {
   let out = '';
   let quote = null;
+  let inUrl = false;
   for (let i = 0; i < text.length; i++) {
     const c = text[i];
     if (quote) {
@@ -321,10 +326,28 @@ function stripLineComments(text) {
       if (c === quote && text[i - 1] !== '\\') quote = null;
       continue;
     }
-    if (c === '"' || c === "'") { quote = c; out += c; continue; }
-    if (c === '/' && text[i + 1] === '/' && text[i - 1] !== ':') {
+    if (inUrl) {
+      out += c;
+      if (c === ')') inUrl = false;
+      continue;
+    }
+    if (c === '/' && text[i + 1] === '*') {
+      const end = text.indexOf('*/', i + 2);
+      const stop = end === -1 ? text.length : end + 2;
+      out += text.slice(i, stop).replace(/[^\n]/g, ' ');
+      i = stop - 1;
+      continue;
+    }
+    if (c === '/' && text[i + 1] === '/') {
       while (i < text.length && text[i] !== '\n') { out += ' '; i++; }
       if (i < text.length) out += '\n';
+      continue;
+    }
+    if (c === '"' || c === "'") { quote = c; out += c; continue; }
+    if (/^url\(\s*[^\s"')]/i.test(text.slice(i, i + 6))) {
+      inUrl = true;
+      out += text.slice(i, i + 4);
+      i += 3;
       continue;
     }
     out += c;
@@ -397,8 +420,8 @@ function lintTailwind(source, file, opts, out) {
       if (reading && /^font-(thin|extralight|light)$/.test(b)) add('MT-WEIGHT-THIN', 'MEDIUM', `<${tag}> class ${raw[i]} on reading text`, 'font-normal or heavier for reading text');
       if (reading && /^leading-(none|tight)$/.test(b)) add('MT-LH-TIGHT', 'MEDIUM', `<${tag}> class ${raw[i]} on reading text`, 'leading-relaxed (1.625) or leading-normal (1.5) for body text');
     });
-    if (has('uppercase') && !base.some((b) => /^tracking-(wide|wider|widest|\[)/.test(b))) {
-      add('MT-CAPS-TRACKING', 'LOW', `<${tag}> class uppercase without tracking`, 'tracking-wide (0.025em) or tracking-[0.06em]');
+    if (has('uppercase') && !base.some((b) => /^tracking-(wider|widest|\[|\()/.test(b))) {
+      add('MT-CAPS-TRACKING', 'LOW', `<${tag}> class uppercase without enough tracking (tracking-wide is 0.025em, under 5%)`, 'tracking-wider (0.05em) or tracking-[0.06em]');
     }
   }
 }
@@ -427,7 +450,13 @@ function lintFile(file, src, opts, out) {
   else lintCss(parseCss(src), file, opts, out);
 }
 
+// Lines changed since ref, or null when git does not track the file (then all of it is new).
 function changedLines(file, ref) {
+  try {
+    execFileSync('git', ['ls-files', '--error-unmatch', '--', file], { stdio: 'ignore' });
+  } catch {
+    return null;
+  }
   const diff = execFileSync('git', ['diff', '-U0', ref, '--', file], { encoding: 'utf8' });
   const lines = new Set();
   for (const m of diff.matchAll(/^@@ -\S+ \+(\d+)(?:,(\d+))? @@/gm)) {
@@ -448,7 +477,11 @@ function lint(targets, options = {}) {
     lintFile(file, src, opts, out);
     if (opts.diff) {
       const changed = changedLines(file, opts.diff);
-      findings.push(...out.filter((f) => changed.has(f.line)));
+      const touched = (f) => {
+        for (let l = f.line; l <= (f.endLine || f.line); l++) if (changed.has(l)) return true;
+        return false;
+      };
+      findings.push(...(changed ? out.filter(touched) : out));
     } else findings.push(...out);
   }
   findings = findings.sort((a, b) => ORDER[a.severity] - ORDER[b.severity] || a.rule.localeCompare(b.rule) || a.file.localeCompare(b.file) || a.line - b.line);
@@ -486,7 +519,13 @@ if (require.main === module) {
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--json') opts.json = true;
     else if (args[i] === '--rtl') opts.rtl = true;
-    else if (args[i] === '--diff') opts.diff = args[++i];
+    else if (args[i] === '--diff') {
+      opts.diff = args[++i];
+      if (!opts.diff || opts.diff.startsWith('--')) {
+        console.error('--diff needs a git ref, for example --diff origin/main');
+        process.exit(2);
+      }
+    }
     else targets.push(args[i]);
   }
   if (!targets.length) {

@@ -89,7 +89,9 @@ An h1 under a kicker is left out: the kicker belongs to the title. Check:
 when the contrast ratio passes; Saltz, confirmed: older and visually impaired
 readers need sturdier type). Keep reading text at 400 or heavier. The WCAG
 ratio ignores weight; APCA's Lc (`scripts/apca.js`) is read against weight
-and size, so the audit reports both. Check: `MT-WEIGHT-THIN`.
+and size, so the audit reports both. The WCAG 2 ratio is what governs
+conformance; APCA is advisory here, a second opinion on weight, and never a
+reason to accept a ratio under 4.5:1. Check: `MT-WEIGHT-THIN`.
 
 **Sturdier strokes and a little tracking on dark grounds** (Saltz,
 confirmed, principle 6: light-emitting media). Light text on dark spreads and

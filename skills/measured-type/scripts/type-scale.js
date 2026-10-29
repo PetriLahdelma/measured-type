@@ -104,14 +104,33 @@ if (require.main === module) {
     const i = args.indexOf(`--${name}`);
     return i === -1 ? fallback : args[i + 1];
   };
+  // Every number is checked before use, so bad input exits 2 instead of printing NaN or Infinity.
+  const number = (name, value) => {
+    const n = Number(value);
+    if (value === undefined || value === '' || !Number.isFinite(n)) throw new Error(`--${name} needs a number, got ${value === undefined ? 'nothing' : value}`);
+    return n;
+  };
+  const twoNumbers = (name, value) => {
+    const parts = String(value).split(':');
+    if (parts.length !== 2) throw new Error(`--${name} needs two values, min:max (got ${value})`);
+    return parts.map((v) => number(name, v));
+  };
   let result;
   try {
+    const baseRaw = String(opt('base', '1rem:1.125rem')).split(':');
+    const units = baseRaw.map((v) => (/rem$/.test(v.trim()) ? 'rem' : /px$/.test(v.trim()) ? 'px' : 'none'));
+    if (units.length === 2 && units[0] !== units[1]) throw new Error(`--base mixes units (${baseRaw.join(':')}); give both sides in rem, or both in px`);
+    const base = pair(baseRaw.join(':'), px);
+    if (!base.every(Number.isFinite)) throw new Error(`--base needs sizes such as 1rem:1.125rem, got ${baseRaw.join(':')}`);
+    const viewports = twoNumbers('viewports', opt('viewports', '360:1440'));
+    if (viewports[1] <= viewports[0]) throw new Error(`--viewports needs a smaller then a larger width, got ${viewports.join(':')}`);
+    const ratio = pair(opt('ratio', '1.2:1.25')).map((r) => number('ratio', r));
     result = scale({
-      base: pair(opt('base', '1rem:1.125rem'), px),
-      ratio: pair(opt('ratio', '1.2:1.25')),
-      steps: Number(opt('steps', 5)),
-      viewports: pair(opt('viewports', '360:1440')),
-      fluidFrom: Number(opt('fluid-from', 0)),
+      base,
+      ratio,
+      steps: number('steps', opt('steps', 5)),
+      viewports,
+      fluidFrom: number('fluid-from', opt('fluid-from', 0)),
       prefix: opt('prefix', 'step'),
     });
   } catch (err) {

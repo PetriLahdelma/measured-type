@@ -58,7 +58,7 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-REFLOW | HIGH | Page scrolls sideways at 320 CSS px (400% zoom of 1280) or at 375px, or text runs past the edge where hidden overflow stops the scroll | WCAG 1.4.10, §2.1.2 |
 | MT-ZOOM-VW | HIGH | `font-size` from `vw`/`vi` with no `rem`/`em` term, or any rendered text that does not reach 2× by 500% zoom | WCAG 1.4.4, §3.1.1 |
 | MT-VIEWPORT-ZOOM | HIGH | `user-scalable=no` or `maximum-scale` below 2 in the viewport meta | WCAG 1.4.4 |
-| MT-ROOT-PX | HIGH | `font-size` in `px` on `html` or `:root`: overrides the reader's default (a percentage under 100% is LOW) | §3.1.1 |
+| MT-ROOT-PX | MEDIUM | `font-size` in `px` on `html` or `:root`: overrides the reader's default (a percentage under 100% is LOW). A convention: zoom still works and no WCAG criterion requires the default size | §3.1.1 |
 | MT-CONTRAST | HIGH | Text contrast under 4.5:1 (3:1 for 24px, or 18.66px bold), translucent grounds laid over what is beneath them | WCAG 1.4.3 |
 | MT-TEXT-SPACING | HIGH | Text the 1.4.12 spacing override pushes out of its box (boxes that already clip, such as screen-reader text or a closed panel, are hidden by design) | WCAG 1.4.12 |
 | MT-MEASURE-LONG | MEDIUM | Reading text averages over 75 characters per full line | §2.1.2 (measured) |
@@ -96,7 +96,7 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-DARK-HAIRLINE | LOW | Light text on dark under 18px with a stroke thinner than 0.45px (house threshold) | Saltz principle 6 (`screen-and-ui.md`) |
 | MT-ICON-ALIGN | LOW | An icon's centre more than 1px from the middle of its label's capitals | Latin (`screen-and-ui.md`) |
 | MT-TABULAR | MEDIUM | A table number column whose 1 and 0 differ in width by more than 2% | §3.2.1 (`product-ui.md`) |
-| MT-TRUNCATE | LOW | Text cut by an ellipsis or line clamp with no title or accessible name; MEDIUM when the cut appears only at 200% zoom (WCAG 1.4.4) | `product-ui.md` |
+| MT-TRUNCATE | LOW | Text cut by an ellipsis, clip or line clamp with no visible way to read it (a title does not count); HIGH when the cut appears only at 200% zoom (WCAG 1.4.4) | `product-ui.md` |
 | MT-NUM-ALIGN | LOW | A number column of mixed lengths not aligned at the end | convention (`product-ui.md`) |
 | MT-CAPS-TRACKING | LOW | Capitals under 20px with no positive letter-spacing; `text-transform: uppercase` without `letter-spacing` in the source | §2.1.6 (`product-ui.md`) |
 | MT-UI-SIZE | LOW | Interface text under 12px (house floor) | house (`product-ui.md`) |

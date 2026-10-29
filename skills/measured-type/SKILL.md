@@ -51,7 +51,7 @@ not leak into cards and controls.
 |---|---|---|---|
 | 2.1.2 | Comfortable measure | 45–75 characters, 66 ideal; 40–50 per column in multi-column | `max-inline-size: 34em` or about `60ch`, then count (see §5) |
 | 2.2.1 | Leading suits face, size and measure | body ~1.4–1.6; display ~1.05–1.2; wider measure, more lead | unitless `line-height` for body text; headings may use a whole number of body lines (`line-height: var(--line)`) |
-| 2.2.2 | Vertical space in measured intervals | every gap a multiple (or half) of the body line | `--line: calc(size * leading)` (or `1rlh` only if body = root size), `text-box: trim-both cap alphabetic` |
+| 2.2.2 | Vertical space in measured intervals | every gap a multiple (or half) of the body line | `--line: calc(size * leading)` (or `1rlh` only if body = root size) |
 | 2.3.1–2 | Mark paragraphs one way | first paragraph flush; later ones indent at least 1 en, typically 1em; or space them, never both | `p + p { text-indent: 1em; margin-block-start: 0 }` |
 | 2.1.3 | Ragged unless justification is earned | justify only with working hyphenation and a wide measure; ragged usually suits sans and mono | `text-align: start` |
 | 2.4.1 | Hyphenation minimums | 2 letters before the break, 3 after; only words of 6+ letters (a software convention, not Bringhurst's) | `hyphens: auto; hyphenate-limit-chars: 6 2 3` + correct `lang` |
@@ -245,7 +245,7 @@ and no decorative effects standing in for hierarchy.
 | `scripts/lint-css.js` | auditing source (CSS, SCSS, Less, HTML, Vue, Svelte, Astro, JSX and literal Tailwind class strings) or a pull request (`--diff`) |
 | `scripts/page-audit.js` | auditing a rendered page: reflow, measure, contrast, text spacing, fonts, zoom, plus the `screen-and-ui.md` checks; `--lite` without a browser |
 | `scripts/estimate-measure.js` | no browser available: characters per line estimated for a face and width |
-| `scripts/apca.js` | a contrast question where weight matters: APCA Lc next to the WCAG ratio |
+| `scripts/apca.js` | a contrast question where weight matters: APCA Lc next to the WCAG ratio (advisory; the WCAG 2 ratio governs conformance) |
 | `scripts/fallback-metrics.py` | loading web fonts: a metric-matched fallback so the swap does not reflow |
 | `scripts/type-scale.js` | building fluid type tokens that pass the zoom and step checks |
 

@@ -67,6 +67,7 @@ test('M3 Tailwind classes in JSX are linted with file and line', () => {
     '5 MT-ZOOM-VW HIGH',
     '6 MT-MEASURE-CH LOW',
     '7 MT-LH-TIGHT MEDIUM', '7 MT-LS-PX LOW',
+    '8 MT-CAPS-TRACKING LOW', // tracking-wide is 0.025em, under the 5% floor (spec 0005 R2)
   ]);
 });
 

@@ -277,9 +277,9 @@ node scripts/page-audit.js dashboard.html
 | HIGH | MT-CONTRAST | `p.foot` | 2.23:1 (rgb(170, 170, 170) on rgb(250, 250, 250), needs 4.5:1) | darken the text or lighten the ground to reach the ratio |
 | HIGH | MT-REFLOW | `table.services at 320 CSS px (400% zoom of 1280)` | page is 924px wide in a 320px viewport | max-inline-size instead of fixed widths; let tables scroll inside a wrapper |
 | MEDIUM | MT-TABULAR | `table.services column 3`, `table.services column 4`, `table.services column 5` | 1 and 0 differ by 26.8% in width, so digits do not line up | font-variant-numeric: lining-nums tabular-nums on the column |
-| LOW | MT-CAPS-TRACKING | `header.top > p.eyebrow`, `section.kpis > div.kpi > p.kpi-label`, `thead > tr > th` | capitals at 11px with letter-spacing 0px | letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6) |
+| LOW | MT-CAPS-TRACKING | `header.top > p.eyebrow`, `section.kpis > div.kpi > p.kpi-label`, `thead > tr > th` | capitals at 11px with letter-spacing 0px (under 0.03em) | letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6) |
 | LOW | MT-NUM-ALIGN | `table.services column 3`, `table.services column 4`, `table.services column 5` | numbers of different lengths set text-align: left | text-align: end on the number cells and their header, so place values line up |
-| LOW | MT-TRUNCATE | `tr > td > span.name` | "Authentication gateway for partner accounts" cut at 1280px with no title or accessible name | let it wrap, or put the full text in a title or tooltip that keyboard users can reach |
+| LOW | MT-TRUNCATE | `tr > td > span.name` | "Authentication gateway for partner accounts" cut at 1280px | let it wrap, or offer a visible way to read it (a disclosure or an expand control) |
 | LOW | MT-UI-SIZE | `p.foot` | 10px interface text (house floor 12px) | font-size: 0.75rem or more |
 
 Verdict: Block (9 HIGH)

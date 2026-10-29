@@ -298,8 +298,12 @@ main text should return on the beat.
 - `text-box: trim-both cap alphabetic` trims the half-leading above the cap
   height and below the baseline, so a one-line gap between a heading and a
   paragraph looks like one line rather than one line plus two half-leadings.
-  Apply it to headings, buttons and labels; leave multi-line body paragraphs
-  alone. It is progressive: engines that lack it fall back to normal spacing.
+  Apply it to buttons, labels and components outside the measured column.
+  On a page that keeps whole-line intervals, `text-box` trimming and the line grid are
+  alternatives: trimming a heading moves the next block off the grid by the
+  trimmed amount (0.42 of a line on the editorial example), so either add the
+  trimmed amount back as margin or do not trim there. It is progressive:
+  engines that lack it fall back to normal spacing.
 - `lh` (the element's own line height) is useful for spacing inside a
   component: `padding-block: 0.5lh`.
 - Images and embeds: size them in the interval where practical
