@@ -84,6 +84,17 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-MINUS | LOW | Hyphen-minus before a number in text (`-12%`) | §2.4.6 |
 | MT-RANGE | LOW | Hyphen in a number range (`1990-2004`) | punctuation |
 | MT-QUOTES | LOW | Straight quotes in text | punctuation |
+| MT-HEADING-ORDER | MEDIUM | A heading level as large as and as heavy as or heavier than the level above it | Saltz (`screen-and-ui.md`) |
+| MT-WEIGHT-THIN | MEDIUM | Reading text under weight 400; reports the WCAG ratio and APCA Lc | Latin, Saltz (`screen-and-ui.md`) |
+| MT-CODE-XHEIGHT | LOW | Inline code x-height outside 0.90 to 1.10 of the surrounding text's | Latin (`screen-and-ui.md`) |
+| MT-CODE-BOX | LOW | Boxed inline code collides with itself across lines | Latin (`screen-and-ui.md`) |
+| MT-KERN-OFF | LOW | Kerning switched off: `font-kerning: none` or `"kern" 0`, or a rendered sample wider than with kerning on | Latin, §2.1.8 (`screen-and-ui.md`) |
+| MT-CONFUSABLE | LOW | Reading face draws I and l alike (ink overlap 0.82 or more, house threshold) | Latin (`screen-and-ui.md`) |
+| MT-FAMILY-COUNT | LOW | More than three typeface families rendered, code excluded | Saltz principle 43 (`screen-and-ui.md`) |
+| MT-PAIR-XHEIGHT | LOW | Heading and text faces 5 to 15% apart in x-height (house bands) | Latin (`screen-and-ui.md`) |
+| MT-HEADING-SPACE | LOW | Space above a section heading (h2 to h6) less than twice the space below it | Latin (`screen-and-ui.md`) |
+| MT-DARK-HAIRLINE | LOW | Light text on dark under 18px with a stroke thinner than 0.45px (house threshold) | Saltz principle 6 (`screen-and-ui.md`) |
+| MT-ICON-ALIGN | LOW | An icon's centre more than 1px from the middle of its label's capitals | Latin (`screen-and-ui.md`) |
 
 A rule the tools do not cover (pairing, hierarchy, emphasis, rhythm) still goes
 in the same table under the closest section number, with the kind stated.

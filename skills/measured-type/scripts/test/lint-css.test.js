@@ -176,3 +176,10 @@ test('B20 the known bad example yields its expected rules', { skip: noExamples }
     assert.ok(has(f, rule), `expected ${rule}`);
   }
 });
+
+test('G3 font-kerning: none and "kern" 0 are MT-KERN-OFF LOW at their lines', () => {
+  const f = run('p {\n  font-kerning: none;\n}\nh1 { font-feature-settings: "kern" 0, "liga" 1; }\nh2 { font-feature-settings: "kern" off; }\n');
+  const hits = f.filter((x) => x.rule === 'MT-KERN-OFF');
+  assert.deepEqual(hits.map((h) => [h.severity, h.line]), [['LOW', 2], ['LOW', 4], ['LOW', 5]]);
+  assert.equal(run('p { font-kerning: normal; font-feature-settings: "kern" 1; }').filter((x) => x.rule === 'MT-KERN-OFF').length, 0);
+});

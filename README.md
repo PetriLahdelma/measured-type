@@ -229,7 +229,7 @@ measured value, the CSS fix and a Block or Approve verdict
 
 | Script | What it measures |
 |---|---|
-| [`page-audit.js`](skills/measured-type/scripts/page-audit.js) | A rendered page at 1280, 768 and 375px and at 200%, 400% and 500% zoom: reflow, characters per line, contrast, the WCAG 1.4.12 spacing override, fonts that fell back, heading zoom growth |
+| [`page-audit.js`](skills/measured-type/scripts/page-audit.js) | A rendered page at 1280, 768 and 375px and at 200%, 400% and 500% zoom: reflow, characters per line, contrast, the WCAG 1.4.12 spacing override, fonts that fell back, heading zoom growth; and from Latin and Saltz, inline code x-height, kerning switched off, I and l alike, heading order and spacing, the family budget, x-height pairing, thin weights with APCA Lc, hairlines on dark grounds and icon alignment |
 | [`lint-css.js`](skills/measured-type/scripts/lint-css.js) | CSS and HTML source, or only what a pull request changed (`--diff`): fluid sizes evaluated at 200% and 500% zoom, length line-heights, `62.5%` roots, justification, `ch` measures, physical sides, hyphen-minus and straight quotes |
 | [`measure-line.js`](skills/measured-type/scripts/measure-line.js) | Characters per line of one selector, graphemes and columns counted correctly |
 | [`fallback-metrics.py`](skills/measured-type/scripts/fallback-metrics.py) | A metric-matched fallback `@font-face` from the font files, so the web font swaps in without reflow |
@@ -251,7 +251,7 @@ Verdict: Block (4 HIGH)
 Not verified: Safari and Firefox rendering (Chromium only)
 ```
 
-(Excerpt: the full report has seven rows.) The same audit approves `after.html`.
+(Excerpt: the full report has nine rows, including a Helvetica standfirst whose I and l the new glyph check flags.) The same audit approves `after.html`.
 
 ## How it works
 
@@ -445,7 +445,7 @@ so an installed skill keeps them.
 **Can I use it in paid work?** The scripts, MIT, can be used anywhere. The
 text is CC BY-NC 4.0, which restricts uses primarily intended for commercial
 advantage. Whether an agent consulting it during paid client work is such a
-use has not been settled with the rights holders, and this README does not
+use has not been settled with the rights holders; this README does not
 settle it. If it matters for your work, read the license or ask before you
 rely on it.
 
@@ -457,6 +457,6 @@ substitute: if it is useful to you, buy the book. The wordmark is set in Source 
 brand's interface type is IBM Plex. Both are released under the OFL.
 
 Measured Type is an independent project. It is not affiliated with, endorsed
-by or sponsored by Robert Bringhurst, Richard Rutter, webtypography.net or the
-publishers of *The Elements of Typographic Style*; their names appear only to
+by or sponsored by Robert Bringhurst, Richard Rutter, webtypography.net, Matej
+Latin, Ina Saltz or the publishers of their books; their names appear only to
 credit the sources.

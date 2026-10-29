@@ -15,7 +15,10 @@
  *
  * Checks: reflow (1.4.10), measure, contrast (1.4.3), text spacing (1.4.12),
  * web-font fallback, reading size floor, zoom growth of headings (1.4.4),
- * justification without hyphenation, one-word heading lines, size count.
+ * justification without hyphenation, one-word heading lines, size count, and
+ * the checks from Latin and Saltz in references/screen-and-ui.md (inline code
+ * x-height and boxes, kerning, I and l, heading order and spacing, family
+ * budget, x-height pairing, weight floor, dark hairlines, icon alignment).
  *
  * Exit code 1 when a HIGH finding remains (verdict Block), 0 otherwise.
  * Requires Playwright: npm install && npx playwright install chromium.
@@ -25,6 +28,7 @@ const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { measureLines } = require('./measure-line.js');
 const { toMarkdown } = require('./lint-css.js');
+const { apcaLc } = require('./apca.js');
 
 const ORDER = { HIGH: 0, MEDIUM: 1, LOW: 2 };
 const GENERIC = /^(serif|sans-serif|monospace|cursive|fantasy|system-ui|ui-serif|ui-sans-serif|ui-monospace|ui-rounded|emoji|math|fangsong|-apple-system|blinkmacsystemfont)$/i;
@@ -66,6 +70,199 @@ function pageHelpers() {
       return [...document.body.querySelectorAll('*')].filter((el) => window.__mt.directText(el) && window.__mt.visible(el) && !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(el.tagName));
     },
   };
+}
+
+// Checks from Latin and Saltz (specs/0002-book-checks.md), run in the page at 1280px.
+function bookChecks() {
+  const mt = window.__mt;
+  const canvas = document.createElement('canvas');
+  const g = canvas.getContext('2d');
+  const fontOf = (cs, px) => `${cs.fontStyle} ${cs.fontWeight} ${px}px ${cs.fontFamily}`;
+  const ascent = (cs, ch) => { g.font = fontOf(cs, 100); return g.measureText(ch).actualBoundingBoxAscent / 100; };
+  const xHeight = (cs) => {
+    const adj = /([\d.]+)\s*$/.exec(cs.fontSizeAdjust || '');
+    return (cs.fontSizeAdjust && cs.fontSizeAdjust !== 'none' && adj ? Number(adj[1]) : ascent(cs, 'x')) * parseFloat(cs.fontSize);
+  };
+  const first = (family) => family.split(',')[0].trim().replace(/^["']|["']$/g, '');
+  const ground = (el) => {
+    for (let p = el; p; p = p.parentElement) {
+      const b = getComputedStyle(p).backgroundColor;
+      if (!/rgba\(\d+,\s*\d+,\s*\d+,\s*0\)|transparent/.test(b)) return b;
+    }
+    return 'rgb(255, 255, 255)';
+  };
+  const lum = (s) => {
+    const [r, gg, b] = (/rgba?\(([^)]+)\)/.exec(s) || [0, '0,0,0'])[1].split(/[\s,/]+/).map(Number);
+    const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+    return 0.2126 * f(r) + 0.7152 * f(gg) + 0.0722 * f(b);
+  };
+  // Ink of one glyph as a set of pixel keys, centred horizontally, drawn at 48px.
+  const ink = (cs, ch) => {
+    canvas.width = 96; canvas.height = 96;
+    g.font = fontOf(cs, 48);
+    g.fillText(ch, 24, 72);
+    const d = g.getImageData(0, 0, 96, 96).data;
+    const pts = [];
+    for (let y = 0; y < 96; y++) for (let x = 0; x < 96; x++) if (d[(y * 96 + x) * 4 + 3] > 127) pts.push([x, y]);
+    g.clearRect(0, 0, 96, 96);
+    const cx = pts.reduce((s, q) => s + q[0], 0) / (pts.length || 1);
+    return new Set(pts.map(([x, y]) => `${Math.round(x - cx)},${y}`));
+  };
+  const overlap = (a, b) => { let i = 0; for (const k of a) if (b.has(k)) i++; return i / (a.size + b.size - i || 1); };
+  // Thinnest stroke of "o" at the rendered size: its top at the centre column or its side at mid-height.
+  const thinnest = (cs) => {
+    const S = 8;
+    const px = parseFloat(cs.fontSize) * S;
+    canvas.width = Math.ceil(px * 2); canvas.height = Math.ceil(px * 2);
+    g.font = fontOf(cs, px);
+    g.fillText('o', px * 0.5, px * 1.5);
+    const w = canvas.width;
+    const d = g.getImageData(0, 0, w, canvas.height).data;
+    const a = (x, y) => d[(y * w + x) * 4 + 3] / 255;
+    let [x0, x1, y0, y1] = [w, 0, canvas.height, 0];
+    for (let y = 0; y < canvas.height; y++) for (let x = 0; x < w; x++) if (a(x, y) > 0.5) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    const cx = Math.round((x0 + x1) / 2);
+    const cy = Math.round((y0 + y1) / 2);
+    let top = 0;
+    for (let y = Math.max(0, y0 - 2); y < cy; y++) top += a(cx, y);
+    let side = 0;
+    for (let x = Math.max(0, x0 - 2); x < cx; x++) side += a(x, cy);
+    return Math.min(top, side) / S;
+  };
+
+  const reading = mt.reading();
+  const seen = new Set();
+  const once = (key) => (seen.has(key) ? false : (seen.add(key), true));
+  const out = { code: [], boxes: [], kern: [], confusable: [], order: [], pair: [], space: [], thin: [], hairline: [], icons: [] };
+
+  for (const block of reading) {
+    const bcs = getComputedStyle(block);
+    // G1 inline code x-height against the surrounding text
+    for (const c of block.querySelectorAll('code, kbd, samp')) {
+      if (c.closest('pre')) continue;
+      const ccs = getComputedStyle(c);
+      const pcs = getComputedStyle(c.parentElement);
+      const xh = xHeight(ccs);
+      const parentXh = xHeight(pcs);
+      const ratio = xh / parentXh;
+      if ((ratio < 0.9 || ratio > 1.1) && once(`code|${mt.path(c)}`)) {
+        out.code.push({ path: mt.path(c), xh, parentXh, ratio, size: parseFloat(ccs.fontSize), parentSize: parseFloat(pcs.fontSize) });
+      }
+    }
+    // G2 inline code boxes colliding across lines
+    const rects = [];
+    for (const c of block.querySelectorAll('code, kbd, samp')) {
+      const ccs = getComputedStyle(c);
+      const boxed = !/rgba\(\d+,\s*\d+,\s*\d+,\s*0\)|transparent/.test(ccs.backgroundColor) || parseFloat(ccs.borderTopWidth) > 0;
+      if (boxed && !c.closest('pre')) rects.push(...c.getClientRects());
+    }
+    let worst = 0;
+    for (const a of rects) for (const b of rects) {
+      if (b.top <= a.top + 1) continue;
+      const v = a.bottom - b.top;
+      const h = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+      if (v > 0.5 && h > 0) worst = Math.max(worst, v);
+    }
+    if (worst && once(`box|${mt.path(block)}`)) out.boxes.push({ path: mt.path(block), overlap: worst });
+    // G9 weight floor
+    const wght = /["']wght["']\s+([\d.]+)/.exec(bcs.fontVariationSettings || '');
+    const weight = wght ? Number(wght[1]) : parseInt(bcs.fontWeight, 10);
+    if (weight < 400 && once(`thin|${mt.path(block)}`)) out.thin.push({ path: mt.path(block), weight, size: parseFloat(bcs.fontSize), color: bcs.color, bg: ground(block) });
+    // G10 hairlines on a dark ground
+    const size = parseFloat(bcs.fontSize);
+    if (size < 18 && lum(bcs.color) > lum(ground(block))) {
+      const stroke = thinnest(bcs);
+      if (stroke < 0.45 && once(`hair|${mt.path(block)}`)) out.hairline.push({ path: mt.path(block), stroke, size });
+    }
+  }
+
+  // G3 kerning switched off, G4 I and l alike: once per declared font stack
+  const headings = [...document.querySelectorAll('h1, h2, h3, h4, h5, h6')].filter(mt.visible);
+  for (const el of [...reading, ...headings]) {
+    const cs = getComputedStyle(el);
+    if (once(`kern|${cs.fontFamily}|${cs.fontKerning}|${cs.fontFeatureSettings}`)) {
+      const s = document.createElement('span');
+      s.style.cssText = 'white-space: nowrap; letter-spacing: 0; word-spacing: 0';
+      s.textContent = 'AVATAR Tyrol Wavy Yoke';
+      el.append(s);
+      const off = s.getBoundingClientRect().width;
+      s.style.fontKerning = 'normal';
+      s.style.fontFeatureSettings = cs.fontFeatureSettings === 'normal' ? 'normal' : cs.fontFeatureSettings.replace(/(["']kern["'])\s+(0|off)/, '$1 1');
+      const on = s.getBoundingClientRect().width;
+      s.remove();
+      const diff = (off / on - 1) * 100;
+      if (diff > 0.5) out.kern.push({ path: mt.path(el), diff });
+    }
+  }
+  const readingStacks = new Map();
+  for (const el of reading) {
+    const cs = getComputedStyle(el);
+    if (!readingStacks.has(cs.fontFamily)) readingStacks.set(cs.fontFamily, { el, cs });
+  }
+  for (const [family, { el, cs }] of readingStacks) {
+    const [I, l, one] = ['I', 'l', '1'].map((ch) => ink(cs, ch));
+    const il = overlap(I, l);
+    if (il >= 0.82) out.confusable.push({ path: mt.path(el), il, l1: overlap(l, one), family: first(family) });
+  }
+
+  // G5 heading order: each level present against the nearest higher level present
+  const levels = [1, 2, 3, 4, 5, 6].map((n) => headings.find((h) => h.tagName === `H${n}`)).filter(Boolean);
+  for (let i = 1; i < levels.length; i++) {
+    const [up, h] = [getComputedStyle(levels[i - 1]), getComputedStyle(levels[i])];
+    const size = parseFloat(h.fontSize);
+    const upSize = parseFloat(up.fontSize);
+    const weight = parseInt(h.fontWeight, 10);
+    const upWeight = parseInt(up.fontWeight, 10);
+    if (size >= upSize - 0.01 && weight >= upWeight) {
+      out.order.push({ path: mt.path(levels[i]), tag: levels[i].tagName.toLowerCase(), size, weight, upTag: levels[i - 1].tagName.toLowerCase(), upSize, upWeight });
+    }
+  }
+
+  // G7 pairing by x-height: headings' face against the text face
+  if (reading.length && headings.length) {
+    const body = getComputedStyle(reading[0]);
+    const head = getComputedStyle(headings[0]);
+    if (first(head.fontFamily) !== first(body.fontFamily)) {
+      const [hx, bx] = [ascent(head, 'x'), ascent(body, 'x')];
+      const diff = Math.abs(hx - bx) / Math.max(hx, bx);
+      if (diff > 0.05 && diff < 0.15) out.pair.push({ path: mt.path(headings[0]), headFamily: first(head.fontFamily), bodyFamily: first(body.fontFamily), head: hx, body: bx, diff });
+    }
+  }
+
+  // G8 space above a section heading against the space below it; an h1 often
+  // sits under a kicker that belongs to it, so it is left out
+  for (const h of headings.filter((x) => x.tagName !== 'H1')) {
+    const prev = h.previousElementSibling;
+    const next = h.nextElementSibling;
+    if (!prev || !next || !mt.visible(prev) || !mt.visible(next)) continue;
+    const r = h.getBoundingClientRect();
+    const above = r.top - prev.getBoundingClientRect().bottom;
+    const below = next.getBoundingClientRect().top - r.bottom;
+    if (below > 0 && above < 2 * below - 0.5 && once(`space|${mt.path(h)}`)) out.space.push({ path: mt.path(h), above, below, size: parseFloat(getComputedStyle(h).fontSize) });
+  }
+
+  // G11 icons beside labels: the icon's centre against the middle of the capitals
+  for (const icon of document.querySelectorAll('svg, img')) {
+    const parent = icon.parentElement;
+    if (!parent || parent.closest('svg') || !mt.visible(icon)) continue;
+    const text = [...parent.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim());
+    if (!text) continue;
+    const pcs = getComputedStyle(parent);
+    const size = parseFloat(pcs.fontSize);
+    const r = icon.getBoundingClientRect();
+    if (r.height > 2 * size) continue;
+    const probe = document.createElement('span');
+    probe.style.cssText = 'display: inline-block; width: 0; height: 0';
+    parent.insertBefore(probe, text);
+    const baseline = probe.getBoundingClientRect().bottom;
+    probe.remove();
+    const cap = ascent(pcs, 'H') * size;
+    const offset = (r.top + r.bottom) / 2 - (baseline - cap / 2);
+    if (Math.abs(offset) > 1 && once(`icon|${mt.path(icon)}`)) {
+      out.icons.push({ path: mt.path(icon), offset, flex: /flex|grid/.test(pcs.display), va: (cap - r.height) / 2 / size });
+    }
+  }
+  return out;
 }
 
 function parseColor(s) {
@@ -216,6 +413,49 @@ async function audit(target, opts = {}) {
         seen.add(first);
         add('MT-FONT-FALLBACK', 'MEDIUM', t.path, `declared "${first}", rendered ${fonts.map((f) => f.familyName).join(', ')}`, 'check the @font-face src and that the file covers these glyphs');
       }
+    }
+
+    // Family budget (Saltz principle 43): typeface families actually rendered, code excluded.
+    const textCount = await page.evaluate(() => window.__mt.textElements()
+      .filter((el) => !el.closest('code, pre, kbd, samp, tt') && !/monospace/.test(getComputedStyle(el).fontFamily))
+      .slice(0, 300).map((el, i) => el.setAttribute('data-mt-t', i)).length);
+    const glyphs = new Map();
+    const { root: root2 } = await cdp.send('DOM.getDocument', { depth: -1 });
+    for (let i = 0; i < textCount; i++) {
+      const { nodeId } = await cdp.send('DOM.querySelector', { nodeId: root2.nodeId, selector: `[data-mt-t="${i}"]` });
+      if (!nodeId) continue;
+      const { fonts } = await cdp.send('CSS.getPlatformFontsForNode', { nodeId });
+      for (const f of fonts) {
+        const fam = f.familyName.replace(/(\s+(Regular|Italic|Oblique|Light|Medium|Semibold|SemiBold|Bold|Black|Heavy|Thin))+$/i, '');
+        glyphs.set(fam, (glyphs.get(fam) || 0) + f.glyphCount);
+      }
+    }
+    const families = [...glyphs].filter(([, n]) => n >= 10).map(([f]) => f);
+    if (families.length > 3) add('MT-FAMILY-COUNT', 'LOW', 'page at 1280px', `${families.length} families: ${families.join(', ')}`, 'three families at most, each with a job (text, display, interface); vary weight and width inside them');
+
+    const book = await page.evaluate(bookChecks);
+    for (const c of book.code) {
+      const em = c.size / c.parentSize / c.ratio;
+      add('MT-CODE-XHEIGHT', 'LOW', c.path, `x-height ${c.xh.toFixed(1)}px against ${c.parentXh.toFixed(1)}px in the text, ratio ${c.ratio.toFixed(2)}`, `font-size: ${em.toFixed(2)}em (or font-size-adjust: ex-height ${(c.parentXh / c.parentSize).toFixed(3)})`);
+    }
+    for (const c of book.boxes) add('MT-CODE-BOX', 'LOW', c.path, `inline code boxes overlap by ${c.overlap.toFixed(1)}px across lines`, 'raise the line-height, or trim the vertical padding of inline code');
+    for (const k of book.kern) add('MT-KERN-OFF', 'LOW', k.path, `kerning pairs set ${k.diff.toFixed(1)}% wider than with kerning on`, 'font-kerning: normal and no "kern" 0 in font-feature-settings');
+    for (const c of book.confusable) add('MT-CONFUSABLE', 'LOW', c.path, `I and l overlap ${c.il.toFixed(2)} (l and 1: ${c.l1.toFixed(2)}) in ${c.family}`, 'a reading face that distinguishes I, l and 1 (a serif, or a humanist sans with a tailed l)');
+    for (const h of book.order) add('MT-HEADING-ORDER', 'MEDIUM', h.path, `${h.tag} ${h.size}px, weight ${h.weight}; ${h.upTag} above it ${h.upSize}px, weight ${h.upWeight}`, `make the ${h.tag} smaller or lighter than the ${h.upTag}`);
+    for (const p of book.pair) add('MT-PAIR-XHEIGHT', 'LOW', p.path, `${p.headFamily} ${p.head.toFixed(3)}em against ${p.bodyFamily} ${p.body.toFixed(3)}em (${(p.diff * 100).toFixed(0)}% apart; match within 5% or contrast by 15%)`, 'pick a heading face whose x-height matches the text face closely or differs clearly');
+    for (const s of book.space) add('MT-HEADING-SPACE', 'LOW', s.path, `${Math.round(s.above)}px above, ${Math.round(s.below)}px below`, `at least twice as much space above as below, for example margin-block: ${(2 * s.below / s.size).toFixed(2)}em ${(s.below / s.size).toFixed(2)}em`);
+    for (const w of book.thin) {
+      const fg = parseColor(w.color);
+      const bg = parseColor(w.bg);
+      const text = fg && bg ? over(fg, bg) : null;
+      const ratio = text ? `${contrast(text, bg).toFixed(1)}:1` : 'contrast unknown';
+      const lc = text ? ` APCA Lc ${apcaLc([text.r, text.g, text.b], [bg.r, bg.g, bg.b]).toFixed(0)}` : '';
+      add('MT-WEIGHT-THIN', 'MEDIUM', w.path, `weight ${w.weight} at ${w.size}px; WCAG ${ratio},${lc}`, 'font-weight: 400 or more for reading text');
+    }
+    for (const d of book.hairline) add('MT-DARK-HAIRLINE', 'LOW', d.path, `thinnest stroke ${d.stroke.toFixed(2)}px at ${d.size}px, light on dark`, 'a sturdier weight or a lower-contrast face below 18px, and letter-spacing of 0.01 to 0.02em');
+    for (const i of book.icons) {
+      const fix = i.flex ? `translate the icon by ${(-i.offset).toFixed(1)}px, or size it to the cap height` : `vertical-align: ${i.va.toFixed(3)}em`;
+      add('MT-ICON-ALIGN', 'LOW', i.path, `${i.offset.toFixed(1)}px between the icon's centre and the middle of the capitals (${i.offset > 0 ? 'icon low' : 'icon high'})`, fix);
     }
     await page.close();
 

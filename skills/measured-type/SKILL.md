@@ -228,13 +228,17 @@ and no decorative effects standing in for hierarchy.
 | `scripts/font-features.py` | before enabling `onum`, `smcp`, `c2sc`, `case`, `tnum` or any `font-feature-settings` |
 | `references/taste.md` | choosing faces, pairing, display treatment, dark mode text or reviewing for quality rather than correctness |
 | `references/audit.md` | any review or audit: severities, verdict, report table and the rule catalog |
+| `references/screen-and-ui.md` | inline code, icons beside labels, heading hierarchy and spacing, choosing or combining faces, kerning, thin weights or light text on dark |
 | `scripts/lint-css.js` | auditing CSS or HTML source, or a pull request (`--diff`) |
-| `scripts/page-audit.js` | auditing a rendered page: reflow, measure, contrast, text spacing, fonts, zoom |
+| `scripts/page-audit.js` | auditing a rendered page: reflow, measure, contrast, text spacing, fonts, zoom, plus the `screen-and-ui.md` checks |
+| `scripts/apca.js` | a contrast question where weight matters: APCA Lc next to the WCAG ratio |
 | `scripts/fallback-metrics.py` | loading web fonts: a metric-matched fallback so the swap does not reflow |
 | `scripts/type-scale.js` | building fluid type tokens that pass the zoom and step checks |
 
 Sources: Robert Bringhurst, *The Elements of Typographic Style*; Richard
 Rutter, *The Elements of Typographic Style Applied to the Web*
-(webtypography.net, CC BY-NC 4.0), whose rule order this skill follows. Rules
+(webtypography.net, CC BY-NC 4.0), whose rule order this skill follows.
+`references/screen-and-ui.md` adds checks from Matej Latin's *Better Web
+Typography for a Better Web* and Ina Saltz's *Typography Essentials*. Rules
 are paraphrased and the CSS is rewritten for current browsers. This is an
-independent project, not affiliated with or endorsed by either author.
+independent project, not affiliated with or endorsed by any of these authors.
