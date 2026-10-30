@@ -88,6 +88,99 @@ function scale({ base, ratio, steps, viewports, fluidFrom = 0, prefix: tokenPref
   return { css, steps: out.map(({ f, ...rest }) => rest), ok: out.every((s) => !s.failures.length) };
 }
 
+// Zoom z on a window w: the CSS viewport is w / z and 1rem stays 16 CSS px,
+// so the size in device px is z * f(w / z).
+const growthAt = (f, w, z = 2) => round((z * f(w / z)) / f(w), 3);
+const linePx = (x0, y0, x1, y1) => {
+  const slope = (y1 - y0) / (x1 - x0);
+  return { vi: round(slope * 100), rem: round((y0 - slope * x0) / ROOT_PX) };
+};
+const lineF = ({ vi, rem }) => (W) => rem * ROOT_PX + (vi * W) / 100;
+const lineCss = ({ vi, rem }) => `${rem}rem + ${vi}vi`;
+
+/**
+ * --fit MIN:MAX (spec 0009): the sizes the request fixed, at the two viewports.
+ * A single ramp across a wide range loses growth under zoom. Two forms keep the
+ * requested sizes and can still pass the 1.6× bar on a 1280px window:
+ *   early-max  the same ramp, reaching MAX sooner (every wider screen gets MAX);
+ *   two-slope  clamp(MIN, min(steep, gentle), MAX) with the knee at 640px, the
+ *              CSS viewport of a 1280px window at 200% zoom.
+ * Each candidate is checked like a scale step, apart from the range rule: the
+ * range is the request's.
+ */
+function fitRange({ min, max, viewports: [w0, w1], bar = 1.6 }) {
+  const lo = round(min / ROOT_PX);
+  const hi = round(max / ROOT_PX);
+  const clampF = (inner) => (W) => Math.max(lo * ROOT_PX, Math.min(inner(W), hi * ROOT_PX));
+  const describe = (form, css, f, extra = {}) => {
+    let reach500 = Infinity;
+    for (let w = 320; w <= 2560; w += 10) reach500 = Math.min(reach500, (5 * f(w / 5)) / f(w));
+    const c = {
+      form,
+      css,
+      at: Object.fromEntries([w0, 640, 768, 1280, w1, 1920].map((w) => [w, round(f(w), 3)])),
+      growth200: growthAt(f, 1280),
+      growthByWindow: Object.fromEntries([1024, 1280, 1440, 1920].map((w) => [w, growthAt(f, w)])),
+      reach500: round(reach500, 3),
+      keepsRequested: Math.abs(f(w0) - min) <= 0.5 && Math.abs(f(w1) - max) <= 0.5,
+      ...extra,
+      failures: [],
+    };
+    if (c.growth200 < bar) c.failures.push(`${c.growth200}× at 200% zoom on 1280px (house bar ${bar}×)`);
+    if (c.reach500 < 2) c.failures.push(`reaches only ${c.reach500}× at 500% zoom (WCAG 1.4.4 needs 2×)`);
+    if (!c.keepsRequested) c.failures.push(`does not keep the requested ${round(min, 2)}px at ${w0}px and ${round(max, 2)}px at ${w1}px`);
+    return c;
+  };
+  const ramp = (end) => {
+    const l = linePx(w0, min, end, max);
+    return describe(end === w1 ? 'ramp' : 'early-max', `clamp(${lo}rem, ${lineCss(l)}, ${hi}rem)`, clampF(lineF(l)), { maxFrom: end });
+  };
+  // Aim slightly above the bar so the rounded coefficients cannot drop below it.
+  const aim = bar + 0.01;
+  const candidates = [ramp(w1)];
+  if (candidates[0].failures.length) {
+    for (let end = Math.floor((w1 - 10) / 10) * 10; end > w0 + 20; end -= 10) {
+      const c = ramp(end);
+      if (c.growth200 >= aim && c.reach500 >= 2) { candidates.push(c); break; }
+    }
+    const knee = 640;
+    if (knee > w0 && knee < w1) {
+      // The gentle slope runs from the knee to MAX at w1; the steep one from MIN at w0 to the knee.
+      // Take the gentlest change from the plain ramp: the largest gentle slope that passes.
+      const plainSlope = (max - min) / (w1 - w0);
+      for (let s = plainSlope; s > 0; s -= plainSlope / 400) {
+        const atKnee = max - s * (w1 - knee);
+        if (atKnee <= min) break;
+        const steep = linePx(w0, min, knee, atKnee);
+        const gentle = linePx(knee, atKnee, w1, max);
+        const f = clampF((W) => Math.min(lineF(steep)(W), lineF(gentle)(W)));
+        const c = describe('two-slope', `clamp(${lo}rem, min(${lineCss(steep)}, ${lineCss(gentle)}), ${hi}rem)`, f, { knee });
+        if (c.growth200 >= aim && c.reach500 >= 2 && c.keepsRequested) { candidates.push(c); break; }
+      }
+    }
+  }
+  const passing = candidates.filter((c) => !c.failures.length);
+  // Two slopes keep the requested ramp closest at every width; early max is the simpler CSS.
+  const recommended = (passing.find((c) => c.form === 'ramp') || passing.find((c) => c.form === 'two-slope') || passing[0] || {}).form || null;
+  return { min: round(min, 2), max: round(max, 2), viewports: [w0, w1], candidates, recommended, ok: passing.length > 0 };
+}
+
+function fitTable(result) {
+  const [w0, w1] = result.viewports;
+  let md = `Requested ${result.min}px at ${w0}px and ${result.max}px at ${w1}px.\n\n`;
+  md += `| form | ${w0}px | 768px | 1280px | ${w1}px | max from | 200% on 1024 | 1280 | 1440 | 1920 | 500% worst | result |\n|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|---|\n`;
+  for (const c of result.candidates) {
+    const g = c.growthByWindow;
+    md += `| ${c.form} | ${c.at[w0]} | ${c.at[768]} | ${c.at[1280]} | ${c.at[w1]} | ${c.maxFrom ?? ''} | ${g[1024]}× | ${g[1280]}× | ${g[1440]}× | ${g[1920]}× | ${c.reach500}× | ${c.failures.length ? 'fail' : 'ok'} |\n`;
+  }
+  md += '\n';
+  for (const c of result.candidates) md += `${c.form}: font-size: ${c.css};${c.failures.length ? `  (${c.failures.join('; ')})` : ''}\n`;
+  md += result.recommended
+    ? `\nRecommended: ${result.recommended}. The 1.6× bar is measured on a 1280px window; the other columns show narrower and wider windows. Say which form you chose and why.\n`
+    : '\nNo form keeps the requested sizes and passes the zoom checks: narrow the range, or say which size you changed.\n';
+  return md;
+}
+
 function table(result) {
   let md = '| step | min px | max px | range | 200% on 1280 | 500% worst | ratio min | ratio max | result |\n|---|--:|--:|--:|--:|--:|--:|--:|---|\n';
   for (const s of result.steps) {
@@ -115,6 +208,26 @@ if (require.main === module) {
     if (parts.length !== 2) throw new Error(`--${name} needs two values, min:max (got ${value})`);
     return parts.map((v) => number(name, v));
   };
+  if (args.includes('--fit')) {
+    let result;
+    try {
+      const raw = String(opt('fit', '')).split(':');
+      if (raw.length !== 2 || raw.some((v) => !/^\s*[\d.]+(rem|px)\s*$/.test(v))) throw new Error(`--fit needs two sizes, min:max, such as 2.5rem:4.5rem (got ${opt('fit', 'nothing')})`);
+      const units = raw.map((v) => /rem\s*$/.test(v) ? 'rem' : 'px');
+      if (units[0] !== units[1]) throw new Error(`--fit mixes units (${raw.join(':')}); give both sides in rem, or both in px`);
+      const [min, max] = raw.map(px);
+      if (!(max > min)) throw new Error(`--fit needs the smaller size first, got ${raw.join(':')}`);
+      const viewports = twoNumbers('viewports', opt('viewports', '360:1440'));
+      if (viewports[1] <= viewports[0]) throw new Error(`--viewports needs a smaller then a larger width, got ${viewports.join(':')}`);
+      result = fitRange({ min, max, viewports });
+    } catch (err) {
+      console.error(err.message);
+      process.exit(2);
+    }
+    if (args.includes('--json')) console.log(JSON.stringify(result, null, 2));
+    else console.log(fitTable(result));
+    process.exit(result.ok ? 0 : 1);
+  }
   let result;
   try {
     const baseRaw = String(opt('base', '1rem:1.125rem')).split(':');
@@ -142,4 +255,4 @@ if (require.main === module) {
   process.exit(result.ok ? 0 : 1);
 }
 
-module.exports = { scale };
+module.exports = { scale, fitRange };

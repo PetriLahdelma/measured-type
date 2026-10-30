@@ -185,7 +185,7 @@ function fluid(v, label) {
     return ['MT-ZOOM-VW', 'HIGH', `${label} never reaches 2× zoom, even at 500% (${z.worst500.toFixed(2)}×)`, 'clamp(min-rem, rem + vi, max-rem) with a range near 1.4×'];
   }
   if (z.range > 1.4) {
-    return ['MT-ZOOM-RANGE', z.range > 2.5 ? 'MEDIUM' : 'LOW', `${label}: range ${z.range.toFixed(2)}×, ${z.at1280.toFixed(2)}× at 200% zoom on 1280px`, 'narrow the range to about 1.4×'];
+    return ['MT-ZOOM-RANGE', z.range > 2.5 ? 'MEDIUM' : 'LOW', `${label}: range ${z.range.toFixed(2)}×, ${z.at1280.toFixed(2)}× at 200% zoom on 1280px`, 'narrow the range to about 1.4×; if the request fixed both sizes, keep them and run type-scale.js --fit MIN:MAX for an early max or two slopes'];
   }
   return null;
 }

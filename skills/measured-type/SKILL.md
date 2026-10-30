@@ -149,6 +149,15 @@ exits 1 naming any step that fails. The rules it applies:
   zoom). Fluid display sizes as `clamp(min-rem, rem + vi, max-rem)`; the `vi`
   part does not grow with zoom, so keep each range modest and compute the
   ratio at 200% zoom (see `rules.md` §3.1.1). A pure `vw` value fails zoom.
+  When the request fixes both ends (say 40px on a phone and 72px on a
+  desktop), keep the requested sizes; do not quietly shrink the desktop size
+  to pass zoom, and do not ship a ramp that fails it. Run
+  `node scripts/type-scale.js --fit 2.5rem:4.5rem`: it prints the plain ramp
+  and two forms that keep both sizes and pass the 1.6× bar, an early max (the
+  ramp ends sooner, so every screen from about 850px gets the full size) and
+  two slopes (`clamp(min, min(steep, gentle), max)`, steep up to 640px and
+  gentle after it). Pick one, say which and why, and give the growth at 200%
+  on narrower windows from its table.
   Narrow ranges compress the steps on phones: keep only hero and h1 fluid and
   give h3/h4 fixed sizes a clear step apart (aim for 1.2–1.25×, never below
   about 1.15× even on phones).
@@ -248,7 +257,7 @@ and no decorative effects standing in for hierarchy.
 | `scripts/estimate-measure.js` | no browser available: characters per line estimated for a face and width |
 | `scripts/apca.js` | a contrast question where weight matters: APCA Lc next to the WCAG ratio (advisory; the WCAG 2 ratio governs conformance) |
 | `scripts/fallback-metrics.py` | loading web fonts: a metric-matched fallback so the swap does not reflow |
-| `scripts/type-scale.js` | building fluid type tokens that pass the zoom and step checks |
+| `scripts/type-scale.js` | building fluid type tokens that pass the zoom and step checks; `--fit MIN:MAX` when the request fixes a wide range |
 
 Sources: Robert Bringhurst, *The Elements of Typographic Style*; Richard
 Rutter, *The Elements of Typographic Style Applied to the Web*
