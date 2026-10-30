@@ -1,0 +1,14 @@
+body { margin: 0; font-family: "Helvetica Neue", Arial, sans-serif; color: #1b1b1b; background: #fafaf7; }
+.intro { padding: 2.5rem 1.25rem; }
+.display {
+  font-size: 3rem; /* fallback for browsers without clamp() */
+  /* 48px on phones, 80px from about 1280px wide. The bounds and the fixed part
+     are in rem, so browser zoom and larger default text sizes still scale the title;
+     only the small vw part follows the viewport. */
+  font-size: clamp(3rem, 2.2rem + 3.5vw, 5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.25rem;
+}
+.lede { font-size: 1.1875rem; line-height: 1.55; max-inline-size: 32em; margin: 0; }

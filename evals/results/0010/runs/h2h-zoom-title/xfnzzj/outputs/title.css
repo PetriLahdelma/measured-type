@@ -1,0 +1,4 @@
+body { margin: 0; font-family: "Helvetica Neue", Arial, sans-serif; color: #1b1b1b; background: #fafaf7; }
+.intro { padding: 2.5rem 1.25rem; }
+.display { font-size: 6vw; font-weight: 700; line-height: 1.05; letter-spacing: -0.01em; margin: 0 0 1.25rem; }
+.lede { font-size: 1.1875rem; line-height: 1.55; max-inline-size: 32em; margin: 0; }

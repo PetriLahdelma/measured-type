@@ -1,6 +1,7 @@
 # Spec 0010: a held-out twin of the hero case
 
-Status: pre-registered 30 October 2026, before any run.
+Status: pre-registered 30 October 2026, before any run. Run the same day;
+results in [`evals/results/0010/`](../evals/results/0010/).
 
 ## Question
 
