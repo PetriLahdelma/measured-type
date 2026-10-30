@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: h2h-zoom-title
+expected_outcome: |
+  Held-out twin of h2h-zoom-hero (spec 0010): a fluid page title with different requested sizes, page and stylesheet, judged by rendering the page at zoom levels.

@@ -398,8 +398,8 @@ async function gradeDashboard(browser, dir) {
 
 // ---------- h2h-zoom-hero (spec 0007) ----------
 
-async function gradeZoomHero(browser, dir) {
-  const file = fixedPage(dir, 'hero');
+async function gradeZoomHero(browser, dir, { base = 'hero', small = [32, 48], large = [60, 84] } = {}) {
+  const file = fixedPage(dir, base);
   const size = async (width, zoomed) => {
     // Browser zoom on a 1280x900 window: the CSS viewport shrinks in both directions.
     const q = await open(browser, file, width, zoomed ? { height: Math.round((900 * width) / 1280) } : {});
@@ -413,9 +413,14 @@ async function gradeZoomHero(browser, dir) {
   return [
     [g500 >= 1.99, `growth ${g500.toFixed(2)}× by 500% zoom (h1 ${s1280}px at 1280, ${s256}px at 256)`],
     [g200 >= 1.6, `growth ${g200.toFixed(2)}× at 200% zoom (h1 ${s1280}px at 1280, ${s640}px at 640)`],
-    [s360 >= 32 && s360 <= 48 && s1440 >= 60 && s1440 <= 84, `h1 ${s360}px at 360, ${s1440}px at 1440`],
+    [s360 >= small[0] && s360 <= small[1] && s1440 >= large[0] && s1440 <= large[1], `h1 ${s360}px at 360, ${s1440}px at 1440`],
   ];
 }
+
+// ---------- h2h-zoom-title (spec 0010, held-out twin of h2h-zoom-hero) ----------
+
+// 48px at 360px and 80px at 1440px were requested; the size bands are those within 20%.
+const gradeZoomTitle = (browser, dir) => gradeZoomHero(browser, dir, { base: 'title', small: [38.4, 57.6], large: [64, 96] });
 
 // ---------- h2h-measure-ideal ----------
 
@@ -443,7 +448,7 @@ async function gradeMeasureIdeal(browser, dir) {
 
 async function main() {
   const [name, outputs] = process.argv.slice(2);
-  const graders = { 'h2h-page-audit': gradePageAudit, 'h2h-font-loading': gradeFontLoading, 'h2h-rtl': gradeRtl, 'h2h-dashboard': gradeDashboard, 'h2h-measure-ideal': gradeMeasureIdeal, 'h2h-zoom-hero': gradeZoomHero };
+  const graders = { 'h2h-page-audit': gradePageAudit, 'h2h-font-loading': gradeFontLoading, 'h2h-rtl': gradeRtl, 'h2h-dashboard': gradeDashboard, 'h2h-measure-ideal': gradeMeasureIdeal, 'h2h-zoom-hero': gradeZoomHero, 'h2h-zoom-title': gradeZoomTitle };
   if (!graders[name] || !outputs) {
     console.error(`usage: h2h-grade.js <${Object.keys(graders).join('|')}> <outputs-dir>`);
     process.exit(2);
