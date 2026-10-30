@@ -261,6 +261,7 @@ and no decorative effects standing in for hierarchy.
 | `references/product-ui.md` | dashboards, admin tools and data tables: number columns, labels, badges and status text, truncation |
 | `scripts/lint-css.js` | auditing source (CSS, SCSS, Less, HTML, Vue, Svelte, Astro, JSX and Tailwind classes, expressions included) or a pull request (`--diff`) |
 | `scripts/page-audit.js` | auditing a rendered page: reflow, measure, contrast, text spacing, fonts, zoom, plus the `screen-and-ui.md` checks; `--lite` without a browser |
+| `scripts/contrast-fix.js` | a contrast failure: the nearest text (or ground) colour of the same hue that reaches the ratio, with its WCAG ratio and APCA Lc |
 | `scripts/estimate-measure.js` | no browser available: characters per line estimated for a face and width, or the width for a target with `--target` |
 | `scripts/apca.js` | a contrast question where weight matters: APCA Lc next to the WCAG ratio (advisory; the WCAG 2 ratio governs conformance) |
 | `scripts/fallback-metrics.py` | loading web fonts: a metric-matched fallback so the swap does not reflow |

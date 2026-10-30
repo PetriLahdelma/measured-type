@@ -18,6 +18,10 @@ each change has a spec in [`specs/`](specs/).
   and ten runs per cell (spec 0008), the hero rerun (spec 0009) and a held-out
   twin of the hero case (spec 0010), each pre-registered with its results in
   `evals/results/`.
+- `contrast-fix.js` (spec 0013): the nearest text or ground colour that
+  reaches a WCAG ratio, changing only OKLCH lightness so the hue stays
+  (`#888` on white gives `#767676`), with the APCA Lc. Each MT-CONTRAST
+  finding now names that colour in its fix.
 - `measure-line.js --solve N` and `estimate-measure.js <family> --target N`
   (spec 0012): the `em` width for a target line length, searched in Chromium
   or estimated without a browser. `--solve` reports a container too narrow

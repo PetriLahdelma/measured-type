@@ -33,6 +33,7 @@ const { pathToFileURL } = require('node:url');
 const { measureLines } = require('./measure-line.js');
 const { toMarkdown, lint } = require('./lint-css.js');
 const { apcaLc } = require('./apca.js');
+const { nearestPassing } = require('./contrast-fix.js');
 
 const ORDER = { HIGH: 0, MEDIUM: 1, LOW: 2 };
 const GENERIC = /^(serif|sans-serif|monospace|cursive|fantasy|system-ui|ui-serif|ui-sans-serif|ui-monospace|ui-rounded|emoji|math|fangsong|-apple-system|blinkmacsystemfont)$/i;
@@ -592,23 +593,32 @@ async function audit(target, opts = {}) {
       const need = large ? 3 : 4.5;
       if (ratio < need) {
         const key = `${c.path}|${c.color}|${c.bg}`;
-        if (!pairs.has(key)) pairs.set(key, { c, ratio, need });
+        const text = over(fg, bg);
+        if (!pairs.has(key)) pairs.set(key, { c, ratio, need, text: [text.r, text.g, text.b].map(Math.round), ground: [bg.r, bg.g, bg.b].map(Math.round) });
       }
     }
     return pairs;
     };
+    // Spec 0013: the fix names the nearest passing text colour, same hue, from contrast-fix.js.
+    const contrastFix = ({ text, ground, need }) => {
+      const near = nearestPassing({ text, ground, ratio: need });
+      if (near.color) return `color: ${near.color} reaches ${near.ratio}:1 here, the nearest text colour of the same hue (scripts/contrast-fix.js)`;
+      return `no text colour of this hue reaches ${need}:1 on this ground (best ${near.best}:1): change the ground (scripts/contrast-fix.js --move ground)`;
+    };
     const lightFails = contrastFailures(desk.colors);
-    for (const { c, ratio, need } of lightFails.values()) {
-      add('MT-CONTRAST', 'HIGH', `${c.path}`, `${ratio.toFixed(2)}:1 (${c.rawColor} on ${c.bg}, needs ${need}:1)`, 'darken the text or lighten the ground to reach the ratio');
+    for (const f of lightFails.values()) {
+      const { c, ratio, need } = f;
+      add('MT-CONTRAST', 'HIGH', `${c.path}`, `${ratio.toFixed(2)}:1 (${c.rawColor} on ${c.bg}, needs ${need}:1)`, contrastFix(f));
     }
     // The same page with prefers-color-scheme: dark; report only what fails there and not here.
     const darkPage = await open(1280, null, { colorScheme: 'dark' });
     const darkFails = contrastFailures(await darkPage.evaluate(() => window.__mt.colorSamples()));
     await darkPage.close();
     const lightPaths = new Set([...lightFails.values()].map(({ c }) => c.path));
-    for (const { c, ratio, need } of darkFails.values()) {
+    for (const f of darkFails.values()) {
+      const { c, ratio, need } = f;
       if (lightPaths.has(c.path)) continue;
-      add('MT-CONTRAST', 'HIGH', `${c.path} (dark scheme)`, `${ratio.toFixed(2)}:1 (${c.rawColor} on ${c.bg}, needs ${need}:1)`, 'darken the text or lighten the ground to reach the ratio');
+      add('MT-CONTRAST', 'HIGH', `${c.path} (dark scheme)`, `${ratio.toFixed(2)}:1 (${c.rawColor} on ${c.bg}, needs ${need}:1)`, contrastFix(f));
     }
     if (desk.sizes.length > 8) add('MT-SIZE-COUNT', 'LOW', 'page at 1280px', `${desk.sizes.length} text sizes: ${desk.sizes.join(', ')}px`, 'a scale of 5 to 8 named sizes');
     for (const r of desk.runts) {
