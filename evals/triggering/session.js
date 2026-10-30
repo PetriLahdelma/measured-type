@@ -17,7 +17,8 @@ const ACTS = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit']);
 const OFF = ['Task', 'Workflow', 'WebSearch', 'WebFetch', 'Artifact', 'ArtifactComments', 'ArtifactData', 'CronCreate',
   'CronDelete', 'CronList', 'RemoteTrigger', 'PushNotification', 'ScheduleWakeup', 'EnterWorktree', 'ExitWorktree',
   'DesignSync', 'SendMessage', 'ListAgents', 'Monitor', 'TaskStop'];
-const READ_ONLY_BASH = ['ls', 'cat', 'head', 'tail', 'wc', 'find', 'grep', 'file'].map((c) => `Bash(${c}:*)`);
+// No find: an approved find also approves -exec and -delete. Glob covers it.
+const READ_ONLY_BASH = ['ls', 'cat', 'head', 'tail', 'wc', 'grep', 'file'].map((c) => `Bash(${c}:*)`);
 
 // Reads stream-json events one at a time; step() returns true once the
 // outcome is settled (the skill loaded, the agent edited, or the run ended).
