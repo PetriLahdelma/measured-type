@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "measured-type",
+  "owner": { "name": "Petri Lahdelma", "url": "https://github.com/PetriLahdelma" },
+  "metadata": { "description": "Measured Type, an agent skill for web typography." },
+  "plugins": [
+    {
+      "name": "measured-type",
+      "source": "./skills/measured-type",
+      "description": "Web typography skill: Bringhurst's rules applied to current CSS, with scripts that measure line length, zoom growth, contrast and font coverage in a real browser or the font file.",
+      "version": "1.3.0",
+      "strict": false,
+      "skills": ["./"],
+      "license": "CC-BY-NC-4.0 AND MIT",
+      "homepage": "https://github.com/PetriLahdelma/measured-type",
+      "repository": "https://github.com/PetriLahdelma/measured-type",
+      "category": "design",
+      "keywords": ["typography", "css", "accessibility", "design"]
+    }
+  ]
+}

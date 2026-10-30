@@ -107,6 +107,17 @@ other agents. Tested with skills 1.7.4 on macOS, 29 October 2026. Without the
 CLI, copy `skills/measured-type` from a clone into `~/.claude/skills/`, or use
 `gh skill install PetriLahdelma/measured-type measured-type` (preview).
 
+**Claude Code plugin**, from this repository's marketplace:
+
+```
+/plugin marketplace add PetriLahdelma/measured-type
+/plugin install measured-type@measured-type
+```
+
+The plugin installs the skill and its scripts, not the evals, and runs
+`npm install` for Playwright itself. Add the browser with
+`npx playwright@1.64.1 install chromium`, and fontTools as below.
+
 **The measuring scripts** are optional; without them the skill advises but
 cannot measure:
 

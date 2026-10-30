@@ -4,6 +4,16 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
+## Unreleased
+
+### Added
+
+- **Claude Code plugin.** `.claude-plugin/marketplace.json` makes this
+  repository a plugin marketplace: `/plugin marketplace add
+  PetriLahdelma/measured-type`, then `/plugin install
+  measured-type@measured-type`. A test keeps the plugin version equal to the
+  release version (spec 0015).
+
 ## 1.3.0 (30 October 2026)
 
 Three solvers that compute the answer instead of leaving it to the agent, a
