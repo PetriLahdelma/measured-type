@@ -80,8 +80,10 @@ hero it means more growth (better on the primary metric).
 | Hero, mean tokens | 132k | 130k | 116k | 116k | 119k | 117k |
 | Hero, median time | 67 s | 54 s | 31 s | 25 s | 54 s | 36 s |
 
-Times are medians because one B hero run (`atiigc`) waited on a background
-process of its own after it had saved its file and logged 175 s.
+Times are medians because one B hero run (`atiigc`) logged 175 s: after it had
+saved its file it left a shell command hanging (`cat > /tmp/x` with no input,
+so the scratch script queued behind it never ran) and was stopped by hand
+later. Its outputs and grade are unaffected; it wrote nothing to `/tmp`.
 
 ## What happened
 
