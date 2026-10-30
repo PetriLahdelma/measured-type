@@ -1,0 +1,18 @@
+[
+  { "query": "The landing page headline in landing.css shouts. Tone it down so it still reads as the main heading on phones and desktops.", "should_trigger": true },
+  { "query": "Our blog posts feel like one long grey slab. Give templates/blog-post.html and prose.css some structure people can scan.", "should_trigger": true },
+  { "query": "Make the plan prices in index.html line up in their column.", "should_trigger": true },
+  { "query": "Customers zoom the site to 200% and the hero text barely grows. Sort out the sizes in landing.css.", "should_trigger": true },
+  { "query": "The feature text under each heading is hard to read on a laptop. Fix landing.css.", "should_trigger": true },
+  { "query": "Get the invoice template ready for Finnish customers: dates, euro amounts and VAT numbers shown the way they expect.", "should_trigger": true },
+  { "query": "Set the body text in main.css so it is comfortable to read for long help articles.", "should_trigger": true },
+  { "query": "Code blocks and inline code in our docs look out of place next to the body text. Adjust the styles.", "should_trigger": true },
+  { "query": "We are adding a Japanese docs section. What should change in prose.css?", "should_trigger": true },
+  { "query": "The changelog headings are barely different from the entries. Give changelog.css a clear hierarchy.", "should_trigger": true },
+  { "query": "Add a build step to package.json that minifies main.css and landing.css.", "should_trigger": false },
+  { "query": "Make the .sidebar in main.css stack under the content below 700px.", "should_trigger": false },
+  { "query": "Add Swedish translations for src/i18n/en.json.", "should_trigger": false },
+  { "query": "Write a unit test for src/utils/formatDate.js covering the Finnish locale.", "should_trigger": false },
+  { "query": "Replace the link colour in main.css with our new brand blue #0b5fff and add a hover state.", "should_trigger": false },
+  { "query": "Add Open Graph meta tags to index.html.", "should_trigger": false }
+]

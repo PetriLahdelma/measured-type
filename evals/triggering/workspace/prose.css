@@ -1,0 +1,4 @@
+.prose { font-family: Inter, sans-serif; font-size: 17px; line-height: 1.4; }
+.prose p { margin: 0 0 8px; }
+.prose h2 { font-size: 22px; margin: 12px 0 4px; }
+.prose blockquote { font-style: italic; margin: 0; }
