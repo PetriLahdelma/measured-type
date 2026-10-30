@@ -70,9 +70,10 @@ first. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
 
 **When to skip it**
 
-- Fluid type whose sizes you are free to change: one sentence ("check that
-  it still grows at least 1.6× at 200% zoom") reached the bar as reliably as
-  the skill, by shrinking the desktop size.
+- Fluid type under zoom on its own: one sentence ("check that it still grows
+  at least 1.6× at 200% zoom") matched the skill on the held-out case; the
+  skill pulled ahead only on the wider 1.8× range of the hero case, where the
+  sentence's runs gave up the desktop size.
 - One-off questions a current model already answers well.
 - Logos, drawing icons or fonts, build setup.
 
