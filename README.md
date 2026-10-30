@@ -9,6 +9,7 @@
 [![License: CC BY-NC 4.0 text, MIT code](https://img.shields.io/badge/license-CC_BY--NC_4.0_text%2C_MIT_code-61645E)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
+[![Git clones since launch](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FPetriLahdelma%2F8f94b2f1820082384e15ae2d97710060%2Fraw%2Fclones.json)](https://gist.github.com/PetriLahdelma/8f94b2f1820082384e15ae2d97710060)
 
 **[Install](#install)**&emsp;[Where it helps](#where-it-helps-what-it-costs-when-to-skip-it)&emsp;[Evidence](#evidence)&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[Contribute](#contributing)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
 
