@@ -1,0 +1,9 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 1.0625rem; line-height: 1.6; color: #222; background: #fff; }
+/* Measure: Verdana averages about 0.504em per character, so 34.5em of
+   17px text fits roughly 66 characters per line (estimated, not measured
+   in a browser). em is used instead of ch because Verdana's zero is wide
+   and 66ch would set about 81 characters. The column is centred, and
+   max-inline-size lets it shrink on narrow screens and under zoom. */
+article { max-inline-size: 34.5em; margin-inline: auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; text-wrap: balance; }
+p { margin: 0 0 1em; text-wrap: pretty; }

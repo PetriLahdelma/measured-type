@@ -1,0 +1,25 @@
+{
+  "expectations": [
+    {
+      "text": "Rendered with the fixed stylesheet at a 1280px viewport, the article paragraphs average between 60 and 72 characters per full line",
+      "passed": true,
+      "evidence": "pooled 63.4 characters per line over 27 full lines (per paragraph 62.8, 64.6, 62.8, 62.4, 64.6)"
+    },
+    {
+      "text": "At a 375px viewport the page does not scroll sideways",
+      "passed": true,
+      "evidence": "scrollWidth 375 in a 375px viewport"
+    },
+    {
+      "text": "The paragraphs stay at 16px or larger at 1280px (the measure was not reached by shrinking the text)",
+      "passed": true,
+      "evidence": "paragraph sizes 17px"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1
+  }
+}

@@ -1,0 +1,11 @@
+/* Measure: ~66 characters per line for body text.
+   Verdana is a wide face. Its "0" is about 0.64em, but running English text
+   (lowercase letters plus spaces) averages about 0.51em per character, so
+   66 characters is about 34em (roughly 575px at 17px). The ch unit would
+   overshoot here (66ch is about 83 real characters), so the limit is in em.
+   Because it is em-based, it scales with the font size and stays on the line
+   length target if the type size changes. */
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+article { max-width: 34em; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { margin: 0 0 1em; }

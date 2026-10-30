@@ -5,7 +5,7 @@
 </picture></h1>
 
 [![Agent skill: skills CLI, Claude Code and gh skill](https://img.shields.io/badge/agent_skill-skills_CLI%2C_Claude_Code_and_gh_skill-20211F)](skills/measured-type/SKILL.md)
-[![Evals: 5 development, 3 held-out and 5 head-to-head cases](https://img.shields.io/badge/evals-5_dev_%2B_3_held--out_%2B_5_head--to--head-B33A32)](#evidence)
+[![Evals: 5 development, 3 held-out and 6 head-to-head cases](https://img.shields.io/badge/evals-5_dev_%2B_3_held--out_%2B_6_head--to--head-B33A32)](#evidence)
 [![License: CC BY-NC 4.0 text, MIT code](https://img.shields.io/badge/license-CC_BY--NC_4.0_text%2C_MIT_code-61645E)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
@@ -42,7 +42,8 @@ first. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
 
 **Where it helps**
 
-- Fluid type under zoom, the largest gap in the development benchmark.
+- Fluid type under zoom, the largest gap in the development benchmark and
+  the one place the 2×2 found the guidance itself helping.
 - Line length in a wide face: `66ch` in Verdana sets 81 characters; the
   skill counts lines instead of trusting the unit.
 - Right-to-left audits that convert text flow but leave decoration and
@@ -56,7 +57,7 @@ first. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
 
 **What it costs**
 
-- 10% to 25% more tokens and up to 38% more time per task, measured across
+- 7% to 25% more tokens and up to twice the time per task, measured across
   every experiment in [Evidence](#evidence).
 - `npm install` and a Chromium download for the measuring scripts (the
   linter and the estimate need neither).
@@ -65,9 +66,9 @@ first. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
 
 **When to skip it**
 
-- A capable model with a browser, told to measure, did as well in the
-  head-to-heads; the skill's guidance changed nothing measurable on cases
-  written after the content was frozen.
+- A capable model with a browser, told to measure, set line length as well
+  as the skill did; the guidance's one measured gain, on fluid type under
+  zoom, is small.
 - One-off questions a current model already answers well.
 - Logos, drawing icons or fonts, build setup.
 
@@ -276,9 +277,10 @@ usage error.
 
 ## Evidence
 
-Every experiment ran on Claude Opus 5.5 on 29 October 2026 (head-to-head 3
-added Sonnet 5.5), two runs per cell, with cases and graders committed before
-the runs and every result reproducible from the committed run files.
+The head-to-heads ran on Claude Opus 5.5 on 29 October 2026 (head-to-head 3
+added Sonnet 5.5), two runs per cell; the 2×2 ran on Sonnet 5.5 on 30 October,
+five runs per cell. Cases and graders were committed before the runs, and
+every result is reproducible from the committed run files.
 
 | Experiment | What ran | With the skill | Without | What it shows |
 |---|---|--:|--:|---|
@@ -287,17 +289,25 @@ the runs and every result reproducible from the committed run files.
 | [Head-to-head 1](evals/results/h2h-1/) | 3 cases, 7 configurations | 40/40 | 39/40 | A tie with frontend-design at 40/40 under the corrected graders; one assertion is noise |
 | [Head-to-head 2](evals/results/h2h-2/) | Dense dashboard and a 66-character measure, browser offered to all | 24/24 | 24/24 | With a browser, a model without the skill measures and fixes the same faults |
 | [Head-to-head 3](evals/results/h2h-3/) | Same cases, no browser in the brief, Opus and Sonnet | 48/48 | 48/48 | Runs with the skill landed on 66 characters per line, two without it at 62.5 and 63.4; the skill's runs had its bundled Chromium, so the gain comes from the tooling |
+| [2×2](evals/results/2x2/) | Skill and browser varied independently, 66-character measure and a fluid hero under zoom, Sonnet, 40 runs | 51/60 | 50/60 | Line length follows the browser; on the hero the skill raised growth at 200% zoom with or without one (1.53× against 1.43× to 1.45×), though 9 of its 10 runs still missed the 1.6× bar |
 | [Triggering](evals/triggering/) | 16 typography prompts, 16 near misses, 3 runs each | 5 of 48 loads | | Rarely loads on its own; never loads for a near miss |
 
-**How to read it.** The skill's measurable advantage comes from the bundled
-measuring tools, not from its guidance: on every case written after the
-content was frozen, the guidance changed nothing measurable; a model told
-it has a browser matched the skill. The development set shows that the
+**How to read it.** The 2×2 separates the skill's guidance from its
+measuring tools. On line length the browser does the work: with one, runs
+with and without the skill came equally close to 66 characters (p = 0.52);
+without one, the skill's estimator brought its runs about one character
+closer than a model guessing (p = 0.008), all inside the graded band. On the
+fluid hero the guidance helped with or without a browser (p = 0.008 and
+0.048): the skill's runs traded some desktop size for growth under zoom. That
+gain is small and is measured against this project's own 1.6× bar, which only
+the skill's runs were told about. Before the 2×2, the guidance changed nothing
+measurable on the cases written after the content was frozen, and a model
+told it has a browser matched the skill. The development set shows that the
 content reaches the agent, but the references contain worked answers for some
 of those cases; most of the baseline's misses there are conventions this
 project chose (the 1.6× zoom bar, the 1.15× step floor, spacing from the body
-line). Not yet tested: the skill and browser access varied independently, a
-one-sentence hint against the full skill and ten runs per cell.
+line). Not yet tested: a one-sentence hint against the full skill, ten runs
+per cell and models other than Claude.
 
 Each results folder has the method, every run's output, grade and timing, and
 every correction and incident. How to run the cases yourself:

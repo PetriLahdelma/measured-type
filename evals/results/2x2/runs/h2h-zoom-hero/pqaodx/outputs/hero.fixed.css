@@ -1,0 +1,12 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+/* Fluid display size: 40px at a 360px window, 72px from 1920px up.
+   The rem term scales with browser zoom and text-size settings; the vi term
+   does not, so the ramp is kept as gentle as the brief allows. */
+.hero h1 {
+  font-size: clamp(2.5rem, 2.0385rem + 2.051vi, 4.5rem);
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

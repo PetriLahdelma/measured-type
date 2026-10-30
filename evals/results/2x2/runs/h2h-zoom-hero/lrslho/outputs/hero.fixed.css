@@ -1,0 +1,13 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+/* Fluid heading: 40px (2.5rem) up to 72px (4.5rem) at the default 16px root,
+   ramping from a 375px to a 1920px viewport. The rem term in the middle value
+   scales with browser zoom and the reader's default size; a bare vw value would
+   not, and would fail WCAG 1.4.4. */
+.hero h1 {
+  font-size: clamp(2.5rem, 2.0146rem + 2.0712vi, 4.5rem);
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

@@ -1,0 +1,6 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+article { max-width: 1000px; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+/* 1ch is the width of "0", which is wider than the average letter in Verdana,
+   so 55ch gives about 66 real characters per line (measured). */
+p { margin: 0 0 1em; max-width: 55ch; }

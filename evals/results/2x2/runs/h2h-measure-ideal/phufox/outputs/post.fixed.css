@@ -1,0 +1,5 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+article { max-width: 1000px; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; text-wrap: balance; }
+/* Measure: Verdana averages about 0.505em per character, so 35em measures 66 characters per line in Chromium at 1280px (66ch would overshoot). max-inline-size lets the column shrink on narrow screens. */
+article p { max-inline-size: 35em; margin: 0 0 1em; text-wrap: pretty; }

@@ -1,0 +1,15 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+/* Fluid heading: 40px (2.5rem) at ~375px wide, 72px (4.5rem) at ~1440px wide.
+   The preferred value mixes a rem term with a vw term, so the size still grows
+   when the reader zooms the page or raises the default font size; the rem
+   bounds scale with the reader's font size too. Slope 3vw, intercept 1.8rem:
+   375px -> 28.8 + 11.25 = 40.05px, 1440px -> 28.8 + 43.2 = 72px. */
+.hero h1 {
+  font-size: 2.5rem; /* fallback for browsers without clamp() */
+  font-size: clamp(2.5rem, 1.8rem + 3vw, 4.5rem);
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  overflow-wrap: break-word;
+}
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

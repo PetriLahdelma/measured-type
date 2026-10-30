@@ -1,6 +1,7 @@
 # Spec 0007: the skill and a browser, varied independently
 
-Status: pre-registered 30 October 2026, before any run.
+Status: pre-registered 30 October 2026, before any run. Run the same day;
+results and analysis in [`evals/results/2x2/`](../evals/results/2x2/).
 
 ## Question
 

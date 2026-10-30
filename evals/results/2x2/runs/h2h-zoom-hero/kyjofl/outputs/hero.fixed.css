@@ -1,0 +1,14 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+/* Fluid 40px (2.5rem) at 360px wide up to 72px (4.5rem) at 1920px wide.
+   The rem term makes the size follow the reader's default size and page zoom;
+   the vi term only supplies the viewport-driven growth. A bare vw value
+   ignores zoom entirely. The ramp ends at 1920px so the vi slope stays gentle:
+   at 200% zoom on a 1280px window the heading is still about 1.55x larger. */
+.hero h1 {
+  font-size: clamp(2.5rem, 2.0385rem + 2.0513vi, 4.5rem);
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

@@ -1,0 +1,9 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+/* Fluid display size: 40px at 360px wide, 72px from 860px up.
+   The rem term keeps the size tied to the reader's default text size and to
+   page zoom; a bare vw value ignores both. The 1.06rem + 6.4vi ramp is steep
+   on purpose: it keeps the size growing at least 1.6x at 200% zoom on a
+   1280px window, where the viewport halves and the vi term shrinks with it. */
+.hero h1 { font-size: clamp(2.5rem, 1.06rem + 6.4vi, 4.5rem); line-height: 1.1; margin: 0 0 1rem; text-wrap: balance; }
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

@@ -1,0 +1,25 @@
+{
+  "expectations": [
+    {
+      "text": "The h1 reaches at least 2 times its size by 500% browser zoom on a 1280px window (size at a 256px viewport times 5, against 1280px)",
+      "passed": true,
+      "evidence": "growth 3.40× by 500% zoom (h1 58.8688px at 1280, 40px at 256)"
+    },
+    {
+      "text": "The h1 grows at least 1.6 times at 200% browser zoom on a 1280px window (this project's house bar; WCAG sets no ratio)",
+      "passed": false,
+      "evidence": "growth 1.55× at 200% zoom (h1 58.8688px at 1280, 45.7424px at 640)"
+    },
+    {
+      "text": "The h1 is between 32 and 48px at a 360px viewport and between 60 and 84px at a 1440px viewport (the requested sizes, within 20%)",
+      "passed": true,
+      "evidence": "h1 40px at 360, 62.1504px at 1440"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 1,
+    "total": 3,
+    "pass_rate": 0.667
+  }
+}

@@ -1,0 +1,6 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+/* Column width is set in ch so it tracks the font size. Verdana's average character is
+   narrower than its zero, so 54ch holds about 66 characters per line (measured). */
+article { max-width: 54ch; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { max-width: 54ch; margin: 0 0 1em; }
