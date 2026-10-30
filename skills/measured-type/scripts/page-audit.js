@@ -61,7 +61,16 @@ function pageHelpers() {
     },
     visible(el) {
       const cs = getComputedStyle(el);
-      return el.getClientRects().length > 0 && cs.visibility !== 'hidden' && cs.display !== 'none';
+      if (!(el.getClientRects().length > 0 && cs.visibility !== 'hidden' && cs.display !== 'none')) return false;
+      // Visually hidden text (a screen-reader-only class) is not on screen: clipped away, or a box
+      // of 1px or less that hides its overflow.
+      for (let p = el; p && p !== document.body; p = p.parentElement) {
+        const s = p === el ? cs : getComputedStyle(p);
+        if (/inset\(50%\)/.test(s.clipPath) || /rect\(0(px)?[, ]+0(px)?[, ]+0(px)?[, ]+0(px)?\)/.test(s.clip)) return false;
+        const r = p.getBoundingClientRect();
+        if (r.width <= 1 && r.height <= 1 && /hidden|clip/.test(s.overflow)) return false;
+      }
+      return true;
     },
     directText(el) {
       return [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 0);
@@ -516,6 +525,16 @@ async function revealAll(page) {
     for (const a of document.getAnimations()) {
       const t = a.effect && a.effect.getComputedTiming();
       if (t && Number.isFinite(t.endTime)) try { a.finish(); } catch { /* an animation that cannot finish is left running */ }
+    }
+    // A fade a script runs frame by frame is no CSS animation: wait until no opacity changes
+    // between two samples 100ms apart, for at most three seconds.
+    const opacities = () => [...document.body.querySelectorAll('*')].map((el) => getComputedStyle(el).opacity).join();
+    let last = opacities();
+    for (let waited = 0; waited < 3000; waited += 100) {
+      await new Promise((r) => setTimeout(r, 100));
+      const now = opacities();
+      if (now === last) break;
+      last = now;
     }
     await frame();
   });

@@ -82,3 +82,28 @@ test('D4 an element without text is never reported as truncated text', async () 
   assert.ok(!cut.some((f) => /menu/.test(f.location)), JSON.stringify(cut));
   assert.ok(cut.some((f) => /label/.test(f.location)), JSON.stringify(cut));
 });
+
+// Screen-reader-only text, the usual pattern, and a section that a script
+// fades in over 1.2 seconds with requestAnimationFrame (no CSS animation).
+const HIDDEN = `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body { font: 1rem/1.5 Georgia, serif; color: #041b23; background: #fff; margin: 0 1rem; }
+.sr-only { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; white-space: nowrap; clip-path: inset(50%); color: #ccc; }
+.slow { opacity: 0; margin-top: 2400px; }</style>
+</head><body>
+<p>Ferries leave every hour from the north quay.<span class="sr-only">From the north quay to the outer islands, every hour</span></p>
+<section class="slow"><p>The last ferry waits for the evening train.</p></section>
+<script>new IntersectionObserver((es, o) => es.forEach((e) => { if (!e.isIntersecting) return; o.disconnect();
+  const t0 = performance.now(); const tick = (t) => { const k = Math.min(1, (t - t0) / 1200); e.target.style.opacity = k; if (k < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick); }))
+  .observe(document.querySelector('.slow'));</script>
+</body></html>`;
+
+test('D5 visually hidden text is neither truncated text nor a contrast failure', async () => {
+  const r = await audit(write('hidden.html', HIDDEN), { browser });
+  assert.ok(!r.findings.some((f) => /sr-only/.test(f.location)), JSON.stringify(r.findings.map((f) => [f.rule, f.location])));
+});
+
+test('D6 a fade a script runs is measured once it settles', async () => {
+  const r = await audit(write('hidden.html', HIDDEN), { browser });
+  assert.ok(!r.findings.some((f) => f.rule === 'MT-CONTRAST' && /slow/.test(f.location)), JSON.stringify(r.findings.filter((f) => f.rule === 'MT-CONTRAST')));
+});

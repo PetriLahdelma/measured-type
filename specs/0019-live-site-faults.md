@@ -34,3 +34,12 @@ confirmed on the live page before it was fixed.
 - **D4** An element without text is never reported as truncated text. Every
   page's icon-only menu button was MT-TRUNCATE HIGH (`""` cut at 200% zoom)
   because its icon overflows a box that sets `text-overflow: ellipsis`.
+- **D5** Visually hidden text (a screen-reader-only class: `clip-path:
+  inset(50%)`, `clip: rect(0 0 0 0)`, or a box of 1px or less that hides its
+  overflow) is not on screen, so no check reads it. The homepage's hidden
+  tagline was MT-TRUNCATE HIGH.
+- **D6** After the scroll pass the audit waits until no opacity changes
+  between two samples 100ms apart, for at most three seconds, because a fade
+  a script runs frame by frame is not a CSS animation and cannot be
+  finished. The site's reveals took about 1.8 seconds and were read at 1.61
+  to 3.80:1 halfway through.
