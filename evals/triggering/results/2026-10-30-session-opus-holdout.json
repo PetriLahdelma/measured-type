@@ -1,0 +1,620 @@
+{
+  "date": "2026-10-30T15:35:23.027Z",
+  "model": "claude-opus-5-5",
+  "runsPerQuery": 3,
+  "maxTurns": 12,
+  "set": "evals/triggering/trigger-holdout.json",
+  "descriptionFile": null,
+  "queries": [
+    {
+      "query": "Our changelog page is hard to read: walls of grey text, tiny headings, lines that span the whole screen. Rework changelog.css.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Pick a font pairing and set up the heading and body styles for a new long-form essay site.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Arabic users say our checkout summary looks broken: prices and arrows sit on the wrong side. Audit summary.css.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Add print styles to the invoice template so it prints cleanly on A4 with sensible headings and no orphaned lines.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 0.6666666666666666,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Our footnotes and captions are the same size as the body text and it all runs together. Fix the CSS for article pages.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Make the release notes markdown render nicely: code spans, lists, quotes and dates in Finnish and English.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write a GitHub Action that runs our Vitest suite on every pull request.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Convert our brand colors from hex to OKLCH and check their contrast against white.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Build a React date picker component with keyboard navigation.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Compress the PNG screenshots in docs/images without visible quality loss.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Our web fonts are cached for only an hour. Set long cache headers for /fonts in the Next.js config.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write a Node script that counts words per markdown file in the docs folder and prints a table.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "totals": {
+    "shouldPassed": 6,
+    "should": 6,
+    "nearPassed": 6,
+    "near": 6,
+    "meanShouldRate": 1,
+    "meanShouldFirstCallRate": 0.7777777777777777
+  },
+  "runs": [
+    {
+      "query": "Our changelog page is hard to read: walls of grey text, tiny headings, lines that span the whole screen. Rework changelog.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our changelog page is hard to read: walls of grey text, tiny headings, lines that span the whole screen. Rework changelog.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Pick a font pairing and set up the heading and body styles for a new long-form essay site.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our changelog page is hard to read: walls of grey text, tiny headings, lines that span the whole screen. Rework changelog.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Pick a font pairing and set up the heading and body styles for a new long-form essay site.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Arabic users say our checkout summary looks broken: prices and arrows sit on the wrong side. Audit summary.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Arabic users say our checkout summary looks broken: prices and arrows sit on the wrong side. Audit summary.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Pick a font pairing and set up the heading and body styles for a new long-form essay site.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add print styles to the invoice template so it prints cleanly on A4 with sensible headings and no orphaned lines.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add print styles to the invoice template so it prints cleanly on A4 with sensible headings and no orphaned lines.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our footnotes and captions are the same size as the body text and it all runs together. Fix the CSS for article pages.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our footnotes and captions are the same size as the body text and it all runs together. Fix the CSS for article pages.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Arabic users say our checkout summary looks broken: prices and arrows sit on the wrong side. Audit summary.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our footnotes and captions are the same size as the body text and it all runs together. Fix the CSS for article pages.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add print styles to the invoice template so it prints cleanly on A4 with sensible headings and no orphaned lines.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": false,
+        "loadCall": 2,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make the release notes markdown render nicely: code spans, lists, quotes and dates in Finnish and English.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": false,
+        "loadCall": 2,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make the release notes markdown render nicely: code spans, lists, quotes and dates in Finnish and English.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": false,
+        "loadCall": 2,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make the release notes markdown render nicely: code spans, lists, quotes and dates in Finnish and English.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": false,
+        "loadCall": 2,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a GitHub Action that runs our Vitest suite on every pull request.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a GitHub Action that runs our Vitest suite on every pull request.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a GitHub Action that runs our Vitest suite on every pull request.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Convert our brand colors from hex to OKLCH and check their contrast against white.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 6
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Convert our brand colors from hex to OKLCH and check their contrast against white.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Convert our brand colors from hex to OKLCH and check their contrast against white.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 5
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Build a React date picker component with keyboard navigation.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Build a React date picker component with keyboard navigation.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 5
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Compress the PNG screenshots in docs/images without visible quality loss.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Build a React date picker component with keyboard navigation.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Compress the PNG screenshots in docs/images without visible quality loss.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our web fonts are cached for only an hour. Set long cache headers for /fonts in the Next.js config.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our web fonts are cached for only an hour. Set long cache headers for /fonts in the Next.js config.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Compress the PNG screenshots in docs/images without visible quality loss.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a Node script that counts words per markdown file in the docs folder and prints a table.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a Node script that counts words per markdown file in the docs folder and prints a table.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our web fonts are cached for only an hour. Set long cache headers for /fonts in the Next.js config.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a Node script that counts words per markdown file in the docs folder and prints a table.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    }
+  ]
+}

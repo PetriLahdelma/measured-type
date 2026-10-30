@@ -63,3 +63,42 @@ that set's one passing prompt; spec 0003 J4 allows a loss of one prompt. The
 freeze-2 holdout rate also fell from 22% to 11% between two runs on the same
 day, which is the size of the noise in this setup. Files:
 `results/2026-10-29-*spec0003*` and `results/2026-10-29-*freeze-2-rerun.json`.
+
+## In a real session, 30 October 2026 (spec 0016)
+
+[Spec 0016](../../specs/0016-triggering-in-session.md), pre-registered in
+`7188c1b` before any run. [`session.js`](session.js) copies the real skill
+folder to `.claude/skills/` in a small site ([`workspace/`](workspace/)) whose
+files the prompts name, runs `claude -p` with user settings, plugins and MCP
+servers off, and counts a load any time before the agent's first edit. The
+skill at `main` (v1.3.0 description), three runs per prompt; every run's
+start event listed the skill.
+
+| Set | Model | Typography tasks passed | Mean load before acting | On the first call | Near misses passed |
+|---|---|--:|--:|--:|--:|
+| `trigger-eval.json` | Opus 5.5 | 10/10 | 100% | 100% | 10/10 |
+| `trigger-holdout.json` | Opus 5.5 | 6/6 | 100% | 78% | 6/6 |
+| `trigger-holdout-2.json` (new) | Opus 5.5 | 10/10 | 100% | 90% | 6/6 |
+| `trigger-eval.json` | Sonnet 5.5 | 9/10 | 90% | 83% | 10/10 |
+| `trigger-holdout.json` | Sonnet 5.5 | 6/6 | 94% | 83% | 6/6 |
+
+Under the rule fixed before the runs (at least 13 of the 16 typography tasks
+on Opus across the first two sets, and every near miss), the description
+stays as it is; no tuning was run. No near miss loaded the skill in any of
+114 runs. Sonnet's one failing prompt asks whether `fonts/Lora-Italic.woff2`
+has small caps; the site has no such file, and in all three runs Sonnet
+looked for it and stopped without loading the skill. The other Sonnet miss
+(one of three runs on the print-styles prompt) edited first.
+
+What changed from the 10% to 20% above: the skill is the real folder rather
+than a stub command, the agent has files to look at, and a load after a first
+look counts. These runs do not separate the three. The first-call column,
+the old measure in the new setup, is already 78% to 100%, so most of the gap
+is the setup, not the counting rule.
+
+Limits: the only skills offered were this one and Claude Code's built-in
+skills. A user with several typography or design skills installed may see
+fewer loads; that is not tested. Three runs per prompt, one day, two models.
+The runs started before `3c55fea` pre-approved read-only `find` as well as
+`ls`, `cat`, `head`, `tail`, `wc`, `grep` and `file`; the runner no longer
+approves `find`. Files: `results/2026-10-30-session-*.json`.

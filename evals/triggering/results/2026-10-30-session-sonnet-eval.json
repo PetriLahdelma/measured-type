@@ -1,0 +1,1020 @@
+{
+  "date": "2026-10-30T15:32:03.608Z",
+  "model": "claude-sonnet-5-5",
+  "runsPerQuery": 3,
+  "maxTurns": 12,
+  "set": "evals/triggering/trigger-eval.json",
+  "descriptionFile": null,
+  "queries": [
+    {
+      "query": "Build a type scale for our design system tokens that stays readable when people zoom to 200%.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Our docs article body feels cramped and the lines run really long on a desktop monitor. Can you fix prose.css? It's Inter at 17px.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "We're launching a Hebrew version of the help center. Go through main.css and tell me what will break.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 0.3333333333333333,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Format the prices and file sizes on the Finnish product page so numbers never break away from their units.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Make our blog post template look more editorial: better heading hierarchy, paragraph spacing and pull quotes.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Before I use small caps for acronyms, check whether fonts/Lora-Italic.woff2 actually has them.",
+      "should_trigger": true,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": false
+    },
+    {
+      "query": "Review the typography in landing.css and give me an honest critique with fixes.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Set up vertical rhythm for our markdown-rendered docs so headings, lists and code blocks sit on a consistent interval.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "The numbers in our pricing table don't line up and the minus signs look like hyphens. Fix the CSS.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Swedish body text overflows on phones because of long compound words. What CSS should we use?",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Set up Tailwind CSS in this Next.js project with the default config.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write a Python script that renames every .ttf file in this folder to its font family name.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Turn this CSV of quarterly revenue into a bar chart for the board deck.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Translate these UI strings from English to Finnish and Swedish.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "The sidebar collapses to zero width in Safari when the flex container wraps. Find the bug.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Add a dark mode toggle that remembers the user's choice in localStorage.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write a regex that validates Finnish mobile phone numbers.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Design a logo mark for a typography newsletter called Kerning Weekly.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write Jest unit tests for our date formatting utility.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Create an SVG icon set for the app's bottom navigation.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "totals": {
+    "shouldPassed": 9,
+    "should": 10,
+    "nearPassed": 10,
+    "near": 10,
+    "meanShouldRate": 0.9,
+    "meanShouldFirstCallRate": 0.8333333333333334
+  },
+  "runs": [
+    {
+      "query": "Build a type scale for our design system tokens that stays readable when people zoom to 200%.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our docs article body feels cramped and the lines run really long on a desktop monitor. Can you fix prose.css? It's Inter at 17px.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our docs article body feels cramped and the lines run really long on a desktop monitor. Can you fix prose.css? It's Inter at 17px.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our docs article body feels cramped and the lines run really long on a desktop monitor. Can you fix prose.css? It's Inter at 17px.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "We're launching a Hebrew version of the help center. Go through main.css and tell me what will break.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": false,
+        "loadCall": 2,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "We're launching a Hebrew version of the help center. Go through main.css and tell me what will break.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": false,
+        "loadCall": 2,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Build a type scale for our design system tokens that stays readable when people zoom to 200%.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Build a type scale for our design system tokens that stays readable when people zoom to 200%.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "We're launching a Hebrew version of the help center. Go through main.css and tell me what will break.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Format the prices and file sizes on the Finnish product page so numbers never break away from their units.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Format the prices and file sizes on the Finnish product page so numbers never break away from their units.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Format the prices and file sizes on the Finnish product page so numbers never break away from their units.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make our blog post template look more editorial: better heading hierarchy, paragraph spacing and pull quotes.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Before I use small caps for acronyms, check whether fonts/Lora-Italic.woff2 actually has them.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make our blog post template look more editorial: better heading hierarchy, paragraph spacing and pull quotes.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Before I use small caps for acronyms, check whether fonts/Lora-Italic.woff2 actually has them.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make our blog post template look more editorial: better heading hierarchy, paragraph spacing and pull quotes.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Review the typography in landing.css and give me an honest critique with fixes.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Review the typography in landing.css and give me an honest critique with fixes.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Before I use small caps for acronyms, check whether fonts/Lora-Italic.woff2 actually has them.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Review the typography in landing.css and give me an honest critique with fixes.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Set up vertical rhythm for our markdown-rendered docs so headings, lists and code blocks sit on a consistent interval.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Set up vertical rhythm for our markdown-rendered docs so headings, lists and code blocks sit on a consistent interval.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The numbers in our pricing table don't line up and the minus signs look like hyphens. Fix the CSS.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The numbers in our pricing table don't line up and the minus signs look like hyphens. Fix the CSS.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Set up vertical rhythm for our markdown-rendered docs so headings, lists and code blocks sit on a consistent interval.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The numbers in our pricing table don't line up and the minus signs look like hyphens. Fix the CSS.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Swedish body text overflows on phones because of long compound words. What CSS should we use?",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Swedish body text overflows on phones because of long compound words. What CSS should we use?",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Swedish body text overflows on phones because of long compound words. What CSS should we use?",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Set up Tailwind CSS in this Next.js project with the default config.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a Python script that renames every .ttf file in this folder to its font family name.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a Python script that renames every .ttf file in this folder to its font family name.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a Python script that renames every .ttf file in this folder to its font family name.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Set up Tailwind CSS in this Next.js project with the default config.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Turn this CSV of quarterly revenue into a bar chart for the board deck.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Set up Tailwind CSS in this Next.js project with the default config.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Turn this CSV of quarterly revenue into a bar chart for the board deck.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Turn this CSV of quarterly revenue into a bar chart for the board deck.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Translate these UI strings from English to Finnish and Swedish.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Translate these UI strings from English to Finnish and Swedish.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 0
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Translate these UI strings from English to Finnish and Swedish.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 0
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The sidebar collapses to zero width in Safari when the flex container wraps. Find the bug.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The sidebar collapses to zero width in Safari when the flex container wraps. Find the bug.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The sidebar collapses to zero width in Safari when the flex container wraps. Find the bug.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add a dark mode toggle that remembers the user's choice in localStorage.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 6
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a regex that validates Finnish mobile phone numbers.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 0
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add a dark mode toggle that remembers the user's choice in localStorage.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 6
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add a dark mode toggle that remembers the user's choice in localStorage.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 9
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a regex that validates Finnish mobile phone numbers.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 0
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a regex that validates Finnish mobile phone numbers.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": false,
+        "calls": 0
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Design a logo mark for a typography newsletter called Kerning Weekly.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Design a logo mark for a typography newsletter called Kerning Weekly.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write Jest unit tests for our date formatting utility.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 6
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Design a logo mark for a typography newsletter called Kerning Weekly.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write Jest unit tests for our date formatting utility.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 6
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write Jest unit tests for our date formatting utility.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 7
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Create an SVG icon set for the app's bottom navigation.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 5
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Create an SVG icon set for the app's bottom navigation.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Create an SVG icon set for the app's bottom navigation.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    }
+  ]
+}

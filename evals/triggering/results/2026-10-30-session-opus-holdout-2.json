@@ -1,0 +1,820 @@
+{
+  "date": "2026-10-30T15:36:56.255Z",
+  "model": "claude-opus-5-5",
+  "runsPerQuery": 3,
+  "maxTurns": 12,
+  "set": "evals/triggering/trigger-holdout-2.json",
+  "descriptionFile": null,
+  "queries": [
+    {
+      "query": "The landing page headline in landing.css shouts. Tone it down so it still reads as the main heading on phones and desktops.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Our blog posts feel like one long grey slab. Give templates/blog-post.html and prose.css some structure people can scan.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Make the plan prices in index.html line up in their column.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Customers zoom the site to 200% and the hero text barely grows. Sort out the sizes in landing.css.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "The feature text under each heading is hard to read on a laptop. Fix landing.css.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Get the invoice template ready for Finnish customers: dates, euro amounts and VAT numbers shown the way they expect.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Set the body text in main.css so it is comfortable to read for long help articles.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Code blocks and inline code in our docs look out of place next to the body text. Adjust the styles.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "We are adding a Japanese docs section. What should change in prose.css?",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "The changelog headings are barely different from the entries. Give changelog.css a clear hierarchy.",
+      "should_trigger": true,
+      "rate": 1,
+      "firstCallRate": 1,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Add a build step to package.json that minifies main.css and landing.css.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Make the .sidebar in main.css stack under the content below 700px.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Add Swedish translations for src/i18n/en.json.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Write a unit test for src/utils/formatDate.js covering the Finnish locale.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Replace the link colour in main.css with our new brand blue #0b5fff and add a hover state.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    },
+    {
+      "query": "Add Open Graph meta tags to index.html.",
+      "should_trigger": false,
+      "rate": 0,
+      "firstCallRate": 0,
+      "runs": 3,
+      "pass": true
+    }
+  ],
+  "totals": {
+    "shouldPassed": 10,
+    "should": 10,
+    "nearPassed": 6,
+    "near": 6,
+    "meanShouldRate": 1,
+    "meanShouldFirstCallRate": 0.9
+  },
+  "runs": [
+    {
+      "query": "The landing page headline in landing.css shouts. Tone it down so it still reads as the main heading on phones and desktops.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The landing page headline in landing.css shouts. Tone it down so it still reads as the main heading on phones and desktops.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our blog posts feel like one long grey slab. Give templates/blog-post.html and prose.css some structure people can scan.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The landing page headline in landing.css shouts. Tone it down so it still reads as the main heading on phones and desktops.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make the plan prices in index.html line up in their column.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our blog posts feel like one long grey slab. Give templates/blog-post.html and prose.css some structure people can scan.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make the plan prices in index.html line up in their column.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make the plan prices in index.html line up in their column.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Customers zoom the site to 200% and the hero text barely grows. Sort out the sizes in landing.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Customers zoom the site to 200% and the hero text barely grows. Sort out the sizes in landing.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Customers zoom the site to 200% and the hero text barely grows. Sort out the sizes in landing.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Our blog posts feel like one long grey slab. Give templates/blog-post.html and prose.css some structure people can scan.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The feature text under each heading is hard to read on a laptop. Fix landing.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The feature text under each heading is hard to read on a laptop. Fix landing.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The feature text under each heading is hard to read on a laptop. Fix landing.css.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Get the invoice template ready for Finnish customers: dates, euro amounts and VAT numbers shown the way they expect.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": false,
+        "loadCall": 2,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Set the body text in main.css so it is comfortable to read for long help articles.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Get the invoice template ready for Finnish customers: dates, euro amounts and VAT numbers shown the way they expect.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": false,
+        "loadCall": 2,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Get the invoice template ready for Finnish customers: dates, euro amounts and VAT numbers shown the way they expect.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": false,
+        "loadCall": 2,
+        "acted": false,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Set the body text in main.css so it is comfortable to read for long help articles.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Set the body text in main.css so it is comfortable to read for long help articles.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Code blocks and inline code in our docs look out of place next to the body text. Adjust the styles.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Code blocks and inline code in our docs look out of place next to the body text. Adjust the styles.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Code blocks and inline code in our docs look out of place next to the body text. Adjust the styles.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "We are adding a Japanese docs section. What should change in prose.css?",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "We are adding a Japanese docs section. What should change in prose.css?",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "We are adding a Japanese docs section. What should change in prose.css?",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The changelog headings are barely different from the entries. Give changelog.css a clear hierarchy.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The changelog headings are barely different from the entries. Give changelog.css a clear hierarchy.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "The changelog headings are barely different from the entries. Give changelog.css a clear hierarchy.",
+      "should_trigger": true,
+      "verdict": {
+        "loaded": true,
+        "beforeActing": true,
+        "firstCall": true,
+        "loadCall": 1,
+        "acted": false,
+        "calls": 1
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add a build step to package.json that minifies main.css and landing.css.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make the .sidebar in main.css stack under the content below 700px.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add a build step to package.json that minifies main.css and landing.css.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 5
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add a build step to package.json that minifies main.css and landing.css.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 5
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make the .sidebar in main.css stack under the content below 700px.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 6
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add Swedish translations for src/i18n/en.json.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add Swedish translations for src/i18n/en.json.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Make the .sidebar in main.css stack under the content below 700px.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 7
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add Swedish translations for src/i18n/en.json.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a unit test for src/utils/formatDate.js covering the Finnish locale.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Replace the link colour in main.css with our new brand blue #0b5fff and add a hover state.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a unit test for src/utils/formatDate.js covering the Finnish locale.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Replace the link colour in main.css with our new brand blue #0b5fff and add a hover state.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Write a unit test for src/utils/formatDate.js covering the Finnish locale.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 7
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Replace the link colour in main.css with our new brand blue #0b5fff and add a hover state.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 3
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add Open Graph meta tags to index.html.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 4
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add Open Graph meta tags to index.html.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 2
+      },
+      "status": "settled",
+      "skillOffered": true
+    },
+    {
+      "query": "Add Open Graph meta tags to index.html.",
+      "should_trigger": false,
+      "verdict": {
+        "loaded": false,
+        "beforeActing": false,
+        "firstCall": false,
+        "loadCall": null,
+        "acted": true,
+        "calls": 5
+      },
+      "status": "settled",
+      "skillOffered": true
+    }
+  ]
+}
