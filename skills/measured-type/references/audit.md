@@ -5,6 +5,27 @@ Use this file when asked to review, audit or critique typography, and whenever
 emit the rule IDs below, so a finding from the tool and a finding from reading
 the code look the same in the report.
 
+## Running the tools
+
+Run the tools before reading the code: they find what reading misses, and
+every finding comes with a number.
+
+- `scripts/lint-css.js src` lints source with `file:line`: CSS, SCSS and Less,
+  the `<style>` blocks of `.vue`, `.svelte` and `.astro` files, and Tailwind
+  classes in markup and JSX, including `cn()`, `clsx()`, Vue `:class` and
+  Svelte `class:`. Only the interpolated parts of template literals are listed
+  as not verified. `--diff origin/main` lints only what a branch changed;
+  `--rtl` adds the right-to-left checks when an RTL edition is planned.
+- `scripts/page-audit.js <url or file>` renders the page and checks reflow,
+  measure, contrast, text spacing, fonts and zoom, plus the checks of
+  `screen-and-ui.md` and `product-ui.md`.
+- **No browser installed?** `lint-css.js` and `estimate-measure.js` need only
+  Node, no `npm install`. `page-audit.js --lite` (and any run where Playwright
+  is missing) lints a local page and its stylesheets and lists every rendered
+  check it skipped; `estimate-measure.js "Verdana" 66ch` estimates characters
+  per line from a Chromium calibration. Say "estimated", put the skipped checks
+  under **Not verified** and never report an estimate as a measurement.
+
 ## Severity
 
 Severity follows from the kind of rule (see `taste.md`) and its effect on the

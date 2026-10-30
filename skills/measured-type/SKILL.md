@@ -20,20 +20,17 @@ license: Text CC BY-NC 4.0 (adapts webtypography.net by Richard Rutter); scripts
 
 # Measured type
 
-Bringhurst's working principles, translated into CSS that ships in 2026, with
-the judgment calls that separate considered typesetting from defaults.
-
-Claude already knows CSS syntax. What goes wrong is typographic judgment: text
-set without a measure, small caps faked by the browser, lining figures in
-running prose, lowercase letterspaced, justification without hyphenation,
-margins that ignore the leading, physical `left`/`right` everywhere. This skill
-exists to close those gaps. Each rule has a number from Bringhurst (cite it as
-`§2.1.2` in reviews) so the reasoning is traceable.
+Bringhurst's working principles in CSS for 2026, with tools that measure what
+can be measured. Each rule carries its Bringhurst number (cite it as `§2.1.2`)
+so the reasoning is traceable. What goes wrong is judgment, not syntax: text
+without a measure, faked small caps, lining figures in prose, letterspaced
+lowercase, justification without hyphenation, margins that ignore the leading
+and physical `left`/`right` everywhere.
 
 ## 1. Classify the text before styling it
 
-Bringhurst wrote for continuous reading. Applying book rules to interface text
-is its own mistake, so decide which kind of text you are setting:
+Bringhurst wrote for continuous reading, and book rules applied to interface
+text are their own mistake. Decide which kind of text you are setting:
 
 | Kind | Examples | What changes |
 |---|---|---|
@@ -41,9 +38,8 @@ is its own mistake, so decide which kind of text you are setting:
 | **Display text** | heroes, page titles, section heads | size from the scale, tighter leading, tracking tuned to size, `text-wrap: balance` |
 | **Interface and data** | buttons, labels, nav, tables, prices, forms, dashboards, status badges | no paragraph indents; lining **tabular** figures, numbers aligned at the end; uppercase labels get positive tracking; truncated text stays recoverable; rhythm comes from the spacing scale. Details: `references/product-ui.md` |
 
-A single page usually mixes all three. Scope reading-text rules to a prose
-container (`.prose`, `article`) instead of global element selectors, so they do
-not leak into cards and controls.
+A page usually mixes all three: scope reading-text rules to a prose container
+(`.prose`, `article`), not global selectors, so they stay out of controls.
 
 ## 2. The core rules
 
@@ -72,10 +68,9 @@ Full reasoning, variants and pitfalls for each rule: `references/rules.md`.
 
 ## 3. Direction and language come first
 
-Write every new rule with **logical properties** and treat `lang` and `dir` as
-typographic inputs, because hyphenation, quotes, figures and line breaking all
-key off them. LTR is the default, and it should never be the reason an RTL or
-vertical edition breaks.
+Write every rule with **logical properties** and treat `lang` and `dir` as
+typographic inputs: hyphenation, quotes, figures and line breaking key off
+them, and LTR should never be why an RTL or vertical edition breaks.
 
 - `<html lang="en" dir="ltr">`; `lang` on every passage in another language;
   `dir="auto"` or `<bdi>` around user-generated or mixed-direction strings.
@@ -86,191 +81,145 @@ vertical edition breaks.
 - Never letterspace or hyphenate-by-assumption in scripts that join (Arabic) or
   lack hyphenation conventions; mirror only directional icons via `:dir(rtl)`.
 - Quotes, number grouping, decimal marks and unit spacing differ per locale
-  (English, Finnish and Swedish are worked through as the pattern). Format
-  numbers with `Intl.NumberFormat(locale)` instead of hand-written strings.
+  (English, Finnish and Swedish are worked through); format numbers with
+  `Intl.NumberFormat(locale)`, not hand-written strings.
 
 Details, language tables and code: `references/logical-and-language.md`.
 
 ## 4. Workflows
 
 Match the work to the question. A single fact (does this font have true small
-caps, which rule covers line length, what does `66ch` set in this face) gets
-the one check that answers it and a short reply with the number, not a full
-audit. Run a workflow below only when the task is to set, scale or review
-text.
+caps, what does `66ch` set in this face) gets the one check that answers it
+and a short reply with the number. Run a workflow only when the task is to
+set, scale or review text. Where a tool computes the answer, use it instead of
+working it out by hand.
 
 ### Setting reading text
 
-1. Confirm the font files: which weights, italics and OpenType features
-   (`onum`, `smcp`, `c2sc`, `tnum`, `liga`, `kern`) they actually contain.
-   Hosted subsets often strip features, and a feature the font lacks cannot be
-   switched on; run `scripts/font-features.py` on every file you serve (roman
-   and italic can differ).
-2. Scope a prose container. Set `max-inline-size` for the measure and
-   `margin-inline: auto` if centered. Solve for the width instead of guessing
-   it: `node scripts/measure-line.js --css prose.css --solve 66` searches the
-   `em` value whose rendered lines average 66 characters, and
+1. Check every font file you serve with `scripts/font-features.py` (roman and
+   italic differ): a feature the font lacks cannot be switched on.
+2. Scope a prose container with `max-inline-size` (and `margin-inline: auto`
+   if centred), and solve for the width instead of guessing it:
+   `node scripts/measure-line.js --css prose.css --solve 66` finds the `em`
+   value whose rendered lines average 66 characters;
    `estimate-measure.js "Verdana" --target 66 --size 17` estimates it without a
    browser.
-3. Unitless body `line-height`. Define one body line as
-   `--line: calc(body-size * leading)` on the prose container; `rlh` equals it
-   only when the prose is set at the root font size.
-4. Space headings, quotes, lists and figures in whole or half `--line` steps.
-5. Choose one paragraph convention (indent or space).
-6. Turn on figures and small caps the font really has. Always set
-   `font-synthesis-small-caps: none`; set `font-synthesis: none` for weight
-   and style too only where every weight and italic you use is loaded,
+3. Unitless body `line-height`; one body line as
+   `--line: calc(body-size * leading)` on the prose container; headings,
+   quotes, lists and figures in whole or half `--line` steps.
+4. One paragraph convention: indent or space.
+5. Real figures and small caps only. Always `font-synthesis-small-caps: none`;
+   `font-synthesis: none` too where every weight and italic is loaded,
    fallbacks included (`rules.md` §2.1.9).
-7. Match the fallback so the web font arrives without reflow:
-   `python3 scripts/fallback-metrics.py font.woff2 --fallback Georgia.ttf --name Georgia`
-   prints the `@font-face` overrides; list that family right after the web
-   font.
-8. `hyphens: auto` with limits when the measure is narrow or the language has
-   long compounds (Finnish and Swedish do); keep `text-align: start`.
-9. `text-wrap: pretty` on paragraphs, `text-wrap: balance` on headings.
-10. Check punctuation glyphs in the content: en dash ranges, real quotes and
-   apostrophes, `×` and `−`, ellipsis.
-11. Check WCAG 1.4.12: the layout must survive user overrides of line-height
-    1.5, paragraph spacing 2em, letter-spacing 0.12em and word-spacing 0.16em,
-    so avoid fixed heights on text boxes.
-12. Check WCAG 1.4.10: at 320 CSS px (a 1280px window at 400% zoom) text
-    reflows into one column without sideways scrolling. Page zoom scales `px`
-    too, so a fixed `width: 960px` keeps its character count but no longer
-    fits; `max-inline-size` lets the box shrink.
+6. A metric-matched fallback, so the web font arrives without reflow:
+   `python3 scripts/fallback-metrics.py font.woff2 --fallback Georgia.ttf --name Georgia`.
+7. `hyphens: auto` with limits where the measure is narrow or the language
+   compounds (Finnish, Swedish); `text-align: start`; `text-wrap: pretty` on
+   paragraphs and `balance` on headings.
+8. Real punctuation in the content: en dash ranges, quotes and apostrophes,
+   `×` and `−`, ellipsis.
+9. WCAG 1.4.12: text survives the spacing overrides (line-height 1.5,
+   paragraph spacing 2em, letter-spacing 0.12em, word-spacing 0.16em), so no
+   fixed heights on text boxes. WCAG 1.4.10: one column at 320 CSS px;
+   `max-inline-size` lets a box shrink where `width` does not.
 
 ### Building or reviewing a type scale
 
 Generate and check it rather than hand-tuning `clamp()`:
 `node scripts/type-scale.js --base 1rem:1.125rem --ratio 1.2:1.25 --steps 5 --fluid-from 4`
-prints the tokens and a table of range, zoom growth and step ratios, and
-exits 1 naming any step that fails. The rules it applies:
+prints the tokens and a table of range, zoom growth and step ratios and exits
+1 naming any step that fails. Sizes are `rem`; body, small, caption and label
+stay fixed (exactly 2× at 200% zoom); fluid display sizes are
+`clamp(min-rem, rem + vi, max-rem)`, because a pure `vw` size fails zoom. Keep
+only hero and h1 fluid, and h3 and h4 fixed a clear step apart (1.2–1.25×,
+never under about 1.15×). How many sizes, the line-height and tracking of each
+and the spacing tokens are in `rules.md` §3.1.1.
 
-- 5 to 8 sizes for a site, each with a named role. Use either the traditional
-  scale (12 14 16 18 21 24 36 48 60 72) or a stated ratio, not a pile of
-  one-off values.
-- Sizes in `rem` so the reader's default size and zoom scale them (WCAG
-  1.4.4). Body, small, caption and label stay fixed `rem` (exactly 2× at 200%
-  zoom). Fluid display sizes as `clamp(min-rem, rem + vi, max-rem)`; the `vi`
-  part does not grow with zoom, so keep each range modest and compute the
-  ratio at 200% zoom (see `rules.md` §3.1.1). A pure `vw` value fails zoom.
-  When the request fixes both ends (say 32px on a phone and 60px on a
-  desktop), keep the requested sizes; do not quietly shrink the desktop size
-  to pass zoom, and do not ship a ramp that fails it. Run
-  `node scripts/type-scale.js --fit 2rem:3.75rem`: it prints the plain ramp
-  and two forms that keep both sizes and pass the 1.6× bar, an early max (the
-  ramp ends sooner, so every screen from about 840px gets the full size) and
-  two slopes (`clamp(min, min(steep, gentle), max)`, steep up to 640px and
-  gentle after it). Pick one, say which and why, and give the growth at 200%
-  on narrower windows from its table.
-  Narrow ranges compress the steps on phones: keep only hero and h1 fluid and
-  give h3/h4 fixed sizes a clear step apart (aim for 1.2–1.25×, never below
-  about 1.15× even on phones).
-- Pair each size with its own line-height (unitless, or for headings a whole
-  number of body lines so wrapped headings stay on the beat) and, for caps or
-  display roles, its tracking. Leading tightens and tracking moves slightly negative as
-  size grows; caps and small labels get positive tracking.
-- Express spacing tokens as multiples of the base line so headings and body
-  share one rhythm.
+When the request fixes both ends (say 32px on a phone and 60px on a desktop),
+keep the requested sizes: do not quietly shrink the desktop size to pass zoom,
+and do not ship a ramp that fails it. `node scripts/type-scale.js --fit 2rem:3.75rem`
+prints the plain ramp and two forms that keep both sizes and pass the 1.6×
+bar: an early max (the ramp ends sooner, so every screen from about 840px gets
+the full size) and two slopes (`clamp(min, min(steep, gentle), max)`, steep up
+to 640px and gentle after it). Pick one, say which and why, and give the
+growth at 200% on narrower windows from its table.
 
 ### Auditing existing CSS or a page
 
-1. Run the tools first, then read: they find what reading misses and every
-   finding comes with a number.
+1. Run the tools first; "Running the tools" in `references/audit.md` lists
+   what each one reads.
    ```bash
-   node scripts/lint-css.js src/styles page.html          # source, with file:line
-   node scripts/lint-css.js src --diff origin/main         # only what a PR changed
-   node scripts/page-audit.js http://localhost:3000/post   # rendered: reflow, measure,
-                                                           # contrast, text spacing, zoom
+   node scripts/lint-css.js src page.html                 # source with file:line; --diff origin/main for a PR
+   node scripts/page-audit.js http://localhost:3000/post  # rendered: reflow, measure, contrast, spacing, zoom
    ```
-   Add `--rtl` to the lint when a right-to-left edition is planned. The lint
-   also reads `.scss`, `.less`, the `<style>` blocks of `.vue`, `.svelte` and
-   `.astro` files and Tailwind classes in markup and JSX, including `cn()`,
-   `clsx()`, Vue `:class` and Svelte `class:`, so point it at `src`; only the
-   interpolated parts of template literals are listed as not verified.
-
-   **No browser installed?** `lint-css.js` and `estimate-measure.js` need only
-   Node, no `npm install`. `page-audit.js --lite` (and any run where
-   Playwright is missing) lints a local page and its stylesheets and lists
-   every rendered check it skipped; `estimate-measure.js "Verdana" 66ch`
-   estimates characters per line from a Chromium calibration. Say "estimated"
-   and put the skipped checks under **Not verified**; never report an
-   estimate as a measurement.
-2. Read `references/css-modern.md` for renamed, dead or mistyped properties
-   the tools do not know. Judge hierarchy, rhythm, pairing and emphasis
-   yourself.
-3. Report in the format of `references/audit.md`: one table ordered by
-   severity (HIGH, MEDIUM, LOW), rule ID, location, the measured value and the
-   CSS fix, then **Block** or **Approve** and what you could not verify. Label
-   taste findings with their kind so the team knows which ones it can
-   decline.
+   Without a browser, `page-audit.js --lite` and `estimate-measure.js` need
+   only Node: say "estimated" and list the skipped checks under
+   **Not verified**.
+2. For a contrast failure, `scripts/contrast-fix.js "#999" "#fff"` gives the
+   nearest colour of the same hue that passes; MT-CONTRAST findings already
+   name it.
+3. Read `references/css-modern.md` for properties the tools do not know, and
+   judge hierarchy, rhythm, pairing and emphasis yourself.
+4. Report as `references/audit.md` shows: one table by severity (HIGH, MEDIUM,
+   LOW) with rule ID, location, measured value and CSS fix, then **Block** or
+   **Approve** and what you could not verify. Label taste findings with their
+   kind.
 
 ## 5. Verify, don't assume
 
 - **Measure**: count characters per line in the rendered page instead of
-  trusting `ch`. `1ch` is the width of the zero, usually wider than the average
-  letter, so `66ch` often fits 75+ characters (97 in a wide geometric sans).
-  The script counts full lines in Chromium (graphemes, so accents count once;
-  columns and vertical text on their own axis), reports the content box in px,
-  `ch` and `em` and names the face that actually rendered, so you can correct
-  the value in one step:
+  trusting `ch`. `1ch` is the width of the zero, so `66ch` often sets 75+
+  characters (97 in a wide geometric sans). `measure-line.js` counts full
+  lines in Chromium and names the face that rendered:
   ```bash
-  node scripts/measure-line.js --css prose.css          # built-in sample prose
-  node scripts/measure-line.js page.html ".prose > p"    # an existing page
+  node scripts/measure-line.js --css prose.css             # built-in sample prose
+  node scripts/measure-line.js page.html ".prose > p"      # an existing page
   node scripts/measure-line.js --css prose.css --solve 66  # the width for 66
   ```
-  `--solve` also reports when the container is narrower than the width it
-  needs, so a value that cannot take effect is not shipped.
-  Without Node, paste its `measureLines` function into a browser console.
-- **Features**: confirm the font has them before enabling, check that a
-  feature actually covers the glyphs you need (a tag can map almost nothing)
-  and look at the rendered glyphs (true small caps have heavier strokes than
-  shrunk capitals). `--check` takes any GSUB or GPOS tag and, for figure
-  features, says first whether the default digits already have that form:
-  ```bash
-  python3 scripts/font-features.py fonts/*.woff2 --check smcp=abcdefghijklmnopqrstuvwxyz
-  ```
-- **Spacing**: measure the rendered gap under each heading; collapsing margins
-  can silently turn a half-line into a full line.
+  `--solve` also says when the container is too narrow for the width to take
+  effect. Without Node, paste its `measureLines` function into a console.
+- **Features**: check the glyphs, not just the tag:
+  `python3 scripts/font-features.py fonts/*.woff2 --check smcp=abcdefghijklmnopqrstuvwxyz`.
+- **Spacing and rhythm**: measure the rendered gap under each heading
+  (collapsing margins can turn half a line into a whole one) and overlay a
+  one-line gradient to see drift.
 - **Hyphenation**: test each language in Chromium, Safari and Firefox;
-  dictionary coverage differs per engine.
-- **Rhythm**: overlay a repeating gradient of one body line while developing; drift
-  below a heading means its line-height or margins break the interval.
+  their dictionaries differ.
 
-## 6. Taste: what reads as considered in 2026
+## 6. Taste
 
-Opinions that go beyond Bringhurst. Read `references/taste.md` before making
-aesthetic choices or when asked for a typographic review with a point of view.
-It marks each rule as standard, measured, convention or preference; report
-findings with that label; a house style overrides the last two.
+Opinions beyond Bringhurst are in `references/taste.md`, each labelled
+standard, measured, convention or preference; a house style overrides the
+last two. Read it before aesthetic choices or a review with a point of view.
 In short: few sizes used with conviction, one or two families with a clear job
-each, generous but disciplined space, real glyphs instead of synthesized ones
-and no decorative effects standing in for hierarchy.
+each, generous but disciplined space, real glyphs and no decorative effects
+standing in for hierarchy.
 
 ## References
 
 | File | Read when |
 |---|---|
-| `references/rules.md` | applying or citing a specific rule; need variants (indent styles, heading math, small caps exceptions, verse, contents lists) |
-| `references/css-modern.md` | auditing older CSS; unsure whether a property exists, its current name or browser support |
+| `references/rules.md` | citing a rule or needing its variants (indents, heading math, small caps exceptions, verse) |
+| `references/css-modern.md` | older CSS: whether a property exists, its current name, browser support |
 | `references/logical-and-language.md` | anything multilingual, right-to-left or mixed-direction; locale quotes, numbers, units and hyphenation (EN, FI, SV worked examples) |
-| `scripts/measure-line.js` | before stating or shipping a measure; after changing font, size or `max-inline-size` |
+| `scripts/measure-line.js` | stating, shipping or solving a measure (`--solve`) |
 | `scripts/font-features.py` | before enabling `onum`, `smcp`, `c2sc`, `case`, `tnum` or any `font-feature-settings` |
-| `references/taste.md` | choosing faces, pairing, display treatment, dark mode text or reviewing for quality rather than correctness |
-| `references/audit.md` | any review or audit: severities, verdict, report table and the rule catalog |
-| `references/screen-and-ui.md` | inline code, icons beside labels, heading hierarchy and spacing, choosing or combining faces, kerning, thin weights or light text on dark |
+| `references/taste.md` | choosing or pairing faces, display and dark-mode text, a review for quality |
+| `references/audit.md` | any review: running the tools, severities, verdict, report and the rule catalogue |
+| `references/screen-and-ui.md` | inline code, icons beside labels, heading hierarchy and spacing, kerning, thin weights, light text on dark |
 | `references/product-ui.md` | dashboards, admin tools and data tables: number columns, labels, badges and status text, truncation |
-| `scripts/lint-css.js` | auditing source (CSS, SCSS, Less, HTML, Vue, Svelte, Astro, JSX and Tailwind classes, expressions included) or a pull request (`--diff`) |
-| `scripts/page-audit.js` | auditing a rendered page: reflow, measure, contrast, text spacing, fonts, zoom, plus the `screen-and-ui.md` checks; `--lite` without a browser |
-| `scripts/contrast-fix.js` | a contrast failure: the nearest text (or ground) colour of the same hue that reaches the ratio, with its WCAG ratio and APCA Lc |
-| `scripts/estimate-measure.js` | no browser available: characters per line estimated for a face and width, or the width for a target with `--target` |
-| `scripts/apca.js` | a contrast question where weight matters: APCA Lc next to the WCAG ratio (advisory; the WCAG 2 ratio governs conformance) |
+| `scripts/lint-css.js` | linting source of any kind (`audit.md` lists the formats) or a pull request (`--diff`) |
+| `scripts/page-audit.js` | a rendered page: reflow, measure, contrast, spacing, fonts, zoom; `--lite` without a browser |
+| `scripts/contrast-fix.js` | a contrast failure: the nearest passing colour of the same hue |
+| `scripts/estimate-measure.js` | no browser: characters per line for a face and width, or the width for `--target` |
+| `scripts/apca.js` | weight-sensitive contrast: APCA Lc beside the WCAG ratio (advisory) |
 | `scripts/fallback-metrics.py` | loading web fonts: a metric-matched fallback so the swap does not reflow |
 | `scripts/type-scale.js` | building fluid type tokens that pass the zoom and step checks; `--fit MIN:MAX` when the request fixes a wide range |
 
 Sources: Robert Bringhurst, *The Elements of Typographic Style*; Richard
 Rutter, *The Elements of Typographic Style Applied to the Web*
-(webtypography.net, CC BY-NC 4.0), whose rule order this skill follows.
-`references/screen-and-ui.md` adds checks from Matej Latin's *Better Web
-Typography for a Better Web* and Ina Saltz's *Typography Essentials*. Rules
-are paraphrased and the CSS is rewritten for current browsers. This is an
-independent project, not affiliated with or endorsed by any of these authors.
+(webtypography.net, CC BY-NC 4.0), whose rule order this skill follows; Matej
+Latin's *Better Web Typography for a Better Web* and Ina Saltz's *Typography
+Essentials* (in `references/screen-and-ui.md`). Rules are paraphrased and the
+CSS is rewritten for current browsers. Not affiliated with or endorsed by any
+of these authors.

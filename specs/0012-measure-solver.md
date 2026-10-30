@@ -7,7 +7,7 @@ proves it carries the same ID in its name (`scripts/test/solve.test.js`).
 
 The tools could count the characters per line of a width, but not give the
 width for a count. Asked for about 66 characters, agents guessed an `em`
-value, measured, and guessed again; in spec 0008 most runs given a hint
+value, measured and guessed again; in spec 0008 most runs given a hint
 stopped at `34em` (63.7 characters in Verdana) instead of reaching 66. The
 evals show that the skill wins where a tool computes the answer, so this adds
 the inverse of both line-length tools.

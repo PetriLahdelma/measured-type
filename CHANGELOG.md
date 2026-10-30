@@ -18,6 +18,10 @@ each change has a spec in [`specs/`](specs/).
   and ten runs per cell (spec 0008), the hero rerun (spec 0009) and a held-out
   twin of the hero case (spec 0010), each pre-registered with its results in
   `evals/results/`.
+- A shorter SKILL.md (spec 0014): 2,297 words from 2,899, with a 2,300-word
+  budget under test. The type-scale rules moved to `references/rules.md`
+  §3.1.1 and the tool details to "Running the tools" in
+  `references/audit.md`; every script and reference is still named.
 - `contrast-fix.js` (spec 0013): the nearest text or ground colour that
   reaches a WCAG ratio, changing only OKLCH lightness so the hue stays
   (`#888` on white gives `#767676`), with the APCA Lc. Each MT-CONTRAST

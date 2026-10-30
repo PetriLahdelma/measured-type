@@ -470,8 +470,15 @@ own devising.
 
 **Now.**
 
-- Tokens in `rem`, with roles: `--text-s`, `--text-m`, `--title-s`... A
-  reading site rarely needs more than 6–8.
+- Tokens in `rem`, with roles: `--text-s`, `--text-m`, `--title-s`...
+  Use 5 to 8 sizes for a site, each with a named role; a reading site rarely
+  needs more than 6–8.
+- Pair each size with its own line-height (unitless, or for headings a whole
+  number of body lines so wrapped headings stay on the beat) and, for caps or
+  display roles, its tracking. Leading tightens and tracking moves slightly
+  negative as size grows; caps and small labels get positive tracking.
+- Express spacing tokens as multiples of the base line so headings and body
+  share one rhythm.
 - Fluid sizes: `clamp(1.75rem, 1.5rem + 1vi, 2.375rem)` (a 1.36× range); the `rem` term keeps
   zoom working. Fluid sizing belongs to display roles; body, small, caption
   and label sizes stay fixed `rem`, so they double exactly at 200% zoom.
