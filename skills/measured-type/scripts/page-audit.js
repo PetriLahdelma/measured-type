@@ -122,7 +122,7 @@ function pageHelpers() {
         }
         const fg = mt.rgba(cs.color);
         const color = fg && fg.replace(/, ([\d.]+)\)$/, (m, a) => `, ${+(parseFloat(a) * fade).toFixed(3)})`);
-        return { path: mt.path(el), color, rawColor: cs.color, grounds, image, fadedGround, size: parseFloat(cs.fontSize), weight: parseInt(cs.fontWeight, 10) };
+        return { path: mt.path(el), color, rawColor: cs.color, grounds, image, fadedGround, hidden: fade === 0, size: parseFloat(cs.fontSize), weight: parseInt(cs.fontWeight, 10) };
       });
     },
     textElements() {
@@ -422,7 +422,8 @@ function truncatedText() {
     const row = el.closest('tr, li, [role=row]') || el.parentElement;
     return Boolean(row && row.querySelector('[aria-expanded], [aria-controls]'));
   };
-  return [...document.body.querySelectorAll('*')].filter(mt.visible).filter((el) => {
+  // An icon-only control can overflow its box, but it has no text to lose.
+  return [...document.body.querySelectorAll('*')].filter(mt.visible).filter((el) => el.textContent.trim()).filter((el) => {
     const cs = getComputedStyle(el);
     const over = el.scrollWidth > el.clientWidth + 1;
     const ellipsis = cs.textOverflow === 'ellipsis' && over;
@@ -497,6 +498,29 @@ function liteAudit(target) {
   return { ...report, target: file, mode: 'lite', notVerified: [...RENDERED.map((r) => `${r} (lite mode, no browser)`), ...skipped, ...report.notVerified.filter((n) => !/page-audit/.test(n))] };
 }
 
+// Scroll reveals (an IntersectionObserver that fades a section in) and running
+// animations leave text at a passing state the reader never sees for long, or at
+// opacity 0 the reader never sees at all. Scroll through once, return to the top
+// and finish what is running, so every check reads the settled page.
+async function revealAll(page) {
+  await page.evaluate(async () => {
+    const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
+    const step = Math.max(200, innerHeight * 0.8);
+    for (let y = 0, n = 0; y < document.documentElement.scrollHeight && n < 60; y += step, n++) {
+      scrollTo(0, y);
+      await frame();
+      await frame();
+    }
+    scrollTo(0, 0);
+    await new Promise((r) => setTimeout(r, 50));
+    for (const a of document.getAnimations()) {
+      const t = a.effect && a.effect.getComputedTiming();
+      if (t && Number.isFinite(t.endTime)) try { a.finish(); } catch { /* an animation that cannot finish is left running */ }
+    }
+    await frame();
+  });
+}
+
 const needsInstall = (err) => /Cannot find module 'playwright'|MT_NO_PLAYWRIGHT|Executable doesn't exist|playwright install/i.test(String(err && err.message));
 
 async function audit(target, opts = {}) {
@@ -512,6 +536,7 @@ async function audit(target, opts = {}) {
     const page = await browser.newPage({ viewport: { width, height }, ...(colorScheme ? { colorScheme } : {}) });
     await page.goto(url, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
+    await revealAll(page);
     if (extraCss) await page.addStyleTag({ content: extraCss });
     await page.evaluate(pageHelpers);
     await page.addScriptTag({ content: measureLines.toString() });
@@ -577,10 +602,14 @@ async function audit(target, opts = {}) {
       if (r0.align === 'justify' && r0.hyphens !== 'auto') add('MT-JUSTIFY', 'MEDIUM', `${p}`, 'justified, hyphens: ' + r0.hyphens, 'text-align: start, or hyphens: auto with limits');
     }
 
+    const invisible = new Set();
     const contrastFailures = (samples) => {
     const pairs = new Map();
     for (const c of samples) {
       if (c.image) { notVerified.add('contrast over background images'); continue; }
+      // Text at opacity 0 after the scroll pass is not shown yet (a reveal that never fired);
+      // its ratio would read 1:1 and its fix would lighten text that is fine once shown.
+      if (c.hidden) { invisible.add(c.path); continue; }
       if (c.fadedGround) { notVerified.add('contrast where opacity fades the text and its ground together'); continue; }
       const fg = c.color && parseColor(c.color);
       const layers = c.grounds.map(parseColor);
@@ -620,6 +649,7 @@ async function audit(target, opts = {}) {
       if (lightPaths.has(c.path)) continue;
       add('MT-CONTRAST', 'HIGH', `${c.path} (dark scheme)`, `${ratio.toFixed(2)}:1 (${c.rawColor} on ${c.bg}, needs ${need}:1)`, contrastFix(f));
     }
+    if (invisible.size) notVerified.add(`contrast of ${invisible.size} text element${invisible.size === 1 ? '' : 's'} still at opacity 0 after scrolling the page (not shown yet, such as a reveal that never fired)`);
     if (desk.sizes.length > 8) add('MT-SIZE-COUNT', 'LOW', 'page at 1280px', `${desk.sizes.length} text sizes: ${desk.sizes.join(', ')}px`, 'a scale of 5 to 8 named sizes');
     for (const r of desk.runts) {
       if (r.lines >= 2 && r.lastWords === 1) add('MT-HEADING-RUNT', 'LOW', `${r.path} at 1280px`, `last of ${r.lines} lines is one word`, 'text-wrap: balance');
@@ -811,7 +841,8 @@ async function audit(target, opts = {}) {
 
     // ---- zoom growth: size in device px at zoom z is z * size at width 1280 / z.
     // Every text element must reach 2× by 500% (MT-ZOOM-VW); headings also get the 1.6× house bar.
-    // Elements are taken in DOM order without a visibility filter, so the three loads line up.
+    // Elements are paired across the three loads by path and occurrence, not by
+    // position: a page that adds or drops elements by width shifts every index.
     const textSizes = async (width) => {
       const p = await open(width, null, { height: Math.round((900 * width) / 1280) });
       const s = await p.evaluate(() => [...document.body.querySelectorAll('*')]
@@ -820,12 +851,22 @@ async function audit(target, opts = {}) {
       await p.close();
       return s;
     };
-    const [z1, z2, z5] = [await textSizes(1280), await textSizes(640), await textSizes(256)];
+    const keyed = (list) => {
+      const seen = new Map();
+      return new Map(list.map((t) => {
+        const n = (seen.get(t.path) || 0) + 1;
+        seen.set(t.path, n);
+        return [`${t.path}#${n}`, t];
+      }));
+    };
+    const [z1, z2, z5] = [keyed(await textSizes(1280)), keyed(await textSizes(640)), keyed(await textSizes(256))];
     const zoomSeen = new Set();
-    z1.forEach((t, i) => {
+    let unmatched = 0;
+    z1.forEach((t, key) => {
       if (!t.size || zoomSeen.has(t.path)) return;
-      const g200 = (2 * z2[i].size) / t.size;
-      const g500 = (5 * z5[i].size) / t.size;
+      if (!z2.has(key) || !z5.has(key)) { unmatched++; return; }
+      const g200 = (2 * z2.get(key).size) / t.size;
+      const g500 = (5 * z5.get(key).size) / t.size;
       if (g500 < 1.99) {
         zoomSeen.add(t.path);
         add('MT-ZOOM-VW', 'HIGH', t.path, `${t.size}px grows ${g200.toFixed(2)}× at 200% and ${g500.toFixed(2)}× at 500% zoom`, 'clamp(min-rem, rem + vi, max-rem) with a range near 1.4×');
@@ -834,6 +875,7 @@ async function audit(target, opts = {}) {
         add('MT-ZOOM-GROWTH', 'LOW', t.path, `${g200.toFixed(2)}× at 200% zoom on a 1280px window (house bar 1.6×)`, 'narrow the fluid range');
       }
     });
+    if (unmatched) notVerified.add(`zoom growth of ${unmatched} text element${unmatched === 1 ? '' : 's'} the page shows only at some widths`);
   } finally {
     if (own) await browser.close();
   }
