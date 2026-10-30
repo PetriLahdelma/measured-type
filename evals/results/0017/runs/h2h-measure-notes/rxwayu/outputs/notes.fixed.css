@@ -1,0 +1,9 @@
+body { margin: 0; padding: 40px 24px; font-family: Charter, "Bitstream Charter", Georgia, serif; font-size: 19px; line-height: 1.55; color: #1f1f1f; background: #fbfaf7; }
+main { max-width: 1240px; margin: 0 auto; }
+h1 { font-size: 2.2rem; line-height: 1.15; margin: 0 0 0.4em; }
+.dek { color: #555; margin: 0 0 2em; }
+p { margin: 0 0 1em; }
+/* Measure: about 62 characters per line. Charter at 19px averages ~0.444em per
+   character in running text, so 62 chars is ~28.6em. Set in em (not ch, which is
+   the wider "0" glyph) so it follows the 19px font size and scales with zoom. */
+.essay p { max-width: 28.6em; }

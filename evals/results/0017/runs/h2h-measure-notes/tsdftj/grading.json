@@ -1,0 +1,25 @@
+{
+  "expectations": [
+    {
+      "text": "Rendered with the fixed stylesheet at a 1440px viewport, the essay paragraphs average between 60 and 64 characters per full line",
+      "passed": true,
+      "evidence": "pooled 62.36 characters per line over 41 full lines (per paragraph 62.6, 59.7, 63.9, 62.1, 61.9, 64.2)"
+    },
+    {
+      "text": "At a 375px viewport the page has no horizontal scroll",
+      "passed": true,
+      "evidence": "scrollWidth 375 in a 375px viewport"
+    },
+    {
+      "text": "The essay paragraphs are still set at 19px",
+      "passed": true,
+      "evidence": "paragraph sizes 19px"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "total": 3,
+    "pass_rate": 1
+  }
+}
