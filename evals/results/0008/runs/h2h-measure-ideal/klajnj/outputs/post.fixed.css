@@ -1,0 +1,8 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+article { max-width: 1000px; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { margin: 0 0 1em; }
+
+/* Measure: Verdana averages about 0.52em per character, so 34em fits roughly 66 characters.
+   Set in em (not ch, which is the wider digit zero) so it scales with the font size and with zoom. */
+article p { max-width: 34em; }

@@ -1,0 +1,12 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+/* Fluid heading: 40px on phones (about 375px wide), 72px from about 1280px up.
+   Two slopes, steep to 640px and gentle after, so the size does not collapse
+   when browser zoom shrinks the CSS viewport (200% zoom on 1280px = 640px wide).
+   Every term has a rem part, so text-size preferences and zoom still scale it. */
+.hero h1 {
+  font-size: clamp(2.5rem, min(calc(0.731rem + 7.547vw), calc(3rem + 1.875vw)), 4.5rem);
+  line-height: 1.1;
+  margin: 0 0 1rem;
+}
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

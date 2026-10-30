@@ -1,0 +1,12 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+.hero h1 {
+  /* 40px at a 360px window, 72px at 1440px and wider. The rem term keeps the
+     size tied to the reader's default size and to page zoom; a bare vw value
+     would ignore both. */
+  font-size: clamp(2.5rem, 1.8333rem + 2.963vi, 4.5rem);
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

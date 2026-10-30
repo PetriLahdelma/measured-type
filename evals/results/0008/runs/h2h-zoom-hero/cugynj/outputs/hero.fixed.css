@@ -1,0 +1,12 @@
+:root {
+  /* Fluid display size: 40px at a 360px viewport up to 72px at 1440px.
+     The rem term scales with the reader's default size and with page zoom;
+     the vi term only supplies the slope. A bare vw value would not respond
+     to zoom at all, because zooming shrinks the viewport by the same factor. */
+  --hero-size: clamp(2.5rem, 1.8333rem + 2.963vi, 4.5rem);
+}
+
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+.hero h1 { font-size: var(--hero-size); line-height: 1.1; margin: 0 0 1rem; text-wrap: balance; overflow-wrap: break-word; }
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

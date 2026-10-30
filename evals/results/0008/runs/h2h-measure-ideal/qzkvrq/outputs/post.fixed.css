@@ -1,0 +1,8 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+article { max-width: 1000px; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+/* Measure: ~66 characters per line. Verdana averages about 0.5-0.55em per
+   character in running English (the "0" digit is 0.64em, so ch would overshoot
+   to roughly 75+ characters). 34em gives about 62-68 characters. The font size
+   stays a plain fixed length, so browser zoom scales it fully (200% = 2x). */
+p { margin: 0 0 1em; max-width: 34em; }

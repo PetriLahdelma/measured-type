@@ -1,0 +1,5 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+/* Measure: 55ch in Verdana at 17px (about 594px) gives roughly 66 characters per line, measured in Chromium. */
+article { max-width: 55ch; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { margin: 0 0 1em; }

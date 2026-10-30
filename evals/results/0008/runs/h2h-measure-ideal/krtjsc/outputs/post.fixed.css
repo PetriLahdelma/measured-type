@@ -1,0 +1,17 @@
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+
+/*
+  Measure: about 66 characters per line.
+  Verdana averages roughly 0.52em per character in running English text
+  (letters ~0.55em, spaces ~0.35em), so 66 characters is about 34em.
+  The width is set in em, not ch: the digit zero is ~0.64em wide in Verdana,
+  so 66ch would give only ~55 real characters per line.
+  The font size stays a fixed 17px (no viewport units), so it scales fully
+  with browser zoom (200% zoom = 2x text), and because the measure is in em
+  it scales with the text and keeps the same characters per line at any zoom.
+  The article is capped, not the paragraphs alone, so the heading stays
+  aligned with the text column. On narrow screens the column simply shrinks.
+*/
+article { max-width: 34em; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { margin: 0 0 1em; }

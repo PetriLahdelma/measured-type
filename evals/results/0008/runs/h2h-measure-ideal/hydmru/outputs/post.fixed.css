@@ -1,0 +1,10 @@
+/* Reading measure: about 66 characters per line.
+   Verdana is a wide face. Its "0" (the ch unit) is wider than typical prose
+   letters, so ch would overshoot. Measured against this post's text, an
+   average character is about 0.505em, so 33.5em fits roughly 66 characters. */
+:root { --measure: 33.5em; }
+
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+article { max-width: var(--measure); margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { max-width: var(--measure); margin: 0 0 1em; }

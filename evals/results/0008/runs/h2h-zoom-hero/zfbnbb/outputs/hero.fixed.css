@@ -1,0 +1,18 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+/* Fluid heading: rem floor and ceiling plus a rem base, so browser zoom and
+   user font-size settings still scale it. The vw term stays small relative to
+   the rem base: at a 1280px window and 200% zoom (640 CSS px) it keeps
+   growing about 1.65x on screen. */
+.hero h1 {
+  font-size: clamp(2.5rem, 2.17rem + 1.45vw, 4.5rem); /* ~40px phone */
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+/* Steeper ramp on wide screens: reaches 72px at 1920px and stays there. Continuous
+   with the rule above at 90rem. */
+@media (min-width: 90rem) {
+  .hero h1 { font-size: min(4.5rem, 0.425rem + 3.4vw); }
+}
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

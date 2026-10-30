@@ -1,0 +1,11 @@
+/* Measure: about 66 characters per line.
+   Verdana averages roughly 0.55em per character of running English text
+   (including spaces), so 66 characters is about 36em. The width is set in em,
+   not ch: Verdana's zero is about 0.64em wide, so 66ch would give ~76 real
+   characters per line. Font size stays in px (no viewport units), so text and
+   measure both grow fully with browser zoom; at 200% zoom on a 1280px window
+   the text renders at 34px, exactly 2x. */
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 17px; line-height: 1.6; color: #222; background: #fff; }
+article { max-width: 36em; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { max-width: 36em; margin: 0 0 1em; }

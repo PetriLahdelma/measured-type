@@ -1,0 +1,9 @@
+/* Body size is rem-based with no viewport term, so it scales 1:1 with browser
+   zoom (at 200% on a 1280px window text renders at 2x, well above 1.6x). */
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 1.0625rem; line-height: 1.6; color: #222; background: #fff; }
+/* Measure: ~66 characters per line. Verdana's average character in running
+   English text (letters plus spaces) is about 0.5em, so 66 characters is
+   about 33em. Not 66ch: the zero is ~0.64em wide, which would give ~84 characters. */
+article { max-width: 33em; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { margin: 0 0 1em; }

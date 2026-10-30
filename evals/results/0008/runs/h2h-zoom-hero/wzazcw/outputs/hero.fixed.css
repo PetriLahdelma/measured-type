@@ -1,0 +1,8 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+/* Fluid heading: 2.5rem (40px) floor on phones, 4.5rem (72px) cap on large desktops.
+   The preferred value mixes a rem base with a vw slope. The rem part scales with the
+   user's font size and with browser zoom, so zooming still enlarges the text; a pure
+   vw value would not grow at all when zoomed. */
+.hero h1 { font-size: clamp(2.5rem, 2.2rem + 1.6vw, 4.5rem); line-height: 1.1; margin: 0 0 1rem; }
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

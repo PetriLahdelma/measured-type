@@ -42,10 +42,12 @@ first. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
 
 **Where it helps**
 
-- Fluid type under zoom, the largest gap in the development benchmark and
-  the one place the 2×2 found the guidance itself helping.
 - Line length in a wide face: `66ch` in Verdana sets 81 characters; the
-  skill counts lines instead of trusting the unit.
+  skill counts lines instead of trusting the unit, and came closer to 66
+  than a model given a one-sentence hint.
+- Fluid type under zoom, the largest gap in the development benchmark. The
+  skill raises growth under zoom, but a one-sentence hint raised it more
+  (see [Evidence](#evidence)).
 - Right-to-left audits that convert text flow but leave decoration and
   already-mirrored glyphs alone.
 - Dense product UI: tabular figures, numbers aligned at the end, tracked
@@ -66,9 +68,9 @@ first. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
 
 **When to skip it**
 
-- A capable model with a browser, told to measure, set line length as well
-  as the skill did; the guidance's one measured gain, on fluid type under
-  zoom, is small.
+- Fluid type under zoom alone: one sentence ("check that it still grows at
+  least 1.6× at 200% zoom") did better than the skill. On line length the
+  skill came closest, by a character or two.
 - One-off questions a current model already answers well.
 - Logos, drawing icons or fonts, build setup.
 
@@ -278,8 +280,8 @@ usage error.
 ## Evidence
 
 The head-to-heads ran on Claude Opus 5.5 on 29 October 2026 (head-to-head 3
-added Sonnet 5.5), two runs per cell; the 2×2 ran on Sonnet 5.5 on 30 October,
-five runs per cell. Cases and graders were committed before the runs, and
+added Sonnet 5.5), two runs per cell; the 2×2 and spec 0008 ran on Sonnet 5.5
+on 30 October, five and then ten runs per cell. Cases and graders were committed before the runs, and
 every result is reproducible from the committed run files.
 
 | Experiment | What ran | With the skill | Without | What it shows |
@@ -290,24 +292,28 @@ every result is reproducible from the committed run files.
 | [Head-to-head 2](evals/results/h2h-2/) | Dense dashboard and a 66-character measure, browser offered to all | 24/24 | 24/24 | With a browser, a model without the skill measures and fixes the same faults |
 | [Head-to-head 3](evals/results/h2h-3/) | Same cases, no browser in the brief, Opus and Sonnet | 48/48 | 48/48 | Runs with the skill landed on 66 characters per line, two without it at 62.5 and 63.4; the skill's runs had its bundled Chromium, so the gain comes from the tooling |
 | [2×2](evals/results/2x2/) | Skill and browser varied independently, 66-character measure and a fluid hero under zoom, Sonnet, 40 runs | 51/60 | 50/60 | Line length follows the browser; on the hero the skill raised growth at 200% zoom with or without one (1.53× against 1.43× to 1.45×), though 9 of its 10 runs still missed the 1.6× bar |
+| [Spec 0008](evals/results/0008/) | A one-sentence hint against the skill, and the 2×2 at ten runs per cell, Sonnet, 80 more runs | 101/120 | 106/120 with the hint, 100/120 with nothing | The hint beat the skill on growth under zoom (1.63× against 1.50×), mostly by giving up the requested 72px; the skill came closer to 66 characters per line (0.25 against 1.54 off, with a browser) |
 | [Triggering](evals/triggering/) | 16 typography prompts, 16 near misses, 3 runs each | 5 of 48 loads | | Rarely loads on its own; never loads for a near miss |
 
-**How to read it.** The 2×2 separates the skill's guidance from its
-measuring tools. On line length the browser does the work: with one, runs
-with and without the skill came equally close to 66 characters (p = 0.52);
-without one, the skill's estimator brought its runs about one character
-closer than a model guessing (p = 0.008), all inside the graded band. On the
-fluid hero the guidance helped with or without a browser (p = 0.008 and
-0.048): the skill's runs traded some desktop size for growth under zoom. That
-gain is small and is measured against this project's own 1.6× bar, which only
-the skill's runs were told about. Before the 2×2, the guidance changed nothing
-measurable on the cases written after the content was frozen, and a model
-told it has a browser matched the skill. The development set shows that the
-content reaches the agent, but the references contain worked answers for some
-of those cases; most of the baseline's misses there are conventions this
+**How to read it.** The 2×2 and spec 0008 separate the skill's guidance from
+its measuring tools and from one sentence of advice. On line length the
+browser does most of the work, and the skill adds a little on top: with a
+browser its runs came within a quarter of a character of 66 on average,
+against 0.68 off without it (p = 0.031, ten runs per cell) and 1.54 off with
+the hint (p = 0.0001); without a browser its estimator beat a model guessing
+by about one character (p = 0.010). Every run of every kind was inside the
+graded band. On the fluid hero the skill raised growth under zoom (1.50×
+against 1.43×, p < 0.0001), but one sentence naming the 1.6× bar raised it
+further (1.63×, p < 0.0001); 14 of the 20 runs with that sentence reached
+the bar by giving up the 72px desktop size the task asked for, and no
+configuration reliably met both. The bar is this project's own convention.
+Before these experiments, the guidance changed nothing measurable on the
+cases written after the content was frozen. The development set shows that
+the content reaches the agent, but the references contain worked answers for
+some of those cases; most of the baseline's misses there are conventions this
 project chose (the 1.6× zoom bar, the 1.15× step floor, spacing from the body
-line). Not yet tested: a one-sentence hint against the full skill, ten runs
-per cell and models other than Claude.
+line). Not yet tested: models other than Claude, and cases beyond these two
+for the hint.
 
 Each results folder has the method, every run's output, grade and timing, and
 every correction and incident. How to run the cases yourself:

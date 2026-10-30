@@ -1,0 +1,9 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+/* Fluid heading: a rem base plus a gentle vw slope, clamped between 2.5rem (40px) and 4.5rem (72px).
+   The rem base keeps zoom and text-size preferences working (a pure vw value shrinks in CSS px
+   as the window narrows under zoom, so the rem term has to carry most of the size).
+   Check at 16px root: 375px -> ~44px, 640px -> ~49px, 1280px -> 60px, 1920px -> ~71px (cap 72px).
+   At 200% zoom on a 1280px window (640 CSS px): 48.8px x 2 = 97.6px on screen vs 60px at 100%, about 1.63x. */
+.hero h1 { font-size: clamp(2.5rem, 2.35rem + 1.75vw, 4.5rem); line-height: 1.1; margin: 0 0 1rem; }
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

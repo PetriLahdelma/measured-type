@@ -1,0 +1,8 @@
+/* Measure: Verdana averages roughly 0.525em per character in this text, so
+   about 66 characters per line is 66 x 0.525 = ~34.7em. Set in em (not ch,
+   which is the wide digit zero and would give ~80 characters per line).
+   The font size is a plain rem value, so browser zoom scales it fully. */
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 1.0625rem; line-height: 1.6; color: #222; background: #fff; }
+article { max-width: 1000px; margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { margin: 0 0 1em; max-width: 34.7em; }

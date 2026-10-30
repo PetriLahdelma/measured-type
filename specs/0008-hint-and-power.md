@@ -1,6 +1,9 @@
 # Spec 0008: a one-sentence hint, ten runs per cell, other models
 
-Status: pre-registered 30 October 2026, before any run of this spec.
+Status: pre-registered 30 October 2026, before any run of this spec. The
+Claude parts ran the same day; results in
+[`evals/results/0008/`](../evals/results/0008/). The other-model part has not
+run.
 
 ## Questions
 

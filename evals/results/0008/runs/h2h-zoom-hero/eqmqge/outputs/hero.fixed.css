@@ -1,0 +1,14 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+/* Fluid from 40px (360px wide) to 72px (1600px wide and up).
+   The rem term scales with browser zoom and the reader's default size;
+   the vi term only follows the window, so zooming in still makes the
+   heading larger (about 1.48x at 200% zoom on a 1280px screen). */
+.hero h1 {
+  font-size: clamp(2.5rem, 1.9194rem + 2.5806vi, 4.5rem);
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

@@ -1,0 +1,16 @@
+/*
+  Measure: about 66 characters per line.
+  Verdana averages roughly 0.52 to 0.53em per character in running English
+  (spaces included). That is narrower than the 0 digit (ch is about 0.64em in
+  Verdana), so a width in ch would give far too few characters per line. Count
+  characters instead: 66 x ~0.53em = ~35em.
+  The width is in em, so it scales with the font size and with browser zoom.
+*/
+:root { --measure: 35em; }
+
+/* Font size stays in rem (17px at the default 16px root), with no viewport
+   term, so it grows fully with browser zoom: 200% zoom doubles it. */
+body { margin: 0; padding: 32px 24px; font-family: Verdana, sans-serif; font-size: 1.0625rem; line-height: 1.6; color: #222; background: #fff; }
+article { max-width: var(--measure); margin: 0 auto; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 1em; }
+p { max-width: var(--measure); margin: 0 0 1em; }
