@@ -312,6 +312,45 @@ main text should return on the beat.
 - Set margins explicitly; browser defaults (1em on `p`, `blockquote`, lists)
   are unrelated to the leading.
 
+**Strict baseline grid (opt-in).** The line intervals above keep the rhythm
+but do not put the text on baselines. Use a strict grid only when the design
+asks for it: columns whose lines should align across, or a visible grid.
+The `cap` unit is the cap height of the font that actually rendered, so a
+top padding of half the leftover leading lowers the text onto the grid and a
+bottom margin completes the unit (the method Razvan Onofrei worked out and
+maketypework.com simplified with `cap`):
+
+```css
+.prose > * {
+  --u: 0.5rem;                                     /* grid unit: a third of the 24px body line */
+  --shift: calc((var(--n) * var(--u) - 1cap) / 2);
+  margin-block: 0;
+  line-height: calc(var(--n) * var(--u));
+  padding-block-start: var(--shift);
+  margin-block-end: calc(var(--b) * var(--u) - var(--shift));
+}
+.prose > p  { --n: 3; --b: 3; }                      /* 16px on 24px, one line below */
+.prose > h2 { font-size: 1.75rem; --n: 4; --b: 2; }  /* 28px on 32px, ratio 1.14 */
+.prose > h3 { font-size: 1.25rem; --n: 3; --b: 1; }  /* 20px on 24px, ratio 1.2 */
+```
+
+- Line-height as a length belongs on leaf blocks only (2.2.1): on a list or a
+  container it is inherited as a fixed length and larger children overlap.
+- Take the unit from the body line (a half or a third of it). Do not shrink
+  the root font size to make `1rem` the unit: that overrides the reader's
+  default size (MT-ROOT-PX).
+- Each gap lives in one place: this recipe puts it in the bottom margin, so
+  drop the `* + *` top-margin rule above, or the margins collapse.
+- Do not `text-box` trim an element on the grid: the shift already accounts
+  for the half-leading that trimming removes.
+- Images and embeds break the grid unless sized in whole units.
+- The shift centres the cap height while the browser centres the font's whole
+  content area, so baselines land within about a pixel, not exactly. Check
+  the rendered page: `page-audit.js page.html --baseline 8px` finds the
+  grid's origin itself, reports MT-BASELINE-DRIFT for blocks more than 1px
+  off and names any line-height that is not a whole number of units.
+  `cap` works in current Chromium, Firefox and Safari (17.2 and later).
+
 ---
 
 ## 2.3 Blocks and paragraphs

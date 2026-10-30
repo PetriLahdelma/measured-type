@@ -13,6 +13,11 @@ each change has a spec in [`specs/`](specs/).
   PetriLahdelma/measured-type`, then `/plugin install
   measured-type@measured-type`. A test keeps the plugin version equal to the
   release version (spec 0015).
+- **Strict baseline grid, opt-in.** `rules.md` 2.2.2 gains a recipe that
+  sets text on a baseline grid with the CSS `cap` unit, and
+  `page-audit.js --baseline 8px` measures where each block's first and last
+  baselines land, reports MT-BASELINE-DRIFT past 1px and names a
+  line-height that is not a whole number of grid units (spec 0020).
 
 ### Fixed
 
