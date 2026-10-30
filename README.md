@@ -77,7 +77,11 @@ first. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
 - One-off questions a current model already answers well.
 - Logos, drawing icons or fonts, build setup.
 
-It rarely loads on its own (about one run in ten): name it when you want it.
+Installed in a project, it loaded before the agent's first edit on every
+typography prompt with Opus 5.5 (26 of 26) and on 15 of 16 with Sonnet 5.5,
+and never on a near miss ([spec 0016](specs/0016-triggering-in-session.md)).
+Other type or design skills installed alongside it were not tested; name it
+when you want it for certain.
 
 ## How it works
 
@@ -309,7 +313,10 @@ every result is reproducible from the committed run files.
 | [Spec 0008](evals/results/0008/) | A one-sentence hint against the skill, and the 2×2 at ten runs per cell, Sonnet, 80 more runs | 101/120 | 106/120 with the hint, 100/120 with nothing | The hint beat the skill on growth under zoom (1.63× against 1.50×), mostly by giving up the requested 72px; the skill came closer to 66 characters per line (0.25 against 1.54 off, with a browser) |
 | [Spec 0009](evals/results/0009/) | The hero case again after `type-scale.js --fit`, Sonnet, 20 runs | 20/20 met all three checks | 6/20 with the hint, 0/20 with nothing | Every run used the two-slope form `--fit` printed and kept both requested sizes (p < 0.001 against the skill before it); a development result on the case that motivated the change |
 | [Spec 0010](evals/results/0010/) | Held-out twin of the hero case (48 to 80px, new page and prompt), Sonnet, 30 runs | 10/10 met all three checks | 10/10 with the hint, 0/10 with nothing | A held-out gain over no skill (p < 0.0001); no detectable difference from one sentence, whose runs mostly reached 80px early and grew a little more |
-| [Triggering](evals/triggering/) | 16 typography prompts, 16 near misses, 3 runs each | 5 of 48 loads | | Rarely loads on its own; never loads for a near miss |
+| [Spec 0017](evals/results/0017/) | Held-out line length: 62 characters in Charter at 19px, where `62ch` gives 76, Sonnet, 30 runs | 0.18 characters off on average | 0.82 with the hint, 0.43 with nothing | A held-out gain over one sentence (p = 0.004); no detectable difference from a model that measures without the skill (p = 0.077) |
+| [Spec 0018](specs/0018-tighter-bands.md) | Committed runs re-graded with bands of 2 characters and 5% of each size, after the fact | 20/20 within 2 characters of 66 | 2/10 with nothing and no browser, 1/10 with the hint and no browser | Exploratory: without a browser the skill's estimate is the clear gain; the wider bands hid it |
+| [Triggering, stub command](evals/triggering/) | 16 typography prompts, 16 near misses, 3 runs each, skill-creator's method | 5 of 48 loads | | The skill offered as a stub command in an empty folder, first tool call only: rarely loads |
+| [Triggering, real session](evals/triggering/) (spec 0016) | 26 typography prompts, 22 near misses, the skill installed in a small site, Opus and Sonnet, 3 runs each | 78/78 loads with Opus, 44/48 with Sonnet | no near miss loaded in 114 runs | Loads before the first edit on nearly every typography task; the stub-command figure was the setup |
 
 **How to read it.** The 2×2 and spec 0008 separate the skill's guidance from
 its measuring tools and from one sentence of advice. On line length the

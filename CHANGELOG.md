@@ -14,6 +14,28 @@ each change has a spec in [`specs/`](specs/).
   measured-type@measured-type`. A test keeps the plugin version equal to the
   release version (spec 0015).
 
+### Fixed
+
+- `page-audit.js` on live sites (spec 0019), found by auditing 14 pages of
+  digitaltableteur.com: the zoom check pairs elements by path, so a page
+  that renders different elements at different widths no longer crashes it;
+  the audit scrolls the page once and finishes animations before measuring,
+  so text that fades in on scroll is no longer reported at 1:1 contrast;
+  text still at opacity 0 is listed as not verified; and an icon-only
+  control is never reported as truncated text.
+
+### Evidence
+
+- Triggering in a real session (spec 0016): installed as a project skill,
+  it loaded before the first edit on 26 of 26 typography prompts with Opus
+  5.5 and 15 of 16 with Sonnet 5.5, and on no near miss in 114 runs. The
+  earlier one-in-ten figure came from the stub-command setup.
+- A held-out line length in Charter (spec 0017): the skill came closer to
+  the requested 62 characters than one sentence of advice (0.18 against
+  0.82 off, p = 0.004), and no closer than a model that measures without
+  it (0.43, p = 0.077).
+- Committed runs re-graded with tighter bands, after the fact (spec 0018).
+
 ## 1.3.0 (30 October 2026)
 
 Three solvers that compute the answer instead of leaving it to the agent, a
