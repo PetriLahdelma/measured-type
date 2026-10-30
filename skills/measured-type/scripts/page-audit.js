@@ -569,7 +569,7 @@ async function audit(target, opts = {}) {
         const lo = Math.min(...measured.map((r) => r.min));
         const hi = Math.max(...measured.map((r) => r.max));
         const cjk = rs[0].cjk;
-        if (avg > (cjk ? 40 : 75)) add('MT-MEASURE-LONG', 'MEDIUM', `${p} at 1280px`, `${avg.toFixed(1)} characters per line (range ${lo}-${hi})${cjk ? ', CJK (WCAG 1.4.8 caps it at 40)' : ''}`, cjk ? 'max-inline-size: 35ic' : 'max-inline-size in em, counted to about 66 with measure-line.js');
+        if (avg > (cjk ? 40 : 75)) add('MT-MEASURE-LONG', 'MEDIUM', `${p} at 1280px`, `${avg.toFixed(1)} characters per line (range ${lo}-${hi})${cjk ? ', CJK (WCAG 1.4.8 caps it at 40)' : ''}`, cjk ? 'max-inline-size: 35ic' : 'max-inline-size in em: measure-line.js --solve 66 finds it in the browser (estimate-measure.js --target 66 without one)');
       }
       const r0 = rs[0];
       if (r0.size < 16) add('MT-SIZE-FLOOR', 'MEDIUM', `${p}`, `${r0.size}px reading text`, `font-size: 1rem or more`);

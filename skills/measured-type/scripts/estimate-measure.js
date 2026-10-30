@@ -5,6 +5,7 @@
  *   node scripts/estimate-measure.js Verdana 66ch
  *   node scripts/estimate-measure.js "Georgia, serif" 34em --size 18
  *   node scripts/estimate-measure.js "Brand Sans" 600px --json
+ *   node scripts/estimate-measure.js Verdana --target 66 --size 17
  *
  * A line holds about width / (average character width) characters, less a
  * few for the word that does not fit at the end. The average character and
@@ -99,6 +100,34 @@ function estimate({ family, width, size = ROOT_PX }) {
   return out;
 }
 
+// The inverse (spec 0012): the width whose estimate is `target` characters per line.
+const tenth = (n) => Math.round(n * 10) / 10;
+function solveWidth({ family, target, size = ROOT_PX }) {
+  const names = String(family).split(',').map((n) => n.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+  const first = names.find((n) => !GENERIC.test(n));
+  const face = first && lookup(first);
+  const emFor = (avgEm) => tenth((target + WRAP_LOSS) * avgEm);
+  if (face) {
+    const em = emFor(FACES[face][0]);
+    return { family: face, known: true, target, size, em, px: tenth(em * size) };
+  }
+  const ems = Object.entries(FACES).filter(([k]) => !MONO.has(k)).map(([, [avgEm]]) => emFor(avgEm));
+  const out = { family: String(family), first: first || null, known: false, target, size, low: Math.min(...ems), high: Math.max(...ems) };
+  const fallback = lookup(family);
+  if (fallback) {
+    out.fallback = fallback;
+    out.fallbackEm = emFor(FACES[fallback][0]);
+  }
+  return out;
+}
+
+function describeWidth(w) {
+  if (w.known) return `about ${w.em}em (${w.px}px at ${w.size}px) for ${w.target} characters per line in ${w.family}`;
+  const range = `${w.low}em to ${w.high}em for ${w.target} characters per line, depending on the face`;
+  if (!w.fallback) return range;
+  return `${w.first} is not in the calibration table: ${range}; if ${w.first} is missing and ${w.fallback} renders instead, about ${w.fallbackEm}em`;
+}
+
 function describe(e) {
   if (e.known) return `about ${Math.round(e.cpl)} characters per line in ${e.family} at ${e.width}`;
   const range = `${Math.round(e.low)} to ${Math.round(e.high)} characters per line at ${e.width}, depending on the face`;
@@ -109,15 +138,37 @@ function describe(e) {
 if (require.main === module) {
   const args = process.argv.slice(2);
   const json = args.includes('--json');
-  const i = args.indexOf('--size');
-  const size = i >= 0 ? Number(args[i + 1]) : ROOT_PX;
+  const value = (name) => {
+    const i = args.indexOf(`--${name}`);
+    return i < 0 ? undefined : args[i + 1];
+  };
+  const positional = args.filter((a, j) => !a.startsWith('--') && !['--size', '--target'].includes(args[j - 1]));
+  const sizeRaw = value('size');
+  const size = args.includes('--size') ? Number(sizeRaw === undefined || sizeRaw === '' ? NaN : sizeRaw) : ROOT_PX;
   if (!Number.isFinite(size) || size <= 0) {
-    console.error(`--size needs a number of px, got ${i >= 0 && args[i + 1] !== undefined ? args[i + 1] : 'nothing'}`);
+    console.error(`--size needs a number of px, got ${sizeRaw === undefined || sizeRaw === '' ? 'nothing' : sizeRaw}`);
     process.exit(2);
   }
-  const [family, width] = args.filter((a, j) => !a.startsWith('--') && (i < 0 || j !== i + 1));
+  const targetRaw = value('target');
+  if (args.includes('--target')) {
+    const target = Number(targetRaw);
+    if (targetRaw === undefined || targetRaw === '' || !Number.isFinite(target) || target <= 0) {
+      console.error(`--target needs a number of characters per line, for example 66 (got ${targetRaw === undefined || targetRaw === '' ? 'nothing' : targetRaw})`);
+      process.exit(2);
+    }
+    const [family] = positional;
+    if (!family) {
+      console.error('usage: estimate-measure.js <font-family> --target <characters per line> [--size px] [--json]');
+      process.exit(2);
+    }
+    const w = solveWidth({ family, target, size });
+    if (json) console.log(JSON.stringify(w, null, 2));
+    else console.log(`${describeWidth(w)} (estimate from a Chromium calibration; confirm with measure-line.js --solve ${target})`);
+    process.exit(0);
+  }
+  const [family, width] = positional;
   if (!family || !width) {
-    console.error('usage: estimate-measure.js <font-family> <width: 66ch | 34em | 34rem | 600px> [--size px] [--json]');
+    console.error('usage: estimate-measure.js <font-family> <width: 66ch | 34em | 34rem | 600px> [--size px] [--json]\n       estimate-measure.js <font-family> --target <characters per line> [--size px] [--json]');
     process.exit(2);
   }
   let e;
@@ -135,4 +186,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { estimate, describe, lookup, FACES };
+module.exports = { estimate, describe, solveWidth, describeWidth, lookup, FACES };

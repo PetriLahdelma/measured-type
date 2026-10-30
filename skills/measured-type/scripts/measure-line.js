@@ -25,6 +25,8 @@
  *   --width N    viewport width in CSS px (default 1280)
  *   --zoom N     device scale to emulate browser zoom: 2 = 200% (default 1).
  *                At zoom 2 the CSS viewport is width / 2, as in a real browser.
+ *   --solve N    find the max-inline-size, in em to 0.1, whose rendered average
+ *                is closest to N characters per line (spec 0012)
  *   --json       machine-readable output
  *
  * What counts:
@@ -204,6 +206,11 @@ async function main() {
     console.error(message);
     process.exit(2);
   };
+  const solveRaw = opt('solve', null);
+  const solve = solveRaw === null ? null : Number(solveRaw);
+  if (solveRaw !== null && (solveRaw === '' || solveRaw === undefined || !Number.isFinite(solve) || solve <= 0)) {
+    fail(`--solve needs a number of characters per line, for example 66 (got ${solveRaw || 'nothing'})`);
+  }
   if (!Number.isFinite(width) || width <= 0) fail('--width needs a number of CSS px');
   if (!Number.isFinite(zoom) || zoom <= 0) fail('--zoom needs a number, for example 2 for 200%');
 
@@ -251,6 +258,7 @@ async function main() {
   await page.evaluate(() => document.fonts.ready);
   const result = await page.evaluate(measureLines, selector);
   if (!result.error) result.renderedFonts = await renderedFonts(page, selector);
+  if (!result.error && solve) result.solve = await solveMeasure(page, selector, solve);
   await browser.close();
 
   result.viewport = { width, zoom, cssWidth: Math.round(width / zoom) };
@@ -281,6 +289,60 @@ async function main() {
   console.log(`  content box ${result.inlineSizePx}px = ${result.inlineSizeInCh}ch = ${result.inlineSizeInEm}em${note}`);
   if (result.writingMode !== 'horizontal-tb') console.log(`  measured along the inline axis of ${result.writingMode}`);
   console.log(`  zero ${result.zeroWidthEm}em vs average character ${result.avgCharWidthEm}em`);
+  if (result.solve) {
+    const v = result.solve;
+    if (v.limitedByContainer) {
+      console.log(`solve ${v.target}: no width on ${result.selector} reaches it, because the container is ${v.containerPx}px wide (${v.avgCharsPerLine} chars/line at most): widen the container, or set the measure on it`);
+    } else if (v.avgCharsPerLine == null) console.log(`solve ${v.target}: no full lines at any width tried`);
+    else console.log(`solve ${v.target}: max-inline-size: ${v.em}em (${v.px}px) gives ${v.avgCharsPerLine} chars/line on ${result.selector}`);
+  }
+}
+
+// Spec 0012: the max-inline-size, in em to 0.1, whose rendered average is
+// closest to `target`. Characters per line rise with the width, so a bisection
+// narrows it down, then the neighbouring tenths are measured and the closest wins.
+async function solveMeasure(page, selector, target) {
+  const at = async (em) => {
+    await page.evaluate(([sel, value]) => {
+      for (const el of document.querySelectorAll(sel)) el.style.setProperty('max-inline-size', `${value}em`, 'important');
+    }, [selector, em]);
+    const r = await page.evaluate(measureLines, selector);
+    return r.avgCharsPerLine;
+  };
+  let lo = 8;
+  let hi = 90;
+  for (let i = 0; i < 14; i++) {
+    const mid = (lo + hi) / 2;
+    const avg = await at(mid);
+    if (avg == null || avg < target) lo = mid; else hi = mid;
+  }
+  let best = null;
+  const centre = Math.round(((lo + hi) / 2) * 10) / 10;
+  for (let k = -3; k <= 3; k++) {
+    const em = Math.round((centre + k / 10) * 10) / 10;
+    const avg = await at(em);
+    if (avg == null) continue;
+    const d = Math.abs(avg - target);
+    if (!best || d < best.d - 1e-9) best = { em, avg, d };
+  }
+  const em = best ? best.em : centre;
+  await at(em);
+  const box = await page.evaluate(([sel, value]) => {
+    const el = document.querySelector(sel);
+    const size = parseFloat(getComputedStyle(el).fontSize);
+    const parent = el.parentElement;
+    const ps = getComputedStyle(parent);
+    const containerPx = parent.clientWidth - parseFloat(ps.paddingLeft) - parseFloat(ps.paddingRight);
+    return { size, wanted: value * size, actual: el.getBoundingClientRect().width, containerPx };
+  }, [selector, em]);
+  return {
+    target,
+    em,
+    px: Math.round(box.wanted * 10) / 10,
+    avgCharsPerLine: best ? best.avg : null,
+    limitedByContainer: box.actual < box.wanted - 1,
+    containerPx: Math.round(box.containerPx * 10) / 10,
+  };
 }
 
 // The faces Chromium actually used for the first match's text, which can differ

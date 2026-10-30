@@ -107,7 +107,11 @@ text.
    switched on; run `scripts/font-features.py` on every file you serve (roman
    and italic can differ).
 2. Scope a prose container. Set `max-inline-size` for the measure and
-   `margin-inline: auto` if centered.
+   `margin-inline: auto` if centered. Solve for the width instead of guessing
+   it: `node scripts/measure-line.js --css prose.css --solve 66` searches the
+   `em` value whose rendered lines average 66 characters, and
+   `estimate-measure.js "Verdana" --target 66 --size 17` estimates it without a
+   browser.
 3. Unitless body `line-height`. Define one body line as
    `--line: calc(body-size * leading)` on the prose container; `rlh` equals it
    only when the prose is set at the root font size.
@@ -212,7 +216,10 @@ exits 1 naming any step that fails. The rules it applies:
   ```bash
   node scripts/measure-line.js --css prose.css          # built-in sample prose
   node scripts/measure-line.js page.html ".prose > p"    # an existing page
+  node scripts/measure-line.js --css prose.css --solve 66  # the width for 66
   ```
+  `--solve` also reports when the container is narrower than the width it
+  needs, so a value that cannot take effect is not shipped.
   Without Node, paste its `measureLines` function into a browser console.
 - **Features**: confirm the font has them before enabling, check that a
   feature actually covers the glyphs you need (a tag can map almost nothing)
@@ -254,7 +261,7 @@ and no decorative effects standing in for hierarchy.
 | `references/product-ui.md` | dashboards, admin tools and data tables: number columns, labels, badges and status text, truncation |
 | `scripts/lint-css.js` | auditing source (CSS, SCSS, Less, HTML, Vue, Svelte, Astro, JSX and Tailwind classes, expressions included) or a pull request (`--diff`) |
 | `scripts/page-audit.js` | auditing a rendered page: reflow, measure, contrast, text spacing, fonts, zoom, plus the `screen-and-ui.md` checks; `--lite` without a browser |
-| `scripts/estimate-measure.js` | no browser available: characters per line estimated for a face and width |
+| `scripts/estimate-measure.js` | no browser available: characters per line estimated for a face and width, or the width for a target with `--target` |
 | `scripts/apca.js` | a contrast question where weight matters: APCA Lc next to the WCAG ratio (advisory; the WCAG 2 ratio governs conformance) |
 | `scripts/fallback-metrics.py` | loading web fonts: a metric-matched fallback so the swap does not reflow |
 | `scripts/type-scale.js` | building fluid type tokens that pass the zoom and step checks; `--fit MIN:MAX` when the request fixes a wide range |

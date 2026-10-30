@@ -18,6 +18,10 @@ each change has a spec in [`specs/`](specs/).
   and ten runs per cell (spec 0008), the hero rerun (spec 0009) and a held-out
   twin of the hero case (spec 0010), each pre-registered with its results in
   `evals/results/`.
+- `measure-line.js --solve N` and `estimate-measure.js <family> --target N`
+  (spec 0012): the `em` width for a target line length, searched in Chromium
+  or estimated without a browser. `--solve` reports a container too narrow
+  for the width, and the MT-MEASURE-LONG fix names both.
 - `npm run gate` (spec 0011): the prose check (`tools/prose-check.js`) and
   every test in one command, and a pre-push hook in `.githooks/`.
 - Contributor documents: CONTRIBUTING.md, AGENTS.md, a code of conduct, a
