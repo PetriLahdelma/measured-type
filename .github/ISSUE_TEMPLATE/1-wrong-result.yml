@@ -1,0 +1,80 @@
+name: Wrong result from a check
+description: A tool reported something that is not there, missed something that is or gave a wrong number.
+labels: ["bug", "needs-repro"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. A wrong result is fixed fastest with the smallest page or stylesheet that reproduces it, the command you ran and what a browser or a source says instead.
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Tool
+      options:
+        - lint-css.js
+        - page-audit.js
+        - page-audit.js --lite
+        - measure-line.js
+        - estimate-measure.js
+        - type-scale.js
+        - font-features.py
+        - fallback-metrics.py
+        - apca.js
+        - The skill's advice (no script)
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What went wrong
+      options:
+        - False positive (reported a problem that is not there)
+        - False negative (missed a real problem)
+        - Wrong number or wrong severity
+        - Crash or error
+    validations:
+      required: true
+  - type: input
+    id: rule
+    attributes:
+      label: Rule ID
+      description: The rule in the report, if there is one.
+      placeholder: MT-ZOOM-VW
+  - type: textarea
+    id: repro
+    attributes:
+      label: Smallest case that reproduces it
+      description: HTML and CSS inline or a link to a public gist or repository.
+      render: html
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and output
+      description: The exact command and the part of the report that is wrong.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What it should say and how you know
+      description: A measurement in a browser, a WCAG criterion, a specification or a book section.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Measured Type version or commit, operating system, Node version, browser and its version.
+      placeholder: "1.2.0, macOS, Node 22, Playwright 1.64.1"
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I tried it on the latest release or on main.
+          required: true

@@ -1,0 +1,28 @@
+name: Feature request
+description: A new check, tool, workflow or reference.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The typographic problem
+      description: What goes wrong on real pages today, ideally with an example.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What Measured Type should do
+      description: What it would measure or say and the source for any threshold.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: willing
+    attributes:
+      label: Contributing
+      options:
+        - label: I would like to work on this myself.

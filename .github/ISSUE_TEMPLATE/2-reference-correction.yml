@@ -1,0 +1,38 @@
+name: Reference correction
+description: A rule, number, CSS example or source in SKILL.md or references/ is wrong, unclear or out of date.
+labels: ["documentation", "reference"]
+body:
+  - type: input
+    id: where
+    attributes:
+      label: File and section
+      placeholder: "references/rules.md §3.1.1"
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: What it says now
+    validations:
+      required: true
+  - type: textarea
+    id: proposed
+    attributes:
+      label: What it should say
+      description: In your own words. Paraphrase sources rather than pasting them.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source or measurement
+      description: Book and section or page, a WCAG criterion, a specification URL or a measurement anyone can repeat (with the browser and version).
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: The proposed text is my own wording, with at most a short attributed quote.
+          required: true

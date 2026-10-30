@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://github.com/PetriLahdelma/measured-type/discussions
+    about: Ask how to use the skill, share a result or float an idea before it becomes an issue.
+  - name: Security problem
+    url: https://github.com/PetriLahdelma/measured-type/security/advisories/new
+    about: Report a vulnerability privately, not in a public issue.

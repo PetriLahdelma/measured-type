@@ -1,0 +1,48 @@
+name: Eval case
+description: Propose a case the evals should cover or report a flaw in an existing one.
+labels: ["eval"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cases are graded in a real browser by deterministic graders and pre-registered before any run. See "Adding or changing an eval" in CONTRIBUTING.md.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - New case
+        - Flaw in an existing case or grader
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What it should test and why the skill might get it wrong
+    validations:
+      required: true
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Task prompt
+      description: Written the way a person would ask, without naming the skill or its rules.
+    validations:
+      required: true
+  - type: textarea
+    id: graders
+    attributes:
+      label: How it is graded
+      description: What a script measures in the rendered page, with thresholds and their source.
+    validations:
+      required: true
+  - type: textarea
+    id: answers
+    attributes:
+      label: Known answers
+      description: At least one output that must fail each grader and one that must pass all of them.
+  - type: checkboxes
+    id: willing
+    attributes:
+      label: Contributing
+      options:
+        - label: I would like to open the pull request for this case myself.

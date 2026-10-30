@@ -10,7 +10,7 @@
 [![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
 
-**[Install](#install)**&emsp;[Where it helps](#where-it-helps-what-it-costs-when-to-skip-it)&emsp;[Evidence](#evidence)&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
+**[Install](#install)**&emsp;[Where it helps](#where-it-helps-what-it-costs-when-to-skip-it)&emsp;[Evidence](#evidence)&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[Contribute](#contributing)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
 
 Measured Type is an agent skill for web typography: Bringhurst's rules
 translated into current CSS and scripts that measure what can be measured
@@ -359,13 +359,26 @@ finds what the other leaves alone:
 </p>
 <p><sub>Generated illustrations of the identity. They show no measurement.</sub></p>
 
+## Contributing
+
+Corrections, wrong results and new eval cases are the most useful
+contributions, and each has an issue form that asks for what makes it
+checkable: a page that reproduces the result, a source or a measurement.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers the setup (`npm test` with
+Playwright and fontTools), the spec-and-test-first workflow, the house style
+and how an eval is pre-registered and reported. Questions and ideas go to
+[Discussions](https://github.com/PetriLahdelma/measured-type/discussions);
+changes are listed in the [changelog](CHANGELOG.md). Everyone taking part
+follows the [Code of Conduct](CODE_OF_CONDUCT.md), and security problems are
+reported privately ([SECURITY.md](SECURITY.md)).
+
 ## Support Measured Type
 
 <img align="right" alt="Measured Type app icon: a paper-coloured lowercase m above a measure rule on a rounded red tile." src=".github/brand/app-icon.svg" width="96">
 
 Measured Type is free to use. If it saves you time, optional sponsorship helps
-keep it measured and maintained. Issues with a reproducible case, new eval
-cases and corrections to the references are welcome contributions too.
+keep it measured and maintained. Contributions are welcome too
+([Contributing](#contributing)).
 
 [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_on_GitHub-BF3989?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/PetriLahdelma)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/petrilahdey)
@@ -374,7 +387,8 @@ cases and corrections to the references are welcome contributions too.
 
 Text (SKILL.md, references and eval prose) is CC BY-NC 4.0 because it adapts
 Richard Rutter's [webtypography.net](https://webtypography.net), which is
-published under that license. Scripts are MIT. The test fonts are under the
+published under that license. Scripts are MIT. Contributions take the license
+of the files they change ([CONTRIBUTING.md](CONTRIBUTING.md#licensing-of-contributions)). The test fonts are under the
 SIL Open Font License. The Measured Type name and the artwork in
 `.github/brand/` identify this project and are not licensed for other use.
 See [LICENSE](LICENSE); the skill folder carries its own copy of the notices,
