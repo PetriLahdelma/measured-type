@@ -321,8 +321,8 @@ bottom margin completes the unit (the method Razvan Onofrei worked out and
 maketypework.com simplified with `cap`):
 
 ```css
+.prose { --u: 0.5rem; }                            /* grid unit: a third of the 24px body line */
 .prose > * {
-  --u: 0.5rem;                                     /* grid unit: a third of the 24px body line */
   --shift: calc((var(--n) * var(--u) - 1cap) / 2);
   margin-block: 0;
   line-height: calc(var(--n) * var(--u));
@@ -333,6 +333,21 @@ maketypework.com simplified with `cap`):
 .prose > h2 { font-size: 1.75rem; --n: 4; --b: 2; }  /* 28px on 32px, ratio 1.14 */
 .prose > h3 { font-size: 1.25rem; --n: 3; --b: 1; }  /* 20px on 24px, ratio 1.2 */
 ```
+
+Nothing in it is fixed. The unit is a custom property on the region, so it
+can change where the design changes, and every element states its own
+lines (`--n`) and gap (`--b`) in that unit:
+
+```css
+@media (width < 600px) { .prose { --u: 0.375rem; } }  /* a 6px grid on phones */
+.sidebar { --u: 0.25rem; }                           /* a finer grid for small notes */
+.prose { --u: clamp(0.375rem, 0.3rem + 0.3vi, 0.5rem); }  /* or a fluid one */
+```
+
+Only the regions that need a grid get one; navigation and components stay
+on the line intervals above or on `text-box` trimming. A heading that wants
+one and a half lines takes a smaller unit, not a fraction: on a 4px grid a
+24px body line is `--n: 6` and a 36px heading line is `--n: 9`.
 
 - Line-height as a length belongs on leaf blocks only (2.2.1): on a list or a
   container it is inherited as a fixed length and larger children overlap.
@@ -346,9 +361,13 @@ maketypework.com simplified with `cap`):
 - Images and embeds break the grid unless sized in whole units.
 - The shift centres the cap height while the browser centres the font's whole
   content area, so baselines land within about a pixel, not exactly. Check
-  the rendered page: `page-audit.js page.html --baseline 8px` finds the
-  grid's origin itself, reports MT-BASELINE-DRIFT for blocks more than 1px
-  off and names any line-height that is not a whole number of units.
+  the rendered page with `page-audit.js page.html --baseline --u
+  --baseline-scope .prose`. It reads the unit from the region as the page
+  computes it at 1280, 768 and 375px (a fixed `8px` or `0.5rem` works too),
+  finds the grid's origin itself, reports MT-BASELINE-DRIFT for blocks more
+  than 1px off (`--baseline-tolerance 0.5px` for a stricter design) and
+  names any line-height that is not a whole number of units. A fluid unit
+  rarely resolves to whole pixels, so expect sub-pixel rounding there.
   `cap` works in current Chromium, Firefox and Safari (17.2 and later).
 
 ---

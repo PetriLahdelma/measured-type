@@ -121,7 +121,7 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-NUM-ALIGN | LOW | A number column of mixed lengths not aligned at the end | convention (`product-ui.md`) |
 | MT-CAPS-TRACKING | LOW | Capitals under 20px with no positive letter-spacing; `text-transform: uppercase` without `letter-spacing` in the source | §2.1.6 (`product-ui.md`) |
 | MT-UI-SIZE | LOW | Interface text under 12px (house floor) | house (`product-ui.md`) |
-| MT-BASELINE-DRIFT | MEDIUM | With `--baseline <unit>` only: a text block's first or last baseline more than 1px off the grid (origin found from the page) | §2.2.2, strict baseline grid |
+| MT-BASELINE-DRIFT | MEDIUM | With `--baseline <unit>` only (a length or a custom property, checked at 1280, 768 and 375px, in `--baseline-scope` if given): a text block's first or last baseline more than 1px (`--baseline-tolerance`) off the grid, origin found from the page | §2.2.2, strict baseline grid |
 
 Anything a check cannot compute is listed under **Not verified**, never passed
 in silence: colours it cannot read, opacity that fades text and ground

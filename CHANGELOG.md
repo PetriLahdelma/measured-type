@@ -17,7 +17,10 @@ each change has a spec in [`specs/`](specs/).
   sets text on a baseline grid with the CSS `cap` unit, and
   `page-audit.js --baseline 8px` measures where each block's first and last
   baselines land, reports MT-BASELINE-DRIFT past 1px and names a
-  line-height that is not a whole number of grid units (spec 0020).
+  line-height that is not a whole number of grid units (spec 0020). The
+  grid is not fixed: the unit can be a custom property the page sets per
+  breakpoint, region or fluidly, checked at 1280, 768 and 375px, with
+  `--baseline-scope` and `--baseline-tolerance`.
 
 ### Fixed
 

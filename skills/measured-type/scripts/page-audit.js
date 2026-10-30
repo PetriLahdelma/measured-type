@@ -6,7 +6,7 @@
  *
  *   node scripts/page-audit.js page.html
  *   node scripts/page-audit.js https://example.com/post --json
- *   node scripts/page-audit.js page.html --baseline 8px   # also check a strict baseline grid
+ *   node scripts/page-audit.js page.html --baseline --u --baseline-scope .prose   # also a strict baseline grid
  *
  * Viewports: 1280px (desktop), 768px, 375px (phone), and the CSS widths a
  * 1280px window has at 200% (640px), 400% (320px) and 500% (256px) zoom.
@@ -22,7 +22,8 @@
  * budget, x-height pairing, weight floor, dark hairlines, icon alignment) and
  * in references/product-ui.md (tabular figures and alignment in number
  * columns, tracked capitals, truncated text, interface text size). With
- * --baseline <px|rem>, also baseline drift from a strict grid (spec 0020).
+ * --baseline <px|rem|--custom-property>, also baseline drift from a strict
+ * grid at 1280, 768 and 375px (spec 0020).
  *
  * Exit code 1 when a HIGH finding remains (verdict Block), 0 otherwise.
  * Requires Playwright: npm install && npx playwright install chromium.
@@ -451,13 +452,30 @@ function truncatedText() {
 }
 
 
-// First and last baseline of every text block in the main content, in page
-// px, found with a zero-size inline-block that sits on the baseline. The
-// markers are removed at once, so later checks see the page unchanged.
-function baselines(unit) {
+// First and last baseline of every text block in the region, in page px,
+// found with a zero-size inline-block that sits on the baseline. The markers
+// are removed at once, so later checks see the page unchanged. A unit named
+// as a custom property is resolved on the region, as the page computes it.
+function baselines({ unit, scope }) {
   const mt = window.__mt;
-  const px = unit.endsWith('rem') ? parseFloat(unit) * parseFloat(getComputedStyle(document.documentElement).fontSize) : parseFloat(unit);
-  const root = document.querySelector('main') || document.body;
+  let root;
+  try {
+    root = scope ? document.querySelector(scope) : document.querySelector('main') || document.body;
+  } catch {
+    return { error: `--baseline-scope ${scope} is not a selector the browser can parse` };
+  }
+  if (!root) return { why: `--baseline-scope ${scope} matches nothing` };
+  let px;
+  if (unit.startsWith('--')) {
+    const probe = document.createElement('div');
+    probe.style.cssText = `position: absolute; visibility: hidden; inline-size: 0; block-size: var(${unit})`;
+    root.append(probe);
+    px = probe.getBoundingClientRect().height;
+    probe.remove();
+    if (!(px > 0)) return { why: `${unit} does not resolve to a length on ${scope || mt.path(root)}` };
+  } else {
+    px = unit.endsWith('rem') ? parseFloat(unit) * parseFloat(getComputedStyle(document.documentElement).fontSize) : parseFloat(unit);
+  }
   const blocks = [...root.querySelectorAll('p, li, dt, dd, figcaption, blockquote, h1, h2, h3, h4, h5, h6')]
     .filter((el) => mt.visible(el) && mt.directText(el));
   const at = (el, end) => {
@@ -584,8 +602,11 @@ async function revealAll(page) {
 const needsInstall = (err) => /Cannot find module 'playwright'|MT_NO_PLAYWRIGHT|Executable doesn't exist|playwright install/i.test(String(err && err.message));
 
 async function audit(target, opts = {}) {
-  if (opts.baseline !== undefined && !(/^(\d*\.?\d+)(px|rem)$/.test(opts.baseline) && parseFloat(opts.baseline) > 0)) {
-    throw new Error(`--baseline must be a positive length in px or rem, such as 8px or 0.5rem; got ${opts.baseline}`);
+  if (opts.baseline !== undefined && !((/^(\d*\.?\d+)(px|rem)$/.test(opts.baseline) && parseFloat(opts.baseline) > 0) || /^--[\w-]+$/.test(opts.baseline))) {
+    throw new Error(`--baseline must be a positive length in px or rem, or a custom property such as --u; got ${opts.baseline}`);
+  }
+  if (opts.baselineTolerance !== undefined && !(/^(\d*\.?\d+)px$/.test(opts.baselineTolerance) && parseFloat(opts.baselineTolerance) > 0)) {
+    throw new Error(`--baseline-tolerance must be a positive length in px, such as 0.5px; got ${opts.baselineTolerance}`);
   }
   if (opts.lite) return liteAudit(target);
   const url = /^[a-z]+:\/\//i.test(target) ? target : pathToFileURL(path.resolve(target)).href;
@@ -808,27 +829,6 @@ async function audit(target, opts = {}) {
       const why = t.titled ? '; its title or accessible name is not shown to sighted keyboard, touch or zoom users' : '';
       add('MT-TRUNCATE', 'LOW', t.path, `"${t.text}" cut at 1280px${why}`, 'let it wrap, or offer a visible way to read it (a disclosure or an expand control)');
     }
-    if (opts.baseline) {
-      const grid = await page.evaluate(baselines, opts.baseline);
-      const off = new Map();
-      for (const b of gridDrift(grid)) {
-        if (!off.has(b.path)) off.set(b.path, []);
-        off.get(b.path).push(b);
-      }
-      const unit = `${+grid.px.toFixed(2)}px`;
-      for (const [p, bs] of off) {
-        const count = bs.length > 1 ? ` (${bs.length} blocks)` : '';
-        const worst = Math.max(...bs.map((b) => Math.max(b.firstOff, b.multiLine ? b.lastOff : 0)));
-        const lh = parseFloat(bs[0].lineHeight);
-        const whole = Number.isFinite(lh) && Math.abs(lh / grid.px - Math.round(lh / grid.px)) < 0.05;
-        if (!whole) {
-          add('MT-BASELINE-DRIFT', 'MEDIUM', p, `baselines up to ${worst.toFixed(1)}px off the ${unit} grid at 1280px: line-height ${bs[0].lineHeight} is not a whole number of grid units${count}`, `line-height: calc(N * ${unit}) on this element, with the cap shift (references/rules.md 2.2.2, strict baseline grid)`);
-        } else {
-          add('MT-BASELINE-DRIFT', 'MEDIUM', p, `baselines up to ${worst.toFixed(1)}px off the ${unit} grid at 1280px${count}`, 'padding-block-start: calc((line-height - 1cap) / 2) and a bottom margin that completes the grid unit, or fix the block above that pushes it off (references/rules.md 2.2.2, strict baseline grid)');
-        }
-      }
-      notVerified.add('baseline grid at 1280px only, and not past images or embeds of unknown height');
-    }
     await page.close();
     const zoomed = await open(640, null, { height: 450 });
     const known = new Set(cutAt1280.map((t) => t.path));
@@ -836,6 +836,40 @@ async function audit(target, opts = {}) {
       if (!known.has(t.path)) add('MT-TRUNCATE', 'HIGH', t.path, `"${t.text}" fits at 1280px but is cut at 200% zoom: content lost to zoom (WCAG 1.4.4)`, 'let it wrap at narrow widths instead of truncating');
     }
     await zoomed.close();
+
+    // ---- strict baseline grid (spec 0020), only when asked
+    if (opts.baseline) {
+      const tolerance = opts.baselineTolerance ? parseFloat(opts.baselineTolerance) : 1;
+      const off = new Map();
+      for (const width of [1280, 768, 375]) {
+        const p = await open(width);
+        const grid = await p.evaluate(baselines, { unit: opts.baseline, scope: opts.baselineScope });
+        await p.close();
+        if (grid.error) throw new Error(grid.error);
+        if (grid.why) { notVerified.add(`baseline grid at ${width}px: ${grid.why}`); continue; }
+        for (const b of gridDrift(grid, tolerance)) {
+          if (!off.has(b.path)) off.set(b.path, []);
+          off.get(b.path).push({ ...b, width, px: grid.px });
+        }
+      }
+      for (const [p, bs] of off) {
+        const widths = [...new Set(bs.map((b) => b.width))];
+        const units = [...new Set(bs.map((b) => `${+b.px.toFixed(2)}px`))];
+        const where = `at ${widths.map((w) => `${w}px`).join(', ')}`;
+        const worst = Math.max(...bs.map((b) => Math.max(b.firstOff, b.multiLine ? b.lastOff : 0)));
+        const count = new Set(bs.map((b) => b.first)).size > 1 ? ` (${bs.length} block measurements)` : '';
+        const broken = bs.find((b) => {
+          const lh = parseFloat(b.lineHeight);
+          return !(Number.isFinite(lh) && Math.abs(lh / b.px - Math.round(lh / b.px)) < 0.05);
+        });
+        if (broken) {
+          add('MT-BASELINE-DRIFT', 'MEDIUM', p, `baselines up to ${worst.toFixed(1)}px off the ${units.join(' or ')} grid ${where}: line-height ${broken.lineHeight} is not a whole number of grid units${count}`, `line-height: calc(N * ${opts.baseline.startsWith('--') ? `var(${opts.baseline})` : opts.baseline}) on this element, with the cap shift (references/rules.md 2.2.2, strict baseline grid)`);
+        } else {
+          add('MT-BASELINE-DRIFT', 'MEDIUM', p, `baselines up to ${worst.toFixed(1)}px off the ${units.join(' or ')} grid ${where}${count}`, 'padding-block-start: calc((line-height - 1cap) / 2) and a bottom margin that completes the grid unit, or fix the block above that pushes it off (references/rules.md 2.2.2, strict baseline grid)');
+        }
+      }
+      notVerified.add('baseline grid past images or embeds of unknown height');
+    }
 
     // ---- text spacing override (WCAG 1.4.12)
     const spacing = await open(1280);
@@ -971,17 +1005,21 @@ async function audit(target, opts = {}) {
 
 if (require.main === module) {
   const args = process.argv.slice(2);
-  const usage = 'usage: page-audit.js <url|file.html> [--baseline 8px] [--lite] [--json]';
-  const at = args.findIndex((a) => a === '--baseline' || a.startsWith('--baseline='));
-  const baseline = at < 0 ? undefined : args[at].includes('=') ? args[at].split('=')[1] : args[at + 1];
-  if (at >= 0 && !args[at].includes('=')) args.splice(at + 1, 1);
-  const unknown = args.find((a) => a.startsWith('--') && !['--json', '--lite'].includes(a) && !a.startsWith('--baseline'));
-  if (unknown) {
-    console.error(`unknown option ${unknown}; ${usage}`);
-    process.exit(2);
+  const usage = 'usage: page-audit.js <url|file.html> [--baseline 8px|0.5rem|--u] [--baseline-scope .prose] [--baseline-tolerance 0.5px] [--lite] [--json]';
+  const valued = { '--baseline': 'baseline', '--baseline-scope': 'baselineScope', '--baseline-tolerance': 'baselineTolerance' };
+  const opts = { lite: false };
+  const rest = [];
+  for (let i = 0; i < args.length; i++) {
+    const [flag, inline] = args[i].split(/=(.*)/s);
+    if (valued[flag]) opts[valued[flag]] = inline !== undefined ? inline : args[++i];
+    else if (flag === '--lite') opts.lite = true;
+    else if (flag !== '--json' && flag.startsWith('--')) {
+      console.error(`unknown option ${flag}; ${usage}`);
+      process.exit(2);
+    } else rest.push(args[i]);
   }
   const json = args.includes('--json');
-  const target = args.find((a) => !a.startsWith('--'));
+  const target = rest.find((a) => !a.startsWith('--'));
   if (!target) {
     console.error(usage);
     process.exit(2);
@@ -998,7 +1036,7 @@ if (require.main === module) {
     console.error(err.message);
     process.exit(2);
   };
-  audit(target, { lite: args.includes('--lite'), baseline }).then(print).catch((err) => {
+  audit(target, opts).then(print).catch((err) => {
     if (!needsInstall(err)) return fail(err);
     try {
       print(liteAudit(target));

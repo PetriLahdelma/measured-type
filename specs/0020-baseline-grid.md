@@ -24,7 +24,7 @@ area, so a fraction of a pixel stays. The tolerance is 1px for that reason.
 
 - **B1** With a grid unit (`--baseline 8px` or `0.5rem` on the command line,
   `{ baseline }` from code), the audit finds the first and last baseline of
-  every visible text block at 1280px and reports MT-BASELINE-DRIFT (MEDIUM)
+  every visible text block and reports MT-BASELINE-DRIFT (MEDIUM)
   for a block whose baseline is more than 1px off the grid. A page set with
   the `cap` shift and line heights in whole grid units has no finding.
 - **B2** The grid's origin is not asked for. The audit takes the offset that
@@ -39,8 +39,25 @@ area, so a fraction of a pixel stays. The tolerance is 1px for that reason.
   it: the markers used to find baselines are removed at once.
 - **B5** A grid unit that is not a positive length in `px` or `rem` is an
   error, not a silent pass.
+- **B6** The grid unit can be a custom property (`--baseline --u`). The
+  audit resolves it as the page computes it, on the checked region and at
+  each width, so a unit that changes at a breakpoint, grows fluidly with
+  `clamp()` or differs per region is checked against what the reader gets.
+- **B7** The check runs at 1280, 768 and 375px, and a finding names the
+  widths where the block drifts.
+- **B8** `--baseline-scope <selector>` limits the check to one region, so a
+  page can keep its article on a grid while navigation and components are
+  set freely. Without it the region is `main`, or `body` when there is no
+  `main`. A scope that matches nothing is listed under Not verified; a
+  selector the browser cannot parse is an error.
+- **B9** `--baseline-tolerance <px>` replaces the 1px default; it must be a
+  positive length in `px`.
 
-## Not in scope
+James asked for more flexibility than the article's system, which fixes one
+`rem` unit for the whole page. B6 to B9 answer that: the grid can be any
+length the CSS defines, per region and per breakpoint, held as strictly as
+the design wants.
+
 
 Images and embeds of unknown height (they break any strict grid; the recipe
 says so), and baselines inside form controls and tables.

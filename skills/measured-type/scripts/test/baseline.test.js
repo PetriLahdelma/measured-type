@@ -92,3 +92,54 @@ test('B5 a grid unit that is not a positive px or rem length is an error', async
   assert.throws(() => execFileSync(process.execPath, [path.join(SCRIPTS, 'page-audit.js'), write('free.html', FREE), '--baseline', '1em'], { stdio: 'pipe' }),
     (e) => e.status === 2 && /baseline/.test(String(e.stderr)));
 });
+
+// The same page with the unit on the container and a smaller unit on phones.
+const RESPONSIVE = ON_GRID
+  .replace('.g { max-inline-size: 34em; }', '.g { max-inline-size: 34em; --u: 0.5rem; } @media (width < 600px) { .g { --u: 0.375rem; } }')
+  .replace('.g > * { margin: 0; --u: 0.5rem;', '.g > * { margin: 0;');
+
+test('B6 the unit can be a custom property, resolved as the page computes it at each width', async () => {
+  const r = await audit(write('responsive.html', RESPONSIVE), { browser, baseline: '--u' });
+  assert.deepEqual(drift(r), [], JSON.stringify(drift(r)));
+});
+
+test('B7 the check runs at 1280, 768 and 375px and names the width that drifts', async () => {
+  const r = await audit(write('responsive.html', RESPONSIVE), { browser, baseline: '8px' });
+  const d = drift(r);
+  assert.ok(d.length > 0, 'a fixed 8px grid should not hold where the page switches to 6px');
+  assert.ok(d.every((f) => /375px/.test(f.measured) && !/1280px/.test(f.measured)), JSON.stringify(d.map((f) => f.measured)));
+});
+
+// An article on the grid beside a note set freely.
+const MIXED = `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body { margin: 0 2rem; font-family: Georgia, serif; color: #041b23; background: #fff; }
+.g { max-inline-size: 34em; --u: 0.5rem; }
+.g > * { margin: 0; --shift: calc((var(--n) * var(--u) - 1cap) / 2);
+  line-height: calc(var(--n) * var(--u)); padding-top: var(--shift);
+  margin-bottom: calc(var(--b) * var(--u) - var(--shift)); }
+.g p { font-size: 1rem; --n: 3; --b: 3; }
+.g h2 { font-size: 1.75rem; --n: 4; --b: 2; }
+.g h3 { font-size: 1.25rem; --n: 3; --b: 1; }
+.note p { font-size: 0.9rem; line-height: 1.37; margin: 0.7em 0; }</style>
+</head><body><main><article class="g">${BODY}</article>
+<aside class="note"><p>Bring cash for the kiosk.</p><p>Bicycles travel free outside the rush hour, space allowing.</p><p>Dogs on a lead are welcome.</p></aside></main></body></html>`;
+
+test('B8 a scope limits the check to one region; a scope that matches nothing is not verified', async () => {
+  const whole = await audit(write('mixed.html', MIXED), { browser, baseline: '8px' });
+  assert.ok(drift(whole).some((f) => /note/.test(f.location)), JSON.stringify(drift(whole)));
+  const scoped = await audit(write('mixed.html', MIXED), { browser, baseline: '--u', baselineScope: '.g' });
+  assert.deepEqual(drift(scoped), [], JSON.stringify(drift(scoped)));
+  const none = await audit(write('mixed.html', MIXED), { browser, baseline: '8px', baselineScope: '.missing' });
+  assert.deepEqual(drift(none), []);
+  assert.ok(none.notVerified.some((n) => /\.missing/.test(n)), none.notVerified.join('; '));
+  await assert.rejects(audit(write('mixed.html', MIXED), { browser, baseline: '8px', baselineScope: 'main >' }), /scope/);
+});
+
+test('B9 the tolerance can be tightened, and must be a positive px length', async () => {
+  const strict = await audit(write('on-grid.html', ON_GRID), { browser, baseline: '8px', baselineTolerance: '0.25px' });
+  assert.ok(drift(strict).length > 0, 'the cap shift lands within about a pixel, so 0.25px should catch it');
+  await assert.rejects(audit(write('on-grid.html', ON_GRID), { browser, baseline: '8px', baselineTolerance: '1rem' }), /tolerance/);
+  assert.throws(() => execFileSync(process.execPath, [path.join(SCRIPTS, 'page-audit.js'), write('on-grid.html', ON_GRID), '--baseline', '--u', '--baseline-scope', 'main', '--baseline-tolerance', '0px'], { stdio: 'pipe' }),
+    (e) => e.status === 2 && /tolerance/.test(String(e.stderr)));
+});
