@@ -1,0 +1,11 @@
+{
+  "name": "measured-type-repo",
+  "private": true,
+  "description": "Repository tooling for Measured Type. The skill and its own package live in skills/measured-type.",
+  "license": "MIT",
+  "scripts": {
+    "gate": "node tools/gate.js",
+    "prose": "node tools/prose-check.js",
+    "test:tools": "node --test tools/test/*.test.js"
+  }
+}

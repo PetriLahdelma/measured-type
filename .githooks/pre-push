@@ -1,0 +1,5 @@
+#!/bin/sh
+# Runs the local gate before every push (spec 0011). Enable it once with:
+#   git config core.hooksPath .githooks
+# Skip it for one push with: git push --no-verify
+exec node "$(git rev-parse --show-toplevel)/tools/gate.js"

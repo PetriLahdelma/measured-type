@@ -19,6 +19,9 @@ npm test                                         # the whole suite
 node --test scripts/test/<name>.test.js          # one file
 ```
 
+From the repository root, `npm run gate` runs the prose check and every test;
+it is what "done" is checked against.
+
 Set `MT_PYTHON` to a Python that has fontTools, or four tests skip.
 
 ## Rules
@@ -39,5 +42,5 @@ Set `MT_PYTHON` to a Python that has fontTools, or four tests skip.
 
 ## Done means
 
-`npm test` passes from `skills/measured-type/` with nothing skipped that was
+`npm run gate` passes from the repository root with nothing skipped that was
 not skipped before, and the change, its spec and its tests are in one commit.

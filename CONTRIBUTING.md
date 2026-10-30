@@ -97,7 +97,7 @@ Some rules hold across the tools:
 - **Never approve what was not computed.** If a check cannot run (no browser,
   an unreadable stylesheet, a container unit it cannot resolve), it goes
   under Not verified in the report. It is never passed in silence.
-- **Every rule ID is in the catalogue.** A rule a script emits must be listed,
+- **Every rule ID is in the catalogue.** A rule a script emits must be listed
   with its severity, and a listed rule must be emitted by a script
   (`catalog.test.js` checks both).
 - **Severities mean something.** HIGH is something a reader would hit (text
@@ -148,15 +148,24 @@ the output in Chromium.
 
 ## Before you open a pull request
 
-Run the gate from `skills/measured-type/`, with `MT_PYTHON` set:
+Run the gate from the repository root, with `MT_PYTHON` set:
 
 ```bash
-npm test
+npm run gate
 ```
 
-and include the last lines of its output (tests, pass, fail, skipped) in the
-pull request. There is no CI on pull requests; the maintainer runs the same
-gate locally before merging.
+It runs the prose check (`tools/prose-check.js`: em dashes, middle dots and
+serial commas, as in [Writing the text](#writing-the-text)) and then every
+test of the skill, and prints one line per step. Include those lines and the
+last lines of the test output (tests, pass, fail, skipped) in the pull
+request. There is no CI on pull requests; the maintainer runs the same gate
+locally before merging.
+
+To run it before every push, enable the repository's hooks once:
+
+```bash
+git config core.hooksPath .githooks
+```
 
 Then:
 

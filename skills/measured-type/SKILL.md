@@ -236,7 +236,7 @@ aesthetic choices or when asked for a typographic review with a point of view.
 It marks each rule as standard, measured, convention or preference; report
 findings with that label; a house style overrides the last two.
 In short: few sizes used with conviction, one or two families with a clear job
-each, generous but disciplined space, real glyphs instead of synthesized ones,
+each, generous but disciplined space, real glyphs instead of synthesized ones
 and no decorative effects standing in for hierarchy.
 
 ## References
@@ -245,7 +245,7 @@ and no decorative effects standing in for hierarchy.
 |---|---|
 | `references/rules.md` | applying or citing a specific rule; need variants (indent styles, heading math, small caps exceptions, verse, contents lists) |
 | `references/css-modern.md` | auditing older CSS; unsure whether a property exists, its current name or browser support |
-| `references/logical-and-language.md` | anything multilingual, RTL, mixed-direction, or locale quotes, numbers, units and hyphenation (EN, FI, SV worked examples) |
+| `references/logical-and-language.md` | anything multilingual, right-to-left or mixed-direction; locale quotes, numbers, units and hyphenation (EN, FI, SV worked examples) |
 | `scripts/measure-line.js` | before stating or shipping a measure; after changing font, size or `max-inline-size` |
 | `scripts/font-features.py` | before enabling `onum`, `smcp`, `c2sc`, `case`, `tnum` or any `font-feature-settings` |
 | `references/taste.md` | choosing faces, pairing, display treatment, dark mode text or reviewing for quality rather than correctness |

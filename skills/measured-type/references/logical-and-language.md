@@ -1,7 +1,7 @@
 # Logical CSS, direction and language
 
 Typography follows the writing direction and the language, so the stylesheet
-should too. The approach: write LTR first, express it in flow-relative terms,
+should too. The approach: write LTR first, express it in flow-relative terms
 and let `lang` and `dir` drive everything that varies. Done this way, an RTL or
 vertical edition is a content change, not a CSS rewrite.
 
@@ -168,7 +168,7 @@ than the source strings:
 3. Where the currency and percent signs go and whether a space separates
    them; `Intl` gets these right and emits no-break spaces.
 4. Number and unit: `Intl` `style: 'unit'` emits a plain space, so bind it
-   yourself, and decide whether the house style uses localized unit
+   yourself and decide whether the house style uses localized unit
    abbreviations.
 5. Dates, times, ranges and ordinals.
 6. Hyphenation: does the language build long compounds, and does every

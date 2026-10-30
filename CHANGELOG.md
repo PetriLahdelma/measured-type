@@ -18,6 +18,8 @@ each change has a spec in [`specs/`](specs/).
   and ten runs per cell (spec 0008), the hero rerun (spec 0009) and a held-out
   twin of the hero case (spec 0010), each pre-registered with its results in
   `evals/results/`.
+- `npm run gate` (spec 0011): the prose check (`tools/prose-check.js`) and
+  every test in one command, and a pre-push hook in `.githooks/`.
 - Contributor documents: CONTRIBUTING.md, AGENTS.md, a code of conduct, a
   security policy, issue forms and a pull request template.
 
