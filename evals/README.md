@@ -13,7 +13,8 @@ input files under `files/`.
 | `0008/` | The one-sentence hint arm and ten runs per cell (spec 0008): the pre-registered [`analyze.js`](0008/analyze.js), which pools the 2×2 runs |
 | `0009/` | The hero rerun after `type-scale.js --fit` (spec 0009): the pre-registered [`analyze.js`](0009/analyze.js) |
 | `h2h-zoom-title`, `0010/` | Held-out twin of the hero case (spec 0010) and its pre-registered [`analyze.js`](0010/analyze.js) |
-| `triggering/` | Whether the skill loads on its own, with skill-creator's `run_eval.py` |
+| `h2h-measure-notes`, `0017/` | A held-out line length in Charter (spec 0017) and its pre-registered [`analyze.js`](0017/analyze.js) |
+| `triggering/` | Whether the skill loads on its own: skill-creator's `run_eval.py` (spec 0003) and a real-session runner, [`session.js`](triggering/session.js) (spec 0016) |
 | `results/` | Every run's outputs, grades and timings, with a README of method, results and disclosures per experiment |
 
 The runs read the skill directly, so they measure its content, not whether it

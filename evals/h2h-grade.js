@@ -446,9 +446,33 @@ async function gradeMeasureIdeal(browser, dir) {
   ];
 }
 
+// ---------- h2h-measure-notes (spec 0017, held out) ----------
+
+async function gradeMeasureNotes(browser, dir) {
+  const file = fixedPage(dir, 'notes');
+  const p = await open(browser, file, 1440);
+  const r = await p.evaluate(() => {
+    const ps = [...document.querySelectorAll('.essay p')];
+    ps.forEach((e, i) => e.setAttribute('data-g', i));
+    const m = ps.map((e, i) => measureLines(`[data-g="${i}"]`)).filter((x) => x.fullLines);
+    return { m, sizes: ps.map((e) => parseFloat(getComputedStyle(e).fontSize)) };
+  });
+  await p.close();
+  const lines = r.m.reduce((s, x) => s + x.fullLines, 0);
+  const avg = lines ? r.m.reduce((s, x) => s + x.avgCharsPerLine * x.fullLines, 0) / lines : null;
+  const p375 = await open(browser, file, 375);
+  const sw = await p375.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+  await p375.close();
+  return [
+    [avg !== null && avg >= 60 && avg <= 64, `pooled ${avg && avg.toFixed(2)} characters per line over ${lines} full lines (per paragraph ${r.m.map((x) => x.avgCharsPerLine).join(', ')})`],
+    [sw.sw <= sw.cw + 1, `scrollWidth ${sw.sw} in a ${sw.cw}px viewport`],
+    [r.sizes.length > 0 && r.sizes.every((s) => Math.abs(s - 19) < 0.01), `paragraph sizes ${[...new Set(r.sizes)].join(', ')}px`],
+  ];
+}
+
 async function main() {
   const [name, outputs] = process.argv.slice(2);
-  const graders = { 'h2h-page-audit': gradePageAudit, 'h2h-font-loading': gradeFontLoading, 'h2h-rtl': gradeRtl, 'h2h-dashboard': gradeDashboard, 'h2h-measure-ideal': gradeMeasureIdeal, 'h2h-zoom-hero': gradeZoomHero, 'h2h-zoom-title': gradeZoomTitle };
+  const graders = { 'h2h-page-audit': gradePageAudit, 'h2h-font-loading': gradeFontLoading, 'h2h-rtl': gradeRtl, 'h2h-dashboard': gradeDashboard, 'h2h-measure-ideal': gradeMeasureIdeal, 'h2h-measure-notes': gradeMeasureNotes, 'h2h-zoom-hero': gradeZoomHero, 'h2h-zoom-title': gradeZoomTitle };
   if (!graders[name] || !outputs) {
     console.error(`usage: h2h-grade.js <${Object.keys(graders).join('|')}> <outputs-dir>`);
     process.exit(2);
