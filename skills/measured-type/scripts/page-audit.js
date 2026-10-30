@@ -135,7 +135,9 @@ function pageHelpers() {
       });
     },
     textElements() {
-      return [...document.body.querySelectorAll('*')].filter((el) => window.__mt.directText(el) && window.__mt.visible(el) && !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(el.tagName));
+      // Text inside video, audio, canvas, object and iframe is fallback content a browser that
+      // supports the element never draws.
+      return [...document.body.querySelectorAll('*')].filter((el) => window.__mt.directText(el) && window.__mt.visible(el) && !['SCRIPT', 'STYLE', 'NOSCRIPT', 'VIDEO', 'AUDIO', 'CANVAS', 'OBJECT', 'IFRAME'].includes(el.tagName));
     },
   };
 }

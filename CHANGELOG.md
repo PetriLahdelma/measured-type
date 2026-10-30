@@ -22,8 +22,9 @@ each change has a spec in [`specs/`](specs/).
   the audit scrolls the page once and finishes animations before measuring,
   so text that fades in on scroll is no longer reported at 1:1 contrast and
   the audit waits for fades a script runs; text still at opacity 0 is
-  listed as not verified; and visually hidden text and icon-only controls
-  are never reported as truncated text.
+  listed as not verified; visually hidden text and icon-only controls are
+  never reported as truncated text; and fallback text inside a video is no
+  longer read as text on the page.
 
 ### Evidence
 

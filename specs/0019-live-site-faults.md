@@ -43,3 +43,7 @@ confirmed on the live page before it was fixed.
   a script runs frame by frame is not a CSS animation and cannot be
   finished. The site's reveals took about 1.8 seconds and were read at 1.61
   to 3.80:1 halfway through.
+- **D7** Text inside `video`, `audio`, `canvas`, `object` and `iframe` is
+  fallback content a browser that supports the element never draws, so it
+  is not text on the page. A meter video wider than a phone was MT-REFLOW
+  HIGH as "text runs 241px past the viewport".

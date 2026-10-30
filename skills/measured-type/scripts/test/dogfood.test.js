@@ -107,3 +107,17 @@ test('D6 a fade a script runs is measured once it settles', async () => {
   const r = await audit(write('hidden.html', HIDDEN), { browser });
   assert.ok(!r.findings.some((f) => f.rule === 'MT-CONTRAST' && /slow/.test(f.location)), JSON.stringify(r.findings.filter((f) => f.rule === 'MT-CONTRAST')));
 });
+
+// A video wider than a phone inside a box that hides overflow, with the usual
+// fallback sentence inside it that a browser that plays video never draws.
+const VIDEO = `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body { font: 1rem/1.5 Georgia, serif; margin: 0 1rem; } .wrap { overflow: hidden; } video { inline-size: 600px; block-size: 200px; }</style>
+</head><body><p>Level meter on the master bus.</p>
+<div class="wrap"><video muted>Your browser does not play this video.</video></div>
+</body></html>`;
+
+test('D7 fallback text inside a video is not text on the page', async () => {
+  const r = await audit(write('video.html', VIDEO), { browser });
+  assert.ok(!r.findings.some((f) => /video/.test(f.location)), JSON.stringify(r.findings.map((f) => [f.rule, f.location])));
+});
