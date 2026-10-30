@@ -1,6 +1,8 @@
 # Spec 0009: zoom-safe answers for a requested range
 
-Status: accepted 30 October 2026. Each requirement has an ID; the test that
+Status: accepted 30 October 2026; shipped in `5c2cf4e` (tag
+`content-freeze-8`); hero rerun results in
+[`evals/results/0009/`](../evals/results/0009/). Each requirement has an ID; the test that
 proves it carries the same ID in its name (`scripts/test/fit.test.js`).
 
 ## Why

@@ -1,0 +1,122 @@
+{
+ "cjizep": {
+  "case": "h2h-zoom-hero",
+  "cell": "A9",
+  "run": 1,
+  "model": "sonnet"
+ },
+ "ssfzia": {
+  "case": "h2h-zoom-hero",
+  "cell": "B9",
+  "run": 1,
+  "model": "sonnet"
+ },
+ "ogcrme": {
+  "case": "h2h-zoom-hero",
+  "cell": "A9",
+  "run": 2,
+  "model": "sonnet"
+ },
+ "gutaku": {
+  "case": "h2h-zoom-hero",
+  "cell": "B9",
+  "run": 2,
+  "model": "sonnet"
+ },
+ "rejpgf": {
+  "case": "h2h-zoom-hero",
+  "cell": "A9",
+  "run": 3,
+  "model": "sonnet"
+ },
+ "canzyx": {
+  "case": "h2h-zoom-hero",
+  "cell": "B9",
+  "run": 3,
+  "model": "sonnet"
+ },
+ "kwfxqv": {
+  "case": "h2h-zoom-hero",
+  "cell": "A9",
+  "run": 4,
+  "model": "sonnet"
+ },
+ "kwijag": {
+  "case": "h2h-zoom-hero",
+  "cell": "B9",
+  "run": 4,
+  "model": "sonnet"
+ },
+ "qejjpu": {
+  "case": "h2h-zoom-hero",
+  "cell": "A9",
+  "run": 5,
+  "model": "sonnet"
+ },
+ "ujzhvr": {
+  "case": "h2h-zoom-hero",
+  "cell": "B9",
+  "run": 5,
+  "model": "sonnet"
+ },
+ "xibfhm": {
+  "case": "h2h-zoom-hero",
+  "cell": "A9",
+  "run": 6,
+  "model": "sonnet"
+ },
+ "ckxdpc": {
+  "case": "h2h-zoom-hero",
+  "cell": "B9",
+  "run": 6,
+  "model": "sonnet"
+ },
+ "tlnsdq": {
+  "case": "h2h-zoom-hero",
+  "cell": "A9",
+  "run": 7,
+  "model": "sonnet"
+ },
+ "efmyez": {
+  "case": "h2h-zoom-hero",
+  "cell": "B9",
+  "run": 7,
+  "model": "sonnet"
+ },
+ "eqmeps": {
+  "case": "h2h-zoom-hero",
+  "cell": "A9",
+  "run": 8,
+  "model": "sonnet"
+ },
+ "eiqyly": {
+  "case": "h2h-zoom-hero",
+  "cell": "B9",
+  "run": 8,
+  "model": "sonnet"
+ },
+ "nkysfi": {
+  "case": "h2h-zoom-hero",
+  "cell": "A9",
+  "run": 9,
+  "model": "sonnet"
+ },
+ "fwvvac": {
+  "case": "h2h-zoom-hero",
+  "cell": "B9",
+  "run": 9,
+  "model": "sonnet"
+ },
+ "tqhcos": {
+  "case": "h2h-zoom-hero",
+  "cell": "A9",
+  "run": 10,
+  "model": "sonnet"
+ },
+ "kxgzwt": {
+  "case": "h2h-zoom-hero",
+  "cell": "B9",
+  "run": 10,
+  "model": "sonnet"
+ }
+}

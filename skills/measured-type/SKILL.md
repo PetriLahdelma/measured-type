@@ -149,12 +149,12 @@ exits 1 naming any step that fails. The rules it applies:
   zoom). Fluid display sizes as `clamp(min-rem, rem + vi, max-rem)`; the `vi`
   part does not grow with zoom, so keep each range modest and compute the
   ratio at 200% zoom (see `rules.md` §3.1.1). A pure `vw` value fails zoom.
-  When the request fixes both ends (say 40px on a phone and 72px on a
+  When the request fixes both ends (say 32px on a phone and 60px on a
   desktop), keep the requested sizes; do not quietly shrink the desktop size
   to pass zoom, and do not ship a ramp that fails it. Run
-  `node scripts/type-scale.js --fit 2.5rem:4.5rem`: it prints the plain ramp
+  `node scripts/type-scale.js --fit 2rem:3.75rem`: it prints the plain ramp
   and two forms that keep both sizes and pass the 1.6× bar, an early max (the
-  ramp ends sooner, so every screen from about 850px gets the full size) and
+  ramp ends sooner, so every screen from about 840px gets the full size) and
   two slopes (`clamp(min, min(steep, gentle), max)`, steep up to 640px and
   gentle after it). Pick one, say which and why, and give the growth at 200%
   on narrower windows from its table.

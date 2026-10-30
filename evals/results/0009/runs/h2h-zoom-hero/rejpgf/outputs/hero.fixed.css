@@ -1,0 +1,12 @@
+body { margin: 0; font-family: Georgia, serif; color: #222; background: #fff; }
+.hero { padding: 2rem 1.5rem; }
+.hero h1 {
+  /* 40px at 360px wide, 72px from 1440px. rem term keeps zoom and user font size working.
+     Two slopes: steep up to ~640px, gentle after, so a 1280px window zoomed to 200% still grows. */
+  font-size: clamp(2.5rem, min(1.2714rem + 5.4603vi, 2.62rem + 2.0889vi), 4.5rem);
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+.hero p { font-size: 1.125rem; line-height: 1.5; max-inline-size: 34em; margin: 0; }

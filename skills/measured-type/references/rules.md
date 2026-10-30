@@ -483,14 +483,14 @@ own devising.
   (about 1.4× or less) and compute the ratio at 200% zoom on the *worst*
   window before shipping; for a 360–1440px ramp that is a 1440px window
   (CSS viewport 720px, 1rem = 32 device px, 1vw = 7.2 CSS px = 14.4 device px).
-- **When the request fixes the range.** A brief that asks for 40px on a phone
-  and 72px on a desktop sets a 1.8× range, and a single ramp across it grows
-  only about 1.43× at 200% zoom on a 1280px window. Keep the requested sizes
-  and change the shape instead: an **early max** ends the ramp by about 850px,
+- **When the request fixes the range.** A brief that asks for 32px on a phone
+  and 60px on a desktop sets a 1.875× range, and a single ramp across it grows
+  only about 1.41× at 200% zoom on a 1280px window. Keep the requested sizes
+  and change the shape instead: an **early max** ends the ramp by about 840px,
   so a 1280px window at 200% (a 640px CSS viewport) still gets 0.8 of the
-  maximum; **two slopes**, `clamp(2.5rem, min(1.2714rem + 5.4603vi, 2.62rem +
-  2.0889vi), 4.5rem)`, climb steeply to 640px and gently after it, so both
-  requested sizes hold exactly. `scripts/type-scale.js --fit 2.5rem:4.5rem`
+  maximum; **two slopes**, `clamp(2rem, min(0.8708rem + 5.0185vi, 2.1808rem +
+  1.7435vi), 3.75rem)`, climb steeply to 640px and gently after it, so both
+  requested sizes hold exactly. `scripts/type-scale.js --fit 2rem:3.75rem`
   computes both and shows their growth on 1024, 1280, 1440 and 1920px windows;
   neither reaches 1.6× on every window, so state the trade.
 - **Zoom and hierarchy pull against each other.** Narrow fluid ranges help

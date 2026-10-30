@@ -45,9 +45,10 @@ first. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
 - Line length in a wide face: `66ch` in Verdana sets 81 characters; the
   skill counts lines instead of trusting the unit, and came closer to 66
   than a model given a one-sentence hint.
-- Fluid type under zoom, the largest gap in the development benchmark. The
-  skill raises growth under zoom, but a one-sentence hint raised it more
-  (see [Evidence](#evidence)).
+- Fluid type under zoom when the brief fixes the sizes: `type-scale.js
+  --fit` gives two forms that keep both sizes and pass the zoom bar, and on
+  the hero case every run with it met all three checks, against 6 of 20 with
+  a one-sentence hint (see [Evidence](#evidence)).
 - Right-to-left audits that convert text flow but leave decoration and
   already-mirrored glyphs alone.
 - Dense product UI: tabular figures, numbers aligned at the end, tracked
@@ -68,9 +69,9 @@ first. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
 
 **When to skip it**
 
-- Fluid type under zoom alone: one sentence ("check that it still grows at
-  least 1.6× at 200% zoom") did better than the skill. On line length the
-  skill came closest, by a character or two.
+- Fluid type whose sizes you are free to change: one sentence ("check that
+  it still grows at least 1.6× at 200% zoom") reached the bar as reliably as
+  the skill, by shrinking the desktop size.
 - One-off questions a current model already answers well.
 - Logos, drawing icons or fonts, build setup.
 
@@ -293,6 +294,7 @@ every result is reproducible from the committed run files.
 | [Head-to-head 3](evals/results/h2h-3/) | Same cases, no browser in the brief, Opus and Sonnet | 48/48 | 48/48 | Runs with the skill landed on 66 characters per line, two without it at 62.5 and 63.4; the skill's runs had its bundled Chromium, so the gain comes from the tooling |
 | [2×2](evals/results/2x2/) | Skill and browser varied independently, 66-character measure and a fluid hero under zoom, Sonnet, 40 runs | 51/60 | 50/60 | Line length follows the browser; on the hero the skill raised growth at 200% zoom with or without one (1.53× against 1.43× to 1.45×), though 9 of its 10 runs still missed the 1.6× bar |
 | [Spec 0008](evals/results/0008/) | A one-sentence hint against the skill, and the 2×2 at ten runs per cell, Sonnet, 80 more runs | 101/120 | 106/120 with the hint, 100/120 with nothing | The hint beat the skill on growth under zoom (1.63× against 1.50×), mostly by giving up the requested 72px; the skill came closer to 66 characters per line (0.25 against 1.54 off, with a browser) |
+| [Spec 0009](evals/results/0009/) | The hero case again after `type-scale.js --fit`, Sonnet, 20 runs | 20/20 met all three checks | 6/20 with the hint, 0/20 with nothing | Every run used the two-slope form `--fit` printed and kept both requested sizes (p < 0.001 against the skill before it); a development result on the case that motivated the change |
 | [Triggering](evals/triggering/) | 16 typography prompts, 16 near misses, 3 runs each | 5 of 48 loads | | Rarely loads on its own; never loads for a near miss |
 
 **How to read it.** The 2×2 and spec 0008 separate the skill's guidance from
@@ -306,7 +308,10 @@ graded band. On the fluid hero the skill raised growth under zoom (1.50×
 against 1.43×, p < 0.0001), but one sentence naming the 1.6× bar raised it
 further (1.63×, p < 0.0001); 14 of the 20 runs with that sentence reached
 the bar by giving up the 72px desktop size the task asked for, and no
-configuration reliably met both. The bar is this project's own convention.
+configuration reliably met both until spec 0009 added `type-scale.js --fit`,
+after which all 20 runs with the skill met both; that is the tool printing
+the answer, measured on the case that motivated it. The bar is this
+project's own convention.
 Before these experiments, the guidance changed nothing measurable on the
 cases written after the content was frozen. The development set shows that
 the content reaches the agent, but the references contain worked answers for
