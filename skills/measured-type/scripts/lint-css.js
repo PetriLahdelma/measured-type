@@ -171,6 +171,8 @@ function zoomProfile(f) {
 
 const HEADING = /(^|[\s,>+~(.#])h[1-6]\b|heading|title|display|hero|headline/i;
 const READING = /(^|[\s,>+~(])(body|p|li|dd|blockquote|article|main)\b|prose|content|post|entry|doc|copy|reading/i;
+// A selector whose subject (the last compound of any of its parts) is a paragraph-level reading element.
+const READING_LEAF = /(^|[\s>+~,])(p|li|dd|blockquote)([.:#[][^\s>+~,]*)?\s*(,|$)/i;
 const CONTAINER = /prose|article|main|content|container|wrap|page|body|doc|post|entry|column|(^|[\s,>+~(])p\b/i;
 const SIZE_TOKEN = /size|font|text|fs\b|step|scale|display|hero|h[1-6]|heading|title|type/i;
 const PHYSICAL = /^(margin|padding|border)-(left|right)(-|$)|^(left|right)$|^border-(top|bottom)-(left|right)-radius$/;
@@ -184,7 +186,9 @@ function fluid(v, label) {
   if (z.worst500 < 2) {
     return ['MT-ZOOM-VW', 'HIGH', `${label} never reaches 2× zoom, even at 500% (${z.worst500.toFixed(2)}×)`, 'clamp(min-rem, rem + vi, max-rem) with a range near 1.4×'];
   }
-  if (z.range > 1.4) {
+  // A size that already grows 1.6x at 200% and reaches 2x at 500% passes the bar type-scale.js --fit
+  // uses; its range is then the design's choice.
+  if (z.range > 1.4 && !(z.at1280 >= 1.6 && z.worst500 >= 2)) {
     return ['MT-ZOOM-RANGE', z.range > 2.5 ? 'MEDIUM' : 'LOW', `${label}: range ${z.range.toFixed(2)}×, ${z.at1280.toFixed(2)}× at 200% zoom on 1280px`, 'narrow the range to about 1.4×; if the request fixed both sizes, keep them and run type-scale.js --fit MIN:MAX for an early max or two slopes'];
   }
   return null;
@@ -202,7 +206,9 @@ function lintCss(blocks, file, opts, out) {
 
   for (const b of blocks) {
     const sel = b.prelude;
-    if (/^@font-face/i.test(sel) && !b.decls.some((d) => d.prop === 'font-display')) {
+    // font-display decides when a downloaded face may be used; a face with only local() sources downloads nothing.
+    const localOnly = b.decls.some((d) => d.prop === 'src' && !/url\(/i.test(d.value) && /local\(/i.test(d.value));
+    if (/^@font-face/i.test(sel) && !localOnly && !b.decls.some((d) => d.prop === 'font-display')) {
       add('MT-FONT-DISPLAY', 'LOW', b, '@font-face without font-display', 'font-display: swap (or optional)');
     }
     const isRoot = /^(html|:root)$/i.test(sel);
@@ -258,7 +264,9 @@ function lintCss(blocks, file, opts, out) {
       if ((d.prop === 'font-kerning' && v === 'none') || (d.prop === 'font-feature-settings' && /["']kern["']\s+(0|off)\b/.test(v))) {
         add('MT-KERN-OFF', 'LOW', d, `${rule} switches the font's kerning off`, 'font-kerning: normal (auto already kerns at every size in Chromium and WebKit)');
       }
-      if (d.prop === 'text-transform' && v === 'uppercase' && !b.decls.some((x) => x.prop === 'letter-spacing') && !tracked.has(sel.trim())) {
+      if (d.prop === 'text-transform' && v === 'uppercase' && READING_LEAF.test(sel)) {
+        add('MT-CAPS-TEXT', 'MEDIUM', d, `${rule} sets running text in capitals`, 'lower case: capitals are for labels of a few words, not sentences');
+      } else if (d.prop === 'text-transform' && v === 'uppercase' && !b.decls.some((x) => x.prop === 'letter-spacing') && !tracked.has(sel.trim())) {
         add('MT-CAPS-TRACKING', 'LOW', d, `${rule} without letter-spacing`, 'letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6)');
       }
       if (d.prop === 'letter-spacing' && /^-?[\d.]+px$/.test(v) && parseFloat(v) !== 0) {
@@ -301,15 +309,30 @@ function lintHtml(source, file, opts, out) {
   const checks = [
     ['MT-MINUS', /(^|[\s( ])-\d/g, 'hyphen-minus before a number', 'U+2212 minus (&minus;)'],
     ['MT-RANGE', /\b\d{1,4}-\d{1,4}\b(?!-)/g, 'hyphen in a number range', 'en dash, U+2013 (&ndash;)'],
-    ['MT-QUOTES', /"[^"\n]{1,200}"|\b\w'\w/g, 'straight quotes', 'typographic quotes and apostrophes for the language'],
+    // A pair of straight double quotes, or a straight single quote inside a word (it's), after one
+    // (readers', a closing quote) or before one (an opening quote).
+    ['MT-QUOTES', /"[^"\n]{1,200}"|\p{L}'(?=\p{L})|\p{L}'(?=[\s.,;:!?)\]]|$)|(?<=^|[\s(\[])'(?=\p{L})/gu, 'straight quotes', 'typographic quotes and apostrophes for the language'],
   ];
+  const words = new Set();
   for (const [rule, re, what, fix] of checks) {
     for (const m of text.matchAll(re)) {
       if (rule === 'MT-RANGE' && /\d{4}-\d{2}-\d{2}/.test(text.slice(Math.max(0, m.index - 5), m.index + 12))) continue;
       // A leading zero (040-123) is a phone or code fragment, and a numbered standard (ISO 8601-1) is a name.
       if (rule === 'MT-RANGE' && (/^0\d/.test(m[0]) || /\b[A-Z]{2,5}\s?$/.test(text.slice(Math.max(0, m.index - 8), m.index)))) continue;
       const at = m.index + (rule === 'MT-MINUS' ? m[1].length : 0); // the prefix may be the newline before the sign
-      out.push({ rule, severity: 'LOW', file, line: lineAt(at), measured: `${what}: ${m[0].trim()}`, fix });
+      // A single quote is reported once, with the word around it, so "it's" reads as it's and not t's
+      // and 'yes' is one finding, not two.
+      let shown = m[0].trim();
+      if (rule === 'MT-QUOTES' && !m[0].startsWith('"')) {
+        let s0 = m.index;
+        while (s0 > 0 && !/\s/.test(text[s0 - 1])) s0--;
+        let e0 = m.index + 1;
+        while (e0 < text.length && !/\s/.test(text[e0])) e0++;
+        if (words.has(s0)) continue;
+        words.add(s0);
+        shown = text.slice(s0, e0).replace(/^[(\[]+|[.,;:!?)\]]+$/g, '');
+      }
+      out.push({ rule, severity: 'LOW', file, line: lineAt(at), measured: `${what}: ${shown}`, fix });
     }
   }
 }

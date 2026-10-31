@@ -12,6 +12,9 @@ Usage:
   python3 scripts/fallback-metrics.py fonts/Body.woff2 --fallback /System/Library/Fonts/Supplemental/Georgia.ttf --name Georgia
   python3 scripts/fallback-metrics.py Body.ttf --fallback Arial.ttf --name Arial --family "Body Fallback"
 
+The fallback may be a collection (.ttc, as most macOS system faces are):
+--font-number picks its face (default 0), and the output names the face used.
+
 Then put the fallback family right after the web font:
   font-family: "Body", "Body Fallback", Georgia, serif;
 
@@ -31,6 +34,27 @@ try:
 except ImportError:
     sys.exit("fontTools is missing: pip install fonttools brotli")
 
+
+def collection_size(path):
+    """Faces in a .ttc/.otc collection, or None for a single font."""
+    with open(path, "rb") as fh:
+        if fh.read(4) != b"ttcf":
+            return None
+    from fontTools.ttLib import TTCollection
+    return len(TTCollection(path, lazy=True).fonts)
+
+
+def open_face(path, number=0, **kw):
+    """The font at path; in a collection, face `number` (default 0). Returns (font, number, count)."""
+    count = collection_size(path)
+    if count is None:
+        if number:
+            raise ValueError(f"not a font collection, so --font-number {number} does not apply")
+        return TTFont(path, **kw), 0, 1
+    if not 0 <= number < count:
+        raise ValueError(f"the collection has {count} faces; --font-number must be 0 to {count - 1}")
+    return TTFont(path, fontNumber=number, **kw), number, count
+
 # Relative frequency of letters in English text, plus the word space
 # (about one character in six). Used to weight advance widths.
 LETTERS = {
@@ -42,12 +66,13 @@ LETTERS = {
 SPACE_SHARE = 0.18
 
 
-def load(path):
+def load(path, number=0):
+    """(font, number, count); exits with a message when the file cannot be read."""
     if not os.path.exists(path):
         sys.exit(f"{path}: file not found")
     try:
-        return TTFont(path)
-    except Exception as err:  # not a font, or unreadable
+        return open_face(path, number)
+    except Exception as err:  # not a font, unreadable, or a face the collection lacks
         sys.exit(f"{path}: {err}")
 
 
@@ -94,16 +119,19 @@ def main():
     ap.add_argument("--fallback", required=True, help="the local fallback font file to match")
     ap.add_argument("--name", required=True, help="the fallback's local() name, for example Georgia")
     ap.add_argument("--family", help='name of the generated family (default: "<web font> Fallback")')
+    ap.add_argument("--font-number", type=int, default=0, metavar="N",
+                    help="face of the fallback to read when it is a .ttc or .otc collection (default 0)")
     args = ap.parse_args()
 
-    web = load(args.webfont)
-    fallback = load(args.fallback)
+    web, _, _ = load(args.webfont)
+    fallback, number, count = load(args.fallback, args.font_number)
+    face = f" (face {number} of {count} in {os.path.basename(args.fallback)}: {family_name(fallback)})" if count > 1 else ""
 
     size_adjust = average_width(web) / average_width(fallback)
     ascent, descent, gap = vertical_metrics(web)
     family = args.family or f"{family_name(web)} Fallback"
 
-    print(f"""/* Metric-matched fallback for {family_name(web)} using {args.name}.
+    print(f"""/* Metric-matched fallback for {family_name(web)} using {args.name}{face}.
    size-adjust matches the average character width; the overrides reproduce
    the web font's line box. Safari applies size-adjust only. */
 @font-face {{

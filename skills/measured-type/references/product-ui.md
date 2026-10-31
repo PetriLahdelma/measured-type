@@ -52,6 +52,9 @@ and table headers need 5 to 10% of their size in tracking
 is often easier to scan and needs no tracking (preference). Check:
 `MT-CAPS-TRACKING`, rendered for capitals under 20px, and in the linter for
 `text-transform: uppercase` with no `letter-spacing` in the same rule.
+Capitals are for labels of a few words: a sentence or paragraph in capitals
+is set in lower case, not tracked (`MT-CAPS-TEXT`). Acronyms (DACH, USB-C),
+code and caseless scripts such as Arabic are not labels to track.
 
 **A floor for interface text** (house heuristic). WCAG sets no minimum size,
 but text under 12px at the default zoom is hard for many readers and fails

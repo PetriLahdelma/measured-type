@@ -85,10 +85,10 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-MEASURE-LONG | MEDIUM | Reading text averages over 75 characters per full line | §2.1.2 (measured) |
 | MT-LH-LENGTH | MEDIUM | `line-height` as a length on an element that has children | §2.2.1 |
 | MT-LH-TIGHT | MEDIUM | Unitless `line-height` under 1.3 on body text | §2.2.1 |
-| MT-JUSTIFY | MEDIUM | `text-align: justify` without `hyphens: auto` | §2.1.3, §2.4.1 |
+| MT-JUSTIFY | MEDIUM | `text-align: justify` without `hyphens: auto`, or rendered with `hyphens: auto` but no `lang` (no dictionary, nothing hyphenates). Justified CJK is exempt | §2.1.3, §2.4.1 |
 | MT-WIDTH-PX | MEDIUM | Fixed `width` in `px` on a text container | WCAG 1.4.10, §2.1.2 |
 | MT-FONT-PX | MEDIUM | Body or paragraph `font-size` in `px` | §3.1.1 |
-| MT-FONT-FALLBACK | MEDIUM | Rendered face is not the first family declared: the web font failed or lacks glyphs | measured |
+| MT-FONT-FALLBACK | MEDIUM | Rendered face is not the first family declared: the web font failed or lacks glyphs. A web font that loaded under another name, and text in another script drawn by a later family of the stack, are exempt | measured |
 | MT-SIZE-FLOOR | MEDIUM | Reading text below 16px | taste (convention) |
 | MT-SMALLCAPS-SYNTH | MEDIUM | Small caps requested with synthesis allowed: fake small caps if the font lacks `smcp` | §2.1.9, §3.2.2 |
 | MT-ZOOM-RANGE | LOW | Fluid range over 1.4× (MEDIUM over 2.5×, the zoom heuristic) | §3.1.1 |
@@ -99,13 +99,13 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-LS-PX | LOW | `letter-spacing` in `px` | §2.1.6 |
 | MT-PHYSICAL | LOW | Physical sides (`margin-left`, `text-align: right`...) in text layout; HIGH with `--rtl`. `left: 50%` with `translate(-50%)` centres and is exempt | `logical-and-language.md` |
 | MT-WIDOWS | LOW | `widows`/`orphans` of 1 (2 is the CSS initial value) | §2.4.8 |
-| MT-FONT-DISPLAY | LOW | `@font-face` without `font-display` | `taste.md` |
-| MT-HEADING-RUNT | LOW | A heading's last line is one word | §2.4.8 (convention) |
+| MT-FONT-DISPLAY | LOW | `@font-face` without `font-display`; a face with only `local()` sources is exempt | `taste.md` |
+| MT-HEADING-RUNT | LOW | A heading's last line is one word (ruby annotations not counted) | §2.4.8 (convention) |
 | MT-SIZE-COUNT | LOW | More than 8 distinct text sizes on one page | `taste.md` (convention) |
 | MT-MINUS | LOW | Hyphen-minus before a number in text (`-12%`) | §2.4.6 |
 | MT-RANGE | LOW | Hyphen in a number range (`1990-2004`) | punctuation |
-| MT-QUOTES | LOW | Straight quotes in text | punctuation |
-| MT-HEADING-ORDER | MEDIUM | A heading level as large as and as heavy as or heavier than the level above it | Saltz (`screen-and-ui.md`) |
+| MT-QUOTES | LOW | Straight quotes and apostrophes in text | punctuation |
+| MT-HEADING-ORDER | MEDIUM | A heading as large as and as heavy as or heavier than the nearest higher-level heading before it | Saltz (`screen-and-ui.md`) |
 | MT-WEIGHT-THIN | MEDIUM | Reading text under weight 400; reports the WCAG ratio and APCA Lc | Latin, Saltz (`screen-and-ui.md`) |
 | MT-CODE-XHEIGHT | LOW | Inline code x-height outside 0.90 to 1.10 of the surrounding text's | Latin (`screen-and-ui.md`) |
 | MT-CODE-BOX | LOW | Boxed inline code collides with itself across lines | Latin (`screen-and-ui.md`) |
@@ -119,8 +119,9 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-TABULAR | MEDIUM | A table number column whose 1 and 0 differ in width by more than 2% | §3.2.1 (`product-ui.md`) |
 | MT-TRUNCATE | LOW | Text cut by an ellipsis, clip or line clamp with no visible way to read it (a title does not count); HIGH when the cut appears only at 200% zoom (WCAG 1.4.4) | `product-ui.md` |
 | MT-NUM-ALIGN | LOW | A number column of mixed lengths not aligned at the end | convention (`product-ui.md`) |
-| MT-CAPS-TRACKING | LOW | Capitals under 20px with no positive letter-spacing; `text-transform: uppercase` without `letter-spacing` in the source | §2.1.6 (`product-ui.md`) |
-| MT-UI-SIZE | LOW | Interface text under 12px (house floor) | house (`product-ui.md`) |
+| MT-CAPS-TRACKING | LOW | Capitals under 20px with no positive letter-spacing; `text-transform: uppercase` without `letter-spacing` in the source. Cased letters only (caseless scripts have no capitals), one typed word of five capitals or fewer is an acronym, code is exempt | §2.1.6 (`product-ui.md`) |
+| MT-CAPS-TEXT | MEDIUM | Running text in capitals: more than 60 capital letters rendered, or `text-transform: uppercase` on a paragraph, list item or quotation in the source. The fix is lower case, not tracking | `taste.md` (`product-ui.md`) |
+| MT-UI-SIZE | LOW | Interface text under 12px (house floor; 0.01px rounding allowed) | house (`product-ui.md`) |
 | MT-BASELINE-DRIFT | MEDIUM | With `--baseline <unit>` only (a length or a custom property, checked at 1280, 768 and 375px, in `--baseline-scope` if given): a text block's first or last baseline more than 1px (`--baseline-tolerance`) off the grid, origin found from the page | §2.2.2, strict baseline grid |
 
 Anything a check cannot compute is listed under **Not verified**, never passed

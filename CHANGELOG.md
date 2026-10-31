@@ -24,6 +24,22 @@ each change has a spec in [`specs/`](specs/).
 
 ### Fixed
 
+- Trust fixes from the third council (spec 0021), where the tools disagreed
+  with the skill's own advice or applied Latin and prose assumptions where
+  they do not hold. MT-QUOTES finds straight apostrophes in any word, not
+  only "I'm". MT-ZOOM-RANGE accepts a size that already passes the 1.6×
+  zoom bar, so the clamp `type-scale.js --fit` recommends lints clean.
+  MT-CAPS-TRACKING counts cased letters only (Arabic with a Latin code is
+  not capitals) and leaves acronyms and code alone; running text in
+  capitals is the new MT-CAPS-TEXT (MEDIUM), fixed with lower case instead
+  of tracking. MT-HEADING-ORDER compares each heading with the nearest
+  higher heading before it. `apca.js` runs from the command line.
+  `font-features.py` and `fallback-metrics.py` read `.ttc` collections
+  (`--font-number`). MT-FONT-DISPLAY skips `local()` faces, such as the
+  ones `fallback-metrics.py` prints. MT-FONT-FALLBACK accepts a web font
+  loaded under another name and a script face later in the stack. The size
+  floors allow 0.01px of rounding. MT-JUSTIFY reports `hyphens: auto` with
+  no `lang` and leaves justified CJK alone. MT-HEADING-RUNT skips ruby.
 - `page-audit.js` on live sites (spec 0019), found by auditing 14 pages of
   digitaltableteur.com: the zoom check pairs elements by path, so a page
   that renders different elements at different widths no longer crashes it;

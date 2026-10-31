@@ -278,18 +278,25 @@ function bookChecks() {
     if (il >= 0.82) out.confusable.push({ path: mt.path(el), il, l1: overlap(l, one), family: first(family) });
   }
 
-  // G5 heading order: each level present against the nearest higher level present
-  const levels = [1, 2, 3, 4, 5, 6].map((n) => headings.find((h) => h.tagName === `H${n}`)).filter(Boolean);
-  for (let i = 1; i < levels.length; i++) {
-    const [up, h] = [getComputedStyle(levels[i - 1]), getComputedStyle(levels[i])];
+  // G5 heading order: each heading against the nearest higher-level heading before it in the document,
+  // once per combination of sizes and weights so a run of cards reports one row.
+  const orderSeen = new Set();
+  headings.forEach((el, i) => {
+    const level = +el.tagName[1];
+    let upEl = null;
+    for (let j = i - 1; j >= 0 && !upEl; j--) if (+headings[j].tagName[1] < level) upEl = headings[j];
+    if (!upEl) return;
+    const [up, h] = [getComputedStyle(upEl), getComputedStyle(el)];
     const size = parseFloat(h.fontSize);
     const upSize = parseFloat(up.fontSize);
     const weight = parseInt(h.fontWeight, 10);
     const upWeight = parseInt(up.fontWeight, 10);
-    if (size >= upSize - 0.01 && weight >= upWeight) {
-      out.order.push({ path: mt.path(levels[i]), tag: levels[i].tagName.toLowerCase(), size, weight, upTag: levels[i - 1].tagName.toLowerCase(), upSize, upWeight });
+    const key = [el.tagName, upEl.tagName, size, weight, upSize, upWeight].join('|');
+    if (size >= upSize - 0.01 && weight >= upWeight && !orderSeen.has(key)) {
+      orderSeen.add(key);
+      out.order.push({ path: mt.path(el), tag: el.tagName.toLowerCase(), size, weight, upTag: upEl.tagName.toLowerCase(), upSize, upWeight });
     }
-  }
+  });
 
   // G7 pairing by x-height: headings' face against the text face
   if (reading.length && headings.length) {
@@ -352,7 +359,7 @@ function bookChecks() {
 // tracked capitals and small interface text, run in the page at 1280px.
 function productChecks() {
   const mt = window.__mt;
-  const out = { tabular: [], align: [], caps: [], small: [] };
+  const out = { tabular: [], align: [], caps: [], capsText: [], small: [] };
   const seen = new Set();
   const once = (key) => (seen.has(key) ? false : (seen.add(key), true));
   const NUM = /^[\s(+\-−–]*\p{Sc}?\s*\d[\d\s.,:'’  ]*(%|‰|\p{Sc}|[kKMB])?\s*(\p{L}{1,3}|%)?\s*\)?$/u;
@@ -411,14 +418,23 @@ function productChecks() {
     const size = parseFloat(cs.fontSize);
     const own = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join('').trim();
     const letters = own.replace(/[^\p{L}]/gu, '');
-    const allCaps = letters.length >= 4 && letters === letters.toUpperCase() && letters !== letters.toLowerCase() && !el.closest('p, li, dd, blockquote');
+    // Only cased letters can be capitals: Arabic, Hebrew, CJK and other caseless scripts have none, so
+    // a Latin code inside Arabic text is not text set in capitals.
+    const cased = [...letters].filter((ch) => ch.toUpperCase() !== ch.toLowerCase()).join('');
+    const mostlyCased = cased.length >= 2 && cased.length >= letters.length / 2;
+    const typedCaps = mostlyCased && cased === cased.toUpperCase();
+    const transformed = cs.textTransform === 'uppercase' && mostlyCased;
+    const code = el.closest('code, kbd, samp, pre, tt');
+    // One word of five or fewer capitals, typed that way, is an acronym (DACH, USB-C), not a label.
+    const acronym = typedCaps && cs.textTransform !== 'uppercase' && cased.length <= 5 && !/\s/.test(own);
     const tracking = cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing);
     const p = mt.path(el);
-    const cased = letters.toUpperCase() !== letters.toLowerCase(); // Arabic, CJK and other caseless scripts have no capitals to track
-    if ((cs.textTransform === 'uppercase' || allCaps) && cased && letters.length >= 2 && size < 20 && tracking < 0.03 * size - 0.01 && once(`caps|${p}`)) {
+    if (!code && (transformed || typedCaps) && cased.length > 60 && once(`capstext|${p}`)) {
+      out.capsText.push({ path: p, letters: cased.length });
+    } else if (!code && !acronym && (transformed || (typedCaps && cased.length >= 4 && !el.closest('p, li, dd, blockquote'))) && size < 20 && tracking < 0.03 * size - 0.01 && once(`caps|${p}`)) {
       out.caps.push({ path: p, size, tracking });
     }
-    if (size < 12 && !inReading(el) && !['SUP', 'SUB'].includes(el.tagName) && !el.closest('[aria-hidden="true"]') && once(`small|${p}`)) {
+    if (size < 12 - 0.01 && !inReading(el) && !['SUP', 'SUB'].includes(el.tagName) && !el.closest('[aria-hidden="true"]') && once(`small|${p}`)) {
       out.small.push({ path: p, size });
     }
   }
@@ -639,6 +655,7 @@ async function audit(target, opts = {}) {
         return {
           i, path: mt.path(el), avg: m.avgCharsPerLine, min: m.minCharsPerLine, max: m.maxCharsPerLine, lines: m.fullLines,
           size: parseFloat(cs.fontSize), align: cs.textAlign, hyphens: cs.hyphens, family: cs.fontFamily, cjk: mt.cjk(el),
+          lang: (el.closest('[lang]')?.getAttribute('lang') || '').trim(),
         };
       });
       const texts = mt.textElements();
@@ -649,6 +666,7 @@ async function audit(target, opts = {}) {
         const walker = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
         const tops = [];
         for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+          if (n.parentElement.closest('rt, rp')) continue; // ruby annotations sit above the line, not on one
           for (const m of n.textContent.matchAll(/\S+/g)) {
             range.setStart(n, m.index);
             range.setEnd(n, m.index + m[0].length);
@@ -662,7 +680,11 @@ async function audit(target, opts = {}) {
       });
       const fontTargets = [...mt.reading(), ...document.querySelectorAll('h1, h2, h3')].filter(mt.visible).slice(0, 24).map((el, i) => {
         el.setAttribute('data-mt-f', i);
-        return { i, path: mt.path(el), family: getComputedStyle(el).fontFamily };
+        const family = getComputedStyle(el).fontFamily;
+        const firstName = family.split(',')[0].trim().replace(/^["']|["']$/g, '');
+        // A web font may load under a name its file does not carry; document.fonts knows it loaded.
+        const loaded = [...document.fonts].some((f) => f.family.replace(/^["']|["']$/g, '') === firstName && f.status === 'loaded');
+        return { i, path: mt.path(el), family, loaded, latin: mt.latin(el) };
       });
       return { reading, colors, sizes, runts, fontTargets };
     });
@@ -682,8 +704,11 @@ async function audit(target, opts = {}) {
         if (avg > (cjk ? 40 : 75)) add('MT-MEASURE-LONG', 'MEDIUM', `${p} at 1280px`, `${avg.toFixed(1)} characters per line (range ${lo}-${hi})${cjk ? ', CJK (WCAG 1.4.8 caps it at 40)' : ''}`, cjk ? 'max-inline-size: 35ic' : 'max-inline-size in em: measure-line.js --solve 66 finds it in the browser (estimate-measure.js --target 66 without one)');
       }
       const r0 = rs[0];
-      if (r0.size < 16) add('MT-SIZE-FLOOR', 'MEDIUM', `${p}`, `${r0.size}px reading text`, `font-size: 1rem or more`);
-      if (r0.align === 'justify' && r0.hyphens !== 'auto') add('MT-JUSTIFY', 'MEDIUM', `${p}`, 'justified, hyphens: ' + r0.hyphens, 'text-align: start, or hyphens: auto with limits');
+      if (r0.size < 16 - 0.01) add('MT-SIZE-FLOOR', 'MEDIUM', `${p}`, `${r0.size}px reading text`, `font-size: 1rem or more`);
+      // CJK is set solid to the full measure and needs no hyphens. hyphens: auto without a lang has no
+      // dictionary, so the browser hyphenates nothing.
+      if (r0.align === 'justify' && !r0.cjk && r0.hyphens !== 'auto') add('MT-JUSTIFY', 'MEDIUM', `${p}`, 'justified, hyphens: ' + r0.hyphens, 'text-align: start, or hyphens: auto with limits');
+      else if (r0.align === 'justify' && !r0.cjk && !r0.lang) add('MT-JUSTIFY', 'MEDIUM', `${p}`, 'justified, hyphens: auto with no lang (no dictionary, so nothing is hyphenated)', 'lang on the html element or the block, or text-align: start');
     }
 
     const invisible = new Set();
@@ -753,7 +778,11 @@ async function audit(target, opts = {}) {
       const { fonts } = await cdp.send('CSS.getPlatformFontsForNode', { nodeId });
       if (!fonts.length) continue;
       const norm = (s) => s.toLowerCase().replace(/[\s-]/g, '');
-      const ok = fonts.some((f) => norm(f.familyName).startsWith(norm(first)) || norm(f.postScriptName || '').startsWith(norm(first)));
+      const named = (name) => fonts.some((f) => norm(f.familyName).startsWith(norm(name)) || norm(f.postScriptName || '').startsWith(norm(name)));
+      const stack = t.family.split(',').map((x) => x.trim().replace(/^["']|["']$/g, '')).filter((x) => !GENERIC.test(x));
+      // Text in another script drawn by a later family of the same stack is the stack working as meant.
+      const inStack = !t.latin && fonts.every((f) => stack.some((x) => norm(f.familyName).startsWith(norm(x)) || norm(f.postScriptName || '').startsWith(norm(x))));
+      const ok = named(first) || (t.loaded && fonts.some((f) => f.isCustomFont)) || inStack;
       if (!ok && !seen.has(first)) {
         seen.add(first);
         add('MT-FONT-FALLBACK', 'MEDIUM', t.path, `declared "${first}", rendered ${fonts.map((f) => f.familyName).join(', ')}`, 'check the @font-face src and that the file covers these glyphs');
@@ -823,6 +852,7 @@ async function audit(target, opts = {}) {
       else add('MT-NUM-ALIGN', 'LOW', a.path, `numbers of different lengths set text-align: ${a.align}`, 'text-align: end on the number cells and their header, so place values line up');
     }
     for (const c of product.caps) add('MT-CAPS-TRACKING', 'LOW', c.path, `capitals at ${c.size}px with letter-spacing ${+c.tracking.toFixed(2)}px (under 0.03em)`, 'letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6)');
+    for (const c of product.capsText) add('MT-CAPS-TEXT', 'MEDIUM', c.path, `${c.letters} letters of running text in capitals`, 'lower case: capitals are for labels of a few words, not sentences');
     for (const s of product.small) add('MT-UI-SIZE', 'LOW', s.path, `${s.size}px interface text (house floor 12px)`, 'font-size: 0.75rem or more');
     const cutAt1280 = await page.evaluate(truncatedText);
     for (const t of cutAt1280) {

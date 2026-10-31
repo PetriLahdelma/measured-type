@@ -15,6 +15,10 @@ Usage:
   python3 scripts/font-features.py path/to/font.woff2 [more fonts...]
   python3 scripts/font-features.py font.ttf --check smcp=abcdefghijklmnopqrstuvwxyzäöå
   python3 scripts/font-features.py font.ttf --json
+  python3 scripts/font-features.py /System/Library/Fonts/Menlo.ttc --font-number 1
+
+A collection (.ttc, .otc) is read at face 0 unless --font-number picks another;
+the report names the face it used.
 
 Requires: pip install fonttools brotli   (brotli only for .woff2)
 """
@@ -27,6 +31,27 @@ try:
     from fontTools.ttLib import TTFont
 except ImportError:
     sys.exit("fontTools is missing: pip install fonttools brotli")
+
+
+def collection_size(path):
+    """Faces in a .ttc/.otc collection, or None for a single font."""
+    with open(path, "rb") as fh:
+        if fh.read(4) != b"ttcf":
+            return None
+    from fontTools.ttLib import TTCollection
+    return len(TTCollection(path, lazy=True).fonts)
+
+
+def open_face(path, number=0, **kw):
+    """The font at path; in a collection, face `number` (default 0). Returns (font, number, count)."""
+    count = collection_size(path)
+    if count is None:
+        if number:
+            raise ValueError(f"not a font collection, so --font-number {number} does not apply")
+        return TTFont(path, **kw), 0, 1
+    if not 0 <= number < count:
+        raise ValueError(f"the collection has {count} faces; --font-number must be 0 to {count - 1}")
+    return TTFont(path, fontNumber=number, **kw), number, count
 
 # Features worth reporting in detail, with what to look for in the coverage.
 DETAIL = {
@@ -176,8 +201,8 @@ FIGURE_DEFAULTS = {
 }
 
 
-def analyse(path):
-    font = TTFont(path, lazy=False)
+def analyse(path, number=0):
+    font, number, count = open_face(path, number, lazy=False)
     cmap = font.getBestCmap() or {}
     glyph_to_chars = {}
     for code, name in cmap.items():
@@ -189,6 +214,7 @@ def analyse(path):
     family = name_table.getDebugName(16) or name_table.getDebugName(1)
     style = name_table.getDebugName(17) or name_table.getDebugName(2)
     result["name"] = f"{family} {style}".strip()
+    result["face"] = {"number": number, "count": count, "name": result["name"]}
 
     if "fvar" in font:
         result["axes"] = {
@@ -266,6 +292,8 @@ def check(result, font, cmap, spec):
 
 def print_report(result, checks):
     print(f"# {result['name']}  ({result['file']})")
+    if result["face"]["count"] > 1:
+        print(f"face {result['face']['number']} of {result['face']['count']} in the collection (--font-number picks another)")
     if result["axes"]:
         axes = ", ".join(f"{t} {lo:g}-{hi:g} (default {d:g})" for t, (lo, d, hi) in result["axes"].items())
         print(f"axes: {axes}")
@@ -333,12 +361,14 @@ def main():
     ap.add_argument("--check", action="append", default=[], metavar="TAG=CHARS",
                     help="report which of CHARS the feature TAG covers, e.g. smcp=abcxyz")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
+    ap.add_argument("--font-number", type=int, default=0, metavar="N",
+                    help="face to read in a .ttc or .otc collection (default 0)")
     args = ap.parse_args()
 
     out = []
     for path in args.fonts:
         try:
-            result, cmap, font = analyse(path)
+            result, cmap, font = analyse(path, args.font_number)
         except Exception as err:  # unreadable or not a font
             sys.exit(f"{path}: {err}")
         checks = [check(result, font, cmap, spec) for spec in args.check]
