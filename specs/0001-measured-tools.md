@@ -21,7 +21,8 @@ their output actionable.
   MEDIUM for a measured value out of range or a convention the reader feels,
   LOW for conventions and preferences.
 - **A3** A report ends with a verdict: Block when any HIGH remains, otherwise
-  Approve, plus a "Not verified" list.
+  Approve, plus a "Not verified" list. (Amended by spec 0022 V1: "Approve, N
+  to fix" while N MEDIUM rows remain.)
 - **A4** Findings with the same rule and measurement collapse into one row that
   lists every location.
 

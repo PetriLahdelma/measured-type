@@ -17,8 +17,10 @@ every finding comes with a number.
   as not verified. `--diff origin/main` lints only what a branch changed;
   `--rtl` adds the right-to-left checks when an RTL edition is planned.
 - `scripts/page-audit.js <url or file>` renders the page and checks reflow,
-  measure, contrast, text spacing, fonts and zoom, plus the checks of
-  `screen-and-ui.md` and `product-ui.md`.
+  measure, contrast, text spacing, fonts and zoom, language and punctuation
+  in the text the reader gets, numbers split from their units, synthesized
+  bold and italic and text that moves when the web fonts arrive, plus the
+  checks of `screen-and-ui.md` and `product-ui.md`.
 - **No browser installed?** `lint-css.js` and `estimate-measure.js` need only
   Node, no `npm install`. `page-audit.js --lite` (and any run where Playwright
   is missing) lints a local page and its stylesheets and lists every rendered
@@ -44,8 +46,11 @@ it is yours.
 
 End every audit with one line:
 
-- **Block** when any HIGH finding remains.
-- **Approve** otherwise; MEDIUM and LOW findings stay in the table as work to do.
+- **Block (N HIGH)** when any HIGH finding remains.
+- **Approve, N to fix** when no HIGH remains but N MEDIUM rows do: the page
+  can ship, and the table says what is left.
+- **Approve** when only LOW findings or none remain; LOW findings stay in
+  the table to fix when the code is touched.
 
 Never approve what you did not check. List every check you could not run under
 **Not verified** (for example "contrast: no rendered page", "Safari: not
@@ -99,12 +104,19 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-LS-PX | LOW | `letter-spacing` in `px` | §2.1.6 |
 | MT-PHYSICAL | LOW | Physical sides (`margin-left`, `text-align: right`...) in text layout; HIGH with `--rtl`. `left: 50%` with `translate(-50%)` centres and is exempt | `logical-and-language.md` |
 | MT-WIDOWS | LOW | `widows`/`orphans` of 1 (2 is the CSS initial value) | §2.4.8 |
-| MT-FONT-DISPLAY | LOW | `@font-face` without `font-display`; a face with only `local()` sources is exempt | `taste.md` |
+| MT-FONT-DISPLAY | LOW | `@font-face` without `font-display`, or with `block` or `auto` (text hidden for up to 3 seconds); a face with only `local()` sources is exempt. Rendered: the stylesheets the page can read | `taste.md` |
 | MT-HEADING-RUNT | LOW | A heading's last line is one word (ruby annotations not counted) | §2.4.8 (convention) |
 | MT-SIZE-COUNT | LOW | More than 8 distinct text sizes on one page | `taste.md` (convention) |
-| MT-MINUS | LOW | Hyphen-minus before a number in text (`-12%`) | §2.4.6 |
-| MT-RANGE | LOW | Hyphen in a number range (`1990-2004`) | punctuation |
-| MT-QUOTES | LOW | Straight quotes and apostrophes in text | punctuation |
+| MT-MINUS | LOW | Hyphen-minus before a number in text (`-12%`), in the source and in the rendered text | §2.4.6 |
+| MT-RANGE | LOW | Hyphen in a number range (`1990-2004`), in the source and in the rendered text | punctuation |
+| MT-QUOTES | LOW | Straight quotes and apostrophes in text, in the source and in the rendered text; rendered, also a mark that does not open quotes in the text's language (`“` in Finnish, Swedish or German, `„` in English; en, fi, sv, de and fr are judged) | punctuation, `logical-and-language.md` |
+| MT-PUNCT | LOW | Two hyphens for a dash, three full stops for an ellipsis, `x` between numbers for `×`, straight quotes for primes (`5'11"`); a flag such as `--verbose`, a hex `0x1F` and a Swiss `1'000` are exempt | punctuation, `taste.md` |
+| MT-LANG | MEDIUM | `<html>` without `lang`; a `lang` that is not a language tag (`en_US`); rendered, text mostly in another script than its `lang` declares (20 letters or more, over 60%). Languages written in two scripts are exempt; Latin text under the wrong Latin-script language is listed as not verified | `logical-and-language.md` |
+| MT-NUM-BREAK | MEDIUM | A price, a number and its unit or a price and its period broken across lines at 1280, 768, 375 or 320px (`29 €`, `250 GB`, `€29 / month`) | §2.4.6, §2.1.4 |
+| MT-BOLD-SYNTH | MEDIUM | Bold drawn by thickening a lighter face: a sample drawn with and without `font-synthesis-weight: none` differs in ink | §2.1.9 |
+| MT-ITALIC-SYNTH | MEDIUM | Italic drawn as a slanted roman, by the same ink test with `font-synthesis-style: none` | §2.1.9 |
+| MT-OPSZ-OFF | LOW | `font-optical-sizing: none` on a face with an `opsz` axis (a sample changes width between two optical sizes) | §2.1.9, `taste.md` |
+| MT-FONT-SWAP | MEDIUM | With the fonts refused, the fallback sets the first screen's text over 2.5% wider or narrower, or its lines over 1px taller or shorter, and text moves over 4px at 1280 or 375px. A metric-matched fallback is not reported for a line that rewraps by chance; `font-display: optional` is exempt | `taste.md`, `fallback-metrics.py` |
 | MT-HEADING-ORDER | MEDIUM | A heading as large as and as heavy as or heavier than the nearest higher-level heading before it | Saltz (`screen-and-ui.md`) |
 | MT-WEIGHT-THIN | MEDIUM | Reading text under weight 400; reports the WCAG ratio and APCA Lc | Latin, Saltz (`screen-and-ui.md`) |
 | MT-CODE-XHEIGHT | LOW | Inline code x-height outside 0.90 to 1.10 of the surrounding text's | Latin (`screen-and-ui.md`) |

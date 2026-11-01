@@ -208,8 +208,11 @@ function lintCss(blocks, file, opts, out) {
     const sel = b.prelude;
     // font-display decides when a downloaded face may be used; a face with only local() sources downloads nothing.
     const localOnly = b.decls.some((d) => d.prop === 'src' && !/url\(/i.test(d.value) && /local\(/i.test(d.value));
-    if (/^@font-face/i.test(sel) && !localOnly && !b.decls.some((d) => d.prop === 'font-display')) {
+    const display = b.decls.find((d) => d.prop === 'font-display');
+    if (/^@font-face/i.test(sel) && !localOnly && !display) {
       add('MT-FONT-DISPLAY', 'LOW', b, '@font-face without font-display', 'font-display: swap (or optional)');
+    } else if (/^@font-face/i.test(sel) && !localOnly && /^(block|auto)$/i.test(display.value.trim())) {
+      add('MT-FONT-DISPLAY', 'LOW', display, `font-display: ${display.value.trim()} hides the text for up to 3 seconds while the font loads`, 'font-display: swap (or optional)');
     }
     const isRoot = /^(html|:root)$/i.test(sel);
     const hyphenated = b.decls.some((d) => /^(-webkit-)?hyphens$/.test(d.prop) && /auto/.test(d.value));
@@ -301,29 +304,72 @@ function lintHtml(source, file, opts, out) {
       out.push({ rule: 'MT-VIEWPORT-ZOOM', severity: 'HIGH', file, line: lineAt(meta.index), measured: `viewport ${content}`, fix: 'width=device-width, initial-scale=1' });
     }
   }
+  // Spec 0022 L1, L2: a document needs a lang, and a lang must be a language tag. lang on script,
+  // style and template names a source language (ts, scss, pug), not a human one.
+  const htmlTag = /<html\b[^>]*>/i.exec(source);
+  if (htmlTag && !/\slang\s*=\s*["']?[^"'\s>]/i.test(htmlTag[0])) {
+    out.push({ rule: 'MT-LANG', severity: 'MEDIUM', file, line: lineAt(htmlTag.index), measured: '<html> has no lang: no hyphenation dictionary, quotes, locl forms or screen-reader voice', fix: '<html lang="en"> (the language of the page), and lang on every passage in another language' });
+  }
+  for (const m of source.matchAll(/<([a-z][\w-]*)\b[^>]*?\slang\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)) {
+    const value = (m[2] ?? m[3] ?? m[4]).trim();
+    // An empty lang means "unknown language", valid on any element but <html>, which L1 reports.
+    if (/^(script|style|template)$/i.test(m[1]) || !value || isLanguageTag(value)) continue;
+    out.push({ rule: 'MT-LANG', severity: 'MEDIUM', file, line: lineAt(m.index), measured: `lang="${value}" on <${m[1].toLowerCase()}> is not a language tag`, fix: languageTagFix(value) });
+  }
   const blank = (s) => s.replace(/[^\n]/g, ' ');
   const text = source
-    .replace(/<(script|style|code|pre|kbd|samp|textarea)\b[\s\S]*?<\/\1>/gi, blank)
+    .replace(/<(script|style|code|pre|kbd|samp|tt|textarea)\b[\s\S]*?<\/\1>/gi, blank)
     .replace(/<!--[\s\S]*?-->/g, blank)
     .replace(/<[^>]*>/g, blank);
-  const checks = [
-    ['MT-MINUS', /(^|[\s( ])-\d/g, 'hyphen-minus before a number', 'U+2212 minus (&minus;)'],
-    ['MT-RANGE', /\b\d{1,4}-\d{1,4}\b(?!-)/g, 'hyphen in a number range', 'en dash, U+2013 (&ndash;)'],
-    // A pair of straight double quotes, or a straight single quote inside a word (it's), after one
-    // (readers', a closing quote) or before one (an opening quote).
-    ['MT-QUOTES', /"[^"\n]{1,200}"|\p{L}'(?=\p{L})|\p{L}'(?=[\s.,;:!?)\]]|$)|(?<=^|[\s(\[])'(?=\p{L})/gu, 'straight quotes', 'typographic quotes and apostrophes for the language'],
-  ];
+  for (const f of textFindings(text)) out.push({ rule: f.rule, severity: 'LOW', file, line: lineAt(f.index), measured: f.measured, fix: f.fix });
+}
+
+// A BCP 47 tag the platform can canonicalize, whose language subtag is a real code (two or three
+// letters; the five-to-eight-letter form is reserved and unused, so "english" is a word, not a tag).
+function isLanguageTag(value) {
+  try {
+    const [tag] = Intl.getCanonicalLocales(value);
+    return /^[a-z]{2,3}$/.test(new Intl.Locale(tag).language);
+  } catch {
+    return false;
+  }
+}
+const languageTagFix = (value) => (/^[a-z]{2,3}_[a-z]{2}$/i.test(value)
+  ? `lang="${value.replace('_', '-')}" (a hyphen, not an underscore)`
+  : 'a BCP 47 tag such as en, fi or sv-FI');
+
+// Plain-text punctuation, shared by the HTML lint and the rendered pass in page-audit.js (spec 0022
+// P1, P2). Primes go first and are masked, so the double prime of 5'11" cannot open a quote pair.
+const TEXT_CHECKS = [
+  ['MT-PUNCT', /\b\d+'\s?\d+(?:\.\d+)?"|\d+°\s?\d+'(?:\s?\d+(?:\.\d+)?")?|(?<![\d'])\b\d+'(?=[\s,.;:)]|$)/g, 'straight quotes for primes', 'prime ′ (U+2032) for feet and minutes, double prime ″ (U+2033) for inches and seconds'],
+  ['MT-MINUS', /(^|[\s( ])-\d/g, 'hyphen-minus before a number', 'U+2212 minus (&minus;)'],
+  ['MT-RANGE', /\b\d{1,4}-\d{1,4}\b(?!-)/g, 'hyphen in a number range', 'en dash, U+2013 (&ndash;)'],
+  // A pair of straight double quotes, or a straight single quote inside a word (it's), after one
+  // (readers', a closing quote) or before one (an opening quote).
+  ['MT-QUOTES', /"[^"\n]{1,200}"|\p{L}'(?=\p{L})|\p{L}'(?=[\s.,;:!?)\]]|$)|(?<=^|[\s(\[])'(?=\p{L})/gu, 'straight quotes', 'typographic quotes and apostrophes for the language'],
+  // Two hyphens between words, spaced or closed up; a flag (--verbose) starts a word instead.
+  ['MT-PUNCT', /(?<=\s)--(?=\s)|(?<=\p{L})--(?=\p{L})/gu, 'two hyphens for a dash', 'em dash — (U+2014) closed up, or a spaced en dash – (U+2013)'],
+  ['MT-PUNCT', /(?<!\.)\.\.\.(?!\.)/g, 'three full stops for an ellipsis', 'ellipsis … (U+2026)'],
+  // x between two numbers; 0x1F is a hex number, not a product.
+  ['MT-PUNCT', /(?<![\w.,])\d+(?:[.,]\d+)?\s?[xX]\s?\d+(?:[.,]\d+)?(?![\w.])/g, 'x for a multiplication sign', 'multiplication sign × (U+00D7)'],
+];
+
+function textFindings(source) {
+  let text = source;
+  const found = [];
   const words = new Set();
-  for (const [rule, re, what, fix] of checks) {
+  for (const [rule, re, what, fix] of TEXT_CHECKS) {
     for (const m of text.matchAll(re)) {
       if (rule === 'MT-RANGE' && /\d{4}-\d{2}-\d{2}/.test(text.slice(Math.max(0, m.index - 5), m.index + 12))) continue;
       // A leading zero (040-123) is a phone or code fragment, and a numbered standard (ISO 8601-1) is a name.
       if (rule === 'MT-RANGE' && (/^0\d/.test(m[0]) || /\b[A-Z]{2,5}\s?$/.test(text.slice(Math.max(0, m.index - 8), m.index)))) continue;
-      const at = m.index + (rule === 'MT-MINUS' ? m[1].length : 0); // the prefix may be the newline before the sign
+      if (what.startsWith('x for') && /^0[xX]/.test(m[0])) continue;
+      const index = m.index + (rule === 'MT-MINUS' ? m[1].length : 0); // the prefix may be the newline before the sign
       // A single quote is reported once, with the word around it, so "it's" reads as it's and not t's
-      // and 'yes' is one finding, not two.
+      // and 'yes' is one finding, not two. A dash or an ellipsis shows the words around it.
       let shown = m[0].trim();
-      if (rule === 'MT-QUOTES' && !m[0].startsWith('"')) {
+      if (rule === 'MT-MINUS') shown = /^-[\d.,]+%?/.exec(text.slice(index))[0];
+      else if (rule === 'MT-QUOTES' && !m[0].startsWith('"')) {
         let s0 = m.index;
         while (s0 > 0 && !/\s/.test(text[s0 - 1])) s0--;
         let e0 = m.index + 1;
@@ -331,10 +377,17 @@ function lintHtml(source, file, opts, out) {
         if (words.has(s0)) continue;
         words.add(s0);
         shown = text.slice(s0, e0).replace(/^[(\[]+|[.,;:!?)\]]+$/g, '');
+      } else if (/^(two hyphens|three full stops)/.test(what)) {
+        const end = m.index + m[0].length;
+        const before = text.slice(Math.max(0, m.index - 60), m.index);
+        const after = text.slice(end, end + 60);
+        shown = `${before.trimEnd().split(/\s+/).slice(-2).join(' ')}${/\s$/.test(before) ? ' ' : ''}${m[0]}${/^\s/.test(after) ? ' ' : ''}${after.trimStart().split(/\s+/).slice(0, 2).join(' ')}`.trim();
       }
-      out.push({ rule, severity: 'LOW', file, line: lineAt(at), measured: `${what}: ${shown}`, fix });
+      found.push({ rule, index, measured: `${what}: ${shown}`, fix });
     }
+    if (what === 'straight quotes for primes') text = text.replace(re, (s) => s.replace(/['"]/g, '′'));
   }
+  return found.sort((a, b) => a.index - b.index);
 }
 
 // ---------- Sass, Less and single-file components ----------
@@ -615,14 +668,22 @@ function lint(targets, options = {}) {
   }
   findings = findings.sort((a, b) => ORDER[a.severity] - ORDER[b.severity] || a.rule.localeCompare(b.rule) || a.file.localeCompare(b.file) || a.line - b.line);
   for (const f of findings) f.location = `${path.relative(process.cwd(), f.file) || f.file}:${f.line}`;
-  const high = findings.filter((f) => f.severity === 'HIGH').length;
   return {
     mode: 'lint',
     files,
     findings,
-    verdict: high ? `Block (${high} HIGH)` : 'Approve',
+    verdict: verdictOf(findings),
     notVerified: ['rendered measure, contrast, reflow and text spacing (run scripts/page-audit.js)', ...opts.skipped],
   };
+}
+
+// Spec 0022 V1: open MEDIUM rows (one per rule and measured value, as the table groups them) are
+// counted in the verdict, so an audit with work left never reads as a sign-off.
+function verdictOf(findings) {
+  const high = findings.filter((f) => f.severity === 'HIGH').length;
+  if (high) return `Block (${high} HIGH)`;
+  const medium = new Set(findings.filter((f) => f.severity === 'MEDIUM').map((f) => `${f.rule}|${f.measured}`)).size;
+  return medium ? `Approve, ${medium} to fix` : 'Approve';
 }
 
 function toMarkdown(report) {
@@ -674,4 +735,4 @@ if (require.main === module) {
   process.exit(report.findings.some((f) => f.severity === 'HIGH') ? 1 : 0);
 }
 
-module.exports = { parseCss, evaluator, zoomProfile, lint, toMarkdown };
+module.exports = { parseCss, evaluator, zoomProfile, lint, toMarkdown, verdictOf, textFindings, isLanguageTag, languageTagFix };

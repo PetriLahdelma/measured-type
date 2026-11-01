@@ -22,6 +22,25 @@ each change has a spec in [`specs/`](specs/).
   breakpoint, region or fluidly, checked at 1280, 768 and 375px, with
   `--baseline-scope` and `--baseline-tolerance`.
 
+- **Checks for what the guidance already says** (spec 0022). The third
+  council found the guidance named 93% of its planted faults and the tools
+  printed 46%. New rules: MT-LANG (no `lang`, a `lang` that is not a tag,
+  text in another script than its `lang`), MT-PUNCT (`--`, `...`,
+  `1920x1080`, straight primes), MT-NUM-BREAK (a price or unit broken across
+  lines at 1280, 768, 375 or 320px), MT-BOLD-SYNTH and MT-ITALIC-SYNTH (faux
+  styles found by comparing rendered ink with synthesis on and off),
+  MT-OPSZ-OFF and MT-FONT-SWAP (an unmatched fallback that moves the first
+  screen when the web fonts arrive). The rendered audit now checks
+  punctuation in the text the reader gets, including text a script inserts,
+  and quotation marks against the text's language; MT-FONT-DISPLAY also
+  reports `block` and `auto` and runs in the rendered audit.
+
+### Changed
+
+- The verdict says what is left: `Approve, N to fix` while N MEDIUM rows
+  remain, `Approve` only with LOW findings or none (spec 0022). Exit codes
+  are unchanged.
+
 ### Fixed
 
 - Trust fixes from the third council (spec 0021), where the tools disagreed

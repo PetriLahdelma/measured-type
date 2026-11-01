@@ -34,7 +34,7 @@
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { measureLines } = require('./measure-line.js');
-const { toMarkdown, lint } = require('./lint-css.js');
+const { toMarkdown, lint, verdictOf, textFindings, isLanguageTag, languageTagFix } = require('./lint-css.js');
 const { apcaLc } = require('./apca.js');
 const { nearestPassing } = require('./contrast-fix.js');
 
@@ -44,6 +44,8 @@ const GENERIC = /^(serif|sans-serif|monospace|cursive|fantasy|system-ui|ui-serif
 // ---------- in-page helpers (serialized into the page) ----------
 
 function pageHelpers() {
+  // Text that is code or a form field, never checked as prose (spec 0022 P1).
+  window.__mtExempt = 'code, kbd, samp, pre, tt, textarea, script, style, noscript, template';
   window.__mt = {
     path(el) {
       const part = (e) => {
@@ -468,6 +470,151 @@ function truncatedText() {
 }
 
 
+// Spec 0022, run in the page. Text as the reader gets it: the visible text nodes of each block,
+// with the block's lang, code and form fields left out as in the linter.
+function pageText() {
+  const mt = window.__mt;
+  const blockOf = (el) => {
+    for (let p = el; p && p !== document.body; p = p.parentElement) if (!/^(inline|contents)/.test(getComputedStyle(p).display)) return p;
+    return document.body;
+  };
+  const exempt = window.__mtExempt;
+  const blocks = new Map();
+  const scopes = new Map();
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const groups = {
+    Latin: /\p{Script=Latin}/gu, Cyrillic: /\p{Script=Cyrillic}/gu, Greek: /\p{Script=Greek}/gu, Arabic: /\p{Script=Arabic}/gu,
+    Hebrew: /\p{Script=Hebrew}/gu, CJK: /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu,
+    Thai: /\p{Script=Thai}/gu, Devanagari: /\p{Script=Devanagari}/gu,
+  };
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    const parent = n.parentElement;
+    if (!parent || !n.textContent.trim() || parent.closest(exempt) || !mt.visible(parent)) continue;
+    const block = blockOf(parent);
+    if (!blocks.has(block)) blocks.set(block, { path: mt.path(block), lang: (block.closest('[lang]')?.getAttribute('lang') || '').trim(), text: '' });
+    blocks.get(block).text += n.textContent;
+    const scope = parent.closest('[lang]') || document.documentElement;
+    if (!scopes.has(scope)) scopes.set(scope, { path: mt.path(scope), lang: (scope.getAttribute('lang') || '').trim(), counts: {} });
+    const c = scopes.get(scope).counts;
+    for (const [g, re] of Object.entries(groups)) c[g] = (c[g] || 0) + (n.textContent.match(re) || []).length;
+  }
+  const tags = [...document.querySelectorAll('[lang]')].filter((el) => el !== document.documentElement && !/^(SCRIPT|STYLE|TEMPLATE)$/.test(el.tagName))
+    .map((el) => ({ path: mt.path(el), tag: el.tagName.toLowerCase(), value: el.getAttribute('lang').trim() })).filter((t) => t.value);
+  return { html: (document.documentElement.getAttribute('lang') || '').trim(), tags, blocks: [...blocks.values()], scopes: [...scopes.values()] };
+}
+
+// U1: a price, a quantity and its unit or a price and its period that the layout breaks across lines.
+function numberBreaks() {
+  const mt = window.__mt;
+  const codes = 'EUR|USD|GBP|SEK|NOK|DKK|ISK|CHF|JPY|CNY|INR|AUD|CAD|NZD|PLN|CZK|HUF';
+  const units = '%|‰|°C|°F|km/h|km|cm|mm|m²|m³|m|kg|mg|g|ml|dl|cl|l|L|ms|min|s|h|kWh|kW|MW|W|V|mAh|Hz|kHz|MHz|GHz|kB|KB|MB|GB|TB|Gt|Tt|kbps|Mbps|Gbps|px|pt|mph|fps|dpi|ppi|ft|lb|oz|kr|kpl|st';
+  const period = String.raw`(?:\s?\/\s?(?:mo|month|yr|year|day|week|night|user|seat|person|kk|kuukausi|vuosi|v|mån|månad|år|h|hr|hour))?`;
+  const num = String.raw`\d+(?:[.,]\d+)*(?:[ \u00A0\u202F]\d{3})*(?:[.,]\d+)?`;
+  const re = new RegExp(String.raw`(?:\p{Sc}|\b(?:${codes})\b)\s*${num}${period}|${num}\s*(?:\p{Sc}|(?:${codes}|${units})(?![\p{L}\d]))${period}`, 'gu');
+  const range = document.createRange();
+  const out = [];
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    const parent = n.parentElement;
+    if (!parent || !/\d/.test(n.textContent) || parent.closest(window.__mtExempt) || !mt.visible(parent)) continue;
+    const size = parseFloat(getComputedStyle(parent).fontSize);
+    for (const m of n.textContent.matchAll(re)) {
+      range.setStart(n, m.index);
+      range.setEnd(n, m.index + m[0].length);
+      const tops = [...range.getClientRects()].filter((r) => r.width > 0).map((r) => r.top);
+      if (tops.length > 1 && Math.max(...tops) - Math.min(...tops) > size / 2) out.push({ path: mt.path(parent), token: m[0] });
+    }
+  }
+  return out;
+}
+
+// S1, S2: elements that ask for bold or italic with synthesis allowed, one per font and style.
+function styleCombos() {
+  const mt = window.__mt;
+  const combos = new Map();
+  for (const el of mt.textElements()) {
+    if (el.closest(window.__mtExempt)) continue;
+    const cs = getComputedStyle(el);
+    const weight = parseInt(cs.fontWeight, 10);
+    const axes = [];
+    if (weight >= 600 && cs.fontSynthesisWeight !== 'none') axes.push('weight');
+    if (cs.fontStyle !== 'normal' && cs.fontSynthesisStyle !== 'none') axes.push('style');
+    const sample = [...el.childNodes].filter((x) => x.nodeType === 3).map((x) => x.textContent).join('').trim().slice(0, 24);
+    if (!/\p{L}/u.test(sample)) continue;
+    for (const axis of axes) {
+      const key = [axis, cs.fontFamily, weight, cs.fontStyle, cs.fontStretch].join('|');
+      if (!combos.has(key)) combos.set(key, { axis, family: cs.fontFamily, weight, style: cs.fontStyle, stretch: cs.fontStretch, sample, lang: el.closest('[lang]')?.getAttribute('lang') || '', cjk: mt.cjk(el), paths: [] });
+      combos.get(key).paths.push(mt.path(el));
+    }
+  }
+  return [...combos.values()].slice(0, 24);
+}
+
+// F2: font-optical-sizing: none where the rendered face has an opsz axis, found by drawing a sample at
+// two optical sizes; a face without the axis ignores the setting and draws the same width.
+function opticalSizing() {
+  const mt = window.__mt;
+  const seen = new Set();
+  const out = [];
+  for (const el of mt.textElements()) {
+    const cs = getComputedStyle(el);
+    if (cs.fontOpticalSizing !== 'none' || /["']opsz["']/.test(cs.fontVariationSettings) || seen.has(cs.fontFamily)) continue;
+    seen.add(cs.fontFamily);
+    const s = document.createElement('span');
+    s.style.cssText = 'position: absolute; white-space: nowrap; letter-spacing: 0';
+    s.textContent = 'Hamburgefonstiv 0123';
+    el.append(s);
+    s.style.fontVariationSettings = '"opsz" 8';
+    const small = s.getBoundingClientRect().width;
+    s.style.fontVariationSettings = '"opsz" 72';
+    const large = s.getBoundingClientRect().width;
+    s.remove();
+    if (Math.abs(small - large) / large > 0.005) out.push({ path: mt.path(el), family: cs.fontFamily.split(',')[0].trim().replace(/^["']|["']$/g, ''), size: parseFloat(cs.fontSize) });
+  }
+  return out;
+}
+
+// F1: @font-face rules from the stylesheets the page can read; cross-origin sheets cannot be read.
+function fontFaceRules() {
+  const faces = [];
+  const unread = [];
+  const walk = (rules, where) => {
+    for (const r of rules) {
+      if (r instanceof CSSFontFaceRule) {
+        const src = r.style.getPropertyValue('src');
+        const display = r.style.getPropertyValue('font-display').trim();
+        if (/url\(/i.test(src)) faces.push({ family: r.style.getPropertyValue('font-family').replace(/^["']|["']$/g, ''), display, where });
+      } else if (r.cssRules) walk(r.cssRules, where);
+    }
+  };
+  for (const sheet of document.styleSheets) {
+    const where = sheet.href ? sheet.href.split(/[?#]/)[0].split('/').pop() : 'inline <style>';
+    try { walk(sheet.cssRules, where); } catch { unread.push(sheet.href); }
+  }
+  return { faces, unread };
+}
+
+// F3: text blocks with their boxes in page px, to compare the fallback load with the loaded one: the
+// width the text sets (the sum of its line boxes) and the height of a line are what a metric-matched
+// fallback reproduces.
+function blockBoxes() {
+  const mt = window.__mt;
+  const errored = [...document.fonts].filter((f) => f.status === 'error');
+  const range = document.createRange();
+  return {
+    screen: innerHeight,
+    errored: errored.length,
+    optional: errored.length > 0 && errored.every((f) => f.display === 'optional'),
+    blocks: [...document.querySelectorAll('p, li, dt, dd, figcaption, blockquote, h1, h2, h3, h4, h5, h6')].filter((el) => mt.visible(el) && mt.directText(el)).map((el) => {
+      const r = el.getBoundingClientRect();
+      range.selectNodeContents(el);
+      const rects = [...range.getClientRects()].filter((x) => x.width > 0);
+      const lines = new Set(rects.map((x) => Math.round(x.top))).size || 1;
+      return { path: mt.path(el), top: r.top + scrollY, bottom: r.bottom + scrollY, advance: rects.reduce((sum, x) => sum + x.width, 0), line: r.height / lines };
+    }),
+  };
+}
+
 // First and last baseline of every text block in the region, in page px,
 // found with a zero-size inline-block that sits on the baseline. The markers
 // are removed at once, so later checks see the page unchanged. A unit named
@@ -541,6 +688,141 @@ function contrast(fg, bg) {
   return (l1 + 0.05) / (l2 + 0.05);
 }
 
+// ---------- spec 0022: language, punctuation, synthesized styles, font swap ----------
+
+const SCRIPT_GROUP = { Latn: 'Latin', Cyrl: 'Cyrillic', Grek: 'Greek', Arab: 'Arabic', Hebr: 'Hebrew', Jpan: 'CJK', Hans: 'CJK', Hant: 'CJK', Hani: 'CJK', Kore: 'CJK', Thai: 'Thai', Deva: 'Devanagari' };
+const SCRIPT_HINT = { Latin: 'the Latin-script language it is in', Cyrillic: 'ru, uk, bg or sr', Greek: 'el', Arabic: 'ar, fa or ur', Hebrew: 'he', CJK: 'ja, zh or ko', Thai: 'th', Devanagari: 'hi, mr or ne' };
+// Languages written in more than one script: the script cannot say whether lang is wrong.
+const TWO_SCRIPTS = new Set(['sr', 'bs', 'uz', 'az', 'kk', 'ku', 'mn', 'pa', 'sd']);
+const NO_LANG = '<html> has no lang: no hyphenation dictionary, quotes, locl forms or screen-reader voice';
+// Marks that open a quotation in each language judged (P3). ’ is left out: it is also the apostrophe.
+const OPENERS = {
+  en: { marks: '“‘', name: 'English', use: '“ ” and ‘ ’' },
+  fi: { marks: '”»', name: 'Finnish', use: '” ” and ’ ’ (or » »)' },
+  sv: { marks: '”»', name: 'Swedish', use: '” ” and ’ ’ (or » »)' },
+  de: { marks: '„‚»›', name: 'German', use: '„ “ and ‚ ‘ (or » «)' },
+  fr: { marks: '«“‹‘', name: 'French', use: '« » with narrow no-break spaces, and “ ” inside' },
+};
+
+const scriptOf = (lang) => {
+  try {
+    return SCRIPT_GROUP[new Intl.Locale(Intl.getCanonicalLocales(lang)[0]).maximize().script];
+  } catch {
+    return undefined;
+  }
+};
+const listed = (paths) => (paths.length > 3 ? `${paths.slice(0, 3).join(', ')} and ${paths.length - 3} more` : paths.join(', '));
+
+// L1 to L3 and P1 to P3, from the text the reader gets at 1280px.
+async function language(page, add, notVerified) {
+  const t = await page.evaluate(pageText);
+  if (!t.html) add('MT-LANG', 'MEDIUM', 'html', NO_LANG, '<html lang="en"> (the language of the page), and lang on every passage in another language');
+  else if (!isLanguageTag(t.html)) add('MT-LANG', 'MEDIUM', 'html', `lang="${t.html}" on <html> is not a language tag`, languageTagFix(t.html));
+  for (const tag of t.tags) if (!isLanguageTag(tag.value)) add('MT-LANG', 'MEDIUM', tag.path, `lang="${tag.value}" on <${tag.tag}> is not a language tag`, languageTagFix(tag.value));
+  for (const s of t.scopes) {
+    const lang = s.lang;
+    const expected = lang && isLanguageTag(lang) && scriptOf(lang);
+    const total = Object.values(s.counts).reduce((a, b) => a + b, 0);
+    const [group, n] = Object.entries(s.counts).sort((a, b) => b[1] - a[1])[0] || [];
+    if (!expected || TWO_SCRIPTS.has(new Intl.Locale(lang).language) || total < 20 || group === expected || n / total <= 0.6) continue;
+    add('MT-LANG', 'MEDIUM', s.path, `lang="${lang}" (${expected} script), but ${Math.round((100 * n) / total)}% of its ${total} letters are ${group}${group === 'CJK' ? ' (Han, kana or Hangul)' : ''}`, `lang set to the language the text is in (${SCRIPT_HINT[group]}) on the element that holds it`);
+  }
+  notVerified.add('whether lang names the language of text written in its own script (Finnish declared English): only the script is checked');
+
+  const kinds = new Map();
+  const note = (rule, what, shown, path, fix) => {
+    const key = `${rule}|${what}`;
+    if (!kinds.has(key)) kinds.set(key, { rule, what, fix, shown: [], paths: [], count: 0 });
+    const k = kinds.get(key);
+    k.count++;
+    if (!k.shown.includes(shown)) k.shown.push(shown);
+    if (!k.paths.includes(path)) k.paths.push(path);
+  };
+  for (const b of t.blocks) {
+    for (const f of textFindings(b.text)) {
+      const [what, shown] = f.measured.split(/: (.*)/s);
+      note(f.rule, what, shown, b.path, f.fix);
+    }
+    const primary = b.lang && isLanguageTag(b.lang) ? new Intl.Locale(b.lang) : null;
+    const own = primary && OPENERS[primary.language];
+    if (!own) continue;
+    const marks = own.marks + (primary.language === 'de' && /^(CH|LI)$/.test(primary.region || '') ? '«‹' : '');
+    for (const m of b.text.matchAll(/(?<=^|[\s(\[\/])([“”„‘‚«»‹›])(?=[^\s])/gu)) {
+      if (marks.includes(m[1])) continue;
+      const shown = b.text.slice(m.index, m.index + 24).split(/\s/).slice(0, 2).join(' ');
+      note('MT-QUOTES', `${m[1]} opens a quote in ${own.name} (${b.lang}) text, which uses ${own.use}`, shown, b.path, `the quotation marks of the language: ${own.use} (or <q> with quotes: auto under the right lang)`);
+    }
+  }
+  for (const k of kinds.values()) {
+    const examples = k.shown.slice(0, 3).join(', ') + (k.shown.length > 3 ? ' ...' : '');
+    add(k.rule, 'LOW', listed(k.paths), `${k.what}: ${examples} (${k.count} in ${k.paths.length} block${k.paths.length === 1 ? '' : 's'})`, k.fix);
+  }
+}
+
+// S1, S2: a sample of each bold or italic combination drawn at 48px with synthesis allowed and with it
+// off. A real face draws the same ink both times; a synthesized one does not.
+async function synthesized(page, add) {
+  for (const c of await page.evaluate(styleCombos)) {
+    const ink = async (off) => {
+      await page.evaluate(({ c, off }) => {
+        const d = document.createElement('div');
+        d.id = 'mt-synth';
+        if (c.lang) d.lang = c.lang;
+        d.textContent = c.sample;
+        d.style.cssText = 'position: fixed; inset-block-start: 0; inset-inline-start: 0; z-index: 2147483647; background: #fff; color: #000; font-size: 48px; line-height: 1.2; padding: 4px; white-space: nowrap; letter-spacing: 0; font-synthesis: weight style';
+        Object.assign(d.style, { fontFamily: c.family, fontWeight: String(c.weight), fontStyle: c.style, fontStretch: c.stretch });
+        if (off) d.style[c.axis === 'weight' ? 'fontSynthesisWeight' : 'fontSynthesisStyle'] = 'none';
+        document.body.append(d);
+      }, { c, off });
+      const png = await page.locator('#mt-synth').screenshot();
+      await page.evaluate(() => document.getElementById('mt-synth').remove());
+      return png;
+    };
+    if ((await ink(false)).equals(await ink(true))) continue;
+    const family = c.family.split(',')[0].trim().replace(/^["']|["']$/g, '');
+    if (c.axis === 'weight') add('MT-BOLD-SYNTH', 'MEDIUM', listed(c.paths), `weight ${c.weight} in ${family} is synthesized: no face of that weight is loaded, so the browser thickens a lighter one`, 'load the bold face (a variable file with font-weight: 100 900 in its @font-face covers every weight), then font-synthesis-weight: none');
+    else add('MT-ITALIC-SYNTH', 'MEDIUM', listed(c.paths), `${c.style} in ${family} is synthesized: no italic face is loaded, so the browser slants the roman`, c.cjk ? 'no italic: CJK has none; use weight or emphasis marks (text-emphasis) instead' : 'load the italic face, then font-synthesis-style: none (a slanted roman is not an italic)');
+  }
+}
+
+// F3: the page again with every font request refused, at 1280 and 375px, text blocks in the first
+// screen paired by path and occurrence. Reported when text moves more than 4px and the fallback is not
+// matched: it sets the text more than 2.5% wider or narrower, or its lines more than 1px taller or
+// shorter. A matched fallback can still rewrap a line that sits on a break; that is chance, not a
+// missing fallback, and the fix would not remove it.
+async function fontSwap(open, loaded, add) {
+  const keyed = (blocks) => {
+    const seen = new Map();
+    return new Map(blocks.map((b) => { const n = (seen.get(b.path) || 0) + 1; seen.set(b.path, n); return [`${b.path}#${n}`, b]; }));
+  };
+  const moves = [];
+  for (const width of [1280, 375]) {
+    if (!loaded[width]) continue;
+    const p = await open(width, null, { noFonts: true });
+    const fallback = await p.evaluate(blockBoxes);
+    await p.close();
+    if (!fallback.errored || fallback.optional) return;
+    const before = keyed(fallback.blocks);
+    let worst = { move: 0 };
+    let [web, fb, line] = [0, 0, 0];
+    keyed(loaded[width].blocks).forEach((b, key) => {
+      const f = before.get(key);
+      if (!f || b.top >= loaded[width].screen) return;
+      web += b.advance;
+      fb += f.advance;
+      line = Math.max(line, Math.abs(f.line - b.line));
+      const move = Math.max(Math.abs(b.top - f.top), Math.abs(b.bottom - f.bottom));
+      if (move > worst.move) worst = { move, path: b.path };
+    });
+    const wider = web ? fb / web - 1 : 0;
+    if (worst.move > 4 && (Math.abs(wider) > 0.025 || line > 1)) moves.push({ ...worst, width, wider, line });
+  }
+  if (!moves.length) return;
+  const top = moves.reduce((a, b) => (b.move > a.move ? b : a));
+  const how = (m) => [Math.abs(m.wider) > 0.025 && `${(Math.abs(m.wider) * 100).toFixed(1)}% ${m.wider > 0 ? 'wider' : 'narrower'}`, m.line > 1 && `lines ${m.line.toFixed(1)}px apart in height`].filter(Boolean).join(', ');
+  add('MT-FONT-SWAP', 'MEDIUM', top.path, `the fallback sets the text ${moves.map((m) => `${how(m)} at ${m.width}px`).join(' and ')} than the web fonts, so text in the first screen moves up to ${Math.round(top.move)}px when they arrive`, 'a metric-matched fallback: scripts/fallback-metrics.py prints its @font-face (size-adjust and the ascent, descent and line-gap overrides); or font-display: optional');
+}
+
 // ---------- audit ----------
 
 // ---------- lite mode: no browser ----------
@@ -548,6 +830,8 @@ function contrast(fg, bg) {
 const RENDERED = [
   'rendered measure (characters per line)', 'contrast', 'reflow at 320 and 375px', 'text spacing (WCAG 1.4.12)',
   'zoom growth of headings', 'web-font fallback', 'heading order and spacing', 'the checks in screen-and-ui.md and product-ui.md',
+  'script of the text against its lang', 'punctuation in text a script inserts', 'numbers and units broken across lines',
+  'synthesized bold and italic', 'optical sizing', 'text moving when the web fonts arrive',
 ];
 
 function loadPlaywright() {
@@ -632,8 +916,10 @@ async function audit(target, opts = {}) {
   const notVerified = new Set(['Safari and Firefox rendering (Chromium only)']);
   const add = (rule, severity, location, measured, fix) => findings.push({ rule, severity, location, measured, fix });
 
-  const open = async (width, extraCss, { height = 900, colorScheme } = {}) => {
+  const open = async (width, extraCss, { height = 900, colorScheme, noFonts } = {}) => {
     const page = await browser.newPage({ viewport: { width, height }, ...(colorScheme ? { colorScheme } : {}) });
+    // Spec 0022 F3: with every font request refused, the page shows its fallback for good.
+    if (noFonts) await page.route('**/*', (r) => (r.request().resourceType() === 'font' ? r.abort() : r.continue()));
     await page.goto(url, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
     await revealAll(page);
@@ -854,6 +1140,27 @@ async function audit(target, opts = {}) {
     for (const c of product.caps) add('MT-CAPS-TRACKING', 'LOW', c.path, `capitals at ${c.size}px with letter-spacing ${+c.tracking.toFixed(2)}px (under 0.03em)`, 'letter-spacing: 0.06em (5 to 10% of the size, Bringhurst §2.1.6)');
     for (const c of product.capsText) add('MT-CAPS-TEXT', 'MEDIUM', c.path, `${c.letters} letters of running text in capitals`, 'lower case: capitals are for labels of a few words, not sentences');
     for (const s of product.small) add('MT-UI-SIZE', 'LOW', s.path, `${s.size}px interface text (house floor 12px)`, 'font-size: 0.75rem or more');
+    await language(page, add, notVerified);
+    const breaks = new Map();
+    const noteBreaks = (width, list) => {
+      for (const b of list) {
+        const key = `${b.path}|${b.token}`;
+        if (!breaks.has(key)) breaks.set(key, { ...b, widths: [] });
+        breaks.get(key).widths.push(width);
+      }
+    };
+    noteBreaks(1280, await page.evaluate(numberBreaks));
+    await synthesized(page, add);
+    for (const o of await page.evaluate(opticalSizing)) {
+      add('MT-OPSZ-OFF', 'LOW', o.path, `font-optical-sizing: none on ${o.family} at ${o.size}px, a face with an opsz axis: every size gets one optical size`, 'font-optical-sizing: auto (the initial value), so the opsz axis follows the size');
+    }
+    const rules = await page.evaluate(fontFaceRules);
+    for (const f of rules.faces) {
+      if (!f.display) add('MT-FONT-DISPLAY', 'LOW', `@font-face "${f.family}" (${f.where})`, '@font-face without font-display', 'font-display: swap (or optional)');
+      else if (/^(block|auto)$/.test(f.display)) add('MT-FONT-DISPLAY', 'LOW', `@font-face "${f.family}" (${f.where})`, `font-display: ${f.display} hides the text for up to 3 seconds while the font loads`, 'font-display: swap (or optional)');
+    }
+    if (rules.unread.length) notVerified.add(`font-display in stylesheets the page cannot read (cross-origin): ${rules.unread.join(', ')}`);
+    const loadedBoxes = { 1280: await page.evaluate(blockBoxes) };
     const cutAt1280 = await page.evaluate(truncatedText);
     for (const t of cutAt1280) {
       const why = t.titled ? '; its title or accessible name is not shown to sighted keyboard, touch or zoom users' : '';
@@ -974,6 +1281,8 @@ async function audit(target, opts = {}) {
         const wide = [...document.body.querySelectorAll('*')].filter((el) => el.getBoundingClientRect().right > vw + 1 && !(el.parentElement && el.parentElement !== document.body && el.parentElement.getBoundingClientRect().right > vw + 1));
         return { sw, vw, culprits: wide.slice(0, 3).map((el) => window.__mt.path(el)) };
       });
+      noteBreaks(width, await p.evaluate(numberBreaks));
+      if (width === 375) loadedBoxes[375] = await p.evaluate(blockBoxes);
       if (r && r.hidden) add('MT-REFLOW', 'HIGH', `${r.culprits.join(', ')} at ${label}`, `text runs ${r.past}px past the ${r.vw}px viewport; hidden overflow keeps the page from scrolling, so it is cut off`, 'max-inline-size instead of fixed widths; let wide content scroll inside its own container');
       else if (r) add('MT-REFLOW', 'HIGH', `${r.culprits.join(', ') || 'page'} at ${label}`, `page is ${r.sw}px wide in a ${r.vw}px viewport`, 'max-inline-size instead of fixed widths; let tables scroll inside a wrapper');
       await p.close();
@@ -985,7 +1294,13 @@ async function audit(target, opts = {}) {
       return { path: window.__mt.path(el), avg: m.avgCharsPerLine, cjk: window.__mt.cjk(el) };
     }).filter((r) => r.avg && r.avg < (r.cjk ? 20 : 40)));
     for (const s of short) add('MT-MEASURE-SHORT', 'LOW', `${s.path} at 768px`, `${s.avg} characters per line`, 'widen the column or reduce the size');
+    noteBreaks(768, await tablet.evaluate(numberBreaks));
     await tablet.close();
+    for (const b of breaks.values()) {
+      const widths = [...new Set(b.widths)].sort((x, y) => y - x);
+      add('MT-NUM-BREAK', 'MEDIUM', b.path, `"${b.token}" breaks across lines at ${widths.map((w) => `${w}px`).join(', ')}`, 'a no-break space between the number and its unit or currency: U+00A0 (&nbsp;), or U+202F (narrow) before a unit; or white-space: nowrap on the token');
+    }
+    await fontSwap(open, loadedBoxes, add);
 
     // ---- zoom growth: size in device px at zoom z is z * size at width 1280 / z.
     // Every text element must reach 2× by 500% (MT-ZOOM-VW); headings also get the 1.6× house bar.
@@ -1029,8 +1344,7 @@ async function audit(target, opts = {}) {
   }
 
   findings.sort((a, b) => ORDER[a.severity] - ORDER[b.severity] || a.rule.localeCompare(b.rule));
-  const high = findings.filter((f) => f.severity === 'HIGH').length;
-  return { mode: 'rendered', target: url, files: [url], findings, verdict: high ? `Block (${high} HIGH)` : 'Approve', notVerified: [...notVerified] };
+  return { mode: 'rendered', target: url, files: [url], findings, verdict: verdictOf(findings), notVerified: [...notVerified] };
 }
 
 if (require.main === module) {
