@@ -19,6 +19,15 @@ Sources and how firmly each was read:
 Thresholds no source gives are house heuristics, calibrated in Chromium and
 WebKit on macOS on 29 October 2026 (`specs/0002-book-checks.md`).
 
+## Contents
+
+- Inline code: matching the x-height of the text around it
+- Kerning: leaving the font's kerning on
+- Choosing and combining faces
+- Hierarchy and spacing: heading steps and the space around headings
+- Weight and the screen: a weight floor, and light text on dark
+- Icons beside labels: centring on the capitals
+
 ## Inline code
 
 **Match the x-height, not the font size** (Latin, article). Monospace faces

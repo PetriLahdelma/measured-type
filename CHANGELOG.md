@@ -40,6 +40,13 @@ each change has a spec in [`specs/`](specs/).
 - The verdict says what is left: `Approve, N to fix` while N MEDIUM rows
   remain, `Approve` only with LOW findings or none (spec 0022). Exit codes
   are unchanged.
+- **The skill's shape follows Anthropic's authoring guidance** (spec 0023).
+  `audit.md`, `screen-and-ui.md` and `taste.md` open with a contents list,
+  as every reference over 100 lines now must, so a partial read still shows
+  every section. The audit workflow ends with a rerun of the tools after
+  fixes, the type-scale workflow reruns `type-scale.js` until it exits 0 and
+  `SKILL.md` no longer ties its rules to a year. A test keeps each reference
+  one read away from `SKILL.md`.
 
 ### Fixed
 

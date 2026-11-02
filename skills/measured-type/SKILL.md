@@ -20,7 +20,7 @@ license: Text CC BY-NC 4.0 (adapts webtypography.net by Richard Rutter); scripts
 
 # Measured type
 
-Bringhurst's working principles in CSS for 2026, with tools that measure what
+Bringhurst's working principles in current CSS, with tools that measure what
 can be measured. Each rule carries its Bringhurst number (cite it as `§2.1.2`)
 so the reasoning is traceable. What goes wrong is judgment, not syntax: text
 without a measure, faked small caps, lining figures in prose, letterspaced
@@ -80,8 +80,8 @@ them, and LTR should never be why an RTL or vertical edition breaks.
   rotated graphic).
 - Never letterspace or hyphenate-by-assumption in scripts that join (Arabic) or
   lack hyphenation conventions; mirror only directional icons via `:dir(rtl)`.
-- Quotes, number grouping, decimal marks and unit spacing differ per locale
-  (English, Finnish and Swedish are worked through); format numbers with
+- Quotes, number grouping, decimal marks and unit spacing differ per locale;
+  format numbers with
   `Intl.NumberFormat(locale)`, not hand-written strings.
 
 Details, language tables and code: `references/logical-and-language.md`.
@@ -91,8 +91,7 @@ Details, language tables and code: `references/logical-and-language.md`.
 Match the work to the question. A single fact (does this font have true small
 caps, what does `66ch` set in this face) gets the one check that answers it
 and a short reply with the number. Run a workflow only when the task is to
-set, scale or review text. Where a tool computes the answer, use it instead of
-working it out by hand.
+set, scale or review text. Where a tool computes the answer, use it.
 
 ### Setting reading text
 
@@ -128,7 +127,8 @@ working it out by hand.
 Generate and check it rather than hand-tuning `clamp()`:
 `node scripts/type-scale.js --base 1rem:1.125rem --ratio 1.2:1.25 --steps 5 --fluid-from 4`
 prints the tokens and a table of range, zoom growth and step ratios and exits
-1 naming any step that fails. Sizes are `rem`; body, small, caption and label
+1 naming any step that fails: change the inputs and run it again until it
+exits 0. Sizes are `rem`; body, small, caption and label
 stay fixed (exactly 2× at 200% zoom); fluid display sizes are
 `clamp(min-rem, rem + vi, max-rem)`, because a pure `vw` size fails zoom. Keep
 only hero and h1 fluid, and h3 and h4 fixed a clear step apart (1.2–1.25×,
@@ -160,10 +160,11 @@ growth at 200% on narrower windows from its table.
    name it.
 3. Read `references/css-modern.md` for properties the tools do not know, and
    judge hierarchy, rhythm, pairing and emphasis yourself.
-4. Report as `references/audit.md` shows: one table by severity (HIGH, MEDIUM,
-   LOW) with rule ID, location, measured value and CSS fix, then **Block** or
-   **Approve** and what you could not verify. Label taste findings with their
+4. Report as `references/audit.md` shows: one table by severity, then the
+   verdict and what you could not verify. Label taste findings with their
    kind.
+5. After applying fixes, run the same tools again and report what still
+   fails.
 
 ## 5. Verify, don't assume
 

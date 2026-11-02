@@ -5,6 +5,14 @@ Use this file when asked to review, audit or critique typography, and whenever
 emit the rule IDs below, so a finding from the tool and a finding from reading
 the code look the same in the report.
 
+## Contents
+
+- Running the tools: what each script reads and when to use which
+- Severity: HIGH, MEDIUM and LOW
+- Verdict: Block, "Approve, N to fix" and Approve
+- Report shape: one row per root cause, grouped by severity
+- Rule catalog: every rule ID with its severity, check and source
+
 ## Running the tools
 
 Run the tools before reading the code: they find what reading misses, and

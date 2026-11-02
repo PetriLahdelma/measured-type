@@ -18,6 +18,20 @@ Each rule here is one of four kinds, marked where the difference matters:
 In a review, say which kind a finding is. "Below AA contrast" and "I would
 use one weight fewer" are not the same severity.
 
+## Contents
+
+- The stance
+- Hierarchy: few sizes, clear steps
+- Families: how many, and how to pair them
+- Reading text
+- Display text
+- Capitals and labels
+- Dark mode and light-on-dark
+- Numbers
+- Details that signal care
+- Template tells to avoid
+- Reviewing with a point of view
+
 ## The stance
 
 Typography is in service of the text. Hierarchy comes from size, weight and
