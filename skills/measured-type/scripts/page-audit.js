@@ -71,11 +71,27 @@ function pageHelpers() {
       // of 1px or less that hides its overflow.
       for (let p = el; p && p !== document.body; p = p.parentElement) {
         const s = p === el ? cs : getComputedStyle(p);
-        if (/inset\(50%\)/.test(s.clipPath) || /rect\(0(px)?[, ]+0(px)?[, ]+0(px)?[, ]+0(px)?\)/.test(s.clip)) return false;
+        if (window.__mt.clippedAway(s)) return false;
         const r = p.getBoundingClientRect();
         if (r.width <= 1 && r.height <= 1 && /hidden|clip/.test(s.overflow)) return false;
       }
       return true;
+    },
+    // clip-path: inset(50%) or more, or a clip: rect() of zero area, leaves nothing of the box on screen
+    // (the screen-reader-only patterns, spec 0024 V1).
+    clippedAway(s) {
+      const inset = /^inset\(([^)]*)\)/.exec(s.clipPath);
+      if (inset) {
+        const v = inset[1].split(/\s+round\s+/)[0].trim().split(/\s+/).map((x) => (/%$/.test(x) ? parseFloat(x) : NaN));
+        const [t, r = t, b = t, l = r] = v;
+        if (t + b >= 100 || l + r >= 100) return true;
+      }
+      const rect = /^rect\(([^)]*)\)/.exec(s.clip);
+      if (rect) {
+        const [t, r, b, l] = rect[1].split(/[\s,]+/).map((x) => (x === 'auto' ? NaN : parseFloat(x)));
+        if (b <= t || r <= l) return true;
+      }
+      return false;
     },
     directText(el) {
       return [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 0);
@@ -1237,7 +1253,8 @@ async function audit(target, opts = {}) {
       const out = [];
       for (const el of boxes) {
         const r = el.getBoundingClientRect();
-        if (r.width <= 1 || r.height <= 1 || el.closest('[aria-hidden="true"]')) continue;
+        // Visually hidden text (spec 0024 V1) is clipped on purpose, override or not.
+        if (r.width <= 1 || r.height <= 1 || el.closest('[aria-hidden="true"]') || !mt.visible(el)) continue;
         const was = before.get(el);
         const c = clip(el);
         // Text cut on purpose by an ellipsis or a line clamp is MT-TRUNCATE's finding, not this one's.

@@ -50,6 +50,10 @@ each change has a spec in [`specs/`](specs/).
 
 ### Fixed
 
+- False positives in `page-audit.js` found on public design system sites
+  (spec 0024): MT-TEXT-SPACING no longer reports screen-reader-only text
+  (a `clip-path: inset(50%)` or zero-area `clip: rect()` box) as clipped,
+  even when the hidden box measures more than 1px.
 - Trust fixes from the third council (spec 0021), where the tools disagreed
   with the skill's own advice or applied Latin and prose assumptions where
   they do not hold. MT-QUOTES finds straight apostrophes in any word, not

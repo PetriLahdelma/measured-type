@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spacing, screen-reader captions</title>
+<style>
+body { margin: 0; padding: 1rem; font: 18px/1.2 Georgia, serif; color: #222; background: #fff; }
+main { max-inline-size: 34em; }
+table { border-collapse: collapse; }
+caption { padding: 0.5rem 0.75rem; text-align: start; }
+td { padding: 0.25rem 0.5rem; }
+/* Two common screen-reader-only patterns. Neither resets the caption padding, so each box measures more than 1px. */
+.visually-hidden { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.note { block-size: 2.4em; overflow: hidden; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+</style>
+</head>
+<body>
+<main>
+<p>Visible text that has room to grow under the WCAG text-spacing override.</p>
+<p class="note">A visible note in a box of fixed height, which the override pushes out of view.</p>
+<table>
+<caption class="visually-hidden">Opening hours of the library branches, by weekday, for screen readers only</caption>
+<tr><td>Monday</td><td>9 to 20</td></tr>
+</table>
+<table>
+<caption class="sr-only">Opening hours of the library branches, by weekday, for screen readers only</caption>
+<tr><td>Tuesday</td><td>9 to 20</td></tr>
+</table>
+</main>
+</body>
+</html>
