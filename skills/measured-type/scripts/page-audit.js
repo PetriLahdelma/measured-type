@@ -933,7 +933,10 @@ async function audit(target, opts = {}) {
   const add = (rule, severity, location, measured, fix) => findings.push({ rule, severity, location, measured, fix });
 
   const open = async (width, extraCss, { height = 900, colorScheme, noFonts } = {}) => {
-    const page = await browser.newPage({ viewport: { width, height }, ...(colorScheme ? { colorScheme } : {}) });
+    // Spec 0024 V3: the audit injects its helpers as a script tag and its overrides as style tags,
+    // which a strict Content-Security-Policy blocks. Bypassing it changes nothing the reader sees.
+    // Every page the audit opens comes through here, each in its own context.
+    const page = await browser.newPage({ viewport: { width, height }, bypassCSP: true, ...(colorScheme ? { colorScheme } : {}) });
     // Spec 0022 F3: with every font request refused, the page shows its fallback for good.
     if (noFonts) await page.route('**/*', (r) => (r.request().resourceType() === 'font' ? r.abort() : r.continue()));
     await page.goto(url, { waitUntil: 'load' });

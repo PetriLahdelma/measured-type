@@ -56,7 +56,9 @@ each change has a spec in [`specs/`](specs/).
   even when the hidden box measures more than 1px. MT-REFLOW counts only
   text past the inline-end edge (the left edge in right-to-left text), so a
   skip link waiting off-screen or an off-canvas menu is no longer reported,
-  and the amount it reports is never negative.
+  and the amount it reports is never negative. The audit also runs on pages
+  served with a strict Content-Security-Policy instead of stopping when the
+  policy blocks its injected script.
 - Trust fixes from the third council (spec 0021), where the tools disagreed
   with the skill's own advice or applied Latin and prose assumptions where
   they do not hold. MT-QUOTES finds straight apostrophes in any word, not

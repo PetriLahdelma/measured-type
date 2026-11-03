@@ -31,3 +31,9 @@ with a local fixture before it was fixed.
   The amount reported is how far the text runs past the end edge and is
   always positive. On designsystem.suomi.fi the audit reported a skip link
   as "text runs -1146px past the 320px viewport".
+- **V3** The rendered audit runs on a page whose Content-Security-Policy
+  forbids inline scripts, whether the policy comes in a header or a `<meta>`
+  tag, and reports that page's findings. Every page the audit opens bypasses
+  the policy, which changes nothing the reader sees. On primer.style the audit
+  stopped with "page.addScriptTag: Executing inline script violates the
+  following Content Security Policy directive".

@@ -1,6 +1,8 @@
 // Spec 0024: false positives in the rendered page audit. Test names carry the spec IDs.
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const http = require('node:http');
 const path = require('node:path');
 const { chromium } = require('playwright');
 
@@ -35,4 +37,25 @@ test('V2 in a right-to-left page the end edge is the left one: text past it is M
   assert.ok(!hits.some((f) => /a\.skip/.test(f.location)), JSON.stringify(hits));
   assert.ok(hits.some((f) => f.severity === 'HIGH' && /p\.wide/.test(f.location) && /320/.test(f.location)), `the 600px paragraph is not reported: ${JSON.stringify(hits)}`);
   for (const n of reflowAmounts(hits)) assert.ok(n > 0, `overflow must be positive, got ${n}: ${JSON.stringify(hits)}`);
+});
+
+// The same page served over HTTP with the policy as a header, as primer.style sent it.
+const serveWithCsp = (file) => new Promise((resolve) => {
+  const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'" });
+    res.end(fs.readFileSync(file));
+  });
+  server.listen(0, '127.0.0.1', () => resolve(server));
+});
+
+test('V3 a page with a strict Content-Security-Policy is audited, in a meta tag or a header, and its findings are reported', async () => {
+  const meta = await run('v3-csp.html');
+  assert.ok(find(meta, 'MT-CONTRAST', 'HIGH').some((f) => /\.low/.test(f.location)), JSON.stringify(meta.findings));
+  const server = await serveWithCsp(path.join(FIX, 'v3-csp.html'));
+  try {
+    const header = await audit(`http://127.0.0.1:${server.address().port}/`, { browser });
+    assert.ok(find(header, 'MT-CONTRAST', 'HIGH').some((f) => /\.low/.test(f.location)), JSON.stringify(header.findings));
+  } finally {
+    server.close();
+  }
 });
