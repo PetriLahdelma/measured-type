@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>reflow, off-screen skip links</title>
+<style>
+html, body { overflow-x: hidden; }
+body { margin: 0; padding: 1rem; font: 16px/1.5 Georgia, serif; color: #222; background: #fff; }
+main { max-inline-size: 34em; }
+/* Skip links wait off-screen on the start side until they take focus. */
+.skip { position: absolute; left: -1000px; top: 1rem; }
+.skip:focus { left: 1rem; }
+.skip-far { position: absolute; left: -9999px; }
+.skip-far:focus { left: 1rem; }
+.skip-shift { position: absolute; left: 0; top: 0; transform: translateX(-100%); }
+.skip-shift:focus { transform: none; }
+/* An off-canvas menu waits past the end edge until it is opened. */
+.drawer { position: fixed; inset-block-start: 0; inset-inline-start: 100%; inline-size: 16rem; }
+.wide { inline-size: 600px; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<a class="skip-far" href="#nav">Skip to navigation</a>
+<a class="skip-shift" href="#footer">Skip to footer</a>
+<nav class="drawer" id="nav"><a href="/guides">Guides and reference material</a></nav>
+<main id="main">
+<p>Readers notice type only when it fails them: a line too long to follow back, leading so tight the lines blur, a heading that floats away from its text.</p>
+<p class="wide">This paragraph has a fixed width of six hundred pixels, so at three hundred and twenty it runs off the edge.</p>
+</main>
+</body>
+</html>

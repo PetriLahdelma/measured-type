@@ -1285,15 +1285,23 @@ async function audit(target, opts = {}) {
         if (sw <= vw + 1) {
           // overflow-x: hidden can keep the page from scrolling while text runs off the edge.
           const scrolls = (el) => { for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) if (/auto|scroll/.test(getComputedStyle(a).overflowX)) return true; return false; };
-          const cut = window.__mt.textElements().filter((el) => {
+          const placed = (el) => { for (let a = el; a && a !== document.body; a = a.parentElement) if (/absolute|fixed/.test(getComputedStyle(a).position)) return true; return false; };
+          // Spec 0024 V2: only text past the inline-end edge (the right in ltr, the left in rtl) is cut off.
+          // Text wholly beyond the start edge, or placed wholly off-screen with absolute or fixed
+          // positioning (a skip link that waits there until it takes focus), is hidden on purpose.
+          const cut = [];
+          for (const el of window.__mt.textElements()) {
             const cs = getComputedStyle(el);
             const rect = el.getBoundingClientRect();
-            if (rect.width <= 1 || cs.textOverflow === 'ellipsis' || el.closest('[aria-hidden="true"], [inert]')) return false;
-            return (rect.right > vw + 1 || rect.left < -1) && !scrolls(el);
-          });
+            if (rect.width <= 1 || cs.textOverflow === 'ellipsis' || el.closest('[aria-hidden="true"], [inert]')) continue;
+            const pastEnd = cs.direction === 'rtl' ? -rect.left : rect.right - vw;
+            if (pastEnd <= 1) continue;
+            if ((rect.right <= 0 || rect.left >= vw) && placed(el)) continue;
+            if (!scrolls(el)) cut.push({ el, pastEnd });
+          }
           if (!cut.length) return null;
-          const past = Math.round(Math.max(...cut.map((el) => el.getBoundingClientRect().right - vw)));
-          return { hidden: true, vw, past, culprits: cut.slice(0, 3).map((el) => window.__mt.path(el)) };
+          const past = Math.round(Math.max(...cut.map((c) => c.pastEnd)));
+          return { hidden: true, vw, past, culprits: cut.slice(0, 3).map((c) => window.__mt.path(c.el)) };
         }
         const wide = [...document.body.querySelectorAll('*')].filter((el) => el.getBoundingClientRect().right > vw + 1 && !(el.parentElement && el.parentElement !== document.body && el.parentElement.getBoundingClientRect().right > vw + 1));
         return { sw, vw, culprits: wide.slice(0, 3).map((el) => window.__mt.path(el)) };

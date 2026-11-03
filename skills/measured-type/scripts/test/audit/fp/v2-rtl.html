@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>reflow, right to left</title>
+<style>
+html, body { overflow-x: hidden; }
+body { margin: 0; padding: 1rem; font: 16px/1.6 "Geeza Pro", "Noto Naskh Arabic", serif; color: #222; background: #fff; }
+main { max-inline-size: 34em; }
+/* In a right-to-left page the start side is the right edge. */
+.skip { position: absolute; right: -9999px; top: 1rem; }
+.skip:focus { right: 1rem; }
+.wide { inline-size: 600px; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">انتقل إلى المحتوى الرئيسي</a>
+<main id="main">
+<p>يلاحظ القراء الحروف فقط عندما تخذلهم: سطر أطول من أن يتابعوه، أو تباعد ضيق تتداخل فيه الأسطر.</p>
+<p class="wide">لهذه الفقرة عرض ثابت قدره ستمئة بكسل، فتتجاوز حافة الشاشة الضيقة من جهة نهاية السطر.</p>
+</main>
+</body>
+</html>

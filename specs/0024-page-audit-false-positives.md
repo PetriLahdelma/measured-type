@@ -22,3 +22,12 @@ with a local fixture before it was fixed.
   more than 1px, as a screen-reader-only `<caption>` does when the table's
   caption padding is not reset. A visible box that clips under the override is
   still reported.
+- **V2** MT-REFLOW, where hidden overflow stops the page from scrolling,
+  counts only text that runs past the inline-end edge of the viewport: the
+  right edge when the text's `direction` is `ltr`, the left edge when it is
+  `rtl`. Text wholly beyond the start edge (a skip link at `left: -1000px`
+  that waits there until it takes focus) and text placed wholly off-screen
+  with absolute or fixed positioning (an off-canvas menu) are not reported.
+  The amount reported is how far the text runs past the end edge and is
+  always positive. On designsystem.suomi.fi the audit reported a skip link
+  as "text runs -1146px past the 320px viewport".

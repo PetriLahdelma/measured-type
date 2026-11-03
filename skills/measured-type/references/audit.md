@@ -89,7 +89,7 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 
 | Rule | Severity | Check | Source |
 |---|---|---|---|
-| MT-REFLOW | HIGH | Page scrolls sideways at 320 CSS px (400% zoom of 1280) or at 375px, or text runs past the edge where hidden overflow stops the scroll | WCAG 1.4.10, §2.1.2 |
+| MT-REFLOW | HIGH | Page scrolls sideways at 320 CSS px (400% zoom of 1280) or at 375px, or text runs past the inline-end edge where hidden overflow stops the scroll (text placed off-screen until focus, such as a skip link, is not counted) | WCAG 1.4.10, §2.1.2 |
 | MT-ZOOM-VW | HIGH | `font-size` from `vw`/`vi` with no `rem`/`em` term, or any rendered text that does not reach 2× by 500% zoom | WCAG 1.4.4, §3.1.1 |
 | MT-VIEWPORT-ZOOM | HIGH | `user-scalable=no` or `maximum-scale` below 2 in the viewport meta | WCAG 1.4.4 |
 | MT-ROOT-PX | MEDIUM | `font-size` in `px` on `html` or `:root`: overrides the reader's default (a percentage under 100% is LOW). A convention: zoom still works and no WCAG criterion requires the default size | §3.1.1 |
