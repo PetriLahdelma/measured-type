@@ -4,7 +4,11 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
-## Unreleased
+## 1.4.0 (3 November 2026)
+
+A plugin marketplace, an opt-in baseline grid, checks for faults the guidance
+already named, a skill shaped to Anthropic's authoring guidance and three
+false positives fixed in the rendered audit.
 
 ### Added
 
