@@ -4,6 +4,17 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
+## Unreleased
+
+### Evidence
+
+- The tools on 100 public pages (spec 0028, pre-registered): lines run long
+  (median 78.7 characters, 6 in 10 over 75); contrast fails on 63 pages and
+  reflow on 30, both confirmed 5 of 5 by an independent re-measure; no page
+  fails WCAG 1.4.4. The run found five tool faults (F1 to F5 in
+  `evals/results/0028/`), and MT-TEXT-SPACING's overlap branch is not reliable
+  until fixed.
+
 ## 1.5.0 (5 November 2026)
 
 Trust fixes from the 5 November review; a plugin manifest and a plugin

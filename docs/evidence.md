@@ -26,6 +26,7 @@ the committed run files.
 | [Triggering, stub command](../evals/triggering/) | 16 typography prompts, 16 near misses, 3 runs each, skill-creator's method | 5 of 48 loads | | The skill offered as a stub command in an empty folder, first tool call only: rarely loads |
 | [Triggering, real session](../evals/triggering/) (spec 0016) | 26 typography prompts, 22 near misses, the skill installed in a small site, Opus and Sonnet, 3 runs each | 78/78 loads with Opus, 44/48 with Sonnet | no near miss loaded in 114 runs | Loads before the first edit on nearly every typography task; the stub-command figure was the setup |
 | [Plain-words description](../evals/triggering/) (spec 0026 Q4) | The description rewritten for search against the shipped one, spec 0016's protocol, Opus and Sonnet, 3 runs each, 372 runs on one afternoon | plain words: Opus 26/26 prompts, Sonnet 15/16, 3 of 114 near-miss runs loaded | shipped wording, same day: Opus 16/16, Sonnet 6/6, 0 of 66 near-miss runs loaded | The shipped wording stays; words for search go in the manifest and the READMEs, which the model does not read before loading |
+| [100 public pages](../evals/results/0028/) (spec 0028) | The tools on 25 design system, 25 docs, 25 reading and 25 template pages, with 26 findings re-measured independently | | | Median 78.7 characters per line, 6 in 10 over 75; contrast fails on 63 pages and reflow on 30, each 5 of 5 confirmed; no page fails WCAG 1.4.4; five tool faults found, the 1.4.12 overlap check among them |
 
 ## How to read it
 
