@@ -85,6 +85,25 @@ test('Q5 the README gives skills CLI install lines for Codex and Cursor', () => 
   assert.match(readme, /npx skills add PetriLahdelma\/measured-type --skill measured-type --agent cursor/);
 });
 
+test('Q7 the repository root carries a Cursor manifest that mirrors the Claude one, and the skill sits where cursor.directory looks', () => {
+  const cursor = JSON.parse(read(path.join('.cursor-plugin', 'plugin.json')));
+  const claude = manifest();
+  assert.equal(cursor.name, claude.name);
+  assert.equal(cursor.version, claude.version);
+  assert.equal(cursor.description, claude.description);
+  assert.equal(cursor.license, claude.license);
+  assert.ok(cursor.author && cursor.author.name && !cursor.author.email, 'author with a name and no email');
+  assert.ok(Array.isArray(cursor.keywords) && cursor.keywords.includes('typography'));
+  assert.ok(fs.existsSync(path.join(ROOT, cursor.logo)), `logo ${cursor.logo} is missing`);
+  assert.ok(fs.existsSync(path.join(ROOT, 'skills', 'measured-type', 'SKILL.md')), 'skills/measured-type/SKILL.md is where cursor.directory detects a skill');
+});
+
+test('Q8 the Claude manifest carries https listing links for documentation and support', () => {
+  const m = manifest();
+  assert.match(m.documentationUrl || '', /^https:\/\//);
+  assert.match(m.supportUrl || '', /^https:\/\//);
+});
+
 test('Q6 the plugin folder keeps within the directory limits: files, sizes and stray system files', () => {
   const files = [];
   const walk = (dir) => {

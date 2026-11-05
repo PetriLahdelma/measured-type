@@ -62,3 +62,16 @@ loads it as a skills-directory plugin named `measured-type` whose one skill is
 - **Q6** The plugin folder keeps within the directory's automatic limits: at
   most 512 files outside `node_modules`, every file that is not an image or a
   font under 256 KiB and no `.DS_Store`.
+
+Added the same day, for the listings:
+
+- **Q7** The repository root carries `.cursor-plugin/plugin.json`, the
+  manifest Cursor's plugin template and cursor.directory read, with the same
+  name, version (tied to CITATION.cff and the changelog), description, author
+  without an email, licence and keywords as the Claude manifest, and a `logo`
+  path inside the repository. cursor.directory detects the skill itself at
+  `skills/measured-type/SKILL.md`, the path its scanner looks for.
+- **Q8** The Claude manifest carries the directory listing links
+  `documentationUrl` and `supportUrl` as `https://` URLs, so the listing
+  points at the README and at Discussions; `claude plugin validate --strict`
+  still passes (Claude Code 2.1.281 and later accept the fields).

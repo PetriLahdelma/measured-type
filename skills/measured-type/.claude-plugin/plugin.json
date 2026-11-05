@@ -6,6 +6,8 @@
   "author": { "name": "Petri Lahdelma", "url": "https://github.com/PetriLahdelma" },
   "homepage": "https://github.com/PetriLahdelma/measured-type",
   "repository": "https://github.com/PetriLahdelma/measured-type",
+  "documentationUrl": "https://github.com/PetriLahdelma/measured-type#readme",
+  "supportUrl": "https://github.com/PetriLahdelma/measured-type/discussions",
   "license": "CC-BY-NC-4.0 AND MIT",
   "keywords": ["typography", "css", "accessibility", "design", "fonts"],
   "skills": ["./"]

@@ -19,6 +19,11 @@ Python.
   version to the manifest. A copy of the folder under `~/.claude/skills/` now
   loads as a skills-directory plugin named `measured-type`.
 - Skills CLI install lines for Codex and Cursor in the README.
+- A Cursor manifest at the repository root (`.cursor-plugin/plugin.json`),
+  mirroring the Claude one, so cursor.directory reads a name, description and
+  logo and detects the skill at `skills/measured-type/SKILL.md`; the Claude
+  manifest gains `documentationUrl` and `supportUrl` for the directory listing
+  (spec 0026 Q7, Q8).
 - The README leads with the two-command install, the page at 200% zoom and
   what the tools print, in about 1,500 words; the evidence table, the proofs,
   the reference by decision, the scripts table and the identity moved to
