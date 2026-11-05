@@ -4,11 +4,11 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
-## Unreleased
+## 1.5.0 (5 November 2026)
 
-Trust fixes from the 5 November review (spec 0025): the tools stop
-contradicting the skill's promise, and the first hour works on a current
-Python.
+Trust fixes from the 5 November review; a plugin manifest and a plugin
+README; a README that leads with the install and the number; and a same-day
+triggering study of a rewritten description, which stays withdrawn.
 
 ### Added
 
