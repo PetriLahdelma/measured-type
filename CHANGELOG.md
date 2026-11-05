@@ -19,6 +19,10 @@ Python.
   version to the manifest. A copy of the folder under `~/.claude/skills/` now
   loads as a skills-directory plugin named `measured-type`.
 - Skills CLI install lines for Codex and Cursor in the README.
+- The README leads with the two-command install, the page at 200% zoom and
+  what the tools print, in about 1,500 words; the evidence table, the proofs,
+  the reference by decision, the scripts table and the identity moved to
+  `docs/` (spec 0027), with a test that nothing was lost in the move.
 
 ### Fixed
 

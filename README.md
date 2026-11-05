@@ -5,20 +5,66 @@
 </picture></h1>
 
 [![Agent skill: skills CLI, Claude Code and gh skill](https://img.shields.io/badge/agent_skill-skills_CLI%2C_Claude_Code_and_gh_skill-20211F)](skills/measured-type/SKILL.md)
+[![skills.sh installs](https://www.skills.sh/b/PetriLahdelma/measured-type)](https://skills.sh/petrilahdelma/measured-type/measured-type)
 [![Evals: 5 development, 3 held-out and 6 head-to-head cases](https://img.shields.io/badge/evals-5_dev_%2B_3_held--out_%2B_6_head--to--head-B33A32)](#evidence)
 [![License: CC BY-NC 4.0 text, MIT code](https://img.shields.io/badge/license-CC_BY--NC_4.0_text%2C_MIT_code-61645E)](LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/PetriLahdelma/measured-type?color=61645E)](https://github.com/PetriLahdelma/measured-type/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
 [![Git clones since launch](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FPetriLahdelma%2F8f94b2f1820082384e15ae2d97710060%2Fraw%2Fclones.json)](https://gist.github.com/PetriLahdelma/8f94b2f1820082384e15ae2d97710060)
 
-**[Install](#install)**&emsp;[Where it helps](#where-it-helps-what-it-costs-when-to-skip-it)&emsp;[Evidence](#evidence)&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[Contribute](#contributing)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
+**[Install](#install)**&emsp;[What it prints](#what-the-tools-print)&emsp;[Evidence](#evidence)&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[Docs](docs/)&emsp;[Contribute](#contributing)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
 
 Measured Type is an agent skill for web typography: Bringhurst's rules
-translated into current CSS and scripts that measure what can be measured
+translated into current CSS, and scripts that measure what can be measured
 (line length, zoom growth, contrast, figures in a number column, font
-coverage) in a real browser or in the font file. It is for design engineers,
-frontend developers and design-system teams who let agents set and review
-text.
+coverage) in a real browser or in the font file. It is for frontend
+developers, designers who work with an agent and typographers who want the
+number beside the rule. Every claim on this page links to a committed run.
+
+## Install
+
+Two commands: the skill into Claude Code, then the measuring scripts.
+
+```bash
+npx skills add PetriLahdelma/measured-type --skill measured-type --agent claude-code -g
+cd ~/.claude/skills/measured-type && npm install && npx playwright install chromium
+```
+
+The second line is optional: without it the skill advises and lints.
+`npx playwright install chromium` prints nothing when the browser is already
+cached and downloads about 150 MB when it is not.
+
+Or as a Claude Code plugin from this repository's marketplace (it installs the
+pinned Playwright package; add the browser as above):
+
+```
+/plugin marketplace add PetriLahdelma/measured-type
+/plugin install measured-type@measured-type
+```
+
+The same line installs it for Codex and Cursor; the GitHub CLI route is
+`gh skill install PetriLahdelma/measured-type measured-type` (preview):
+
+```bash
+npx skills add PetriLahdelma/measured-type --skill measured-type --agent codex -g
+npx skills add PetriLahdelma/measured-type --skill measured-type --agent cursor -g
+```
+
+The font scripts need fontTools in a Python of their own, because current
+Pythons refuse a bare `pip install`; the tests read `MT_PYTHON`:
+
+```bash
+python3 -m venv ~/.venvs/measured-type
+~/.venvs/measured-type/bin/pip install fonttools brotli
+export MT_PYTHON=~/.venvs/measured-type/bin/python
+```
+
+Check the install with `npm test` in the skill folder (about a minute, in
+headless Chromium; an installed copy skips the tests whose fonts live only in
+this repository and says so). Leave out `-g` to install into one project, or
+copy `skills/measured-type` from a clone into `~/.claude/skills/`.
+
+## The number, before you install
 
 <p>
 <picture>
@@ -35,399 +81,157 @@ text.
 | Hero written with the skill | 65.6px | 112.3px | 1.71× |
 
 Zoom doubles `rem` but halves the CSS viewport, so the viewport term in a
-fluid size stops growing. In the development benchmark both runs without the
-skill shipped heroes like the second row; with it, both did the ratio math
-first. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
+fluid size stops growing. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar
+is this project's.
 
-## Where it helps, what it costs, when to skip it
+## What the tools print
 
-**Where it helps**
-
-- Line length in a wide face: `66ch` in Verdana sets 81 characters; the
-  skill counts lines instead of trusting the unit, and came closer to 66
-  than a model given a one-sentence hint.
-- Fluid type under zoom when the brief fixes the sizes: `type-scale.js
-  --fit` gives two forms that keep both sizes and pass the zoom bar. On a
-  held-out case every run with the skill met all three checks against none
-  without it; a one-sentence hint did as well there (see
-  [Evidence](#evidence)).
-- Right-to-left audits that convert text flow but leave decoration and
-  already-mirrored glyphs alone.
-- Dense product UI: tabular figures, numbers aligned at the end, tracked
-  capitals, truncated text, contrast in both colour schemes.
-- Agents without a browser of their own: the bundled Chromium measures, and
-  without it the tools say what they could not check.
-- Teams: one report format with rule IDs, severities and a Block or Approve
-  verdict that can gate a pull request.
-
-**What it costs**
-
-- 7% to 25% more tokens and up to twice the time per task, measured across
-  every experiment in [Evidence](#evidence).
-- `npm install` and a Chromium download for the measuring scripts (the
-  linter and the estimate need neither).
-- The text is CC BY-NC 4.0; whether paid client work may use it is not
-  settled ([License](#license)).
-
-**When to skip it**
-
-- Fluid type under zoom on its own: one sentence ("check that it still grows
-  at least 1.6× at 200% zoom") matched the skill on the held-out case; the
-  skill pulled ahead only on the wider 1.8× range of the hero case, where the
-  sentence's runs gave up the desktop size.
-- One-off questions a current model already answers well.
-- Logos, drawing icons or fonts, build setup.
-
-Installed in a project, it loaded before the agent's first edit on every
-typography prompt with Opus 5.5 (26 of 26) and on 15 of 16 with Sonnet 5.5,
-and never on a near miss ([spec 0016](specs/0016-triggering-in-session.md),
-repeated on 5 November 2026).
-Other type or design skills installed alongside it were not tested; name it
-when you want it for certain.
-
-## How it works
-
-1. **Classify the text.** Reading, display and interface text follow
-   different rules; book rules applied to a button are their own mistake.
-2. **Direction and language first.** Every rule is flow-relative, with `lang`
-   and `dir` in place, so an RTL or vertical edition is a content change.
-3. **Decide with the rules.** Bringhurst's [*The Elements of Typographic Style*](https://www.amazon.com/dp/0881792128),
-   numbered so reviews can cite `§2.1.2`, translated into CSS that ships today.
-4. **Measure what can be measured,** and when no browser is available,
-   estimate and say so. Anything a check cannot compute is listed under Not
-   verified, never passed in silence.
-5. **Review with a point of view.** A taste reference for what reads as
-   considered and the template tells that read as defaults.
-
-## Install
-
-**skills CLI** ([skills.sh](https://skills.sh)), as a personal skill in every
-project:
-
-```bash
-npx skills add PetriLahdelma/measured-type --skill measured-type --agent claude-code -g
-```
-
-The same command installs it for Codex and Cursor, which read
-`~/.agents/skills` and `~/.cursor/skills`:
-
-```bash
-npx skills add PetriLahdelma/measured-type --skill measured-type --agent codex -g
-npx skills add PetriLahdelma/measured-type --skill measured-type --agent cursor -g
-```
-
-Leave out `-g` to install into the current project, or `--agent` to choose
-another agent. Tested with skills 1.7.4 on macOS, 29 October 2026. Without the
-CLI, copy `skills/measured-type` from a clone into `~/.claude/skills/`, or use
-`gh skill install PetriLahdelma/measured-type measured-type` (preview).
-
-**Claude Code plugin**, from this repository's marketplace:
-
-```
-/plugin marketplace add PetriLahdelma/measured-type
-/plugin install measured-type@measured-type
-```
-
-The plugin installs the skill and its scripts, not the evals. Claude Code
-installs the pinned Playwright package from the lockfile when it copies the
-plugin (with install scripts disabled); add the browser with
-`npx playwright@1.64.1 install chromium`, and fontTools as below.
-
-**The measuring scripts** are optional; without them the skill advises but
-cannot measure:
-
-```bash
-cd ~/.claude/skills/measured-type && npm install && npx playwright install chromium
-```
-
-`npx playwright install chromium` prints nothing when the browser is already
-cached and downloads about 150 MB when it is not. The font scripts
-(`font-features.py`, `fallback-metrics.py`) need fontTools in a Python of
-their own, because current Pythons refuse a bare `pip install`:
-
-```bash
-python3 -m venv ~/.venvs/measured-type
-~/.venvs/measured-type/bin/pip install fonttools brotli
-export MT_PYTHON=~/.venvs/measured-type/bin/python
-```
-
-Run the two scripts with that Python; the tests read `MT_PYTHON`.
-
-**Check the install** with `npm test` in the same folder: about a minute, in
-headless Chromium. An installed copy skips the tests whose fonts and examples
-live only in this repository (about one in fifteen) and says so in each skip
-line; the estimate calibration skips where its macOS fonts are not installed.
-
-## Use it
-
-Name the skill. A first task, in a project with a stylesheet:
-
-> *Use measured-type to audit the typography in styles.css and fix the HIGH findings. Measure the line length in the browser.*
-
-Tasks it is written for:
-
-- *Set the article body for our docs in Verdana at 1.125rem, about 66 characters per line.*
-- *Build a type scale for this site that still works at 200% zoom.*
-- *Audit this stylesheet before we ship the Arabic edition.*
-- *Does our italic have real small caps?*
-- *The numbers in our admin table don't line up and the status badges are hard to read.*
-- *Put this article on an 8px baseline grid and check that it holds.*
-
-It works alongside general frontend and design-system skills: they keep layout
-and components, this one makes the type decisions inside them.
-
-**Without installing anything.** The linter and the estimate need only Node:
-
-```bash
-node ~/.claude/skills/measured-type/scripts/estimate-measure.js "Verdana" 66ch
-```
-
-```text
-about 81 characters per line in Verdana at 66ch (estimate from a Chromium calibration, not a measurement)
-  671.6px at 16px; average character 0.504em, zero 0.636em
-```
-
-## What it measures
-
-| Script | What it does |
-|---|---|
-| [`page-audit.js`](skills/measured-type/scripts/page-audit.js) | Audits a rendered page at 1280, 768 and 375px and at 200%, 400% and 500% zoom: reflow, characters per line, contrast in light and dark schemes, the WCAG 1.4.12 spacing override, fonts that fell back, zoom growth and the screen and product UI checks. `--baseline 8px` also checks a strict baseline grid: where each block's baselines land, more than 1px off is reported, with the line-height that caused it. The unit can be a custom property the page sets (`--baseline --u`, so it may change per breakpoint or region), checked at 1280, 768 and 375px, in one region (`--baseline-scope`) and to any tolerance (`--baseline-tolerance`). `--lite` lints instead when there is no browser |
-| [`lint-css.js`](skills/measured-type/scripts/lint-css.js) | Lints CSS, SCSS, Less, HTML, component style blocks and Tailwind classes (also inside `cn()`, `clsx()`, Vue `:class` and Svelte `class:`), or only what a branch changed (`--diff`). Fluid sizes are evaluated at zoom. No dependencies |
-| [`measure-line.js`](skills/measured-type/scripts/measure-line.js) | Counts characters per line of one selector, graphemes and columns counted correctly |
-| [`estimate-measure.js`](skills/measured-type/scripts/estimate-measure.js) | Estimates characters per line without a browser, from a Chromium calibration of 30 faces |
-| [`font-features.py`](skills/measured-type/scripts/font-features.py) | Reports which OpenType features a font file really covers, per file (roman and italic can differ) |
-| [`fallback-metrics.py`](skills/measured-type/scripts/fallback-metrics.py) | Builds a metric-matched fallback `@font-face`, so the web font swaps in without reflow |
-| [`type-scale.js`](skills/measured-type/scripts/type-scale.js) | Prints fluid type tokens, each checked for range, zoom growth and step ratio |
-
-Every script was written test first ([`specs/`](specs/)); both audits
-report in one format ([`references/audit.md`](skills/measured-type/references/audit.md)).
-The audit of the ops dashboard from head-to-head 2 and 3
-([`evals/h2h-dashboard/`](evals/h2h-dashboard/files/)), with the Fix column
-and half the rows left out:
+One report format for the rendered audit and the source lint: rule id,
+severity, where, the measured value, the CSS fix, a verdict and what could not
+be checked. An ops dashboard from the head-to-heads, Fix column and most rows
+left out:
 
 | Severity | Rule | Location | Measured |
 |---|---|---|---|
 | HIGH | MT-CONTRAST | `p.foot` | 2.23:1 (rgb(170, 170, 170) on rgb(250, 250, 250), needs 4.5:1) |
 | HIGH | MT-REFLOW | `table.services` at 320 CSS px (400% zoom of 1280) | page is 924px wide in a 320px viewport |
 | MEDIUM | MT-TABULAR | `table.services` columns 3, 4 and 5 | 1 and 0 differ by 26.8% in width, so digits do not line up |
-| LOW | MT-CAPS-TRACKING | `p.eyebrow`, `p.kpi-label`, `th` | capitals at 11px with letter-spacing 0px (under 0.03em) |
-| LOW | MT-NUM-ALIGN | `table.services` columns 3, 4 and 5 | numbers of different lengths set text-align: left |
 | LOW | MT-TRUNCATE | `td > span.name` | "Authentication gateway for partner accounts" cut at 1280px |
-| LOW | MT-UI-SIZE | `p.foot` | 10px interface text (house floor 12px) |
 
 Verdict: Block (9 HIGH).
 
-Product UI fails differently from an article:
-nothing is too long to read, but it is hard to compare. Proportional figures
-cannot line up, so 411 108 and 80 011 end at different edges even in a
-column of their own:
-
-<p>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/brand/tabular-figures-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset=".github/brand/tabular-figures-light.png">
-  <img alt="The same four-row service table set twice in system-ui at 15px. With the defaults, start-aligned proportional figures: the digit 1 is 26.9% narrower than 0 and the last digits of the Requests column end across 434 to 447px. With text-align: end and tabular-nums: 0% difference and every last digit at one position." src=".github/brand/tabular-figures-light.png" width="100%">
-</picture>
-</p>
-
-## More proof
-
-**`ch` is the width of the zero.** The same `66ch` sets different measures in
-different faces, so the skill counts the rendered lines:
-
-<p>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/brand/measure-66ch-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset=".github/brand/measure-66ch-light.png">
-  <img alt="Two paragraphs set at max-inline-size: 66ch and 16px. In Verdana the box is 671px wide and the full lines average 81 characters. In Source Serif 4 the box is 548px wide and the lines average 70 characters. 1ch is the width of the zero: 0.64em in Verdana, 0.52em in Source Serif 4." src=".github/brand/measure-66ch-light.png" width="100%">
-</picture>
-</p>
-
-| `max-inline-size: 66ch` at 16px | Verdana | Source Serif 4 |
-|---|--:|--:|
-| Width of the zero, `1ch` | 0.64em | 0.52em |
-| Box width | 671px | 548px |
-| Characters per full line | 81 | 70 |
-
-Asked for about 66 characters per line in Verdana, the skill set the box in
-`em` and checked it with `measure-line.js`: 66.1 characters per line, range 60
-to 71, in a box of `34.5em` (`54.3ch`).
-
-**A feature tag is not coverage.** `font-features.py` reads the file: Source
-Serif 4's roman has complete small caps and its italic has none, although
-both files list the same family.
-
-<details>
-<summary>The report for the italic</summary>
+Line length is counted, not trusted: `66ch` is sixty-six zeros wide, and the
+zero is wider than most letters. `measure-line.js` counts the rendered lines
+and solves for the width that gives the number asked for:
 
 ```text
-# Source Serif 4 Italic  (SourceSerif4-Italic[opsz,wght].ttf)
-italic: yes
-default figures: tabular lining
-GSUB: aalt case ccmp dnom frac liga lnum locl numr onum ordn pnum sinf ss01 ss02 ss03 subs sups tnum zero
-
-  smcp: ABSENT  (small caps from lowercase: should cover a-z and accented letters)
-  c2sc: ABSENT  (small caps from capitals: should cover A-Z and accented capitals)
-
-check smcp: absent
-  missing: abcdefghijklmnopqrstuvwxyzäöå
+.prose > p at 1280px, zoom 1: 90.6 chars/line (long (over 75))
+  range 82-96 over 13 full lines in 4 paragraphs
+  declared Georgia, "Times New Roman", serif 18px, line-height 27.9px
+  rendered with Georgia (system font, 350 glyphs)
+  content box 729.2px = 66ch = 40.5em
+solve 66: max-inline-size: 29.8em (536.4px) gives 66.1 chars/line on .prose > p
 ```
 
-</details>
+Without a browser, `lint-css.js` and `estimate-measure.js` need only Node and
+`page-audit.js --lite` lists every check it skipped. The scripts, what each
+reads and the exit codes: [docs/tools.md](docs/tools.md).
 
-**One article set twice.** The "before" uses template defaults; no model
-wrote it:
+## Where it helps, what it costs, when to skip it
 
-<p>
-<img alt="The same article set twice at a 1280px window. Before, with template defaults: 160 characters per line, a heading that grows 1.00 times at 200% zoom, justified text, hyphen-minus for negative numbers and table figures left to the font. After, set with Measured Type: 65 characters per line, 2.00 times, ragged hyphenated text, U+2212 minus signs and declared tabular lining figures." src="examples/editorial/before-after.png" width="100%">
-</p>
+**Where it helps.** Line length in a wide face (`66ch` in Verdana sets 81
+characters; the skill counts lines). Fluid type under zoom when the brief
+fixes the sizes (`type-scale.js --fit` keeps both and passes the zoom bar; on
+a held-out case every run with the skill met all three checks, none without
+it). Right-to-left audits that convert text flow and leave decoration alone.
+Dense product UI: tabular figures, numbers aligned at the end, tracked
+capitals, truncated text, contrast in both colour schemes. Teams: one report
+with rule ids and a verdict that can gate a pull request.
 
-[`examples/editorial/`](examples/editorial/) holds both pages and a table of
-every change with the section it follows. The audit blocks `before.html` with
-4 HIGH findings and approves `after.html`.
+**What it costs.** 7% to 25% more tokens and up to twice the time per task,
+measured across every experiment; `npm install` and a Chromium download for
+the measuring scripts; a CC BY-NC 4.0 text whose use in paid client work is
+not settled ([License](#license)).
+
+**When to skip it.** Fluid type under zoom on its own, where one sentence
+("check that it still grows at least 1.6× at 200% zoom") matched the skill on
+the held-out case; one-off questions a current model answers well; logos,
+drawing icons or fonts, build setup.
+
+Installed in a project, it loaded before the agent's first edit on every
+typography prompt with Opus 5.5 (26 of 26) and on 15 of 16 with Sonnet 5.5,
+and never on a near miss ([spec 0016](specs/0016-triggering-in-session.md),
+repeated on 5 November 2026); other type or design skills installed alongside
+it were not tested, so name it when you want it for certain.
+
+## How it works
+
+1. **Classify the text.** Reading, display and interface text follow
+   different rules.
+2. **Direction and language first.** Every rule is flow-relative, with `lang`
+   and `dir` as inputs, so an RTL edition is a content change.
+3. **Decide with the rules.** Bringhurst's [*The Elements of Typographic Style*](https://www.amazon.com/dp/0881792128),
+   numbered so reviews can cite `§2.1.2`, in CSS that ships today.
+4. **Measure what can be measured;** without a browser, estimate and say so.
+   What a check cannot compute is listed under Not verified.
+5. **Review with a point of view.** A taste reference for what reads as
+   considered.
+
+The rules by decision (how wide a column, a scale that survives zoom, where
+hard spaces go, right to left): [docs/reference.md](docs/reference.md).
+
+## Use it
+
+Name the skill for a first task, in a project with a stylesheet:
+
+> *Use measured-type to audit the typography in styles.css and fix the HIGH findings. Measure the line length in the browser.*
+
+After that it loads on its own when a request touches how words and numbers
+sit on a page. Tasks it is written for: *set the article body in Verdana at
+1.125rem, about 66 characters per line*; *build a type scale that still works
+at 200% zoom*; *audit this stylesheet before the Arabic edition*; *the numbers
+in our admin table don't line up*. It works alongside general frontend and
+design-system skills: they keep layout and components, this one makes the
+type decisions inside them.
 
 ## In CI and pull requests
 
 The linter exits 1 when a HIGH finding remains, so it can gate a pull request
-with no install. `--diff` limits it to what the branch changed, which lets an
-older codebase adopt it gradually:
+with no install, and `--diff` limits it to what the branch changed:
 
 ```bash
 node path/to/measured-type/scripts/lint-css.js src --diff origin/main
 ```
 
 The rendered audit needs Playwright and a page: point it at a preview
-deployment or a built HTML file. Exit codes for both: 0 approve, 1 block, 2
-usage error; `page-audit.js` exits 3 when the browser is missing and its lite
-report stood in, unless `--lite` asked for that.
-
-## Reference, by decision
-
-| You are deciding | Read |
-|---|---|
-| How wide a column of text should be | [Choose a comfortable measure](skills/measured-type/references/rules.md#212-choose-a-comfortable-measure), then [`measure-line.js`](skills/measured-type/scripts/measure-line.js) |
-| Leading and the space between blocks | [Vertical space in measured intervals](skills/measured-type/references/rules.md#222-add-and-delete-vertical-space-in-measured-intervals) |
-| Setting text on a strict baseline grid | Strict baseline grid, at the end of [Vertical space in measured intervals](skills/measured-type/references/rules.md#222-add-and-delete-vertical-space-in-measured-intervals), then `page-audit.js --baseline` |
-| A type scale that survives zoom | [Building or reviewing a type scale](skills/measured-type/SKILL.md#building-or-reviewing-a-type-scale) and [Don't compose without a scale](skills/measured-type/references/rules.md#311-dont-compose-without-a-scale) |
-| Whether a font has real small caps or text figures | [Checking what a font contains](skills/measured-type/references/rules.md#checking-what-a-font-contains), then [`font-features.py`](skills/measured-type/scripts/font-features.py) |
-| Spacing for capitals, labels and acronyms | [Letterspace capitals and small caps](skills/measured-type/references/rules.md#216-letterspace-capitals-small-caps-and-long-digit-strings) |
-| Data tables, labels, badges and status text | [Dense product UI](skills/measured-type/references/product-ui.md) |
-| Inline code, icons beside labels, heading order, pairing faces, kerning, thin weights | [Screen and interface type](skills/measured-type/references/screen-and-ui.md) |
-| Where hard spaces go | [Link short numerical expressions](skills/measured-type/references/rules.md#246-link-short-numerical-expressions-with-hard-spaces) |
-| Making a layout work right to left | [Physical to logical map](skills/measured-type/references/logical-and-language.md#physical-to-logical-map) and [Mirroring](skills/measured-type/references/logical-and-language.md#mirroring) |
-| Quotes, decimals, units and dates for a locale | [Locale conventions](skills/measured-type/references/logical-and-language.md#locale-conventions-the-pattern), worked for English, Finnish and Swedish |
-| Replacing CSS that was renamed or never shipped | [Renamed, dead or wrong](skills/measured-type/references/css-modern.md#renamed-dead-or-wrong) |
-| Whether the result looks considered | [Reviewing with a point of view](skills/measured-type/references/taste.md#reviewing-with-a-point-of-view) |
+deployment or a built HTML file. Exit codes: 0 approve, 1 block, 2 usage
+error, 3 when the browser is missing and the lite report stood in
+([docs/tools.md](docs/tools.md#in-ci-and-pull-requests)).
 
 ## Evidence
 
-The head-to-heads ran on Claude Opus 5.5 on 29 October 2026 (head-to-head 3
-added Sonnet 5.5), two runs per cell; the 2×2 and spec 0008 ran on Sonnet 5.5
-on 30 October, five and then ten runs per cell. Cases and graders were committed before the runs, and
-every result is reproducible from the committed run files.
-
-| Experiment | What ran | With the skill | Without | What it shows |
-|---|---|--:|--:|---|
-| [Development set](evals/results/iteration-2/) | 5 cases written with the skill | 78/78 | 65/78 | The content reaches the agent; most misses are house conventions, three are errors a reader would see |
-| [Held-out](evals/results/heldout-2/) | 3 cases written after the content was frozen | 34/34 | 33/34 | No measurable difference |
-| [Head-to-head 1](evals/results/h2h-1/) | 3 cases, 7 configurations | 40/40 | 39/40 | A tie with frontend-design at 40/40 under the corrected graders; one assertion is noise |
-| [Head-to-head 2](evals/results/h2h-2/) | Dense dashboard and a 66-character measure, browser offered to all | 24/24 | 24/24 | With a browser, a model without the skill measures and fixes the same faults |
-| [Head-to-head 3](evals/results/h2h-3/) | Same cases, no browser in the brief, Opus and Sonnet | 48/48 | 48/48 | Runs with the skill landed on 66 characters per line, two without it at 62.5 and 63.4; the skill's runs had its bundled Chromium, so the gain comes from the tooling |
-| [2×2](evals/results/2x2/) | Skill and browser varied independently, 66-character measure and a fluid hero under zoom, Sonnet, 40 runs | 51/60 | 50/60 | Line length follows the browser; on the hero the skill raised growth at 200% zoom with or without one (1.53× against 1.43× to 1.45×), though 9 of its 10 runs still missed the 1.6× bar |
-| [Spec 0008](evals/results/0008/) | A one-sentence hint against the skill, and the 2×2 at ten runs per cell, Sonnet, 80 more runs | 101/120 | 106/120 with the hint, 100/120 with nothing | The hint beat the skill on growth under zoom (1.63× against 1.50×), mostly by giving up the requested 72px; the skill came closer to 66 characters per line (0.25 against 1.54 off, with a browser) |
-| [Spec 0009](evals/results/0009/) | The hero case again after `type-scale.js --fit`, Sonnet, 20 runs | 20/20 met all three checks | 6/20 with the hint, 0/20 with nothing | Every run used the two-slope form `--fit` printed and kept both requested sizes (p < 0.001 against the skill before it); a development result on the case that motivated the change |
-| [Spec 0010](evals/results/0010/) | Held-out twin of the hero case (48 to 80px, new page and prompt), Sonnet, 30 runs | 10/10 met all three checks | 10/10 with the hint, 0/10 with nothing | A held-out gain over no skill (p < 0.0001); no detectable difference from one sentence, whose runs mostly reached 80px early and grew a little more |
-| [Spec 0017](evals/results/0017/) | Held-out line length: 62 characters in Charter at 19px, where `62ch` gives 76, Sonnet, 30 runs | 0.18 characters off on average | 0.82 with the hint, 0.43 with nothing | A held-out gain over one sentence (p = 0.004); no detectable difference from a model that measures without the skill (p = 0.077) |
-| [Spec 0018](specs/0018-tighter-bands.md) | Committed runs re-graded with bands of 2 characters and 5% of each size, after the fact | 20/20 within 2 characters of 66 | 2/10 with nothing and no browser, 1/10 with the hint and no browser | Exploratory: without a browser the skill's estimate is the clear gain; the wider bands hid it |
-| [Triggering, stub command](evals/triggering/) | 16 typography prompts, 16 near misses, 3 runs each, skill-creator's method | 5 of 48 loads | | The skill offered as a stub command in an empty folder, first tool call only: rarely loads |
-| [Triggering, real session](evals/triggering/) (spec 0016) | 26 typography prompts, 22 near misses, the skill installed in a small site, Opus and Sonnet, 3 runs each | 78/78 loads with Opus, 44/48 with Sonnet | no near miss loaded in 114 runs | Loads before the first edit on nearly every typography task; the stub-command figure was the setup |
-| [Plain-words description](evals/triggering/) (spec 0026 Q4) | The description rewritten for search against the shipped one, spec 0016's protocol, Opus and Sonnet, 3 runs each, 372 runs on one afternoon | plain words: Opus 26/26 prompts, Sonnet 15/16, 3 of 114 near-miss runs loaded | shipped wording, same day: Opus 16/16, Sonnet 6/6, 0 of 66 near-miss runs loaded | The shipped wording stays; words for search go in the manifest and the READMEs, which the model does not read before loading |
-
-**How to read it.** The 2×2 and spec 0008 separate the skill's guidance from
-its measuring tools and from one sentence of advice. On line length the
-browser does most of the work, and the skill adds a little on top: with a
-browser its runs came within a quarter of a character of 66 on average,
-against 0.68 off without it (p = 0.031, ten runs per cell) and 1.54 off with
-the hint (p = 0.0001); without a browser its estimator beat a model guessing
-by about one character (p = 0.010). Every run of every kind was inside the
-graded band. On the fluid hero the skill raised growth under zoom (1.50×
-against 1.43×, p < 0.0001), but one sentence naming the 1.6× bar raised it
-further (1.63×, p < 0.0001); 14 of the 20 runs with that sentence reached
-the bar by giving up the 72px desktop size the task asked for, and no
-configuration reliably met both until spec 0009 added `type-scale.js --fit`,
-after which all 20 runs with the skill met both; that is the tool printing
-the answer, measured on the case that motivated it. On a held-out twin (48 to
-80px) the skill again met all three checks in 10 of 10 runs against 0 of 10
-without it, and the one-sentence hint matched it (10 of 10). The bar is this
-project's own convention.
-Before these experiments, the guidance changed nothing measurable on the
-cases written after the content was frozen. The development set shows that
-the content reaches the agent, but the references contain worked answers for
-some of those cases; most of the baseline's misses there are conventions this
-project chose (the 1.6× zoom bar, the 1.15× step floor, spacing from the body
-line). Not yet tested: models other than Claude, and cases beyond these two
-for the hint.
-
-Each results folder has the method, every run's output, grade and timing, and
-every correction and incident. How to run the cases yourself:
-[`evals/README.md`](evals/README.md).
+Fourteen experiments, every case and grader committed before the runs, from
+head-to-heads against other skills to a 2×2 that varied the skill and a
+browser independently. In short: with a browser, a model without the skill measures line
+length and fixes the same faults, and the skill adds precision (a quarter of
+a character off 66 against 0.68); without a browser its estimate beats a guess
+by about a character; on fluid type under zoom the tool that prints the
+answer, `type-scale.js --fit`, moved the result (20 of 20 runs against 0 of
+20) and a one-sentence hint matched it on the held-out twin; the guidance
+alone changed nothing measurable on cases written after the content was
+frozen. The full table, how to read it and the three proofs:
+[docs/evidence.md](docs/evidence.md).
 
 ## Pairs with Rhythmguard
 
 [**Rhythmguard**](https://github.com/PetriLahdelma/stylelint-plugin-rhythmguard),
 a Stylelint plugin by the same author, keeps every spacing value (and, opt in,
-every type size) on your scale. Measured Type decides whether the scale reads
-well. They meet only at the type scale: `type-scale.js --prefix font-size`
-writes tokens Rhythmguard reads as its typography scale, and its README has
-[the config](https://github.com/PetriLahdelma/stylelint-plugin-rhythmguard#type-pair-it-with-measured-type).
-
-On one stylesheet, run with Stylelint 17.16 and Rhythmguard 3.14.0, each tool
-finds what the other leaves alone:
-
-| Finding | Reported by |
-|---|---|
-| `padding: 13px` and `font-size: 17px`, off the scale | Rhythmguard |
-| `font-size: 3vw`, which never doubles under zoom | Measured Type |
-| `text-transform: uppercase` with no tracking | Measured Type |
-| `max-inline-size: 66ch` in Verdana, about 81 characters per line | Measured Type |
-
-A strict baseline grid splits the same way. Rhythmguard's
-`editorial-baseline` presets keep spacing values on a 4 or 6 unit cadence in
-the source; whether the text then sits on the grid depends on the font that
-loads, so `page-audit.js --baseline` measures it in the browser
-([spec 0020](specs/0020-baseline-grid.md)).
-
-## Identity
-
-<p>
-  <img alt="Generated illustration: a light reading page on a desktop display. The measured type wordmark sits above the headline Reading is a rhythm, set large in a serif with rhythm in italic, followed by two short paragraphs and a margin note reading 01, On reading." src=".github/brand/reading-page-desktop.jpg" width="63.9%">
-  <img alt="Generated illustration: the same identity on a tablet in dark mode. Paper-coloured serif type on near-black reads Every line, considered, with considered in italic, above two short paragraphs and the caption Measured Type, Reading specimen." src=".github/brand/reading-page-tablet-dark.jpg" width="34.1%">
-</p>
-<p>
-  <img alt="Generated illustration: a desktop monitor showing a light ops dashboard titled Service health, with three summary cards and a six-row table whose request and error counts are right-aligned so their digits line up. Every status is a word; Scheduler reads Down in red." src=".github/brand/dashboard-desktop.jpg" width="63.9%">
-</p>
-<p><sub>Generated illustrations of the identity. They show no measurement.</sub></p>
+every type size) on your scale; Measured Type decides whether the scale reads
+well. They meet at the type scale (`type-scale.js --prefix font-size` writes
+tokens Rhythmguard reads) and at the baseline grid (Rhythmguard keeps the
+source on a cadence, `page-audit.js --baseline` measures where the text
+lands). What each finds that the other leaves alone:
+[docs/tools.md](docs/tools.md#pairs-with-rhythmguard).
 
 ## Contributing
 
 Corrections, wrong results and new eval cases are the most useful
 contributions, and each has an issue form that asks for what makes it
-checkable: a page that reproduces the result, a source or a measurement.
-[CONTRIBUTING.md](CONTRIBUTING.md) covers the setup (`npm test` with
-Playwright and fontTools), the spec-and-test-first workflow, the house style
-and how an eval is pre-registered and reported. Questions and ideas go to
-[Discussions](https://github.com/PetriLahdelma/measured-type/discussions);
-changes are listed in the [changelog](CHANGELOG.md). Everyone taking part
-follows the [Code of Conduct](CODE_OF_CONDUCT.md), and security problems are
-reported privately ([SECURITY.md](SECURITY.md)).
+checkable. [CONTRIBUTING.md](CONTRIBUTING.md) covers the setup, the
+spec-and-test-first workflow, the house style and how an eval is
+pre-registered and reported; questions go to
+[Discussions](https://github.com/PetriLahdelma/measured-type/discussions) and
+changes to the [changelog](CHANGELOG.md). Everyone taking part follows the
+[Code of Conduct](CODE_OF_CONDUCT.md); security problems are reported
+privately ([SECURITY.md](SECURITY.md)).
 
 ## Support Measured Type
 
 <img align="right" alt="Measured Type app icon: a paper-coloured lowercase m above a measure rule on a rounded red tile." src=".github/brand/app-icon.svg" width="96">
 
-Measured Type is free to use. If it saves you time, optional sponsorship helps
-keep it measured and maintained. Contributions are welcome too
-([Contributing](#contributing)).
+Measured Type is free to use; if it saves you time, optional sponsorship helps
+keep it measured and maintained. The identity and its artwork:
+[docs/identity.md](docs/identity.md).
 
 [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor_on_GitHub-BF3989?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/PetriLahdelma)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/petrilahdey)
@@ -454,9 +258,7 @@ The rules follow Robert Bringhurst's
 [*The Elements of Typographic Style*](https://www.amazon.com/dp/0881792128) and
 the rule order of webtypography.net. They are paraphrased and the CSS is
 rewritten for current browsers. The skill is a working translation, not a
-substitute: if it is useful to you, buy the book. The wordmark is set in
-Source Serif 4 by Adobe; the brand's interface type is IBM Plex. Both are
-released under the OFL.
+substitute: if it is useful to you, buy the book.
 
 Measured Type is an independent project. It is not affiliated with, endorsed
 by or sponsored by Robert Bringhurst, Richard Rutter, webtypography.net, Matej
