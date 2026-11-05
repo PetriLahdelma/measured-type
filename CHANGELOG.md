@@ -10,6 +10,16 @@ Trust fixes from the 5 November review (spec 0025): the tools stop
 contradicting the skill's promise, and the first hour works on a current
 Python.
 
+### Added
+
+- A plugin manifest, `skills/measured-type/.claude-plugin/plugin.json`, and a
+  README in the plugin folder that says what the scripts open, download and
+  read; `claude plugin validate --strict` passes for the marketplace and for
+  the folder (spec 0026). The marketplace entry leaves components and the
+  version to the manifest. A copy of the folder under `~/.claude/skills/` now
+  loads as a skills-directory plugin named `measured-type`.
+- Skills CLI install lines for Codex and Cursor in the README.
+
 ### Fixed
 
 - `page-audit.js` audits a page whose `lang` is not a language tag (`en_US`)
@@ -43,6 +53,11 @@ Python.
   `engines.node`. The Python checks for `font-features.py` run in `npm test`
   under `MT_PYTHON`. The README gives the virtual-environment recipe and
   `MT_PYTHON`.
+- The skill's description opens with plain searched words (web typography,
+  line length, zoom, type scale, typography audit) in the third person; the
+  trigger list is unchanged. The in-session triggering of spec 0016 was
+  measured with the old wording and should be run again before the next
+  release (spec 0026).
 
 ## 1.4.0 (3 November 2026)
 

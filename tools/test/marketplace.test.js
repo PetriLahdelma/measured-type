@@ -11,22 +11,22 @@ const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
 const manifest = () => JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
 const plugin = () => manifest().plugins.find((p) => p.name === 'measured-type');
 
-test('P1 the marketplace lists measured-type from a folder holding SKILL.md', () => {
+test('P1 the marketplace lists measured-type from a folder holding SKILL.md and its own manifest (spec 0026 Q2)', () => {
   const m = manifest();
   assert.equal(m.plugins.length, 1);
   const p = plugin();
   assert.ok(p, 'no plugin named measured-type');
   assert.equal(typeof p.source, 'string', 'source should be a path in this repository');
   assert.ok(fs.existsSync(path.join(ROOT, p.source, 'SKILL.md')), `${p.source}/SKILL.md is missing`);
-  assert.deepEqual(p.skills, ['./']);
-  assert.equal(p.strict, false);
+  assert.ok(fs.existsSync(path.join(ROOT, p.source, '.claude-plugin', 'plugin.json')), `${p.source}/.claude-plugin/plugin.json is missing`);
 });
 
-test('P2 the plugin version matches CITATION.cff and the newest CHANGELOG release', () => {
+test('P2 the plugin version in plugin.json matches CITATION.cff and the newest CHANGELOG release (spec 0026 Q1)', () => {
+  const version = JSON.parse(read(path.join(plugin().source, '.claude-plugin', 'plugin.json'))).version;
   const cited = /^version:\s*(\S+)/m.exec(read('CITATION.cff'))[1];
   const logged = /^## (\d+\.\d+\.\d+)/m.exec(read('CHANGELOG.md'))[1];
-  assert.equal(plugin().version, cited, 'marketplace.json and CITATION.cff disagree');
-  assert.equal(plugin().version, logged, 'marketplace.json and CHANGELOG.md disagree');
+  assert.equal(version, cited, 'plugin.json and CITATION.cff disagree');
+  assert.equal(version, logged, 'plugin.json and CHANGELOG.md disagree');
 });
 
 test('P3 the README gives the marketplace install lines', () => {

@@ -107,8 +107,16 @@ project:
 npx skills add PetriLahdelma/measured-type --skill measured-type --agent claude-code -g
 ```
 
+The same command installs it for Codex and Cursor, which read
+`~/.agents/skills` and `~/.cursor/skills`:
+
+```bash
+npx skills add PetriLahdelma/measured-type --skill measured-type --agent codex -g
+npx skills add PetriLahdelma/measured-type --skill measured-type --agent cursor -g
+```
+
 Leave out `-g` to install into the current project, or `--agent` to choose
-other agents. Tested with skills 1.7.4 on macOS, 29 October 2026. Without the
+another agent. Tested with skills 1.7.4 on macOS, 29 October 2026. Without the
 CLI, copy `skills/measured-type` from a clone into `~/.claude/skills/`, or use
 `gh skill install PetriLahdelma/measured-type measured-type` (preview).
 
