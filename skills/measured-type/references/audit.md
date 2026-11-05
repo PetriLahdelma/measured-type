@@ -32,7 +32,8 @@ every finding comes with a number.
 - **No browser installed?** `lint-css.js` and `estimate-measure.js` need only
   Node, no `npm install`. `page-audit.js --lite` (and any run where Playwright
   is missing) lints a local page and its stylesheets and lists every rendered
-  check it skipped; `estimate-measure.js "Verdana" 66ch` estimates characters
+  check it skipped (exit 3 when it stood in for a rendered audit nobody asked
+  to skip); `estimate-measure.js "Verdana" 66ch` estimates characters
   per line from a Chromium calibration. Say "estimated", put the skipped checks
   under **Not verified** and never report an estimate as a measurement.
 
@@ -93,8 +94,8 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-ZOOM-VW | HIGH | `font-size` from `vw`/`vi` with no `rem`/`em` term, or any rendered text that does not reach 2× by 500% zoom | WCAG 1.4.4, §3.1.1 |
 | MT-VIEWPORT-ZOOM | HIGH | `user-scalable=no` or `maximum-scale` below 2 in the viewport meta | WCAG 1.4.4 |
 | MT-ROOT-PX | MEDIUM | `font-size` in `px` on `html` or `:root`: overrides the reader's default (a percentage under 100% is LOW). A convention: zoom still works and no WCAG criterion requires the default size | §3.1.1 |
-| MT-CONTRAST | HIGH | Text contrast under 4.5:1 (3:1 for 24px, or 18.66px bold), translucent grounds laid over what is beneath them | WCAG 1.4.3 |
-| MT-TEXT-SPACING | HIGH | Text the 1.4.12 spacing override pushes out of its box (boxes that already clip, such as screen-reader text or a closed panel, are hidden by design) | WCAG 1.4.12 |
+| MT-CONTRAST | HIGH | Text contrast under 4.5:1 (3:1 for 24px, or 18.66px bold), translucent grounds laid over what is beneath them; where nothing is painted above the text, the ground is the canvas the browser paints for the page's colour scheme | WCAG 1.4.3 |
+| MT-TEXT-SPACING | HIGH | Text the 1.4.12 spacing override pushes out of its box, measured per axis (an axis that scrolls loses nothing; boxes that already clip, such as screen-reader text or a closed panel, are hidden by design) | WCAG 1.4.12 |
 | MT-MEASURE-LONG | MEDIUM | Reading text averages over 75 characters per full line | §2.1.2 (measured) |
 | MT-LH-LENGTH | MEDIUM | `line-height` as a length on an element that has children | §2.2.1 |
 | MT-LH-TIGHT | MEDIUM | Unitless `line-height` under 1.3 on body text | §2.2.1 |

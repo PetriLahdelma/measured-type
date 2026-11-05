@@ -150,10 +150,24 @@ function pageHelpers() {
           grounds.push(bg);
           if (/, 1\)$/.test(bg)) break;
         }
+        // Spec 0025 R3: with nothing painted above it, the text sits on the browser's canvas for the
+        // page's colour scheme, not on an assumed white.
+        if (!found) grounds.push(mt.canvas());
         const fg = mt.rgba(cs.color);
         const color = fg && fg.replace(/, ([\d.]+)\)$/, (m, a) => `, ${+(parseFloat(a) * fade).toFixed(3)})`);
         return { path: mt.path(el), color, rawColor: cs.color, grounds, image, fadedGround, hidden: fade === 0, size: parseFloat(cs.fontSize), weight: parseInt(cs.fontWeight, 10) };
       });
+    },
+    // Spec 0025 R3: the colour the browser paints under an unpainted page for the colour scheme in
+    // force (white, or rgb(18, 18, 18) for a dark scheme in Chromium): the Canvas system colour,
+    // resolved under the root element.
+    canvas() {
+      const probe = document.createElement('div');
+      probe.style.cssText = 'position:absolute;visibility:hidden;background-color:Canvas';
+      document.documentElement.appendChild(probe);
+      const c = window.__mt.rgba(getComputedStyle(probe).backgroundColor);
+      probe.remove();
+      return c || 'rgba(255, 255, 255, 1)';
     },
     textElements() {
       // Text inside video, audio, canvas, object and iframe is fallback content a browser that
@@ -180,7 +194,7 @@ function bookChecks() {
       const b = getComputedStyle(p).backgroundColor;
       if (!/rgba\(\d+,\s*\d+,\s*\d+,\s*0\)|transparent/.test(b)) return b;
     }
-    return 'rgb(255, 255, 255)';
+    return mt.canvas(); // spec 0025 R3: the browser's canvas for the page's colour scheme
   };
   const lum = (s) => {
     const [r, gg, b] = (/rgba?\(([^)]+)\)/.exec(s) || [0, '0,0,0'])[1].split(/[\s,/]+/).map(Number);
@@ -939,7 +953,12 @@ async function audit(target, opts = {}) {
     const page = await browser.newPage({ viewport: { width, height }, bypassCSP: true, ...(colorScheme ? { colorScheme } : {}) });
     // Spec 0022 F3: with every font request refused, the page shows its fallback for good.
     if (noFonts) await page.route('**/*', (r) => (r.request().resourceType() === 'font' ? r.abort() : r.continue()));
-    await page.goto(url, { waitUntil: 'load' });
+    const response = await page.goto(url, { waitUntil: 'load' });
+    // Spec 0025 R2: an error response is not the page asked for; auditing it would approve nothing.
+    if (response && response.status() >= 400) {
+      await page.close();
+      throw new Error(`${url} answered ${response.status()}: nothing was audited (an error response, not the page asked for)`);
+    }
     await page.evaluate(() => document.fonts.ready);
     await revealAll(page);
     if (extraCss) await page.addStyleTag({ content: extraCss });
@@ -1236,10 +1255,13 @@ async function audit(target, opts = {}) {
     const spaced = await spacing.evaluate(() => {
       const mt = window.__mt;
       const boxes = [...document.body.querySelectorAll('*')].filter((el) => el.textContent.trim());
+      // Spec 0025 R8: per axis, because an axis that scrolls (auto, scroll) loses nothing: a pane with
+      // overflow-y: auto and overflow-x: hidden clips only what runs past its inline edge.
       const clip = (el) => {
         const cs = getComputedStyle(el);
-        if (!/hidden|clip/.test(cs.overflowX + cs.overflowY)) return 0;
-        return Math.max(el.scrollHeight - el.clientHeight, el.scrollWidth - el.clientWidth);
+        const x = /hidden|clip/.test(cs.overflowX) ? el.scrollWidth - el.clientWidth : 0;
+        const y = /hidden|clip/.test(cs.overflowY) ? el.scrollHeight - el.clientHeight : 0;
+        return Math.max(x, y);
       };
       const spill = (el) => {
         const cs = getComputedStyle(el);
@@ -1396,22 +1418,28 @@ if (require.main === module) {
     console.error(usage);
     process.exit(2);
   }
-  const print = (report) => {
+  const print = (report, stoodIn = false) => {
     if (json) console.log(JSON.stringify(report, null, 2));
     else {
       if (report.mode === 'lite') console.log('Lite mode, no browser: source checks only. For the rendered checks: npm install && npx playwright install chromium\n');
       console.log(report.findings.length ? toMarkdown(report) : `No typography findings on ${report.target}.\n\nVerdict: ${report.verdict}\nNot verified: ${report.notVerified.join('; ')}\n`);
     }
-    process.exit(report.findings.some((f) => f.severity === 'HIGH') ? 1 : 0);
+    const high = report.findings.some((f) => f.severity === 'HIGH');
+    // Spec 0025 R5: a lite report that stood in for the rendered audit is not a verdict a gate may pass on.
+    if (stoodIn && !high) {
+      console.error('exit 3: the rendered checks did not run, because Playwright or its browser is missing (npm install && npx playwright install chromium); the lite report above stood in. Ask for --lite to accept source checks only.');
+      process.exit(3);
+    }
+    process.exit(high ? 1 : 0);
   };
   const fail = (err) => {
     console.error(err.message);
     process.exit(2);
   };
-  audit(target, opts).then(print).catch((err) => {
+  audit(target, opts).then((report) => print(report)).catch((err) => {
     if (!needsInstall(err)) return fail(err);
     try {
-      print(liteAudit(target));
+      print(liteAudit(target), true);
     } catch (liteErr) {
       fail(liteErr);
     }

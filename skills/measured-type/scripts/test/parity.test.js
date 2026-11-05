@@ -12,14 +12,11 @@ const SCRIPTS = path.join(__dirname, '..');
 const { audit } = require(path.join(SCRIPTS, 'page-audit.js'));
 const { lint } = require(path.join(SCRIPTS, 'lint-css.js'));
 
-const PY = process.env.MT_PYTHON || 'python3';
-const FONTS = path.join(__dirname, '..', '..', '..', '..', 'evals', 'ofl-feature-check', 'files', 'fonts');
+const { PY, FONTS, GEORGIA, fontToolsReady, NO_FONTTOOLS, NO_TEST_FONTS } = require('./helpers.js');
 const ROMAN = path.join(FONTS, 'SourceSerif4[opsz,wght].ttf');
 const ITALIC = path.join(FONTS, 'SourceSerif4-Italic[opsz,wght].ttf');
 const OUTFIT = path.join(FONTS, 'Outfit[wght].ttf');
-const GEORGIA = ['/System/Library/Fonts/Supplemental/Georgia.ttf', '/usr/share/fonts/truetype/msttcorefonts/Georgia.ttf'].find((f) => fs.existsSync(f));
-const hasFontTools = spawnSync(PY, ['-c', 'import fontTools'], { encoding: 'utf8' }).status === 0;
-const noFonts = !fs.existsSync(ROMAN) || !fs.existsSync(OUTFIT) ? 'test fonts missing' : false;
+const noFonts = !fs.existsSync(ROMAN) || !fs.existsSync(OUTFIT) ? NO_TEST_FONTS : false;
 const noGeorgia = noFonts || (!GEORGIA ? 'Georgia not installed' : false);
 const url = (f) => pathToFileURL(f).href;
 
@@ -199,7 +196,7 @@ test('F3 text that moves when the web font replaces its fallback is MT-FONT-SWAP
   assert.equal(find(system, 'MT-FONT-SWAP').length, 0, JSON.stringify(system.findings));
 });
 
-test('F3 the metric-matched fallback fallback-metrics.py prints is not reported, though a line on a break may still rewrap', { skip: noGeorgia || (!hasFontTools && `fontTools missing for ${PY} (set MT_PYTHON)`) }, async () => {
+test('F3 the metric-matched fallback fallback-metrics.py prints is not reported, though a line on a break may still rewrap', { skip: noGeorgia || (!fontToolsReady() && NO_FONTTOOLS) }, async () => {
   const fb = spawnSync(PY, [path.join(SCRIPTS, 'fallback-metrics.py'), ROMAN, '--fallback', GEORGIA, '--name', 'Georgia', '--family', 'Web Fallback'], { encoding: 'utf8' });
   assert.equal(fb.status, 0, fb.stderr);
   const plain = await run('f3-plain.html', SWAP(`@font-face { font-family: Web; src: url("${url(ROMAN)}"); font-weight: 200 900; font-display: swap; }`));

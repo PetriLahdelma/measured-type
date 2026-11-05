@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en" style="color-scheme: dark">
+<head>
+<meta charset="utf-8">
+<title>Spec 0025 R3: light text on the browser's dark canvas</title>
+<style>
+  /* No background anywhere: the browser paints its dark canvas for this scheme. */
+  body { margin: 2rem; font: 18px/1.5 Georgia, serif; color: #e6e6e6; }
+  main { max-inline-size: 30em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Dark scheme, unpainted</h1>
+<p>This page declares a dark colour scheme and paints no background of its own, so the text sits on the canvas colour the browser supplies, which Chromium draws as rgb(18, 18, 18). Light grey text reads well on it.</p>
+<p>The audit used to assume a white ground wherever no ancestor painted one and blocked this page at 1.25:1, with a fix that would have darkened the text into the canvas.</p>
+</main>
+</body>
+</html>

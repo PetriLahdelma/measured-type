@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en_US">
+<head>
+<meta charset="utf-8">
+<title>Spec 0025 R1: a lang that is not a language tag</title>
+<style>
+  body { margin: 2rem; font: 18px/1.5 Georgia, serif; color: #1f1f1d; background: #fff; }
+  main { max-inline-size: 30em; }
+</style>
+</head>
+<body>
+<main>
+<h1>A page declared en_US</h1>
+<p>The underscore makes the tag invalid, which MT-LANG exists to report. The audit used to build its grapheme segmenter from this attribute and stop with a RangeError before any finding was written, so the one fault the page has was the one it could not name.</p>
+<p>Every other check on this page should still run: the measure of these paragraphs, their contrast against the white ground and the growth of the heading under zoom are all ordinary.</p>
+</main>
+</body>
+</html>

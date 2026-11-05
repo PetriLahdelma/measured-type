@@ -4,6 +4,46 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
+## Unreleased
+
+Trust fixes from the 5 November review (spec 0025): the tools stop
+contradicting the skill's promise, and the first hour works on a current
+Python.
+
+### Fixed
+
+- `page-audit.js` audits a page whose `lang` is not a language tag (`en_US`)
+  instead of stopping with `RangeError: Invalid language tag`; reads the
+  response status and refuses an error page (a 404 was audited and approved);
+  measures contrast against the canvas the browser paints for the page's
+  colour scheme where nothing is painted above the text (a `color-scheme:
+  dark` page was blocked against an assumed white); and measures
+  MT-TEXT-SPACING clipping per axis, so a pane that scrolls is not reported.
+- `measureLines` keeps an inline-block, inline-flex or button child on its
+  parent's line (identical text measured 75 and 57 characters per line), and
+  with mixed sizes takes its figures from the size that set the most lines and
+  lists every size it matched.
+- `measure-line.js --css` with a missing stylesheet exits 2 instead of
+  measuring the browser default at 198 characters per line.
+- `lint-css.js --help` prints usage, an unknown flag is named and a linked
+  stylesheet the linter did not open is listed under Not verified.
+- The fontTools probe imports what the scripts import, so a broken Python
+  skips seven tests with a reason instead of failing them; the scripts print
+  the import error they hit and the virtual-environment recipe.
+- `examples/editorial/after.css` lints clean.
+
+### Changed
+
+- Without a browser and without `--lite`, `page-audit.js` still prints the
+  lite report but exits 3 (superseding spec 0003 K1's exit 0), so a gate
+  cannot pass on skipped rendered checks.
+- `type-scale.js` keeps the body and lower steps fixed unless `--fluid-from`
+  says otherwise; only the top two steps are fluid by default.
+- `playwright` is a runtime dependency and both packages declare
+  `engines.node`. The Python checks for `font-features.py` run in `npm test`
+  under `MT_PYTHON`. The README gives the virtual-environment recipe and
+  `MT_PYTHON`.
+
 ## 1.4.0 (3 November 2026)
 
 A plugin marketplace, an opt-in baseline grid, checks for faults the guidance

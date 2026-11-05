@@ -20,7 +20,7 @@ Usage:
 A collection (.ttc, .otc) is read at face 0 unless --font-number picks another;
 the report names the face it used.
 
-Requires: pip install fonttools brotli   (brotli only for .woff2)
+Requires fontTools: pip install fonttools brotli in a virtual environment (brotli only for .woff2)
 """
 
 import argparse
@@ -29,8 +29,12 @@ import sys
 
 try:
     from fontTools.ttLib import TTFont
-except ImportError:
-    sys.exit("fontTools is missing: pip install fonttools brotli")
+except ImportError as err:  # spec 0025 R9: say what failed, and how to install without a bare pip
+    sys.exit(
+        f"fontTools is missing or broken for {sys.executable} ({err}). Install it in a virtual environment: "
+        "python3 -m venv .venv && .venv/bin/pip install fonttools brotli, then run this script with "
+        ".venv/bin/python (and set MT_PYTHON to it for the tests)"
+    )
 
 
 def collection_size(path):

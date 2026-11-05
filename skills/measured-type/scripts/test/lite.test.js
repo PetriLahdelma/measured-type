@@ -87,9 +87,10 @@ test('K1 audit with lite: true lints the page and its local stylesheets and list
   for (const word of ['measure', 'contrast', 'reflow', 'zoom']) assert.match(skipped, new RegExp(word));
 });
 
-test('K1 without Playwright the CLI falls back to lite for a file and exits by the verdict', () => {
+test('K1 without Playwright the CLI falls back to lite for a file and exits 3 (spec 0025 R5 supersedes exit 0)', () => {
   const run = spawnSync(process.execPath, [path.join(SCRIPTS, 'page-audit.js'), path.join(FIX, 'justify.html')], { env: noBrowser, encoding: 'utf8' });
-  assert.equal(run.status, 0, run.stderr);
+  assert.equal(run.status, 3, run.stderr);
+  assert.match(run.stderr, /npx playwright install chromium/);
   assert.match(run.stdout, /lite/i);
   assert.match(run.stdout, /MT-JUSTIFY/);
   assert.doesNotMatch(run.stderr, /at .*\.js:\d+/);

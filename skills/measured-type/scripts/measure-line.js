@@ -54,14 +54,20 @@ function measureLines(selector) {
   const els = [...document.querySelectorAll(selector)];
   if (!els.length) return { error: `no element matches ${selector}` };
   const first = els[0];
-  const cs = getComputedStyle(first);
-  const vertical = /^(vertical|sideways)/.test(cs.writingMode);
+  const vertical = /^(vertical|sideways)/.test(getComputedStyle(first).writingMode);
   const [blockStart, blockEnd, inlineStart, inlineEnd, inlineExtent] = vertical
     ? ['left', 'right', 'top', 'bottom', 'height']
     : ['top', 'bottom', 'left', 'right', 'width'];
+  // Spec 0025 R1: grapheme segmentation needs no locale, so a lang the platform rejects (en_US) falls back to none.
   const lang = first.closest('[lang]')?.lang || undefined;
-  const segmenter = new Intl.Segmenter(lang, { granularity: 'grapheme' });
-  const isInline = (el) => /^(inline|ruby|contents)$|^ruby/.test(getComputedStyle(el).display);
+  let segmenter;
+  try {
+    segmenter = new Intl.Segmenter(lang, { granularity: 'grapheme' });
+  } catch {
+    segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+  }
+  // Spec 0025 R4: an inline-* box (inline-block, inline-flex, a button) sits on its parent's line; only block boxes end one.
+  const isInline = (el) => /^(inline|ruby|contents)$|^ruby|^inline-/.test(getComputedStyle(el).display);
   const blockOf = (node) => {
     let el = node.parentElement;
     while (el && isInline(el)) el = el.parentElement;
@@ -72,6 +78,7 @@ function measureLines(selector) {
   let charsInFull = 0;
   let inkInFull = 0;
   let paragraphs = 0;
+  const perElement = []; // { el, full, size }: which element set how many full lines, at what size
   const range = document.createRange();
   for (const el of els) {
     const lines = []; // { chars, start, end, inkStart, inkEnd, ended } in reading order
@@ -115,19 +122,28 @@ function measureLines(selector) {
       }
     }
     endLine();
-    let counted = false;
+    let counted = 0;
     for (const l of lines) {
       if (l.ended) continue; // last line of its block, or stopped at <br>
       full.push(l.chars);
       charsInFull += l.chars;
       inkInFull += l.inkEnd - l.inkStart;
-      counted = true;
+      counted++;
     }
     if (counted) paragraphs++;
+    perElement.push({ el, full: counted, size: parseFloat(getComputedStyle(el).fontSize) });
   }
 
+  // Spec 0025 R7: with matches at several sizes, the size, box and em figures below come from the size
+  // that set the most full lines (ties keep the earliest element), and every size matched is reported.
+  const sizes = [...new Set(perElement.map((e) => e.size))].sort((a, b) => a - b);
+  const linesAt = new Map(sizes.map((s) => [s, perElement.filter((e) => e.size === s).reduce((n, e) => n + e.full, 0)]));
+  let mainSize = perElement[0].size;
+  for (const s of sizes) if (linesAt.get(s) > linesAt.get(mainSize)) mainSize = s;
+  const ref = perElement.find((e) => e.size === mainSize).el;
+  const cs = getComputedStyle(ref);
   const px = (prop) => parseFloat(cs[prop]) || 0;
-  const box = first.getBoundingClientRect();
+  const box = ref.getBoundingClientRect();
   const contentInline = vertical
     ? box.height - px('paddingTop') - px('paddingBottom') - px('borderTopWidth') - px('borderBottomWidth')
     : box.width - px('paddingLeft') - px('paddingRight') - px('borderLeftWidth') - px('borderRightWidth');
@@ -135,7 +151,7 @@ function measureLines(selector) {
   const probe = document.createElement('span');
   probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;font:inherit;letter-spacing:0;word-spacing:0';
   probe.textContent = '0'.repeat(100);
-  first.appendChild(probe);
+  ref.appendChild(probe);
   const ch = probe.getBoundingClientRect()[inlineExtent] / 100;
   probe.remove();
   const fontSize = parseFloat(cs.fontSize);
@@ -153,6 +169,8 @@ function measureLines(selector) {
     multiColumn: cs.columnCount !== 'auto' || cs.columnWidth !== 'auto',
     fontFamily: cs.fontFamily,
     fontSizePx: fontSize,
+    fontSizes: sizes,
+    mixedSizes: sizes.length > 1,
     lineHeightPx: cs.lineHeight,
     letterSpacing: cs.letterSpacing,
     inlineSizePx: round(contentInline, 1),
@@ -237,6 +255,8 @@ async function main() {
   let selector;
   if (css) {
     const cssPath = path.resolve(css);
+    // Spec 0025 R6: a stylesheet that is not there must not become a measurement of the browser default.
+    if (!fs.existsSync(cssPath)) fail(`no such file: ${css}`);
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'measure-line-'));
     const html = path.join(dir, 'sample.html');
     fs.writeFileSync(html, sampleDocument(pathToFileURL(cssPath).href, className, lang));
@@ -278,7 +298,11 @@ async function main() {
     : 'inside 45-75';
   console.log(`${result.selector} at ${width}px, zoom ${zoom}: ${result.avgCharsPerLine} chars/line (${verdict})`);
   console.log(`  range ${result.minCharsPerLine}-${result.maxCharsPerLine} over ${result.fullLines} full lines in ${result.paragraphsWithFullLines} paragraphs`);
-  console.log(`  declared ${result.fontFamily} ${result.fontSizePx}px, line-height ${result.lineHeightPx}`);
+  // Spec 0025 R7: with mixed sizes, say which size the figures use and which others the selector matched.
+  const sizesNote = result.mixedSizes
+    ? ` (${result.elements} elements at ${result.fontSizes.map((s) => `${s}px`).join(', ')}; the figures use the ${result.fontSizePx}px ones, which set most lines)`
+    : '';
+  console.log(`  declared ${result.fontFamily} ${result.fontSizePx}px, line-height ${result.lineHeightPx}${sizesNote}`);
   if (result.renderedFonts) {
     const fonts = result.renderedFonts
       .map((f) => `${f.familyName} (${f.isCustomFont ? 'web font' : 'system font'}, ${f.glyphCount} glyphs)`)

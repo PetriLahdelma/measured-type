@@ -9,7 +9,7 @@
  * --ratio    scale ratio at the smallest and largest viewport
  * --steps    number of steps above the body (step 0)
  * --viewports  where the fluid ramp starts and ends, in px (default 360:1440)
- * --fluid-from N  keep steps below N fixed in rem at their large-viewport size
+ * --fluid-from N  keep steps below N fixed in rem at their large-viewport size (default: all but the top two steps)
  * --prefix NAME  token name prefix (default step: --step-0); font-size gives --font-size-0,
  *                which Rhythmguard's typography scale "auto" reads
  *                (rules.md §3.1.1: body and small headings stay fixed)
@@ -238,12 +238,16 @@ if (require.main === module) {
     const viewports = twoNumbers('viewports', opt('viewports', '360:1440'));
     if (viewports[1] <= viewports[0]) throw new Error(`--viewports needs a smaller then a larger width, got ${viewports.join(':')}`);
     const ratio = pair(opt('ratio', '1.2:1.25')).map((r) => number('ratio', r));
+    const steps = number('steps', opt('steps', 5));
+    // Spec 0025 R16: unless asked, only the top two steps are fluid; the body and the lower headings
+    // stay fixed rem, so they double exactly at 200% zoom (rules.md §3.1.1).
+    const fluidFrom = opt('fluid-from', null) === null ? Math.max(1, steps - 1) : number('fluid-from', opt('fluid-from'));
     result = scale({
       base,
       ratio,
-      steps: number('steps', opt('steps', 5)),
+      steps,
       viewports,
-      fluidFrom: number('fluid-from', opt('fluid-from', 0)),
+      fluidFrom,
       prefix: opt('prefix', 'step'),
     });
   } catch (err) {

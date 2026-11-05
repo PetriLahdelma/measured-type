@@ -8,12 +8,10 @@ const { spawnSync } = require('node:child_process');
 const { pathToFileURL } = require('node:url');
 
 const SCRIPT = path.join(__dirname, '..', 'fallback-metrics.py');
-const PY = process.env.MT_PYTHON || 'python3';
-const FONTS = path.join(__dirname, '..', '..', '..', '..', 'evals', 'ofl-feature-check', 'files', 'fonts');
+const { PY, FONTS, GEORGIA, fontToolsReady, NO_FONTTOOLS, NO_TEST_FONTS } = require('./helpers.js');
 const WEB = path.join(FONTS, 'SourceSerif4[opsz,wght].ttf');
-const GEORGIA = ['/System/Library/Fonts/Supplemental/Georgia.ttf', '/usr/share/fonts/truetype/msttcorefonts/Georgia.ttf'].find((f) => fs.existsSync(f));
-const hasFontTools = spawnSync(PY, ['-c', 'import fontTools'], { encoding: 'utf8' }).status === 0;
-const skip = !fs.existsSync(WEB) ? 'test font missing' : !GEORGIA ? 'Georgia not installed' : !hasFontTools ? `fontTools missing for ${PY} (set MT_PYTHON)` : false;
+const hasFontTools = fontToolsReady();
+const skip = !fs.existsSync(WEB) ? NO_TEST_FONTS : !GEORGIA ? 'Georgia not installed' : !hasFontTools ? NO_FONTTOOLS : false;
 
 const runPy = (args) => spawnSync(PY, [SCRIPT, ...args], { encoding: 'utf8' });
 
@@ -60,7 +58,7 @@ test('D2 the generated fallback is closer to the web font than plain Georgia, wi
   }
 });
 
-test('D3 a missing file exits nonzero with a message', { skip: !hasFontTools && 'fontTools missing' }, () => {
+test('D3 a missing file exits nonzero with a message', { skip: !hasFontTools && NO_FONTTOOLS }, () => {
   const r = runPy(['missing.ttf', '--fallback', 'also-missing.ttf', '--name', 'X']);
   assert.notEqual(r.status, 0);
   assert.match(r.stderr, /missing\.ttf/);

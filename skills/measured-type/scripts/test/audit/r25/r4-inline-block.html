@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec 0025 R4: an inline-block child stays on its line</title>
+<style>
+  body { margin: 2rem; font: 18px/1.5 Georgia, serif; }
+  .w { inline-size: 480px; margin-block-end: 2rem; }
+  /* The badge changes nothing about the glyphs or the breaks, only the display type. */
+  .badge { display: inline-block; }
+</style>
+</head>
+<body>
+<p class="w" id="plain">The measure is the length of a line. Somewhere between forty-five and seventy-five characters the eye can travel to the end of a line and return to the next without losing its place. Narrower lines break phrases apart and wider ones make the return sweep uncertain, especially when the leading is tight and the face is large. Leading should grow with the measure, while display sizes want much less of it.</p>
+<p class="w" id="badge">The measure is the length of a line. Somewhere between forty-five and seventy-five characters the eye can travel to the end of a line and return to the next without losing its place. Narrower lines break <span class="badge">phrases</span> apart and wider ones make the return sweep uncertain, especially when the leading is tight and the face is large. Leading should grow with the measure, while display sizes want much less of it.</p>
+</body>
+</html>

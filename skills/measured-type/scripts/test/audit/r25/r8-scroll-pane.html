@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec 0025 R8: a scrolling pane against a clipping box</title>
+<style>
+  body { margin: 2rem; font: 16px/1.15 Georgia, serif; color: #222; background: #fff; }
+  /* The pane scrolls on the axis its text overflows: nothing is lost under the override. */
+  .pane { block-size: 120px; overflow-y: auto; overflow-x: hidden; inline-size: 30em; }
+  /* The box hides its overflow on both axes: the override pushes text out of reach. */
+  .box { block-size: 120px; overflow: hidden; inline-size: 30em; margin-block-start: 2rem; }
+  p { margin: 0; }
+</style>
+</head>
+<body>
+<div class="pane"><p>Text that scrolls. The pane is a fixed height with overflow-y auto, so a reader who raises the spacing scrolls to the rest. Line after line of ordinary prose fills it well past its height, which is the point of the fixture: the content overflows before the override and more after it, and none of it is lost. Text that scrolls. The pane is a fixed height with overflow-y auto, so a reader who raises the spacing scrolls to the rest. Line after line of ordinary prose fills it well past its height.</p></div>
+<div class="box"><p>Text that is cut. The box is the same height with overflow hidden on both axes, so whatever the override pushes past the bottom edge is gone for the reader. Line after line of ordinary prose fills it well past its height, which is the point of the fixture: the content overflows before the override and more after it, and the extra is lost. Text that is cut. The box is the same height with overflow hidden on both axes, so whatever the override pushes past the bottom edge is gone for the reader.</p></div>
+</body>
+</html>

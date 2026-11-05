@@ -9,7 +9,10 @@
     "test:fonts": "python3 scripts/test/test_font_features.py",
     "test:unit": "node --test scripts/test/*.test.js"
   },
-  "devDependencies": {
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
     "playwright": "1.64.1"
   }
 }

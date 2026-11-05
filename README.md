@@ -119,8 +119,9 @@ CLI, copy `skills/measured-type` from a clone into `~/.claude/skills/`, or use
 /plugin install measured-type@measured-type
 ```
 
-The plugin installs the skill and its scripts, not the evals, and runs
-`npm install` for Playwright itself. Add the browser with
+The plugin installs the skill and its scripts, not the evals. Claude Code
+installs the pinned Playwright package from the lockfile when it copies the
+plugin (with install scripts disabled); add the browser with
 `npx playwright@1.64.1 install chromium`, and fontTools as below.
 
 **The measuring scripts** are optional; without them the skill advises but
@@ -130,13 +131,23 @@ cannot measure:
 cd ~/.claude/skills/measured-type && npm install && npx playwright install chromium
 ```
 
+`npx playwright install chromium` prints nothing when the browser is already
+cached and downloads about 150 MB when it is not. The font scripts
+(`font-features.py`, `fallback-metrics.py`) need fontTools in a Python of
+their own, because current Pythons refuse a bare `pip install`:
+
 ```bash
-pip install fonttools brotli
+python3 -m venv ~/.venvs/measured-type
+~/.venvs/measured-type/bin/pip install fonttools brotli
+export MT_PYTHON=~/.venvs/measured-type/bin/python
 ```
 
-**Check the install** with `npm test` in the same folder. A few tests skip in
-an installed copy because their fixtures live in this repository; the
-estimate calibration skips where its macOS fonts are not installed.
+Run the two scripts with that Python; the tests read `MT_PYTHON`.
+
+**Check the install** with `npm test` in the same folder: about a minute, in
+headless Chromium. An installed copy skips the tests whose fonts and examples
+live only in this repository (about one in fifteen) and says so in each skip
+line; the estimate calibration skips where its macOS fonts are not installed.
 
 ## Use it
 
@@ -278,7 +289,8 @@ node path/to/measured-type/scripts/lint-css.js src --diff origin/main
 
 The rendered audit needs Playwright and a page: point it at a preview
 deployment or a built HTML file. Exit codes for both: 0 approve, 1 block, 2
-usage error.
+usage error; `page-audit.js` exits 3 when the browser is missing and its lite
+report stood in, unless `--lite` asked for that.
 
 ## Reference, by decision
 

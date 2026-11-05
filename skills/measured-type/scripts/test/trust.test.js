@@ -13,13 +13,10 @@ const { audit } = require(path.join(SCRIPTS, 'page-audit.js'));
 const { lint } = require(path.join(SCRIPTS, 'lint-css.js'));
 const { fitRange } = require(path.join(SCRIPTS, 'type-scale.js'));
 
-const PY = process.env.MT_PYTHON || 'python3';
-const FONTS = path.join(__dirname, '..', '..', '..', '..', 'evals', 'ofl-feature-check', 'files', 'fonts');
+const { PY, FONTS, GEORGIA, fontToolsReady, NO_FONTTOOLS, NO_TEST_FONTS } = require('./helpers.js');
 const ROMAN = path.join(FONTS, 'SourceSerif4[opsz,wght].ttf');
 const OUTFIT = path.join(FONTS, 'Outfit[wght].ttf');
-const GEORGIA = ['/System/Library/Fonts/Supplemental/Georgia.ttf', '/usr/share/fonts/truetype/msttcorefonts/Georgia.ttf'].find((f) => fs.existsSync(f));
-const hasFontTools = spawnSync(PY, ['-c', 'import fontTools'], { encoding: 'utf8' }).status === 0;
-const noFonts = !fs.existsSync(ROMAN) ? 'test fonts missing' : !hasFontTools ? `fontTools missing for ${PY} (set MT_PYTHON)` : false;
+const noFonts = !fs.existsSync(ROMAN) ? NO_TEST_FONTS : !fontToolsReady() ? NO_FONTTOOLS : false;
 
 let browser;
 test.before(async () => { browser = await chromium.launch(); });

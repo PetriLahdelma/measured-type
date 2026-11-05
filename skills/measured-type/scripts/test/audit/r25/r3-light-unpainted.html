@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec 0025 R3: grey text on the browser's light canvas</title>
+<style>
+  /* No background anywhere and no colour scheme: the canvas is white. */
+  body { margin: 2rem; font: 18px/1.5 Georgia, serif; color: #999; }
+  main { max-inline-size: 30em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Light scheme, unpainted</h1>
+<p>This page paints no background and declares no colour scheme, so its canvas is white and this mid-grey text fails the 4.5:1 ratio at 2.85:1. The canvas ground is measured, not assumed, and the failure stands.</p>
+</main>
+</body>
+</html>

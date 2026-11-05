@@ -296,6 +296,13 @@ function lintHtml(source, file, opts, out) {
   for (const m of source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)) {
     lintCss(parseCss(m[1], lineAt(m.index + m[0].indexOf('>') + 1) - 1), file, opts, out);
   }
+  // Spec 0025 R15: the linter reads what is in the file; the stylesheets it links are named, not followed.
+  const links = [...source.matchAll(/<link\b[^>]*>/gi)]
+    .filter((m) => /\srel\s*=\s*["']?[^"'>]*stylesheet/i.test(m[0]))
+    .map((m) => /\shref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i.exec(m[0]))
+    .map((h) => h && (h[1] ?? h[2] ?? h[3]))
+    .filter(Boolean);
+  if (links.length) opts.skipped.push(`stylesheets linked from ${path.basename(file)} (${links.join(', ')}): lint them directly, or run page-audit.js --lite, which follows local ones`);
   const meta = /<meta[^>]+name=["']viewport["'][^>]*>/i.exec(source);
   if (meta) {
     const content = (/content=["']([^"']*)["']/i.exec(meta[0]) || [])[1] || '';
@@ -706,10 +713,15 @@ function toMarkdown(report) {
 
 if (require.main === module) {
   const args = process.argv.slice(2);
+  const usage = 'usage: lint-css.js <file|dir>... [--diff <git-ref>] [--rtl] [--json]';
   const opts = { json: false, rtl: false, diff: null };
   const targets = [];
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--json') opts.json = true;
+    // Spec 0025 R14: --help is a request, not a path, and an unknown flag is an error that names it.
+    if (args[i] === '--help' || args[i] === '-h') {
+      console.log(usage);
+      process.exit(0);
+    } else if (args[i] === '--json') opts.json = true;
     else if (args[i] === '--rtl') opts.rtl = true;
     else if (args[i] === '--diff') {
       opts.diff = args[++i];
@@ -717,11 +729,13 @@ if (require.main === module) {
         console.error('--diff needs a git ref, for example --diff origin/main');
         process.exit(2);
       }
-    }
-    else targets.push(args[i]);
+    } else if (args[i].startsWith('--')) {
+      console.error(`unknown option ${args[i]}; ${usage}`);
+      process.exit(2);
+    } else targets.push(args[i]);
   }
   if (!targets.length) {
-    console.error('usage: lint-css.js <file|dir>... [--diff <git-ref>] [--rtl] [--json]');
+    console.error(usage);
     process.exit(2);
   }
   let report;

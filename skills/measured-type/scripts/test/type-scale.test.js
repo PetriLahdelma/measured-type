@@ -23,7 +23,8 @@ test('D4 a modest scale passes every check and prints clamp() tokens with rem an
 });
 
 test('D4 a scale whose top steps range too far exits 1 and names the failing steps', () => {
-  const r = run(['--base', '1rem:1.25rem', '--ratio', '1.2:1.333', '--steps', '5', '--viewports', '360:1440']);
+  // Every step fluid (--fluid-from 0): spec 0025 R16 made the top two steps the default, which narrows the range.
+  const r = run(['--base', '1rem:1.25rem', '--ratio', '1.2:1.333', '--steps', '5', '--viewports', '360:1440', '--fluid-from', '0']);
   assert.equal(r.status, 1);
   assert.match(r.stdout, /step 5/);
   assert.match(r.stdout, /range/);
