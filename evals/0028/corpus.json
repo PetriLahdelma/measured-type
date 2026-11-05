@@ -1,0 +1,231 @@
+{
+  "frozen": "2026-11-05T16:40:05.705Z",
+  "categories": {
+    "design-system": {
+      "primary": [
+        "https://m3.material.io/styles/typography/overview",
+        "https://carbondesignsystem.com/elements/typography/overview/",
+        "https://polaris.shopify.com/design/typography",
+        "https://primer.style/product/getting-started/foundations/typography/",
+        "https://atlassian.design/foundations/typography",
+        "https://fluent2.microsoft.design/typography",
+        "https://spectrum.adobe.com/page/typography/",
+        "https://www.lightningdesignsystem.com/",
+        "https://base.uber.com/",
+        "https://ant.design/docs/spec/font",
+        "https://mantine.dev/core/text/",
+        "https://ui.shadcn.com/docs",
+        "https://www.radix-ui.com/themes/docs/theme/typography",
+        "https://design-system.service.gov.uk/styles/type-scale/",
+        "https://designsystem.digital.gov/components/typography/",
+        "https://designsystem.suomi.fi/",
+        "https://service-manual.nhs.uk/design-system/styles/typography",
+        "https://eui.elastic.co/",
+        "https://gestalt.pinterest.systems/foundations/typography/guidelines",
+        "https://cloudscape.design/foundation/visual-foundation/typography/",
+        "https://vercel.com/geist/typography",
+        "https://paste.twilio.design/foundations/typography",
+        "https://getbootstrap.com/docs/5.3/content/typography/",
+        "https://mui.com/material-ui/customization/typography/",
+        "https://ux.redhat.com/foundations/typography/"
+      ],
+      "reserve": [
+        "https://www.saltdesignsystem.com/",
+        "https://protocol.mozilla.org/",
+        "https://nordhealth.design/typography",
+        "https://clarity.design/",
+        "https://www.skyscanner.design/"
+      ]
+    },
+    "developer-docs": {
+      "primary": [
+        "https://developer.mozilla.org/en-US/docs/Web/CSS/font-size",
+        "https://react.dev/learn",
+        "https://nextjs.org/docs/app/getting-started",
+        "https://vuejs.org/guide/introduction.html",
+        "https://svelte.dev/docs/svelte/overview",
+        "https://angular.dev/overview",
+        "https://docs.astro.build/en/getting-started/",
+        "https://nodejs.org/en/learn/getting-started/introduction-to-nodejs",
+        "https://docs.python.org/3/tutorial/introduction.html",
+        "https://doc.rust-lang.org/book/ch01-01-installation.html",
+        "https://go.dev/doc/tutorial/getting-started",
+        "https://www.typescriptlang.org/docs/handbook/2/basic-types.html",
+        "https://docs.djangoproject.com/en/stable/intro/tutorial01/",
+        "https://guides.rubyonrails.org/getting_started.html",
+        "https://kubernetes.io/docs/concepts/overview/",
+        "https://docs.docker.com/get-started/docker-overview/",
+        "https://www.postgresql.org/docs/current/tutorial-start.html",
+        "https://stripe.com/docs",
+        "https://www.twilio.com/docs/messaging/quickstart",
+        "https://docs.github.com/en/get-started/start-your-journey/about-github-and-git",
+        "https://developers.cloudflare.com/workers/get-started/guide/",
+        "https://vercel.com/docs/getting-started-with-vercel",
+        "https://supabase.com/docs/guides/getting-started",
+        "https://www.prisma.io/docs/orm/overview/introduction/what-is-prisma",
+        "https://playwright.dev/docs/intro"
+      ],
+      "reserve": [
+        "https://laravel.com/docs/installation",
+        "https://docs.deno.com/runtime/",
+        "https://tailwindcss.com/docs/installation/using-vite",
+        "https://kotlinlang.org/docs/getting-started.html",
+        "https://www.mongodb.com/docs/manual/introduction/"
+      ]
+    },
+    "reading": {
+      "primary": [
+        "https://en.wikipedia.org/wiki/Typography",
+        "https://paulgraham.com/greatwork.html",
+        "https://daringfireball.net/projects/markdown/syntax",
+        "https://practicaltypography.com/line-length.html",
+        "https://webtypography.net/2.1.2",
+        "https://alistapart.com/article/responsive-web-design/",
+        "https://www.smashingmagazine.com/2023/11/addressing-accessibility-concerns-fluid-type/",
+        "https://css-tricks.com/snippets/css/complete-guide-grid/",
+        "https://web.dev/articles/color-and-contrast-accessibility",
+        "https://adrianroselli.com/2019/12/responsive-type-and-zoom.html",
+        "https://www.theguardian.com/news/2018/mar/17/cambridge-analytica-facebook-influence-us-election",
+        "https://www.quantamagazine.org/how-the-physics-of-nothing-underlies-everything-20220809/",
+        "https://aeon.co/essays/how-close-are-we-to-creating-artificial-intelligence",
+        "https://www.gov.uk/guidance/content-design/writing-for-gov-uk",
+        "https://stripe.com/blog/idempotency",
+        "https://martinfowler.com/articles/microservices.html",
+        "https://www.joelonsoftware.com/2000/04/06/things-you-should-never-do-part-i/",
+        "https://danluu.com/web-bloat/",
+        "https://simonwillison.net/2024/Dec/31/llms-in-2024/",
+        "https://overreacted.io/a-complete-guide-to-useeffect/",
+        "https://www.joshwcomeau.com/css/interactive-guide-to-flexbox/",
+        "https://clagnut.com/blog/2432/",
+        "https://every-layout.dev/layouts/stack/",
+        "https://www.rfc-editor.org/rfc/rfc9110.html",
+        "https://www.w3.org/TR/WCAG22/"
+      ],
+      "reserve": [
+        "https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/",
+        "https://stratechery.com/2015/aggregation-theory/",
+        "https://ciechanow.ski/gps/",
+        "https://www.gutenberg.org/files/1342/1342-h/1342-h.htm",
+        "https://jvns.ca/blog/2016/09/11/rustconf-keynote/"
+      ]
+    },
+    "template": {
+      "primary": [
+        "https://docusaurus.io/docs",
+        "https://nextra.site/docs",
+        "https://vitepress.dev/guide/what-is-vitepress",
+        "https://starlight.astro.build/getting-started/",
+        "https://squidfunk.github.io/mkdocs-material/getting-started/",
+        "https://gohugo-ananke-theme-demo.netlify.app/",
+        "https://example.docsy.dev/docs/",
+        "https://jekyll.github.io/minima/",
+        "https://just-the-docs.com/",
+        "https://demo.ghost.io/",
+        "https://wp-themes.com/twentytwentyfour/",
+        "https://ui.shadcn.com/examples/dashboard",
+        "https://getbootstrap.com/docs/5.3/examples/blog/",
+        "https://adminlte.io/themes/v3/",
+        "https://preview.tabler.io/",
+        "https://preview.pro.ant.design/",
+        "https://next-blog-starter.vercel.app/",
+        "https://astro-paper.pages.dev/",
+        "https://sphinx-rtd-theme.readthedocs.io/en/stable/",
+        "https://pradyunsg.me/furo/",
+        "https://fumadocs.dev/docs",
+        "https://saas-template.nuxt.dev/",
+        "https://docus.dev/",
+        "https://wp-themes.com/twentytwentyfive/",
+        "https://spotlight.tailwindui.com/"
+      ],
+      "reserve": [
+        "https://salient.tailwindui.com/",
+        "https://protocol.tailwindui.com/",
+        "https://syntax.tailwindui.com/",
+        "https://adityatelange.github.io/hugo-PaperMod/",
+        "https://www.mkdocs.org/"
+      ]
+    }
+  },
+  "rejected": [
+    {
+      "category": "design-system",
+      "url": "https://chakra-ui.com/docs/typography/text",
+      "answer": 404
+    },
+    {
+      "category": "design-system",
+      "url": "https://orbit.kiwi/foundation/typography/",
+      "answer": "ENOTFOUND"
+    },
+    {
+      "category": "design-system",
+      "url": "https://garden.zendesk.com/design/typography",
+      "answer": 404
+    },
+    {
+      "category": "design-system",
+      "url": "https://canvas.workday.com/styles/tokens/type",
+      "answer": 404
+    },
+    {
+      "category": "reading",
+      "url": "https://www.theatlantic.com/magazine/archive/1945/07/as-we-may-think/303881/",
+      "answer": 403
+    },
+    {
+      "category": "template",
+      "url": "https://adityatelange.github.io/hugo-PaperMod/posts/papermod/papermod-features/",
+      "answer": 404
+    },
+    {
+      "category": "template",
+      "url": "https://spotlight.tailwindcss.com/",
+      "answer": "ENOTFOUND"
+    },
+    {
+      "category": "template",
+      "url": "https://salient.tailwindcss.com/",
+      "answer": "ENOTFOUND"
+    },
+    {
+      "category": "template",
+      "url": "https://protocol.tailwindcss.com/",
+      "answer": "ENOTFOUND"
+    },
+    {
+      "category": "template",
+      "url": "https://syntax.tailwindcss.com/docs/installation",
+      "answer": "ENOTFOUND"
+    },
+    {
+      "category": "template",
+      "url": "https://coreui.io/demos/react/",
+      "answer": "TypeError"
+    },
+    {
+      "category": "template",
+      "url": "https://demo.vercel.store/",
+      "answer": 404
+    },
+    {
+      "category": "template",
+      "url": "https://gatsbystarterblogsource.gatsbyjs.io/",
+      "answer": "ENOTFOUND"
+    },
+    {
+      "category": "template",
+      "url": "https://transmit.tailwindcss.com/",
+      "answer": "ENOTFOUND"
+    },
+    {
+      "category": "template",
+      "url": "https://commit.tailwindcss.com/",
+      "answer": "ENOTFOUND"
+    },
+    {
+      "category": "template",
+      "url": "https://tailwind-nextjs-starter-blog.vercel.app/",
+      "answer": 402
+    }
+  ]
+}
