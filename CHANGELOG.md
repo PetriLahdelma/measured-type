@@ -25,6 +25,10 @@ each change has a spec in [`specs/`](specs/).
   fails WCAG 1.4.4. The run found five tool faults (F1 to F5 in
   `evals/results/0028/`), and MT-TEXT-SPACING's overlap branch is not reliable
   until fixed.
+- The same corpus after the fixes (spec 0029): overlap findings fell from 15
+  pages to 4 and MT-ZOOM-VW from 1 to 0, contrast changed on 4 pages and
+  nothing else moved; the drawn findings are now 5 of 5 for contrast, text
+  spacing and line counts.
 
 ## 1.5.0 (5 November 2026)
 
