@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec 0029 U3: text that spills under the 1.4.12 override</title>
+<style>
+  body { margin: 2rem; font: 16px/1.15 Georgia, serif; color: #222; background: #fff; }
+  .box { inline-size: 30em; block-size: 75px; }
+  .row { display: flex; gap: 2em; margin-block-start: 4rem; }
+  .row > div { inline-size: 18em; block-size: 75px; }
+  p { margin: 0; }
+</style>
+</head>
+<body>
+<div class="box real"><p>A fixed-height box with visible overflow. Under the spacing override its lines grow taller and run down past the box into the paragraph that follows it, so the two texts overlap and both become hard to read.</p></div>
+<p class="after">The paragraph after the box. Its text sits where the spilled lines of the box above land once the override is applied, which is what a reader with their own spacing sees.</p>
+<div class="row"><div class="side"><p>A fixed-height column with visible overflow. Under the override its lines run down past the column, but its neighbour stands beside it, not under it, so nothing is covered.</p></div><div class="beside"><p>The neighbouring column.</p></div></div>
+</body>
+</html>

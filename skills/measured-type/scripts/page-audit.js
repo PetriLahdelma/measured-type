@@ -130,7 +130,8 @@ function pageHelpers() {
     // ground too, which the ratio cannot express, so that case is reported as not verified.
     colorSamples() {
       const mt = window.__mt;
-      return mt.textElements().filter((el) => !el.closest(':disabled, [aria-disabled="true"]')).map((el) => {
+      const startY = scrollY;
+      const samples = mt.textElements().filter((el) => !el.closest(':disabled, [aria-disabled="true"]')).map((el) => {
         const cs = getComputedStyle(el);
         const grounds = [];
         let image = false;
@@ -153,14 +154,58 @@ function pageHelpers() {
         // Spec 0025 R3: with nothing painted above it, the text sits on the browser's canvas for the
         // page's colour scheme, not on an assumed white.
         if (!found) grounds.push(mt.canvas());
+        // Spec 0029 U5: the ground is what is painted under the text where it sits, which may be a layer that
+        // is not an ancestor (a positioned sibling drawing a bar's colour). Elements under the text in paint
+        // order, from the text down, give it; the ancestor chain above stands in where the text is not hit.
+        const stack = mt.stackUnder(el);
+        if (stack) {
+          grounds.length = 0;
+          image = false;
+          for (const s of stack) {
+            const st = getComputedStyle(s);
+            if (st.backgroundImage !== 'none') { image = true; break; }
+            const bg = mt.rgba(st.backgroundColor);
+            if (!bg || /, 0\)$/.test(bg)) continue;
+            const own = s.contains(el) ? 1 : parseFloat(st.opacity);
+            grounds.push(own < 1 ? bg.replace(/, ([\d.]+)\)$/, (m, a) => `, ${+(parseFloat(a) * own).toFixed(3)})`) : bg);
+            if (/, 1\)$/.test(grounds[grounds.length - 1])) break;
+          }
+          if (!grounds.length || !/, 1\)$/.test(grounds[grounds.length - 1])) grounds.push(mt.canvas());
+        }
         const fg = mt.rgba(cs.color);
         const color = fg && fg.replace(/, ([\d.]+)\)$/, (m, a) => `, ${+(parseFloat(a) * fade).toFixed(3)})`);
-        return { path: mt.path(el), color, rawColor: cs.color, grounds, image, fadedGround, hidden: fade === 0, size: parseFloat(cs.fontSize), weight: parseInt(cs.fontWeight, 10) };
+        return { path: mt.path(el), color, rawColor: cs.color, faded: fade < 1 ? +fade.toFixed(2) : null, grounds, image, fadedGround, hidden: fade === 0, size: parseFloat(cs.fontSize), weight: parseInt(cs.fontWeight, 10) };
       });
+      window.scrollTo(0, startY);
+      return samples;
     },
     // Spec 0025 R3: the colour the browser paints under an unpainted page for the colour scheme in
     // force (white, or rgb(18, 18, 18) for a dark scheme in Chromium): the Canvas system colour,
     // resolved under the root element.
+    // Spec 0029 U5: the elements painted under the element at a point of its first line box, the element
+    // itself and what lies below it, in paint order; null where the point is not on the element. Pointer
+    // events are switched on for the probe, so decorative layers with pointer-events: none are seen.
+    stackUnder(el, retried = false) {
+      const box = [...el.getClientRects()].find((x) => x.width > 0 && x.height > 0);
+      if (!box) return null;
+      const y = box.top + box.height / 2;
+      if (y < 0 || y > innerHeight) {
+        if (retried) return null;
+        window.scrollBy(0, y - innerHeight / 2);
+        return window.__mt.stackUnder(el, true);
+      }
+      const mt = window.__mt;
+      if (!mt._probe) {
+        mt._probe = document.createElement('style');
+        mt._probe.textContent = '* { pointer-events: auto !important; }';
+      }
+      document.head.appendChild(mt._probe);
+      const x = box.left + Math.min(box.width / 2, 8);
+      const stack = document.elementsFromPoint(x, y);
+      mt._probe.remove();
+      const at = stack.findIndex((s) => s === el || el.contains(s));
+      return at === -1 ? null : stack.slice(at).filter((s) => s === el || !el.contains(s));
+    },
     canvas() {
       const probe = document.createElement('div');
       probe.style.cssText = 'position:absolute;visibility:hidden;background-color:Canvas';
@@ -1067,10 +1112,17 @@ async function audit(target, opts = {}) {
       if (near.color) return `color: ${near.color} reaches ${near.ratio}:1 here, the nearest text colour of the same hue (scripts/contrast-fix.js)`;
       return `no text colour of this hue reaches ${need}:1 on this ground (best ${near.best}:1): change the ground (scripts/contrast-fix.js --move ground)`;
     };
+    // Spec 0029 U4: print the colour the reader sees (transparency and opacity applied), so the pair gives
+    // the ratio; name the colour as written when it differs.
+    const contrastMeasured = ({ c, ratio, need, text }) => {
+      const seen = `rgb(${text.join(', ')})`;
+      const written = c.faded ? `; written ${c.rawColor}, faded by opacity ${c.faded}` : c.rawColor.replace(/\s+/g, '') !== seen.replace(/\s+/g, '') ? `; written ${c.rawColor}` : '';
+      return `${ratio.toFixed(2)}:1 (${seen} on ${c.bg}, needs ${need}:1${written})`;
+    };
     const lightFails = contrastFailures(desk.colors);
     for (const f of lightFails.values()) {
       const { c, ratio, need } = f;
-      add('MT-CONTRAST', 'HIGH', `${c.path}`, `${ratio.toFixed(2)}:1 (${c.rawColor} on ${c.bg}, needs ${need}:1)`, contrastFix(f));
+      add('MT-CONTRAST', 'HIGH', `${c.path}`, contrastMeasured(f), contrastFix(f));
     }
     // The same page with prefers-color-scheme: dark; report only what fails there and not here.
     const darkPage = await open(1280, null, { colorScheme: 'dark' });
@@ -1080,7 +1132,7 @@ async function audit(target, opts = {}) {
     for (const f of darkFails.values()) {
       const { c, ratio, need } = f;
       if (lightPaths.has(c.path)) continue;
-      add('MT-CONTRAST', 'HIGH', `${c.path} (dark scheme)`, `${ratio.toFixed(2)}:1 (${c.rawColor} on ${c.bg}, needs ${need}:1)`, contrastFix(f));
+      add('MT-CONTRAST', 'HIGH', `${c.path} (dark scheme)`, contrastMeasured(f), contrastFix(f));
     }
     if (invisible.size) notVerified.add(`contrast of ${invisible.size} text element${invisible.size === 1 ? '' : 's'} still at opacity 0 after scrolling the page (not shown yet, such as a reveal that never fired)`);
     if (desk.sizes.length > 8) add('MT-SIZE-COUNT', 'LOW', 'page at 1280px', `${desk.sizes.length} text sizes: ${desk.sizes.join(', ')}px`, 'a scale of 5 to 8 named sizes');
@@ -1289,8 +1341,23 @@ async function audit(target, opts = {}) {
         const sp = spill(el);
         const next = el.nextElementSibling;
         if (sp > 1 && sp > was.spill + 1 && next && mt.visible(next)) {
-          const overlap = r.top + el.scrollHeight - next.getBoundingClientRect().top;
-          if (overlap > 1) out.push({ path: mt.path(el), over: Math.round(overlap), kind: 'overlap' });
+          // Spec 0029 U3: only text that runs past the box's bottom edge and meets the next block's text
+          // overlaps it; a neighbour standing beside the box is not under it.
+          const rects = (node) => {
+            const out2 = [];
+            const walk = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+            for (let t = walk.nextNode(); t; t = walk.nextNode()) {
+              if (!t.textContent.trim()) continue;
+              const range = document.createRange();
+              range.selectNodeContents(t);
+              for (const x of range.getClientRects()) if (x.width > 0 && x.height > 0) out2.push(x);
+            }
+            return out2;
+          };
+          const spilled = rects(el).filter((t) => t.bottom > r.bottom + 1);
+          const theirs = spilled.length ? rects(next) : [];
+          const met = spilled.filter((t) => theirs.some((x) => x.left < t.right - 1 && x.right > t.left + 1 && x.top < t.bottom - 1 && x.bottom > t.top + 1));
+          if (met.length) out.push({ path: mt.path(el), over: Math.round(Math.max(...met.map((t) => t.bottom)) - r.bottom), kind: 'overlap' });
         }
       }
       return out;
@@ -1380,7 +1447,8 @@ async function audit(target, opts = {}) {
       if (!z2.has(key) || !z5.has(key)) { unmatched++; return; }
       const g200 = (2 * z2.get(key).size) / t.size;
       const g500 = (5 * z5.get(key).size) / t.size;
-      if (g500 < 1.99) {
+      // Spec 0029 U1: text that reaches 2x at any zoom level checked meets WCAG 1.4.4.
+      if (Math.max(g200, g500) < 1.99) {
         zoomSeen.add(t.path);
         add('MT-ZOOM-VW', 'HIGH', t.path, `${t.size}px grows ${g200.toFixed(2)}× at 200% and ${g500.toFixed(2)}× at 500% zoom`, 'clamp(min-rem, rem + vi, max-rem) with a range near 1.4×');
       } else if (t.heading && g200 < 1.6) {
@@ -1419,18 +1487,17 @@ if (require.main === module) {
     process.exit(2);
   }
   const print = (report, stoodIn = false) => {
-    if (json) console.log(JSON.stringify(report, null, 2));
+    let text;
+    if (json) text = JSON.stringify(report, null, 2);
     else {
-      if (report.mode === 'lite') console.log('Lite mode, no browser: source checks only. For the rendered checks: npm install && npx playwright install chromium\n');
-      console.log(report.findings.length ? toMarkdown(report) : `No typography findings on ${report.target}.\n\nVerdict: ${report.verdict}\nNot verified: ${report.notVerified.join('; ')}\n`);
+      text = report.mode === 'lite' ? 'Lite mode, no browser: source checks only. For the rendered checks: npm install && npx playwright install chromium\n\n' : '';
+      text += report.findings.length ? toMarkdown(report) : `No typography findings on ${report.target}.\n\nVerdict: ${report.verdict}\nNot verified: ${report.notVerified.join('; ')}\n`;
     }
     const high = report.findings.some((f) => f.severity === 'HIGH');
     // Spec 0025 R5: a lite report that stood in for the rendered audit is not a verdict a gate may pass on.
-    if (stoodIn && !high) {
-      console.error('exit 3: the rendered checks did not run, because Playwright or its browser is missing (npm install && npx playwright install chromium); the lite report above stood in. Ask for --lite to accept source checks only.');
-      process.exit(3);
-    }
-    process.exit(high ? 1 : 0);
+    if (stoodIn && !high) console.error('exit 3: the rendered checks did not run, because Playwright or its browser is missing (npm install && npx playwright install chromium); the lite report above stood in. Ask for --lite to accept source checks only.');
+    // Spec 0029 U2: exit only once the report has drained, or a piped report larger than the buffer is cut.
+    process.stdout.write(`${text}\n`, () => process.exit(stoodIn && !high ? 3 : high ? 1 : 0));
   };
   const fail = (err) => {
     console.error(err.message);

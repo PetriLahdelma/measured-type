@@ -745,8 +745,8 @@ if (require.main === module) {
     console.error(err.message);
     process.exit(2);
   }
-  console.log(opts.json ? JSON.stringify(report, null, 2) : toMarkdown(report));
-  process.exit(report.findings.some((f) => f.severity === 'HIGH') ? 1 : 0);
+  // Spec 0029 U2: exit only once the report has drained, or a piped report larger than the buffer is cut.
+  process.stdout.write(`${opts.json ? JSON.stringify(report, null, 2) : toMarkdown(report)}\n`, () => process.exit(report.findings.some((f) => f.severity === 'HIGH') ? 1 : 0));
 }
 
 module.exports = { parseCss, evaluator, zoomProfile, lint, toMarkdown, verdictOf, textFindings, isLanguageTag, languageTagFix };

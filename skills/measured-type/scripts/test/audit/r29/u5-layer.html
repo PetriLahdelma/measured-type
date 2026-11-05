@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec 0029 U5: a ground painted by an element that is not an ancestor</title>
+<style>
+  body { margin: 0; font: 16px/1.5 system-ui, sans-serif; color: #1f1f1d; background: #fff; }
+  .bar { position: relative; padding: 1rem 2rem; }
+  /* The bar's colour is a separate layer behind its content, as navigation bars often draw it. */
+  .bar .paint { position: absolute; inset: 0; background: rgb(104, 43, 223); pointer-events: none; }
+  .bar .content { position: relative; display: flex; gap: 2rem; align-items: center; }
+  .search { background: rgba(0, 0, 0, 0.1); border: 0; padding: 0.5rem 1rem; font: inherit; }
+  .placeholder { color: rgba(255, 255, 255, 0.65); }
+  .dark { position: relative; padding: 1rem 2rem; margin-block-start: 2rem; }
+  .dark .paint { position: absolute; inset: 0; background: #222; }
+  .dark p { position: relative; margin: 0; color: #fff; }
+  main { padding: 2rem; }
+</style>
+</head>
+<body>
+<header class="bar"><div class="paint"></div><div class="content"><strong class="brand" style="color:#fff">Brand</strong><button class="search"><span class="placeholder">Search the docs</span></button></div></header>
+<section class="dark"><div class="paint"></div><p class="light">White text on a dark layer that is a sibling of the paragraph, not its parent.</p></section>
+<main><p>Ordinary body text on the page's white ground.</p></main>
+</body>
+</html>

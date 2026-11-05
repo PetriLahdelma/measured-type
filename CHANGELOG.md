@@ -6,6 +6,16 @@ each change has a spec in [`specs/`](specs/).
 
 ## Unreleased
 
+### Fixed
+
+- The five tool faults the 100-page study found (spec 0029): MT-ZOOM-VW no
+  longer reports text that reaches 2× at 200% zoom; `page-audit.js --json` and
+  `lint-css.js --json` exit only once a large report has drained through a pipe;
+  MT-TEXT-SPACING reports an overlap only when spilled text meets the next
+  block's text; MT-CONTRAST prints the colour the reader sees, so the pair gives
+  the ratio, and takes the ground from what is painted under the text, layers
+  that are not its ancestors included.
+
 ### Evidence
 
 - The tools on 100 public pages (spec 0028, pre-registered): lines run long

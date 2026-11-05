@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec 0029 U1: text that reaches 2x at 200% zoom</title>
+<style>
+  body { margin: 2rem; font: 18px/1.5 Georgia, serif; color: #1f1f1d; background: #fff; }
+  /* Doubles at 200% zoom on a 1280px window, then a narrow-screen rule shrinks it at 500%. */
+  .issue { font-size: 54px; }
+  @media (max-width: 400px) { .issue { font-size: 18px; } }
+  /* Pure vw: never grows under zoom. */
+  .vw { font-size: 4vw; }
+</style>
+</head>
+<body>
+<main>
+<p class="issue">No. 279</p>
+<h2 class="vw">A heading in vw</h2>
+<p>Body text in fixed rem doubles under zoom, as reading text should; the two lines above test the zoom rule's two cases.</p>
+</main>
+</body>
+</html>
