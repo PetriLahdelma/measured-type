@@ -1,20 +1,20 @@
 ---
 name: measured-type
 description: >-
-  Web typography for agents: measures line length, zoom growth, contrast,
-  tabular figures and font coverage in a browser or the font file, lints the
-  source without one and fixes them with Bringhurst's rules in current CSS.
-  Use it whenever a request touches how words and numbers sit on a web page,
-  even when typography is never said. It works alongside frontend, UI-review
-  and design-system skills and makes the type decisions inside their work.
-  Typical asks: a typography audit; make an article, blog, docs or landing
-  page read better (headings, spacing, quotes, captions); text that feels
-  cramped, too wide or too small; a type scale or font-size tokens that hold
-  up under zoom and accessibility rules; dense product UI such as data tables,
-  labels, badges and status text; prices, units and dates kept together and
-  aligned; long words overflowing on phones; Finnish, Swedish, RTL and other
-  scripts. Skip it for logos, drawing icons or fonts, build setup and
-  non-visual number parsing.
+  Web typesetting specialist. Use it whenever a request touches how words and
+  numbers sit on a web page, even when "typography" is never said. It works
+  alongside general frontend, UI-review and design-system skills and handles
+  the type decisions inside their work. Typical asks: review or critique a stylesheet's type;
+  make an article, blog, docs or landing page read better (headings, paragraph
+  spacing, quotes, captions); text that feels cramped, too wide or too small;
+  type scales or font-size tokens that hold up under zoom and accessibility
+  rules; dense product UI such as data tables, labels, badges and status text;
+  prices, units and dates kept together and aligned; long words overflowing on
+  phones; other languages and scripts (Finnish, Swedish, RTL). Gives
+  Bringhurst-grounded CSS fixes and measures line length, zoom and font
+  features in a real browser, or lints the source when none is available.
+  Skip it for logos, drawing icons or fonts, build setup and non-visual number
+  parsing.
 license: Text CC BY-NC 4.0 (adapts webtypography.net by Richard Rutter); scripts MIT. See LICENSE.
 ---
 

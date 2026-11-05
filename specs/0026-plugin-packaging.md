@@ -10,9 +10,9 @@ supersedes).
 The 5 November review found the plugin folder has no manifest, so
 `claude plugin validate --strict` fails on it and Anthropic's directory would
 list it for Claude Code only; the skill's description holds its key term
-inside quotation marks and opens with words nobody searches for; and the
-README names no install line for Codex or Cursor, although the skills CLI
-already reaches both. The directory, skills.sh and `find-skills` are where
+inside quotation marks and opens with words nobody searches for (a rewrite
+was tried and withdrawn, see Q4); and the README names no install line for
+Codex or Cursor, although the skills CLI already reaches both. The directory, skills.sh and `find-skills` are where
 the people this skill is for look for one, so the folder they would get has to
 validate, explain what it runs and say what it is in the words they type.
 
@@ -43,14 +43,20 @@ loads it as a skills-directory plugin named `measured-type` whose one skill is
   download and read (the page you name in a headless Chromium, Playwright's
   Chromium download, local stylesheets and font files, nothing sent anywhere)
   and gives the install lines for the marketplace and the skills CLI.
-- **Q4** The skill's description opens with plain searched words, "Web
-  typography", and names line length, zoom, a type scale and a typography
-  audit without quotation marks, in the third person, within 1,024
-  characters; the trigger list, the "alongside" sentence and the product-UI
-  words stay (spec 0003 J1 to J3 and L), and SKILL.md stays within its word
-  budget (spec 0014 B1). The in-session triggering result of spec 0016 was
-  measured with the old wording and should be run again before the next
-  release.
+- **Q4** The skill's description stays the wording whose triggering was
+  measured (spec 0016, 30 October, repeated 5 November). A plain-words
+  opening ("Web typography for agents: measures line length, zoom growth,
+  contrast, tabular figures and font coverage ...") was written for search,
+  run through spec 0016's protocol on 5 November (240 runs) and compared with
+  the measured wording on the same afternoon (132 control runs): it tied on
+  typography tasks with Opus, lost one Sonnet holdout prompt and loaded on 3
+  of 114 near-miss runs against 0 of 66 for the measured wording, so under
+  the rule spec 0016 fixed for a new wording it does not ship
+  (`evals/triggering/README.md`). The searched words live where people and
+  search read them instead: the plugin manifest, the marketplace entry and
+  the READMEs, none of which the model reads before loading the skill. The
+  test keeps the description within 1,024 characters and SKILL.md within its
+  word budget (spec 0014 B1).
 - **Q5** The README gives skills CLI install lines for Codex and Cursor
   beside the Claude Code one.
 - **Q6** The plugin folder keeps within the directory's automatic limits: at

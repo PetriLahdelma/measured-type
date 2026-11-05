@@ -102,3 +102,49 @@ fewer loads; that is not tested. Three runs per prompt, one day, two models.
 The runs started before `3c55fea` pre-approved read-only `find` as well as
 `ls`, `cat`, `head`, `tail`, `wc`, `grep` and `file`; the runner no longer
 approves `find`. Files: `results/2026-10-30-session-*.json`.
+
+## Plain words against the measured description, 5 November 2026 (spec 0026 Q4)
+
+Spec 0026 rewrote the description to open with the words people search for
+("Web typography for agents: measures line length, zoom growth, contrast,
+tabular figures and font coverage ..."), with the trigger list unchanged;
+spec 0016's protocol was then run again on it: the same five sets, three runs
+per prompt, `session.js` at `main` (`8bd67c4`), Claude Code 2.1.317. Because
+three runs per prompt cannot separate wording from day-to-day drift, the
+measured (30 October) description was then run the same afternoon on three
+of the sets as a control, through `--description-file`.
+
+| Set | Model | Description | Typography tasks passed | Mean load before acting | On the first call | Near misses passed | Near-miss runs that loaded |
+|---|---|---|--:|--:|--:|--:|--:|
+| `trigger-eval.json` | Opus 5.5 | plain words | 10/10 | 100% | 100% | 10/10 | 1/30 |
+| `trigger-eval.json` | Opus 5.5 | measured, same day | 10/10 | 100% | 100% | 10/10 | 0/30 |
+| `trigger-holdout.json` | Opus 5.5 | plain words | 6/6 | 100% | 72% | 5/6 | 2/18 |
+| `trigger-holdout.json` | Opus 5.5 | measured, same day | 6/6 | 100% | 83% | 6/6 | 0/18 |
+| `trigger-holdout-2.json` | Opus 5.5 | plain words | 10/10 | 100% | 90% | 6/6 | 0/18 |
+| `trigger-eval.json` | Sonnet 5.5 | plain words | 10/10 | 97% | 90% | 10/10 | 0/30 |
+| `trigger-holdout.json` | Sonnet 5.5 | plain words | 5/6 | 83% | 50% | 6/6 | 0/18 |
+| `trigger-holdout.json` | Sonnet 5.5 | measured, same day | 6/6 | 100% | 83% | 6/6 | 0/18 |
+
+On typography tasks the two wordings tie on Opus (26 of 26 prompts, every
+run) and differ on Sonnet in opposite directions: the plain words gained the
+Lora-Italic prompt on the eval set (0 to 3 of 3, with no same-day control for
+that set) and lost the print-styles prompt on the holdout set (0 of 3, against
+3 of 3 for the measured wording the same afternoon). On near misses the plain
+words loaded the skill in 3 of 114 runs, where the measured wording loaded in
+0 of 66 the same day and 0 of 114 on 30 October: a React date picker with
+keyboard navigation (2 of 3, on the fifth tool call) and a dark-mode toggle
+(1 of 3, on the fourth). The new opening advertises contrast and tabular
+figures, which is what a dark-mode toggle and a calendar grid look like to an
+agent that has already read the site. Spec 0016 fixed the rule for a new
+wording before any run: it ships only if its load rate is higher and no more
+near misses fail. Neither holds, so the measured description stays and the
+searched words go where people and search read them: the plugin manifest,
+the marketplace entry and the READMEs, none of which the model reads before
+loading the skill.
+
+Every one of the 372 runs settled and listed the skill at start. Limits:
+three runs per prompt, one afternoon, no control for Sonnet on the eval set
+or for anyone on `trigger-holdout-2.json`, and only this skill and Claude
+Code's built-in skills offered. Files: `results/2026-11-05-session-*.json`
+(plain words) and `results/2026-11-05-control-*.json` (the measured wording,
+same day).

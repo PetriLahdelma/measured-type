@@ -53,11 +53,16 @@ Python.
   `engines.node`. The Python checks for `font-features.py` run in `npm test`
   under `MT_PYTHON`. The README gives the virtual-environment recipe and
   `MT_PYTHON`.
-- The skill's description opens with plain searched words (web typography,
-  line length, zoom, type scale, typography audit) in the third person; the
-  trigger list is unchanged. The in-session triggering of spec 0016 was
-  measured with the old wording and should be run again before the next
-  release (spec 0026).
+
+### Evidence
+
+- A plain-words description, written for search, was run through spec
+  0016's protocol (240 runs, Opus and Sonnet) and against the shipped
+  description on the same afternoon (132 runs): a tie on typography tasks
+  with Opus, one Sonnet holdout prompt lost and 3 of 114 near-miss runs
+  loaded against 0 of 66 for the shipped wording. The shipped wording stays;
+  the searched words live in the plugin manifest, the marketplace entry and
+  the READMEs (spec 0026 Q4, `evals/triggering/README.md`).
 
 ## 1.4.0 (3 November 2026)
 

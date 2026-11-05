@@ -80,7 +80,8 @@ first. WCAG 1.4.4 sets no ratio of its own; the 1.6× bar is this project's.
 
 Installed in a project, it loaded before the agent's first edit on every
 typography prompt with Opus 5.5 (26 of 26) and on 15 of 16 with Sonnet 5.5,
-and never on a near miss ([spec 0016](specs/0016-triggering-in-session.md)).
+and never on a near miss ([spec 0016](specs/0016-triggering-in-session.md),
+repeated on 5 November 2026).
 Other type or design skills installed alongside it were not tested; name it
 when you want it for certain.
 
@@ -340,6 +341,7 @@ every result is reproducible from the committed run files.
 | [Spec 0018](specs/0018-tighter-bands.md) | Committed runs re-graded with bands of 2 characters and 5% of each size, after the fact | 20/20 within 2 characters of 66 | 2/10 with nothing and no browser, 1/10 with the hint and no browser | Exploratory: without a browser the skill's estimate is the clear gain; the wider bands hid it |
 | [Triggering, stub command](evals/triggering/) | 16 typography prompts, 16 near misses, 3 runs each, skill-creator's method | 5 of 48 loads | | The skill offered as a stub command in an empty folder, first tool call only: rarely loads |
 | [Triggering, real session](evals/triggering/) (spec 0016) | 26 typography prompts, 22 near misses, the skill installed in a small site, Opus and Sonnet, 3 runs each | 78/78 loads with Opus, 44/48 with Sonnet | no near miss loaded in 114 runs | Loads before the first edit on nearly every typography task; the stub-command figure was the setup |
+| [Plain-words description](evals/triggering/) (spec 0026 Q4) | The description rewritten for search against the shipped one, spec 0016's protocol, Opus and Sonnet, 3 runs each, 372 runs on one afternoon | plain words: Opus 26/26 prompts, Sonnet 15/16, 3 of 114 near-miss runs loaded | shipped wording, same day: Opus 16/16, Sonnet 6/6, 0 of 66 near-miss runs loaded | The shipped wording stays; words for search go in the manifest and the READMEs, which the model does not read before loading |
 
 **How to read it.** The 2×2 and spec 0008 separate the skill's guidance from
 its measuring tools and from one sentence of advice. On line length the

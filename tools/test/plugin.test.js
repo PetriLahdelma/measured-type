@@ -61,18 +61,22 @@ test('Q3 the plugin README says what the scripts open, download and read, and ho
   }
 });
 
-test('Q4 the description opens with plain searched words and keeps its triggers within the limit', () => {
+test('Q4 the description stays the measured wording; the searched words live in the manifest and the READMEs', () => {
+  // The plain-words opening was run through spec 0016 and compared with this wording on the same day
+  // (evals/triggering/README.md, 5 November 2026): it loaded on near misses the measured wording never
+  // loaded on, so the model-facing text stays as measured and discovery text goes where people read it.
   const skill = read(path.join('skills', 'measured-type', 'SKILL.md'));
   const front = /^---\n([\s\S]*?)\n---/.exec(skill)[1];
   const description = /description: >-\n([\s\S]*?)\n[a-z]+:/.exec(front)[1].replace(/\s+/g, ' ').trim();
-  assert.match(description, /^Web typography/);
-  for (const words of ['line length', 'zoom', 'type scale', 'typography audit', 'alongside', 'table', 'label']) {
+  assert.match(description, /^Web typesetting specialist\./, 'the description is not the measured wording');
+  for (const words of ['line length', 'zoom', 'type scales', 'alongside', 'tables', 'labels', 'lints the source']) {
     assert.ok(description.toLowerCase().includes(words), `description does not say "${words}"`);
   }
-  assert.doesNotMatch(description, /"typography"/, 'the key term sits inside quotation marks');
-  assert.doesNotMatch(description, /\bI\b|\byou can\b/i, 'third person only');
   assert.ok(description.length <= 1024, `${description.length} characters`);
   assert.ok(skill.split(/\s+/).filter(Boolean).length <= 2300, 'SKILL.md is over its word budget');
+  for (const text of [manifest().description, entry().description, fs.readFileSync(path.join(PLUGIN, 'README.md'), 'utf8')]) {
+    assert.match(text, /web typography/i, 'the searched words are missing from a listing text');
+  }
 });
 
 test('Q5 the README gives skills CLI install lines for Codex and Cursor', () => {
