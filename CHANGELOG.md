@@ -14,7 +14,8 @@ each change has a spec in [`specs/`](specs/).
   MT-TEXT-SPACING reports an overlap only when spilled text meets the next
   block's text; MT-CONTRAST prints the colour the reader sees, so the pair gives
   the ratio, and takes the ground from what is painted under the text, layers
-  that are not its ancestors included.
+  that are not its ancestors and covering `::before` and `::after` layers
+  included, in one probe per pass so long pages stay as fast as before.
 
 ### Evidence
 

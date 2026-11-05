@@ -41,11 +41,26 @@ them mid-run. Each is reproduced below with a local fixture before it is fixed.
   on screen, the ancestor chain is used as before. Before, a faint placeholder on
   a purple bar was measured against white, 1.16:1, where the reader sees 3.80:1.
 
+Added the same day, after the first re-run (U6) found two more faults, both
+in U5's probe:
+
+- **U7** A `::before` or `::after` layer that covers its element is part of the
+  ground, between the element's background and its content; `elementsFromPoint`
+  never returns pseudo-elements. A covering gradient makes the contrast not
+  verified, never a ratio against the wrong ground. Before, a placeholder on a
+  navigation bar drawn by a gradient `::after` was still measured at 1.16:1
+  against white grey, on the real page as on the fixture.
+- **U8** The pointer-events probe stylesheet goes in once per contrast pass, not
+  once per text element. Per element it forced two style recalculations of the
+  page each time: a 2,500-paragraph page took 37 seconds against 25 before
+  spec 0029, and the corpus's largest page timed out.
+
 ## The re-run (U6), fixed now
 
 - The whole frozen corpus of spec 0028 (`evals/0028/corpus.json`), primaries and
   reserves in the same order and the same replacement rule, is run again with the
-  tools at the commit that ships U1 to U5, by `evals/0028/run.js`. Every page is
+  tools at the commit that ships U1 to U8 (the first re-run, with U1 to U5 only,
+  is reported as such and is what found U7 and U8), by `evals/0028/run.js`. Every page is
   re-run, not only those with findings, because U5 can turn a pass into a fail as
   well as the reverse.
 - The same analysis and the same spot-check draw (`evals/0028/analyze.js`,

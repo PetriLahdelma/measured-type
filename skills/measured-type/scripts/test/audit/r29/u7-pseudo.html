@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spec 0029 U7: a ground painted by a pseudo-element layer</title>
+<style>
+  body { margin: 0; font: 16px/1.5 system-ui, sans-serif; color: #1f1f1d; background: #fff; }
+  /* A bar coloured by a gradient on ::after, behind its content, as some navigation bars do it. */
+  .bar { position: relative; z-index: 0; padding: 1rem 2rem; }
+  .bar::after { content: ""; position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(rgb(104, 43, 223), rgb(90, 35, 200)); }
+  .search { background: rgba(0, 0, 0, 0.1); border: 0; padding: 0.5rem 1rem; font: inherit; }
+  .placeholder { color: rgba(255, 255, 255, 0.65); }
+  /* A solid dark ::before layer behind white text: it passes. */
+  .band { position: relative; z-index: 0; padding: 1rem 2rem; margin-block-start: 2rem; }
+  .band::before { content: ""; position: absolute; inset: 0; z-index: -1; background: #222; }
+  .band p { margin: 0; color: #fff; }
+  main { padding: 2rem; }
+</style>
+</head>
+<body>
+<header class="bar"><button class="search"><span class="placeholder">Search the docs</span></button></header>
+<section class="band"><p class="onband">White text on a dark band drawn by the section's own ::before layer.</p></section>
+<main><p>Ordinary body text on the page's white ground.</p></main>
+</body>
+</html>

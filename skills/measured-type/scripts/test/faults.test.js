@@ -84,4 +84,32 @@ test('U5 the ground is what is painted under the text, also by an element that i
   assert.ok(pair.ratio > 3 && pair.ratio < 4.5, ph.measured);
 });
 
+test('U7 a covering ::before or ::after layer is part of the ground: a gradient is not verified, a solid layer is measured', async () => {
+  const r = await run('u7-pseudo.html');
+  const hits = find(r, 'MT-CONTRAST');
+  assert.ok(!hits.some((f) => /placeholder/.test(f.location)), `the placeholder on a gradient layer is reported with a ratio: ${JSON.stringify(hits)}`);
+  assert.ok(!hits.some((f) => /onband/.test(f.location)), `white on the dark ::before layer is reported: ${JSON.stringify(hits)}`);
+  assert.ok(r.notVerified.some((n) => /background images/.test(n)), JSON.stringify(r.notVerified));
+});
+
+test('U8 the paint-stack probe stylesheet goes in once per contrast pass, not once per text element', async () => {
+  let inserted = 0;
+  const counting = {
+    newPage: async (opts) => {
+      const page = await browser.newPage(opts);
+      await page.exposeFunction('__mtProbeInserted', () => { inserted++; });
+      await page.addInitScript(() => {
+        new MutationObserver((ms) => {
+          for (const m of ms) for (const n of m.addedNodes) if (n.tagName === 'STYLE' && /pointer-events: auto/.test(n.textContent)) window.__mtProbeInserted();
+        }).observe(document, { subtree: true, childList: true });
+      });
+      return page;
+    },
+  };
+  const rows = Array.from({ length: 200 }, (_, i) => `<p id="p${i}">Row ${i} of ordinary body text on a long page.</p>`).join('');
+  await audit(write('u8.html', `<!doctype html><html lang="en"><head><meta charset="utf-8"></head><body><main>${rows}</main></body></html>`), { browser: counting });
+  assert.ok(inserted > 0, 'the probe never ran');
+  assert.ok(inserted <= 4, `the probe stylesheet was inserted ${inserted} times`);
+});
+
 function write(name, text) { const p = path.join(tmp, name); fs.writeFileSync(p, text); return p; }

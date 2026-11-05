@@ -131,6 +131,11 @@ function pageHelpers() {
     colorSamples() {
       const mt = window.__mt;
       const startY = scrollY;
+      // Spec 0029 U8: one probe stylesheet for the whole pass. Inserting it per element forced a style
+      // recalculation of the page twice for every text element.
+      const probe = document.createElement('style');
+      probe.textContent = '* { pointer-events: auto !important; }';
+      document.head.appendChild(probe);
       const samples = mt.textElements().filter((el) => !el.closest(':disabled, [aria-disabled="true"]')).map((el) => {
         const cs = getComputedStyle(el);
         const grounds = [];
@@ -163,6 +168,15 @@ function pageHelpers() {
           image = false;
           for (const s of stack) {
             const st = getComputedStyle(s);
+            // Spec 0029 U7: a ::after or ::before layer that covers its element paints between the element's
+            // background and its content; elementsFromPoint never returns it, so it is read here.
+            let covered = false;
+            for (const layer of mt.pseudoLayers(s)) {
+              if (layer.image) { image = true; covered = true; break; }
+              grounds.push(layer.bg);
+              if (/, 1\)$/.test(layer.bg)) { covered = true; break; }
+            }
+            if (covered) break;
             if (st.backgroundImage !== 'none') { image = true; break; }
             const bg = mt.rgba(st.backgroundColor);
             if (!bg || /, 0\)$/.test(bg)) continue;
@@ -176,6 +190,7 @@ function pageHelpers() {
         const color = fg && fg.replace(/, ([\d.]+)\)$/, (m, a) => `, ${+(parseFloat(a) * fade).toFixed(3)})`);
         return { path: mt.path(el), color, rawColor: cs.color, faded: fade < 1 ? +fade.toFixed(2) : null, grounds, image, fadedGround, hidden: fade === 0, size: parseFloat(cs.fontSize), weight: parseInt(cs.fontWeight, 10) };
       });
+      probe.remove();
       window.scrollTo(0, startY);
       return samples;
     },
@@ -194,17 +209,26 @@ function pageHelpers() {
         window.scrollBy(0, y - innerHeight / 2);
         return window.__mt.stackUnder(el, true);
       }
-      const mt = window.__mt;
-      if (!mt._probe) {
-        mt._probe = document.createElement('style');
-        mt._probe.textContent = '* { pointer-events: auto !important; }';
-      }
-      document.head.appendChild(mt._probe);
       const x = box.left + Math.min(box.width / 2, 8);
       const stack = document.elementsFromPoint(x, y);
-      mt._probe.remove();
       const at = stack.findIndex((s) => s === el || el.contains(s));
       return at === -1 ? null : stack.slice(at).filter((s) => s === el || !el.contains(s));
+    },
+    // Spec 0029 U7: the ::after and ::before layers of an element that cover its box, as painted grounds
+    // ({ bg } or { image: true }), topmost first.
+    pseudoLayers(el) {
+      const out = [];
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      for (const which of ['::after', '::before']) {
+        const ps = getComputedStyle(el, which);
+        if (ps.content === 'none' || ps.content === 'normal' || !/absolute|fixed/.test(ps.position)) continue;
+        if (!(parseFloat(ps.width) >= w - 1 && parseFloat(ps.height) >= h - 1)) continue;
+        if (ps.backgroundImage !== 'none') { out.push({ image: true }); continue; }
+        const bg = window.__mt.rgba(ps.backgroundColor);
+        if (bg && !/, 0\)$/.test(bg)) out.push({ bg });
+      }
+      return out;
     },
     canvas() {
       const probe = document.createElement('div');
