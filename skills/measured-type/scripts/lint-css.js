@@ -35,8 +35,9 @@ const ORDER = { HIGH: 0, MEDIUM: 1, LOW: 2 };
 
 // ---------- CSS ----------
 
+// Spec 0030 X1: string-aware, so a comment opener inside a string or url() is not a comment.
 function stripComments(text) {
-  return text.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
+  return stripLineComments(text, { slashSlash: false });
 }
 
 // Blocks in source order: { prelude, line, decls: [{ prop, value, line }] }
@@ -123,7 +124,8 @@ function evaluator(value) {
     if (num[2] === 'rem' || num[2] === 'em') return () => n * ROOT_PX;
     if (num[2] === 'px') return () => n;
     if (num[2] === '%') return () => (n / 100) * ROOT_PX;
-    if (num[2] && /v[hb]$/.test(num[2])) return (W) => (n * W * VIEW_ASPECT) / 100;
+    // Spec 0030 X3: vmin is the shorter side of the 1280 by 900 model (the height), vmax the longer.
+    if (num[2] && (/v[hb]$/.test(num[2]) || num[2] === 'vmin')) return (W) => (n * W * VIEW_ASPECT) / 100;
     if (num[2]) return (W) => (n * W) / 100;
     return () => n;
   }
@@ -178,10 +180,15 @@ const SIZE_TOKEN = /size|font|text|fs\b|step|scale|display|hero|h[1-6]|heading|t
 const PHYSICAL = /^(margin|padding|border)-(left|right)(-|$)|^(left|right)$|^border-(top|bottom)-(left|right)-radius$/;
 
 // A font size that uses vw/vi, evaluated at zoom: [rule, severity, measured, fix] or null.
-function fluid(v, label) {
+function fluid(v, label, skip) {
   if (!/\d([dsl]?v[wihb]|vmin|vmax)\b/.test(v) || /var\(/.test(v)) return null;
   let f = null;
-  try { f = evaluator(v); } catch { return null; }
+  try { f = evaluator(v); } catch {
+    // Spec 0030 X2: say what was not evaluated instead of passing it in silence.
+    const unit = /\d(r?lh|r?cap|ch|r?ex|r?ic|cq[wihb]|cqmin|cqmax)\b/.exec(v);
+    if (skip && !(unit && /^cq/.test(unit[1]))) skip(unit ? `a fluid size with ${unit[1]}, which the linter cannot evaluate under zoom` : 'a fluid size the linter cannot evaluate under zoom');
+    return null;
+  }
   const z = zoomProfile(f);
   if (z.worst500 < 2) {
     return ['MT-ZOOM-VW', 'HIGH', `${label} never reaches 2× zoom, even at 500% (${z.worst500.toFixed(2)}×)`, 'clamp(min-rem, rem + vi, max-rem) with a range near 1.4×'];
@@ -229,7 +236,7 @@ function lintCss(blocks, file, opts, out) {
       const rule = `${sel} { ${d.prop}: ${d.value} }`;
 
       const sizeish = d.prop === 'font-size' || (d.prop.startsWith('--') && SIZE_TOKEN.test(d.prop));
-      const fluidHit = sizeish && fluid(v, rule);
+      const fluidHit = sizeish && fluid(v, rule, (why) => opts.skipped?.push(`${path.basename(file)}:${d.line} (${d.prop}: ${d.value}): ${why}; measure with page-audit.js`));
       if (sizeish && /\d(cq[wihb]|cqmin|cqmax)\b/.test(v)) opts.skipped?.push(`container units in ${path.basename(file)}:${d.line} (${d.prop}: ${d.value}) need the container's size; measure with page-audit.js`);
       if (fluidHit) add(fluidHit[0], fluidHit[1], d, fluidHit[2], fluidHit[3]);
       if (d.prop === 'font-size' && isRoot) {
@@ -327,8 +334,11 @@ function lintHtml(source, file, opts, out) {
   const text = source
     .replace(/<(script|style|code|pre|kbd|samp|tt|textarea)\b[\s\S]*?<\/\1>/gi, blank)
     .replace(/<!--[\s\S]*?-->/g, blank)
-    .replace(/<[^>]*>/g, blank);
-  for (const f of textFindings(text)) out.push({ rule: f.rule, severity: 'LOW', file, line: lineAt(f.index), measured: f.measured, fix: f.fix });
+    .replace(/<[^>]*>/g, blank)
+    // Spec 0030 X4: character references for straight quotes are straight quotes to the reader.
+    .replace(/&(quot|#34|#x22|apos|#39|#x27);/gi, (m, n) => (/quot|34|22/i.test(n) ? '"' : "'"));
+  const textLineAt = lineIndex(text);
+  for (const f of textFindings(text)) out.push({ rule: f.rule, severity: 'LOW', file, line: textLineAt(f.index), measured: f.measured, fix: f.fix });
 }
 
 // A BCP 47 tag the platform can canonicalize, whose language subtag is a real code (two or three
@@ -402,7 +412,7 @@ function textFindings(source) {
 // Sass and Less `//` comments, blanked so line numbers stay; `url(http://...)` and strings are kept.
 // Sass and Less comments, blanked so line numbers stay. One pass handles block comments (which may
 // hold apostrophes or //), line comments, strings and unquoted url(...) together.
-function stripLineComments(text) {
+function stripLineComments(text, { slashSlash = true } = {}) {
   let out = '';
   let quote = null;
   let inUrl = false;
@@ -425,7 +435,7 @@ function stripLineComments(text) {
       i = stop - 1;
       continue;
     }
-    if (c === '/' && text[i + 1] === '/') {
+    if (slashSlash && c === '/' && text[i + 1] === '/') {
       while (i < text.length && text[i] !== '\n') { out += ' '; i++; }
       if (i < text.length) out += '\n';
       continue;
@@ -583,7 +593,9 @@ function lintTailwind(source, file, opts, out) {
 }
 
 function checkClasses(tag, raw, line, file, opts, out) {
-  const base = raw.map((c) => c.split(':').pop().replace(/^!/, ''));
+  // Spec 0030 X5: variants end at the last colon outside square brackets (text-[length:5vw] keeps its colon).
+  const utility = (c) => { let depth = 0; let cut = -1; for (let i = 0; i < c.length; i++) { if (c[i] === '[') depth++; else if (c[i] === ']') depth--; else if (c[i] === ':' && depth === 0) cut = i; } return c.slice(cut + 1); };
+  const base = raw.map((c) => utility(c).replace(/^!/, ''));
   const has = (c) => base.includes(c);
   const add = (rule, severity, measured, fix) => out.push({ rule, severity, file, line, measured, fix });
   const reading = READING_TAG.test(tag);
@@ -597,7 +609,7 @@ function checkClasses(tag, raw, line, file, opts, out) {
   if (has('text-justify') && !has('hyphens-auto')) add('MT-JUSTIFY', 'MEDIUM', `${label} text-justify without hyphens-auto`, 'text-start, or hyphens-auto on a wide measure');
   base.forEach((b, i) => {
     const size = /^text-\[(.+)\]$/.exec(b);
-    const hit = size && fluid(size[1].replace(/_/g, ' '), `${label} ${raw[i]}`);
+    const hit = size && fluid(size[1].replace(/_/g, ' ').replace(/^length:/, ''), `${label} ${raw[i]}`, (why) => opts.skipped?.push(`${path.basename(file)}:${line} (${raw[i]}): ${why}`));
     if (hit) add(...hit);
     const logical = logicalClass(b);
     if (logical && !neutral(b)) add('MT-PHYSICAL', opts.rtl ? 'HIGH' : 'LOW', `${label} ${raw[i]}`, `${raw[i].replace(b, logical)} (the logical utility)`);
@@ -620,10 +632,14 @@ function checkClasses(tag, raw, line, file, opts, out) {
 const SOURCES = /\.(css|scss|sass|less|html?|vue|svelte|astro|jsx|tsx)$/i;
 const SKIP_DIRS = new Set(['node_modules', 'dist', 'build', 'coverage', 'vendor']);
 
-function collect(target, files) {
+function collect(target, files, seen = new Set(), skipped = null) {
   if (fs.statSync(target).isDirectory()) {
+    // Spec 0030 X6: a link back into a folder already walked is skipped, not followed until ELOOP.
+    const real = fs.realpathSync(target);
+    if (seen.has(real)) { skipped?.push(`${target}: a symbolic link to a folder already linted, not followed`); return; }
+    seen.add(real);
     for (const e of fs.readdirSync(target)) {
-      if (!SKIP_DIRS.has(e) && !e.startsWith('.')) collect(path.join(target, e), files);
+      if (!SKIP_DIRS.has(e) && !e.startsWith('.')) collect(path.join(target, e), files, seen, skipped);
     }
   } else if (SOURCES.test(target)) files.push(target);
 }
@@ -658,7 +674,8 @@ function changedLines(file, ref) {
 function lint(targets, options = {}) {
   const opts = { ...options, skipped: [] };
   const files = [];
-  for (const t of targets) collect(t, files);
+  const seen = new Set();
+  for (const t of targets) collect(t, files, seen, opts.skipped);
   let findings = [];
   for (const file of files) {
     const src = fs.readFileSync(file, 'utf8');
@@ -674,7 +691,9 @@ function lint(targets, options = {}) {
     } else for (const f of out) findings.push(f);
   }
   findings = findings.sort((a, b) => ORDER[a.severity] - ORDER[b.severity] || a.rule.localeCompare(b.rule) || a.file.localeCompare(b.file) || a.line - b.line);
-  for (const f of findings) f.location = `${path.relative(process.cwd(), f.file) || f.file}:${f.line}`;
+  // Spec 0030 X7: a file outside the working directory is named by its absolute path, not a chain of ../.
+  const shown = (file) => { const rel = path.relative(process.cwd(), file); return !rel || rel.startsWith('..') ? path.resolve(file) : rel; };
+  for (const f of findings) f.location = `${shown(f.file)}:${f.line}`;
   return {
     mode: 'lint',
     files,
@@ -702,7 +721,7 @@ function toMarkdown(report) {
     if (!rows.has(key)) rows.set(key, { ...f, locations: [] });
     rows.get(key).locations.push(f.location ? `\`${f.location}\`` : `\`${path.relative(process.cwd(), f.file)}:${f.line}\``);
   }
-  const cell = (s) => String(s).replace(/\|/g, '\\|');
+  const cell = (s) => String(s).replace(/\s+/g, ' ').replace(/\|/g, '\\|');
   let md = '| Severity | Rule | Location | Measured | Fix |\n|---|---|---|---|---|\n';
   for (const r of rows.values()) {
     const loc = r.locations.length > 5 ? `${r.locations.slice(0, 5).join(', ')} and ${r.locations.length - 5} more` : r.locations.join(', ');

@@ -238,7 +238,11 @@ if (require.main === module) {
     const viewports = twoNumbers('viewports', opt('viewports', '360:1440'));
     if (viewports[1] <= viewports[0]) throw new Error(`--viewports needs a smaller then a larger width, got ${viewports.join(':')}`);
     const ratio = pair(opt('ratio', '1.2:1.25')).map((r) => number('ratio', r));
+    // Spec 0030 X10: values that make no scale are refused, not printed as a table of NaN.
+    if (ratio.some((r) => r <= 1)) throw new Error(`--ratio needs values above 1, such as 1.2:1.25, got ${ratio.join(':')}`);
+    if (base.some((b) => b <= 0)) throw new Error(`--base needs sizes above 0, got ${baseRaw.join(':')}`);
     const steps = number('steps', opt('steps', 5));
+    if (!Number.isInteger(steps) || steps < 1 || steps > 12) throw new Error(`--steps needs a whole number from 1 to 12, got ${steps}`);
     // Spec 0025 R16: unless asked, only the top two steps are fluid; the body and the lower headings
     // stay fixed rem, so they double exactly at 200% zoom (rules.md §3.1.1).
     const fluidFrom = opt('fluid-from', null) === null ? Math.max(1, steps - 1) : number('fluid-from', opt('fluid-from'));

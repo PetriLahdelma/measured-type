@@ -16,6 +16,14 @@ each change has a spec in [`specs/`](specs/).
   the ratio, and takes the ground from what is painted under the text, layers
   that are not its ancestors and covering `::before` and `::after` layers
   included, in one probe per pass so long pages stay as fast as before.
+- What the 5 November code review left open (spec 0030): plain CSS is read
+  string-aware, so `content: "/*"` no longer hides the rules after it; `vmin`
+  and `vmax` are evaluated as the viewport's sides; straight quotes written as
+  character references and Tailwind values with a colon in their brackets are
+  read; a looping symbolic link is skipped instead of ending the run; report rows
+  stay on one line; `@font-face` rules behind `@import` are read; `type-scale.js`
+  refuses ratios at or below 1. Fluid sizes the linter cannot evaluate, and text
+  in shadow roots and iframes, are now listed under Not verified.
 
 ### Evidence
 

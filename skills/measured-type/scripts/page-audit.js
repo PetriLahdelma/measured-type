@@ -683,6 +683,11 @@ function fontFaceRules() {
         const src = r.style.getPropertyValue('src');
         const display = r.style.getPropertyValue('font-display').trim();
         if (/url\(/i.test(src)) faces.push({ family: r.style.getPropertyValue('font-family').replace(/^["']|["']$/g, ''), display, where });
+      } else if (r instanceof CSSImportRule) {
+        // Spec 0030 X8: a stylesheet brought in by @import is not in document.styleSheets of its own.
+        const sheet = r.styleSheet;
+        const name = (r.href || '').split(/[?#]/)[0].split('/').pop() || where;
+        try { if (sheet) walk(sheet.cssRules, name); } catch { unread.push(sheet && sheet.href ? sheet.href : r.href); }
       } else if (r.cssRules) walk(r.cssRules, where);
     }
   };
@@ -1255,6 +1260,13 @@ async function audit(target, opts = {}) {
     for (const c of product.capsText) add('MT-CAPS-TEXT', 'MEDIUM', c.path, `${c.letters} letters of running text in capitals`, 'lower case: capitals are for labels of a few words, not sentences');
     for (const s of product.small) add('MT-UI-SIZE', 'LOW', s.path, `${s.size}px interface text (house floor 12px)`, 'font-size: 0.75rem or more');
     await language(page, add, notVerified);
+    // Spec 0030 X9: text in shadow roots and frames is outside every check; say so rather than pass it.
+    const unseen = await page.evaluate(() => ({
+      shadows: [...document.querySelectorAll('*')].filter((el) => el.shadowRoot && el.shadowRoot.textContent.trim()).length,
+      frames: document.querySelectorAll('iframe, frame').length,
+    }));
+    if (unseen.shadows) notVerified.add(`text in ${unseen.shadows} shadow root${unseen.shadows === 1 ? '' : 's'} (open shadow DOM is not audited)`);
+    if (unseen.frames) notVerified.add(`text in ${unseen.frames} iframe${unseen.frames === 1 ? '' : 's'} (audit the framed page on its own)`);
     const breaks = new Map();
     const noteBreaks = (width, list) => {
       for (const b of list) {
