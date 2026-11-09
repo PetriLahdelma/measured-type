@@ -4,7 +4,11 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
-## Unreleased
+## 1.8.0 (9 November 2026)
+
+The rest of the 9 November gap review: face metrics for pairing; symbol
+stand-ins in the punctuation check; body text checked under zoom; and
+reference notes on line-length research, body steps, pairing and tables.
 
 ### Added
 

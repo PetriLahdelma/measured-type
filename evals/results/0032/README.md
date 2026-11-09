@@ -15,4 +15,4 @@ The reading-text finding was re-measured independently: the page sets its
 root size by window width (24px at 1280px, 15.36px at 640px), so its body
 text grows 1.28× at 200% zoom; it reaches 2× at 500%, so it is not a WCAG
 1.4.4 failure, only under the house bar. `font-features.py --metrics` reads
-files, not pages, and was not run on the corpus.
+font files rather than pages; it was not run on the corpus.

@@ -1,7 +1,7 @@
 {
   "name": "measured-type",
   "displayName": "Measured Type",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Web typography skill: Bringhurst's rules applied to current CSS, with scripts that measure line length, zoom growth, contrast and font coverage in a real browser or the font file.",
   "author": { "name": "Petri Lahdelma", "url": "https://github.com/PetriLahdelma" },
   "homepage": "https://github.com/PetriLahdelma/measured-type",
