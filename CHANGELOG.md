@@ -4,6 +4,19 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
+## 1.8.1 (9 November 2026)
+
+Documentation brought up to 1.8.0.
+
+### Changed
+
+- `SKILL.md` names `font-features.py --metrics` for pairing faces, and the
+  plugin README lists the new measurements. The repository README, `docs/`,
+  the eval guide and the contributor docs now describe the checks from specs
+  0031 and 0032; the `measure-line.js` sample in the README is regenerated
+  from a real run and shows the leading line; the contributor docs give the
+  right number of fontTools-backed tests (eleven).
+
 ## 1.8.0 (9 November 2026)
 
 The rest of the 9 November gap review: face metrics for pairing; symbol
