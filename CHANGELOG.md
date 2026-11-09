@@ -4,7 +4,11 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
-## Unreleased
+## 1.7.0 (9 November 2026)
+
+Three checks from a review of six web-typography sources: leading against
+the measured line length; links told apart by colour alone; an x-height
+floor beside the pixel one.
 
 ### Added
 
