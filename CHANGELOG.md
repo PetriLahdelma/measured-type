@@ -4,6 +4,20 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
+## Unreleased
+
+### Added
+
+- The rest of the 9 November gap review (spec 0032): `font-features.py
+  --metrics` prints each face's x-height, cap height, extenders and average
+  width per em with the matching `font-size-adjust`, and compares further
+  faces to the first for pairing; `MT-PUNCT` catches `(c)`, `(TM)` and `(R)`
+  for ©, ™ and ®, and a breaking space after ¶ or §; `MT-ZOOM-GROWTH` also
+  reports reading text that a media-query step leaves under 1.6× at 200%
+  zoom. The references gain what reading research says about line length
+  (Dyson's review), body steps for viewing distance, Tim Brown's pairing
+  method and rules for table chrome.
+
 ## 1.7.0 (9 November 2026)
 
 Three checks from a review of six web-typography sources: leading against

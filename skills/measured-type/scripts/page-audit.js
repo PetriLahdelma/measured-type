@@ -1532,9 +1532,12 @@ async function audit(target, opts = {}) {
     // position: a page that adds or drops elements by width shifts every index.
     const textSizes = async (width) => {
       const p = await open(width, null, { height: Math.round((900 * width) / 1280) });
-      const s = await p.evaluate(() => [...document.body.querySelectorAll('*')]
-        .filter((el) => window.__mt.directText(el) && !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(el.tagName))
-        .map((el) => ({ path: window.__mt.path(el), heading: /^H[1-6]$/.test(el.tagName), size: parseFloat(getComputedStyle(el).fontSize) })));
+      const s = await p.evaluate(() => {
+        const reading = new Set(window.__mt.reading());
+        return [...document.body.querySelectorAll('*')]
+          .filter((el) => window.__mt.directText(el) && !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(el.tagName))
+          .map((el) => ({ path: window.__mt.path(el), heading: /^H[1-6]$/.test(el.tagName), reading: reading.has(el), size: parseFloat(getComputedStyle(el).fontSize) }));
+      });
       await p.close();
       return s;
     };
@@ -1558,9 +1561,10 @@ async function audit(target, opts = {}) {
       if (Math.max(g200, g500) < 1.99) {
         zoomSeen.add(t.path);
         add('MT-ZOOM-VW', 'HIGH', t.path, `${t.size}px grows ${g200.toFixed(2)}× at 200% and ${g500.toFixed(2)}× at 500% zoom`, 'clamp(min-rem, rem + vi, max-rem) with a range near 1.4×');
-      } else if (t.heading && g200 < 1.6) {
+      } else if ((t.heading || t.reading) && g200 < 1.6) {
+        // Spec 0032 N5: reading text stepped up by a media query drops back a step under zoom.
         zoomSeen.add(t.path);
-        add('MT-ZOOM-GROWTH', 'LOW', t.path, `${g200.toFixed(2)}× at 200% zoom on a 1280px window (house bar 1.6×)`, 'narrow the fluid range');
+        add('MT-ZOOM-GROWTH', 'LOW', t.path, `${g200.toFixed(2)}× at 200% zoom on a 1280px window (house bar 1.6×)`, t.heading ? 'narrow the fluid range' : 'smaller steps for reading text (16 to 18px grows 1.78×), or one size; references/rules.md 3.1.1');
       }
     });
     if (unmatched) notVerified.add(`zoom growth of ${unmatched} text element${unmatched === 1 ? '' : 's'} the page shows only at some widths`);

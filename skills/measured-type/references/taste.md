@@ -66,6 +66,18 @@ expensive as a whole.
   for interface, or a mono for code and data. Pair by contrast (serif with
   sans, different construction) or by shared structure (similar x-height and
   proportions). Two similar sans serifs on one page look like an accident.
+- **Judge a pairing at four distances** (preference, after Tim Brown's
+  *Combining Typefaces*). Make the text face the anchor: it sets most of the
+  words and survives the most settings. Check each companion's technical
+  fit first (weights, italics, figures, the languages you set), then set
+  real content and look at it from far to near: texture (squint: each
+  element's grey should differ as much as its role does), rhythm (the
+  regularity of black and white in a word), proportion (x-height, extenders,
+  width, apertures and stroke contrast; `font-features.py text.woff2
+  heading.woff2 --metrics` gives the first three against the anchor) and
+  shape (geometric, written or angular construction). Compatible is not the
+  same as similar: a circle and a square share more with each other than
+  with a brush stroke.
 - **Choose text faces for reading,** at the sizes they will be read: open
   counters, moderate contrast, a large enough x-height, real italics, text
   figures and small caps. Choose display faces for their size; many look poor

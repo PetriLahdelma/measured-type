@@ -107,7 +107,7 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-SIZE-FLOOR | MEDIUM | Reading text below 16px; rendered, also Latin reading text of 16px or more with an x-height under 7px (house threshold) | taste (convention) |
 | MT-SMALLCAPS-SYNTH | MEDIUM | Small caps requested with synthesis allowed: fake small caps if the font lacks `smcp` | §2.1.9, §3.2.2 |
 | MT-ZOOM-RANGE | LOW | Fluid range over 1.4× (MEDIUM over 2.5×, the zoom heuristic) | §3.1.1 |
-| MT-ZOOM-GROWTH | LOW | Heading grows under 1.6× at 200% zoom on a 1280px window (house bar, not WCAG) | §3.1.1 (house) |
+| MT-ZOOM-GROWTH | LOW | Heading or reading text grows under 1.6× at 200% zoom on a 1280px window, as a body size stepped up by a media query does (house bar, not WCAG) | §3.1.1 (house) |
 | MT-MEASURE-CH | LOW | Measure set in `ch` or a rule-of-thumb `em`: verify with `measure-line.js` | §2.1.2 |
 | MT-MEASURE-SHORT | LOW | Reading text under 40 characters per line on a viewport 768px or wider | §2.1.2 |
 | MT-FFS | LOW | `font-feature-settings` for figures or caps where `font-variant-*` exists | `css-modern.md` |
@@ -120,7 +120,7 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-MINUS | LOW | Hyphen-minus before a number in text (`-12%`), in the source and in the rendered text | §2.4.6 |
 | MT-RANGE | LOW | Hyphen in a number range (`1990-2004`), in the source and in the rendered text | punctuation |
 | MT-QUOTES | LOW | Straight quotes and apostrophes in text, in the source and in the rendered text; rendered, also a mark that does not open quotes in the text's language (`“` in Finnish, Swedish or German, `„` in English; en, fi, sv, de and fr are judged) | punctuation, `logical-and-language.md` |
-| MT-PUNCT | LOW | Two hyphens for a dash, three full stops for an ellipsis, `x` between numbers for `×`, straight quotes for primes (`5'11"`); a flag such as `--verbose`, a hex `0x1F` and a Swiss `1'000` are exempt | punctuation, `taste.md` |
+| MT-PUNCT | LOW | Two hyphens for a dash, three full stops for an ellipsis, `x` between numbers for `×`, straight quotes for primes (`5'11"`), `(c)` before a year or name, `(TM)` and `(R)` after a word, a breaking space after ¶ or § before a number; a flag such as `--verbose`, a hex `0x1F` and a Swiss `1'000` are exempt | punctuation, `taste.md` |
 | MT-LANG | MEDIUM | `<html>` without `lang`; a `lang` that is not a language tag (`en_US`); rendered, text mostly in another script than its `lang` declares (20 letters or more, over 60%). Languages written in two scripts are exempt; Latin text under the wrong Latin-script language is listed as not verified | `logical-and-language.md` |
 | MT-NUM-BREAK | MEDIUM | A price, a number and its unit or a price and its period broken across lines at 1280, 768, 375 or 320px (`29 €`, `250 GB`, `€29 / month`) | §2.4.6, §2.1.4 |
 | MT-BOLD-SYNTH | MEDIUM | Bold drawn by thickening a lighter face: a sample drawn with and without `font-synthesis-weight: none` differs in ink | §2.1.9 |

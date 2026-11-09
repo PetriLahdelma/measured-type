@@ -369,6 +369,13 @@ const TEXT_CHECKS = [
   ['MT-PUNCT', /(?<!\.)\.\.\.(?!\.)/g, 'three full stops for an ellipsis', 'ellipsis … (U+2026)'],
   // x between two numbers; 0x1F is a hex number, not a product.
   ['MT-PUNCT', /(?<![\w.,])\d+(?:[.,]\d+)?\s?[xX]\s?\d+(?:[.,]\d+)?(?![\w.])/g, 'x for a multiplication sign', 'multiplication sign × (U+00D7)'],
+  // Spec 0032 N1: typewriter stand-ins for the symbols. (c) only before a year or a name, so a list
+  // label, "(c) the third item", is not one.
+  ['MT-PUNCT', /\([cC]\)(?=\s?(?:\d{4}|\p{Lu}))/gu, '(c) for the copyright sign', 'copyright sign © (U+00A9), with a no-break space before the year'],
+  ['MT-PUNCT', /(?<=\p{L})\s?\((?:tm|TM)\)/gu, '(TM) for the trade mark sign', 'trade mark sign ™ (U+2122), closed up'],
+  ['MT-PUNCT', /(?<=\p{L})\((?:r|R)\)/gu, '(R) for the registered sign', 'registered sign ® (U+00AE), closed up'],
+  // Spec 0032 N2: a section or paragraph mark and its number stay on one line.
+  ['MT-PUNCT', /[¶§]{1,2} (?=\d)/g, 'a breaking space after ¶ or §', 'a no-break space (U+00A0, &nbsp;) after ¶ and §'],
 ];
 
 function textFindings(source) {

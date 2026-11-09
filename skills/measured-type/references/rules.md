@@ -92,6 +92,17 @@ holds, but the box stops fitting narrow windows and forces sideways scrolling
 font size gets fewer characters per line in the same box. WCAG 1.4.8 (AAA)
 caps lines at 80 characters, just above Bringhurst's 45–75.
 
+**What the research says.** The range rests on comfort and convention, not
+on reading speed. Mary Dyson's review of the screen studies (*Line length
+revisited*, Design Regression, 2021) finds that longer lines, the longest
+tested running from 70 to 132 characters, tended to be read as fast or
+faster and never slower, while readers consistently rated long lines the
+least comfortable and preferred moderate ones; some readers, such as people
+with dyslexia, may do better with shorter lines. The usual caution goes back
+to print studies by Tinker and Paterson whose method the review questions.
+The skill keeps 45–75 as a convention for comfort and familiarity, measured
+on the rendered page, and makes no claim about speed.
+
 ### 2.1.3 Set ragged if ragged setting suits the text and page
 
 **Principle.** Justification trades even word spacing against frequent
@@ -554,6 +565,15 @@ own devising.
 - Fluid sizes: `clamp(1.75rem, 1.5rem + 1vi, 2.375rem)` (a 1.36× range); the `rem` term keeps
   zoom working. Fluid sizing belongs to display roles; body, small, caption
   and label sizes stay fixed `rem`, so they double exactly at 200% zoom.
+- **Body text for viewing distance** (convention). Rutter and Schöndorfer
+  step body text up on wide screens, read from further away: 16px on phones,
+  18px from about 60em, 20 to 22px on large monitors. A step is a media query
+  on the window width, and zoom narrows the window in CSS pixels, so it can
+  drop a step: at 200% on a 1280px window, 16 stepped to 18px grows 1.78×
+  (measured), and 16 stepped to 24px grows 1.33×. Keep each step small
+  enough to stay over the 1.6× bar (`MT-ZOOM-GROWTH` reports reading text
+  under it), set the steps in `rem` inside `em` media queries, and never step
+  below 16px.
 - **Zoom math.** Zoom doubles `rem` but halves the CSS viewport, so the `vi`
   term does not grow: on a wide window a fluid size reaches well under 2× at
   200% zoom (a hero spanning 2× between its min and max can land near 1.3×).

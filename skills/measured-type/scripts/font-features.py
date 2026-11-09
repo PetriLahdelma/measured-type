@@ -16,6 +16,11 @@ Usage:
   python3 scripts/font-features.py font.ttf --check smcp=abcdefghijklmnopqrstuvwxyzäöå
   python3 scripts/font-features.py font.ttf --json
   python3 scripts/font-features.py /System/Library/Fonts/Menlo.ttc --font-number 1
+  python3 scripts/font-features.py text.woff2 heading.woff2 --metrics
+
+`--metrics` adds each face's proportions per em (x-height, cap height,
+ascender, descender, average a-z width) and the matching font-size-adjust;
+with several files it compares each to the first, the anchor (spec 0032).
 
 A collection (.ttc, .otc) is read at face 0 unless --font-number picks another;
 the report names the face it used.
@@ -272,6 +277,52 @@ def analyse(path, number=0):
     return result, cmap, font
 
 
+def face_metrics(font, cmap):
+    """Proportions per em from the outlines (spec 0032 N3): x-height, cap height, ascender, descender
+    from the bounds of x, H, d and p, and the average advance of a to z."""
+    from fontTools.pens.boundsPen import BoundsPen
+
+    upm = font["head"].unitsPerEm
+    glyphs = font.getGlyphSet()
+
+    def bounds(ch):
+        name = cmap.get(ord(ch))
+        if not name or name not in glyphs:
+            return None
+        pen = BoundsPen(glyphs)
+        glyphs[name].draw(pen)
+        return pen.bounds
+
+    def edge(ch, i):
+        b = bounds(ch)
+        return round(b[i] / upm, 3) if b else None
+
+    widths = [glyphs[cmap[ord(c)]].width for c in "abcdefghijklmnopqrstuvwxyz" if ord(c) in cmap]
+    m = {
+        "x_height": edge("x", 3),
+        "cap_height": edge("H", 3),
+        "ascender": edge("d", 3),
+        "descender": edge("p", 1),
+        "avg_lowercase_width": round(sum(widths) / len(widths) / upm, 3) if widths else None,
+    }
+    m["x_to_cap"] = round(m["x_height"] / m["cap_height"], 3) if m["x_height"] and m["cap_height"] else None
+    return m
+
+
+PAIR_LABELS = {"matched": "matched", "contrasted": "contrasted", "neither": "neither matched nor contrasted"}
+
+
+def pairing(anchor, other):
+    """Each proportion against the anchor face, and the x-height relation in MT-PAIR-XHEIGHT's bands."""
+    diff = {}
+    for key in ("x_height", "cap_height", "ascender", "descender", "avg_lowercase_width"):
+        a, b = anchor["metrics"].get(key), other["metrics"].get(key)
+        diff[key] = round((b / a - 1) * 100) if a and b else None
+    x = abs(diff["x_height"]) if diff["x_height"] is not None else None
+    relation = None if x is None else "matched" if x <= 5 else "contrasted" if x >= 15 else "neither"
+    return {"anchor": anchor["name"], "x_height": relation, "percent": diff}
+
+
 def check(result, font, cmap, spec):
     """--check TAG=CHARS: report which of these characters the feature covers."""
     tag, sep, wanted = spec.partition("=")
@@ -359,12 +410,23 @@ def print_report(result, checks):
     print()
 
 
+def print_metrics(result):
+    m = result["metrics"]
+    fmt = lambda v: "n/a" if v is None else f"{v:.3f}"
+    print(f"  metrics per em: x-height {fmt(m['x_height'])}, cap height {fmt(m['cap_height'])}, ascender {fmt(m['ascender'])}, "
+          f"descender {fmt(m['descender'])}, average a-z width {fmt(m['avg_lowercase_width'])}")
+    if m["x_height"]:
+        print(f"  x-height / cap height {fmt(m['x_to_cap'])}; to match this x-height in another face: font-size-adjust: ex-height {m['x_height']:.3f}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("fonts", nargs="+", help=".ttf, .otf, .woff or .woff2 files")
     ap.add_argument("--check", action="append", default=[], metavar="TAG=CHARS",
                     help="report which of CHARS the feature TAG covers, e.g. smcp=abcxyz")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
+    ap.add_argument("--metrics", action="store_true",
+                    help="proportions per em, compared to the first file when there are several")
     ap.add_argument("--font-number", type=int, default=0, metavar="N",
                     help="face to read in a .ttc or .otc collection (default 0)")
     args = ap.parse_args()
@@ -376,13 +438,29 @@ def main():
         except Exception as err:  # unreadable or not a font
             sys.exit(f"{path}: {err}")
         checks = [check(result, font, cmap, spec) for spec in args.check]
+        if args.metrics:
+            result["metrics"] = face_metrics(font, cmap)
+            if out:
+                result["pairing"] = pairing(out[0], result)
+        out.append(result)
         if args.json:
             result["checks"] = checks
-            out.append(result)
         else:
             print_report(result, checks)
+            if args.metrics:
+                print_metrics(result)
     if args.json:
         print(json.dumps(out, ensure_ascii=False, indent=2))
+    elif args.metrics and len(out) > 1:
+        print(f"\nCompared to the anchor, {out[0]['name']} (the text face goes first):")
+        for r in out[1:]:
+            p = r["pairing"]
+            sign = lambda n: "n/a" if n is None else f"{'+' if n >= 0 else '−'}{abs(n)}%"
+            pct = p["percent"]
+            relation = PAIR_LABELS.get(p["x_height"], "not measured")
+            print(f"  {r['name']}: x-height {relation} ({sign(pct['x_height'])}), cap height {sign(pct['cap_height'])}, "
+                  f"ascender {sign(pct['ascender'])}, descender {sign(pct['descender'])}, average a-z width {sign(pct['avg_lowercase_width'])}")
+        print("  x-height bands as MT-PAIR-XHEIGHT: within 5% matched, 15% or more contrasted; between them reads as a mistake.")
 
 
 if __name__ == "__main__":

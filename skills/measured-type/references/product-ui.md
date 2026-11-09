@@ -39,6 +39,15 @@ to 1.4 suits one-line cells; spacing comes from the spacing scale, not from
 the body line. A cell that holds sentences (a description column) still wants
 a measure: cap it near 40 to 60 characters and let it wrap.
 
+**Few rules, no fills** (convention, Rutter after Tschichold; Imperavi).
+Size columns to their data instead of stretching the table to the full
+width; drop vertical rules, cell fills and bold, and keep at most thin, light
+horizontal rules; group rows with space. Zebra stripes help only in very wide
+or very tall tables, where the eye can lose its row. Align each heading with
+its data, keep one precision per column and avoid repeating a value that a
+group heading can state once. On a phone a row can become a two-column list
+of label and value when scrolling sideways would hide what matters.
+
 **Wide tables scroll inside their own box** (WCAG 1.4.10; standard). A table
 may need two dimensions; the page may not. Wrap it in
 `overflow-x: auto` with a visible scrollbar and a label, so the page reflows
