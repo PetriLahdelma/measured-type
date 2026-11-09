@@ -33,7 +33,7 @@
 
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
-const { measureLines } = require('./measure-line.js');
+const { measureLines, leadingFloor } = require('./measure-line.js');
 const { toMarkdown, lint, verdictOf, textFindings, isLanguageTag, languageTagFix } = require('./lint-css.js');
 const { apcaLc } = require('./apca.js');
 const { nearestPassing } = require('./contrast-fix.js');
@@ -95,6 +95,12 @@ function pageHelpers() {
     },
     directText(el) {
       return [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 0);
+    },
+    // Spec 0031: navigation, menus, dialogs and consent banners are interface, not running text.
+    chrome(el) {
+      return !!el.closest('nav, [role=navigation], [role=menu], [role=menubar], [role=dialog], dialog, [aria-modal=true]')
+        || [...ancestors(el)].some((a) => /cookie|consent|gdpr/i.test(`${a.id} ${typeof a.className === 'string' ? a.className : ''}`));
+      function* ancestors(n) { for (let p = n; p && p !== document.body; p = p.parentElement) yield p; }
     },
     reading() {
       return [...document.querySelectorAll('p, li, dd, figcaption, blockquote')]
@@ -307,7 +313,7 @@ function bookChecks() {
   const reading = mt.reading();
   const seen = new Set();
   const once = (key) => (seen.has(key) ? false : (seen.add(key), true));
-  const out = { code: [], boxes: [], kern: [], confusable: [], order: [], pair: [], space: [], thin: [], hairline: [], icons: [] };
+  const out = { code: [], boxes: [], kern: [], confusable: [], order: [], pair: [], space: [], thin: [], hairline: [], icons: [], links: [], colourLinks: 0, xfloor: [] };
 
   for (const block of reading) {
     const bcs = getComputedStyle(block);
@@ -338,6 +344,51 @@ function bookChecks() {
       if (v > 0.5 && h > 0) worst = Math.max(worst, v);
     }
     if (worst && once(`box|${mt.path(block)}`)) out.boxes.push({ path: mt.path(block), overlap: worst });
+    // Spec 0031 Y4, Y5: a link in running text that only its colour tells apart (WCAG 1.4.1, F73, G183).
+    for (const a of block.querySelectorAll('a[href]')) {
+      const text = a.textContent.trim();
+      if (!text || text === block.textContent.trim() || !mt.visible(a) || mt.chrome(a)) continue; // the whole block is a link, or interface
+      // Running text: the nearest ancestor that holds 20 or more letters outside links (a list of links has none).
+      let running = false;
+      for (let p = a.parentElement; p && !running; p = p === block ? null : p.parentElement) {
+        let own = p.textContent;
+        for (const other of p.querySelectorAll('a')) own = own.replace(other.textContent, '');
+        running = (own.match(/\p{L}/gu) || []).length >= 20;
+      }
+      if (!running) continue;
+      const around = getComputedStyle(a.parentElement);
+      const visibleLine = (cs) => /underline|overline/.test(cs.textDecorationLine) && !/rgba\(\d+,\s*\d+,\s*\d+,\s*0\)|transparent/.test(cs.textDecorationColor);
+      const cue = [a, ...a.querySelectorAll('*')].some((el) => {
+        const cs = getComputedStyle(el);
+        return visibleLine(cs)
+          || (parseFloat(cs.borderBottomWidth) > 0 && cs.borderBottomStyle !== 'none')
+          || cs.backgroundImage !== 'none'
+          || !/rgba\(\d+,\s*\d+,\s*\d+,\s*0\)|transparent/.test(cs.backgroundColor)
+          || Math.abs(parseInt(cs.fontWeight, 10) - parseInt(around.fontWeight, 10)) >= 300
+          || cs.fontStyle !== around.fontStyle
+          || cs.fontFamily !== around.fontFamily
+          || /super|sub/.test(cs.verticalAlign)
+          || (cs.boxShadow !== 'none')
+          || ['::before', '::after'].some((pe) => !/^(none|normal)$/.test(getComputedStyle(el, pe).content));
+      });
+      if (cue) continue;
+      const l1 = lum(getComputedStyle(a).color);
+      const l2 = lum(around.color);
+      const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+      if (ratio < 3) {
+        // One finding per style: a page styles its links once, and a long page has thousands.
+        const key = `${getComputedStyle(a).color}|${around.color}`;
+        const known = out.links.find((l) => l.key === key);
+        if (known) known.count++;
+        else out.links.push({ key, path: mt.path(a), ratio, color: getComputedStyle(a).color, text: around.color, count: 1 });
+      } else out.colourLinks++;
+    }
+    // Spec 0031 Y6: 16px and over, but an x-height under 7px reads smaller than its size says.
+    const blockSize = parseFloat(bcs.fontSize);
+    if (blockSize >= 16 - 0.01 && mt.latin(block)) {
+      const xh = xHeight(bcs);
+      if (xh < 7 - 0.005 && once(`xfloor|${mt.path(block)}`)) out.xfloor.push({ path: mt.path(block), size: blockSize, xh, ratio: xh / blockSize });
+    }
     // G9 weight floor
     const wght = /["']wght["']\s+([\d.]+)/.exec(bcs.fontVariationSettings || '');
     const weight = wght ? Number(wght[1]) : parseInt(bcs.fontWeight, 10);
@@ -1051,7 +1102,7 @@ async function audit(target, opts = {}) {
         const cs = getComputedStyle(el);
         const m = measureLines(`[data-mt-r="${i}"]`);
         return {
-          i, path: mt.path(el), avg: m.avgCharsPerLine, min: m.minCharsPerLine, max: m.maxCharsPerLine, lines: m.fullLines,
+          i, path: mt.path(el), avg: m.avgCharsPerLine, min: m.minCharsPerLine, max: m.maxCharsPerLine, lines: m.fullLines, leading: m.leading, chrome: mt.chrome(el),
           size: parseFloat(cs.fontSize), align: cs.textAlign, hyphens: cs.hyphens, family: cs.fontFamily, cjk: mt.cjk(el),
           lang: (el.closest('[lang]')?.getAttribute('lang') || '').trim(),
         };
@@ -1087,6 +1138,11 @@ async function audit(target, opts = {}) {
       return { reading, colors, sizes, runts, fontTargets };
     });
 
+    // Spec 0031 Y3: the body size is the size that sets the most measured lines; a lead paragraph
+    // set 15% or more above it is display-like and sets tighter, so the leading floor skips it.
+    const linesAtSize = new Map();
+    for (const r of desk.reading) if (r.lines > 0) linesAtSize.set(r.size, (linesAtSize.get(r.size) || 0) + r.lines);
+    const bodySize = [...linesAtSize].sort((a, b) => b[1] - a[1])[0]?.[0];
     const groups = new Map();
     for (const r of desk.reading) {
       if (!groups.has(r.path)) groups.set(r.path, []);
@@ -1100,6 +1156,18 @@ async function audit(target, opts = {}) {
         const hi = Math.max(...measured.map((r) => r.max));
         const cjk = rs[0].cjk;
         if (avg > (cjk ? 40 : 75)) add('MT-MEASURE-LONG', 'MEDIUM', `${p} at 1280px`, `${avg.toFixed(1)} characters per line (range ${lo}-${hi})${cjk ? ', CJK (WCAG 1.4.8 caps it at 40)' : ''}`, cjk ? 'max-inline-size: 35ic' : 'max-inline-size in em: measure-line.js --solve 66 finds it in the browser (estimate-measure.js --target 66 without one)');
+        // Spec 0031 Y3: leading under the house floor for the measured line length. CJK text is set
+        // to other conventions; the source lint keeps its flat 1.3 floor, as it cannot see the length.
+        const floor = leadingFloor(avg);
+        const leading = rs[0].leading;
+        const lead = bodySize && rs[0].size >= bodySize * 1.15 - 0.01;
+        // Running text only: three or more full lines, outside navigation and banners.
+        // Running text: a block of three lines or more, at least 30 characters wide (narrower is a card or a sidebar).
+        const running = !rs[0].chrome && avg >= 30 && measured.some((r) => r.lines >= 2);
+        if (!cjk && !lead && running && leading != null && leading < floor - 0.005) {
+          const fix = Math.ceil((floor + 0.1) * 20 - 1e-9) / 20;
+          add('MT-LH-TIGHT', 'MEDIUM', `${p} at 1280px`, `line-height ${leading} at ${avg.toFixed(1)} characters per line (house floor ${floor.toFixed(2)} for this length)`, `line-height: ${fix} (unitless), or a shorter measure`);
+        }
       }
       const r0 = rs[0];
       if (r0.size < 16 - 0.01) add('MT-SIZE-FLOOR', 'MEDIUM', `${p}`, `${r0.size}px reading text`, `font-size: 1rem or more`);
@@ -1217,6 +1285,9 @@ async function audit(target, opts = {}) {
       const em = c.size / c.parentSize / c.ratio;
       add('MT-CODE-XHEIGHT', 'LOW', c.path, `x-height ${c.xh.toFixed(1)}px against ${c.parentXh.toFixed(1)}px in the text, ratio ${c.ratio.toFixed(2)}`, `font-size: ${em.toFixed(2)}em (or font-size-adjust: ex-height ${(c.parentXh / c.parentSize).toFixed(3)})`);
     }
+    for (const l of book.links) add('MT-LINK-COLOUR', 'HIGH', l.path, `link ${l.color} is ${l.ratio.toFixed(2)}:1 against the text ${l.text}, with no underline or other cue${l.count > 1 ? ` (${l.count} links styled alike)` : ''}`, 'text-decoration: underline (with text-underline-offset), or a colour 3:1 from the text plus an underline on hover and focus (WCAG 1.4.1, G183)');
+    if (book.colourLinks) notVerified.add(`hover and focus cue for ${book.colourLinks} link(s) told apart by colour alone (WCAG G183 asks for one; the audit does not hover)`);
+    for (const x of book.xfloor) add('MT-SIZE-FLOOR', 'MEDIUM', x.path, `${x.size}px reading text, x-height ${x.xh.toFixed(1)}px (ratio ${x.ratio.toFixed(2)}; house floor 7px)`, `font-size: ${+(8 / x.ratio / 16).toFixed(3)}rem (an 8px x-height), or font-size-adjust: ex-height 0.5`);
     for (const c of book.boxes) add('MT-CODE-BOX', 'LOW', c.path, `inline code boxes overlap by ${c.overlap.toFixed(1)}px across lines`, 'raise the line-height, or trim the vertical padding of inline code');
     for (const k of book.kern) add('MT-KERN-OFF', 'LOW', k.path, `kerning pairs set ${k.diff.toFixed(1)}% wider than with kerning on`, 'font-kerning: normal and no "kern" 0 in font-feature-settings');
     for (const c of book.confusable) add('MT-CONFUSABLE', 'LOW', c.path, `I and l overlap ${c.il.toFixed(2)} (l and 1: ${c.l1.toFixed(2)}) in ${c.family}`, 'a reading face that distinguishes I, l and 1 (a serif, or a humanist sans with a tailed l)');

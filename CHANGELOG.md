@@ -4,6 +4,21 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
+## Unreleased
+
+### Added
+
+- Three checks from a review of six web-typography sources (spec 0031):
+  leading is now checked against the measured line length, with a house floor
+  of 1.3 up to 45 characters and 1.4 from 60, which `measure-line.js` prints
+  beside its count and `page-audit.js` reports as `MT-LH-TIGHT`; a link in
+  running text told apart only by a colour under 3:1 against the text is
+  `MT-LINK-COLOUR` (WCAG 1.4.1); and `MT-SIZE-FLOOR` also reports 16px text
+  whose x-height is under 7px, with the size that gives 8px. On the 100-page
+  corpus, links told apart by colour alone fail on 14 pages and leading is
+  under the floor on 6, each confirmed 5 of 5 by an independent re-measure
+  (`evals/results/0031/`).
+
 ## 1.6.0 (9 November 2026)
 
 A measurement of 100 public pages with the tools; the five tool faults it

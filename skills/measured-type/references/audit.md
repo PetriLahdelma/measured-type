@@ -95,15 +95,16 @@ Static rules come from `scripts/lint-css.js`; rendered rules from
 | MT-VIEWPORT-ZOOM | HIGH | `user-scalable=no` or `maximum-scale` below 2 in the viewport meta | WCAG 1.4.4 |
 | MT-ROOT-PX | MEDIUM | `font-size` in `px` on `html` or `:root`: overrides the reader's default (a percentage under 100% is LOW). A convention: zoom still works and no WCAG criterion requires the default size | §3.1.1 |
 | MT-CONTRAST | HIGH | Text contrast under 4.5:1 (3:1 for 24px, or 18.66px bold), translucent grounds laid over what is beneath them; the ground is what is painted under the text at its position, a layer that is not its ancestor included, and the canvas for the page's colour scheme where nothing is | WCAG 1.4.3 |
+| MT-LINK-COLOUR | HIGH | A link in running text told apart by colour alone (no visible underline, border, background, weight, style, family or raised position) and under 3:1 against the text around it; at 3:1 or more, its hover and focus cue is listed under Not verified | WCAG 1.4.1 (F73, G183) |
 | MT-TEXT-SPACING | HIGH | Text the 1.4.12 spacing override pushes out of its box, measured per axis, or spilling text that meets the next block's text (an axis that scrolls loses nothing; boxes that already clip, such as screen-reader text or a closed panel, are hidden by design) | WCAG 1.4.12 |
 | MT-MEASURE-LONG | MEDIUM | Reading text averages over 75 characters per full line | §2.1.2 (measured) |
 | MT-LH-LENGTH | MEDIUM | `line-height` as a length on an element that has children | §2.2.1 |
-| MT-LH-TIGHT | MEDIUM | Unitless `line-height` under 1.3 on body text | §2.2.1 |
+| MT-LH-TIGHT | MEDIUM | Unitless `line-height` under 1.3 on body text in the source; rendered, leading under the house floor for the measured line length (1.3 up to 45 characters, 1.4 from 60, `normal` included; CJK skipped) | §2.2.1 (house band) |
 | MT-JUSTIFY | MEDIUM | `text-align: justify` without `hyphens: auto`, or rendered with `hyphens: auto` but no `lang` (no dictionary, nothing hyphenates). Justified CJK is exempt | §2.1.3, §2.4.1 |
 | MT-WIDTH-PX | MEDIUM | Fixed `width` in `px` on a text container | WCAG 1.4.10, §2.1.2 |
 | MT-FONT-PX | MEDIUM | Body or paragraph `font-size` in `px` | §3.1.1 |
 | MT-FONT-FALLBACK | MEDIUM | Rendered face is not the first family declared: the web font failed or lacks glyphs. A web font that loaded under another name, and text in another script drawn by a later family of the stack, are exempt | measured |
-| MT-SIZE-FLOOR | MEDIUM | Reading text below 16px | taste (convention) |
+| MT-SIZE-FLOOR | MEDIUM | Reading text below 16px; rendered, also Latin reading text of 16px or more with an x-height under 7px (house threshold) | taste (convention) |
 | MT-SMALLCAPS-SYNTH | MEDIUM | Small caps requested with synthesis allowed: fake small caps if the font lacks `smcp` | §2.1.9, §3.2.2 |
 | MT-ZOOM-RANGE | LOW | Fluid range over 1.4× (MEDIUM over 2.5×, the zoom heuristic) | §3.1.1 |
 | MT-ZOOM-GROWTH | LOW | Heading grows under 1.6× at 200% zoom on a 1280px window (house bar, not WCAG) | §3.1.1 (house) |

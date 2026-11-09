@@ -230,6 +230,20 @@ measure (wider lines want more).
   set to a whole number of body lines (2.2.2), which has no larger children.
 - Body text: roughly 1.4–1.6 on screen. Display: 1.05–1.2. Captions and small
   UI: 1.3–1.45.
+- Leading follows the measure (house band, from Bringhurst's 1.4–1.6 at book
+  measures, Schöndorfer's about 1.3 at 30 characters and 1.5 at 60 to 80, and
+  Imperavi's less on shorter lines). The floor is what `page-audit.js`
+  reports as `MT-LH-TIGHT` and what `measure-line.js` prints beside the count:
+
+  | Characters per line | Floor | Usual |
+  |---|---|---|
+  | 45 or fewer (phones, sidebars) | 1.3 | 1.3–1.45 |
+  | 45 to 60 | 1.3 rising to 1.4 | 1.4–1.5 |
+  | 60 or more | 1.4 | 1.45–1.6 |
+
+  The browser's `normal` is about 1.15–1.2 in most faces, under the floor at
+  any book measure. Heavier and larger-x-height faces want the top of the
+  usual range; a narrow column with 1.6 looks loose.
 - Browsers split leading equally above and below the line, unlike metal type.
   That half-leading is why headings look like they sit low in their boxes;
   `text-box` (2.2.2) removes it at the edges.

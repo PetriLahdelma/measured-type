@@ -49,6 +49,15 @@
  * matches nothing (spec 0005 R4).
  */
 
+// Spec 0031 Y2: the house floor for body leading at a measured line length, from Bringhurst 2.2.1
+// (1.4 to 1.6 at book measures), Schöndorfer (about 1.3 at 30 characters, 1.5 at 60 to 80) and
+// Imperavi (less on shorter lines): 1.3 up to 45 characters, 1.4 from 60, straight between.
+function leadingFloor(chars) {
+  if (chars <= 45) return 1.3;
+  if (chars >= 60) return 1.4;
+  return 1.3 + ((chars - 45) / 15) * 0.1;
+}
+
 // Runs inside the page. Keep it self-contained so it can be pasted into a console.
 function measureLines(selector) {
   const els = [...document.querySelectorAll(selector)];
@@ -111,7 +120,7 @@ function measureLines(selector) {
           if (overlap < (end - start) / 2) line = null;
         }
         if (!line) {
-          line = { chars: 0, start, end, inkStart: rect[inlineStart], inkEnd: rect[inlineEnd], ended: false };
+          line = { chars: 0, start, end, inkStart: rect[inlineStart], inkEnd: rect[inlineEnd], ended: false, block };
           lines.push(line);
         }
         line.chars++;
@@ -131,7 +140,13 @@ function measureLines(selector) {
       counted++;
     }
     if (counted) paragraphs++;
-    perElement.push({ el, full: counted, size: parseFloat(getComputedStyle(el).fontSize) });
+    // Spec 0031 Y1: the rendered line pitch, from the starts of consecutive lines in one block.
+    const pitches = [];
+    for (let k = 1; k < lines.length; k++) {
+      const d = Math.abs(lines[k].start - lines[k - 1].start); // vertical-rl lines run right to left
+      if (lines[k].block === lines[k - 1].block && d > 0) pitches.push(d);
+    }
+    perElement.push({ el, full: counted, size: parseFloat(getComputedStyle(el).fontSize), pitches });
   }
 
   // Spec 0025 R7: with matches at several sizes, the size, box and em figures below come from the size
@@ -155,6 +170,19 @@ function measureLines(selector) {
   const ch = probe.getBoundingClientRect()[inlineExtent] / 100;
   probe.remove();
   const fontSize = parseFloat(cs.fontSize);
+  // Spec 0031 Y1: the line pitch as a ratio of the size: the median of the rendered pitches at the
+  // main size, which holds when a container's line-height is not its lines'. With one line, the
+  // declared value, and for `normal` two lines of a probe in the element's own font.
+  const rendered = perElement.filter((e) => e.size === mainSize).flatMap((e) => e.pitches).sort((a, b) => a - b);
+  let pitch = rendered.length ? rendered[Math.floor(rendered.length / 2)] : parseFloat(cs.lineHeight);
+  if (Number.isNaN(pitch)) {
+    const lines = document.createElement('div');
+    lines.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;font:inherit;line-height:normal;margin:0;padding:0;border:0';
+    lines.textContent = 'x\nx';
+    ref.appendChild(lines);
+    pitch = lines.getBoundingClientRect()[vertical ? 'width' : 'height'] / 2;
+    lines.remove();
+  }
   const avg = full.length ? charsInFull / full.length : null;
   const round = (n, places) => Math.round(n * 10 ** places) / 10 ** places;
   return {
@@ -172,6 +200,7 @@ function measureLines(selector) {
     fontSizes: sizes,
     mixedSizes: sizes.length > 1,
     lineHeightPx: cs.lineHeight,
+    leading: round(pitch / fontSize, 2),
     letterSpacing: cs.letterSpacing,
     inlineSizePx: round(contentInline, 1),
     inlineSizeInCh: round(contentInline / ch, 1),
@@ -303,6 +332,11 @@ async function main() {
     ? ` (${result.elements} elements at ${result.fontSizes.map((s) => `${s}px`).join(', ')}; the figures use the ${result.fontSizePx}px ones, which set most lines)`
     : '';
   console.log(`  declared ${result.fontFamily} ${result.fontSizePx}px, line-height ${result.lineHeightPx}${sizesNote}`);
+  if (result.avgCharsPerLine != null) {
+    const floor = leadingFloor(result.avgCharsPerLine);
+    const under = result.leading < floor - 0.005;
+    console.log(`  leading ${result.leading} at ${result.avgCharsPerLine} chars/line: house floor ${floor.toFixed(2)} for this length${under ? ' (under the house floor)' : ''}`);
+  }
   if (result.renderedFonts) {
     const fonts = result.renderedFonts
       .map((f) => `${f.familyName} (${f.isCustomFont ? 'web font' : 'system font'}, ${f.glyphCount} glyphs)`)
@@ -393,4 +427,4 @@ if (typeof module !== 'undefined' && require.main === module) {
   });
 }
 
-if (typeof module !== 'undefined') module.exports = { measureLines, sampleDocument };
+if (typeof module !== 'undefined') module.exports = { measureLines, sampleDocument, leadingFloor };
