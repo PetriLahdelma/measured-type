@@ -4,7 +4,11 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
-## Unreleased
+## 1.6.0 (9 November 2026)
+
+A measurement of 100 public pages with the tools; the five tool faults it
+found, and two more from its re-run, fixed test-first; and the faults the
+5 November code review left open.
 
 ### Fixed
 
