@@ -204,7 +204,7 @@ standing in for hierarchy.
 | `references/css-modern.md` | older CSS: whether a property exists, its current name, browser support |
 | `references/logical-and-language.md` | anything multilingual, right-to-left or mixed-direction; locale quotes, numbers, units and hyphenation (EN, FI, SV worked examples) |
 | `scripts/measure-line.js` | stating, shipping or solving a measure (`--solve`) |
-| `scripts/font-features.py` | before enabling `onum`, `smcp`, `c2sc`, `case`, `tnum` or any `font-feature-settings` |
+| `scripts/font-features.py` | before enabling `onum`, `smcp`, `c2sc`, `case`, `tnum` or any `font-feature-settings`; `--metrics` when pairing faces |
 | `references/taste.md` | choosing or pairing faces, display and dark-mode text, a review for quality |
 | `references/audit.md` | any review: running the tools, severities, verdict, report and the rule catalogue |
 | `references/screen-and-ui.md` | inline code, icons beside labels, heading hierarchy and spacing, kerning, thin weights, light text on dark |

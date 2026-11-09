@@ -108,8 +108,10 @@ and solves for the width that gives the number asked for:
 .prose > p at 1280px, zoom 1: 90.6 chars/line (long (over 75))
   range 82-96 over 13 full lines in 4 paragraphs
   declared Georgia, "Times New Roman", serif 18px, line-height 27.9px
+  leading 1.55 at 90.6 chars/line: house floor 1.40 for this length
   rendered with Georgia (system font, 350 glyphs)
   content box 729.2px = 66ch = 40.5em
+  zero 0.614em vs average character 0.432em
 solve 66: max-inline-size: 29.8em (536.4px) gives 66.1 chars/line on .prose > p
 ```
 
@@ -125,8 +127,9 @@ fixes the sizes (`type-scale.js --fit` keeps both and passes the zoom bar; on
 a held-out case every run with the skill met all three checks, none without
 it). Right-to-left audits that convert text flow and leave decoration alone.
 Dense product UI: tabular figures, numbers aligned at the end, tracked
-capitals, truncated text, contrast in both colour schemes. Teams: one report
-with rule ids and a verdict that can gate a pull request.
+capitals, truncated text, contrast in both colour schemes. Links marked by
+colour alone; leading too tight for the line length. Teams: one report with
+rule ids and a verdict that can gate a pull request.
 
 **What it costs.** 7% to 25% more tokens and up to twice the time per task,
 measured across every experiment; `npm install` and a Chromium download for
@@ -190,16 +193,16 @@ error, 3 when the browser is missing and the lite report stood in
 
 ## Evidence
 
-Fourteen experiments, every case and grader committed before the runs, from
-head-to-heads against other skills to a 2×2 that varied the skill and a
-browser independently. In short: with a browser, a model without the skill measures line
-length and fixes the same faults, and the skill adds precision (a quarter of
-a character off 66 against 0.68); without a browser its estimate beats a guess
-by about a character; on fluid type under zoom the tool that prints the
-answer, `type-scale.js --fit`, moved the result (20 of 20 runs against 0 of
-20) and a one-sentence hint matched it on the held-out twin; the guidance
-alone changed nothing measurable on cases written after the content was
-frozen. The full table, how to read it and the three proofs:
+Fourteen experiments, every case and grader committed before the runs, and
+the tools on 100 public pages. With a browser, a model without the skill
+measures line length and fixes the same faults; the skill adds precision (a
+quarter of a character off 66 against 0.68); without a browser its estimate
+beats a guess by about a character; on fluid type under zoom,
+`type-scale.js --fit` moved the result (20 of 20 runs against 0 of 20) and a
+one-sentence hint matched it on the held-out twin; the guidance alone changed
+nothing measurable on cases written after the content was frozen. On the 100
+pages, lines run long (median 78.7 characters) and colour-only links fail on
+14, each check confirmed by re-measuring. Table, method and proofs:
 [docs/evidence.md](docs/evidence.md).
 
 ## Pairs with Rhythmguard

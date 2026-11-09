@@ -68,7 +68,7 @@ body:
     attributes:
       label: Environment
       description: Measured Type version or commit, operating system, Node version, browser and its version.
-      placeholder: "1.2.0, macOS, Node 22, Playwright 1.64.1"
+      placeholder: "1.8.0, macOS, Node 22, Playwright 1.64.1"
     validations:
       required: true
   - type: checkboxes

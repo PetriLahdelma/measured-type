@@ -1,8 +1,9 @@
 # Measured Type
 
 An agent skill for web typography: Bringhurst's rules in current CSS, with
-scripts that measure line length, zoom growth, contrast, tabular figures and
-font coverage in a real browser or in the font file. This folder is the skill
+scripts that measure line length and leading, zoom growth, contrast,
+colour-only links and tabular figures in a real browser, and font coverage
+and proportions in the font file. This folder is the skill
 (`SKILL.md` and `references/`) and its scripts (`scripts/`). The evidence,
 specs and evals live in the repository,
 [github.com/PetriLahdelma/measured-type](https://github.com/PetriLahdelma/measured-type).

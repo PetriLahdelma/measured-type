@@ -23,7 +23,7 @@ From the repository root, `npm run gate` runs the prose check and every test;
 it is what "done" is checked against.
 
 Set `MT_PYTHON` to a Python that has fontTools (a virtual environment; see
-CONTRIBUTING.md, "Set up"), or the seven fontTools-backed tests skip with a
+CONTRIBUTING.md, "Set up"), or the eleven fontTools-backed tests skip with a
 reason.
 
 ## Rules

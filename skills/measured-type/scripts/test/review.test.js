@@ -177,7 +177,9 @@ test('R12 the contributor docs count the fontTools-backed tests and the skip rea
   for (const f of ['AGENTS.md', 'CONTRIBUTING.md']) {
     const text = fs.readFileSync(path.join(ROOT, f), 'utf8');
     assert.doesNotMatch(text, /four (font-metric )?tests/, f);
-    assert.match(text, /seven/, f);
+    // The count is what `MT_PYTHON=/usr/bin/python3 npm test` (a Python with no fontTools) reports as skipped:
+    // eleven since spec 0032 (D1 to D3 and the D1 override check, R11, N3, N4, F3, T7, T8, T9).
+    assert.match(text, /eleven/, f);
   }
 });
 

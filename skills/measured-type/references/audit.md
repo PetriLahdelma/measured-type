@@ -25,7 +25,8 @@ every finding comes with a number.
   as not verified. `--diff origin/main` lints only what a branch changed;
   `--rtl` adds the right-to-left checks when an RTL edition is planned.
 - `scripts/page-audit.js <url or file>` renders the page and checks reflow,
-  measure, contrast, text spacing, fonts and zoom, language and punctuation
+  measure and the leading for it, contrast, links told apart by colour alone,
+  text spacing, fonts and zoom, language and punctuation
   in the text the reader gets, numbers split from their units, synthesized
   bold and italic and text that moves when the web fonts arrive, plus the
   checks of `screen-and-ui.md` and `product-ui.md`.

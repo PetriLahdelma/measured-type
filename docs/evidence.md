@@ -29,6 +29,7 @@ the committed run files.
 | [100 public pages](../evals/results/0028/) (spec 0028) | The tools on 25 design system, 25 docs, 25 reading and 25 template pages, with 26 findings re-measured independently | | | Median 78.7 characters per line, 6 in 10 over 75; contrast fails on 63 pages and reflow on 30, each 5 of 5 confirmed; no page fails WCAG 1.4.4; five tool faults found, the 1.4.12 overlap check among them |
 | [The corpus again](../evals/results/0029/) (spec 0029) | The same 100 pages after the faults were fixed test-first | | | Overlap findings 15 to 4 pages, MT-ZOOM-VW 1 to 0, contrast changed on 4 pages; spot-check 5 of 5 for contrast, text spacing and lines; two more faults found in the first re-run and fixed before the second |
 | [Three new checks](../evals/results/0031/) (spec 0031) | Leading by line length, links told apart by colour alone, the x-height floor, on the same 100 pages | | | Run 1 fired on navigation and banners; narrowed test-first, links by colour block 14 pages and leading is under the floor on 6, each 5 of 5 confirmed; no page under the x-height floor |
+| [The review's last checks](../evals/results/0032/) (spec 0032) | Symbol stand-ins, a breaking space after ¶ or §, and reading text a media-query step leaves under 1.6× at 200% zoom, on the same 100 pages | | | One symbol finding and one page whose body text grows 1.28× at 200% zoom (re-measured); all LOW, no verdict changed |
 
 ## How to read it
 

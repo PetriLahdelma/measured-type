@@ -14,6 +14,7 @@ input files under `files/`.
 | `0009/` | The hero rerun after `type-scale.js --fit` (spec 0009): the pre-registered [`analyze.js`](0009/analyze.js) |
 | `h2h-zoom-title`, `0010/` | Held-out twin of the hero case (spec 0010) and its pre-registered [`analyze.js`](0010/analyze.js) |
 | `h2h-measure-notes`, `0017/` | A held-out line length in Charter (spec 0017) and its pre-registered [`analyze.js`](0017/analyze.js) |
+| `0028/` | The tools on 100 public pages (spec 0028): the frozen corpus, the resumable runner [`run.js`](0028/run.js), [`analyze.js`](0028/analyze.js) and the independent re-measure [`spotcheck.js`](0028/spotcheck.js), reused for specs 0029, 0031 and 0032 |
 | `triggering/` | Whether the skill loads on its own: skill-creator's `run_eval.py` (spec 0003) and a real-session runner, [`session.js`](triggering/session.js) (spec 0016) |
 | `results/` | Every run's outputs, grades and timings, with a README of method, results and disclosures per experiment |
 

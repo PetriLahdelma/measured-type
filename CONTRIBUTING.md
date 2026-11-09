@@ -62,7 +62,7 @@ npm test
 ```
 
 All tests should pass with none skipped. Without `MT_PYTHON` pointing at a
-Python with fontTools, the seven fontTools-backed tests skip and say so
+Python with fontTools, the eleven fontTools-backed tests skip and say so
 (`fontTools missing for <python> (set MT_PYTHON)`); a Python whose fontTools
 is broken skips the same way. The estimate calibration test skips where its
 macOS fonts are not installed; say so in your pull request if that happens to
