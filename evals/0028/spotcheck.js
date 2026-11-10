@@ -2,7 +2,7 @@
 // Spec 0028 spot-check: re-measures the drawn findings on the live pages with code of its own. It
 // shares no measuring helper with the tools; it only names elements the way page-audit.js does, so
 // a finding's location can be found again.
-//   NODE_PATH=skills/measured-type/node_modules node evals/0028/spotcheck.js <folder holding pages/>
+//   NODE_PATH=skills/measured-typography/node_modules node evals/0028/spotcheck.js <folder holding pages/>
 const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require('playwright');

@@ -1,5 +1,5 @@
 {
-  "name": "measured-type",
+  "name": "measured-typography",
   "displayName": "Measured Type",
   "version": "1.8.1",
   "description": "Web typography skill: Bringhurst's rules applied to current CSS, with scripts that measure line length, zoom growth, contrast and font coverage in a real browser or the font file.",

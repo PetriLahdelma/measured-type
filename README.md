@@ -4,7 +4,7 @@
   <img alt="Measured Type. Type, with proof. An agent skill for considered web typography." src=".github/brand/readme-header-light.svg" width="100%">
 </picture></h1>
 
-[![Agent skill: skills CLI, Claude Code and gh skill](https://img.shields.io/badge/agent_skill-skills_CLI%2C_Claude_Code_and_gh_skill-20211F)](skills/measured-type/SKILL.md)
+[![Agent skill: skills CLI, Claude Code and gh skill](https://img.shields.io/badge/agent_skill-skills_CLI%2C_Claude_Code_and_gh_skill-20211F)](skills/measured-typography/SKILL.md)
 [![skills.sh installs](https://www.skills.sh/b/PetriLahdelma/measured-type)](https://skills.sh/petrilahdelma/measured-type/measured-type)
 [![Evals: 5 development, 3 held-out and 6 head-to-head cases](https://img.shields.io/badge/evals-5_dev_%2B_3_held--out_%2B_6_head--to--head-B33A32)](#evidence)
 [![License: CC BY-NC 4.0 text, MIT code](https://img.shields.io/badge/license-CC_BY--NC_4.0_text%2C_MIT_code-61645E)](LICENSE)
@@ -12,7 +12,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/PetriLahdelma/measured-type?style=flat&color=61645E)](https://github.com/PetriLahdelma/measured-type/stargazers)
 [![Git clones since launch](https://img.shields.io/endpoint?url=https%3A%2F%2Fgist.githubusercontent.com%2FPetriLahdelma%2F8f94b2f1820082384e15ae2d97710060%2Fraw%2Fclones.json)](https://gist.github.com/PetriLahdelma/8f94b2f1820082384e15ae2d97710060)
 
-**[Install](#install)**&emsp;[What it prints](#what-the-tools-print)&emsp;[Evidence](#evidence)&emsp;[Read the skill](skills/measured-type/SKILL.md)&emsp;[Docs](docs/)&emsp;[Contribute](#contributing)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
+**[Install](#install)**&emsp;[What it prints](#what-the-tools-print)&emsp;[Evidence](#evidence)&emsp;[Read the skill](skills/measured-typography/SKILL.md)&emsp;[Docs](docs/)&emsp;[Contribute](#contributing)&emsp;[Support](#support-measured-type)&emsp;[License](#license)
 
 Measured Type is an agent skill for web typography: Bringhurst's rules
 translated into current CSS, and scripts that measure what can be measured
@@ -26,28 +26,30 @@ number beside the rule. Every claim on this page links to a committed run.
 Two commands: the skill into Claude Code, then the measuring scripts.
 
 ```bash
-npx skills add PetriLahdelma/measured-type --skill measured-type --agent claude-code -g
-cd ~/.claude/skills/measured-type && npm install && npx playwright install chromium
+npx skills add PetriLahdelma/measured-type --skill measured-typography --agent claude-code -g
+cd ~/.claude/skills/measured-typography && npm install && npx playwright install chromium
 ```
 
-The second line is optional: without it the skill advises and lints.
-`npx playwright install chromium` prints nothing when the browser is already
-cached and downloads about 150 MB when it is not.
+The second line is optional: without it the skill advises and lints. The
+browser download is about 150 MB.
 
 Or as a Claude Code plugin from this repository's marketplace (it installs the
 pinned Playwright package; add the browser as above):
 
 ```
 /plugin marketplace add PetriLahdelma/measured-type
-/plugin install measured-type@measured-type
+/plugin install measured-typography@measured-type
 ```
 
+Installed it as `measured-type` before 10 November? Run the install line once
+to move it.
+
 The same line installs it for Codex and Cursor; the GitHub CLI route is
-`gh skill install PetriLahdelma/measured-type measured-type` (preview):
+`gh skill install PetriLahdelma/measured-type measured-typography` (preview):
 
 ```bash
-npx skills add PetriLahdelma/measured-type --skill measured-type --agent codex -g
-npx skills add PetriLahdelma/measured-type --skill measured-type --agent cursor -g
+npx skills add PetriLahdelma/measured-type --skill measured-typography --agent codex -g
+npx skills add PetriLahdelma/measured-type --skill measured-typography --agent cursor -g
 ```
 
 The font scripts need fontTools in a Python of their own, because current
@@ -62,7 +64,7 @@ export MT_PYTHON=~/.venvs/measured-type/bin/python
 Check the install with `npm test` in the skill folder (about a minute, in
 headless Chromium; an installed copy skips the tests whose fonts live only in
 this repository and says so). Leave out `-g` to install into one project, or
-copy `skills/measured-type` from a clone into `~/.claude/skills/`.
+copy `skills/measured-typography` from a clone into `~/.claude/skills/`.
 
 ## The number, before you install
 
@@ -167,7 +169,7 @@ hard spaces go, right to left): [docs/reference.md](docs/reference.md).
 
 Name the skill for a first task, in a project with a stylesheet:
 
-> *Use measured-type to audit the typography in styles.css and fix the HIGH findings. Measure the line length in the browser.*
+> *Use measured-typography to audit the typography in styles.css and fix the HIGH findings. Measure the line length in the browser.*
 
 After that it loads on its own when a request touches how words and numbers
 sit on a page. Tasks it is written for: *set the article body in Verdana at
@@ -183,7 +185,7 @@ The linter exits 1 when a HIGH finding remains, so it can gate a pull request
 with no install, and `--diff` limits it to what the branch changed:
 
 ```bash
-node path/to/measured-type/scripts/lint-css.js src --diff origin/main
+node path/to/measured-typography/scripts/lint-css.js src --diff origin/main
 ```
 
 The rendered audit needs Playwright and a page: point it at a preview

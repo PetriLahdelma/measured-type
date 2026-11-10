@@ -29,7 +29,7 @@ const nodeAsync = (script, args) => new Promise((resolve) => {
   child.stderr.on('data', (d) => { stderr += d; });
   child.on('close', (status) => resolve({ status, stdout, stderr }));
 });
-const inRepo = fs.existsSync(path.join(ROOT, 'CONTRIBUTING.md')) && fs.existsSync(path.join(ROOT, 'skills', 'measured-type', 'SKILL.md'));
+const inRepo = fs.existsSync(path.join(ROOT, 'CONTRIBUTING.md')) && fs.existsSync(path.join(ROOT, 'skills', 'measured-typography', 'SKILL.md'));
 
 let browser;
 test.before(async () => { browser = await chromium.launch(); });

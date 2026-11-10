@@ -5,8 +5,8 @@
   "metadata": { "description": "Measured Type, an agent skill for web typography." },
   "plugins": [
     {
-      "name": "measured-type",
-      "source": "./skills/measured-type",
+      "name": "measured-typography",
+      "source": "./skills/measured-typography",
       "description": "Web typography skill: Bringhurst's rules applied to current CSS, with scripts that measure line length, zoom growth, contrast and font coverage in a real browser or the font file.",
       "license": "CC-BY-NC-4.0 AND MIT",
       "homepage": "https://github.com/PetriLahdelma/measured-type",
@@ -14,5 +14,6 @@
       "category": "design",
       "keywords": ["typography", "css", "accessibility", "design"]
     }
-  ]
+  ],
+  "renames": { "measured-type": "measured-typography" }
 }

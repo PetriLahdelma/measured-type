@@ -37,12 +37,12 @@ write code, so the approach can be agreed first.
 ## Set up
 
 You need Node 22 or later, Python 3 and Git. The skill and its scripts live in
-`skills/measured-type/`; everything else in the repository is evidence about
+`skills/measured-typography/`; everything else in the repository is evidence about
 them.
 
 ```bash
 git clone https://github.com/PetriLahdelma/measured-type.git
-cd measured-type/skills/measured-type
+cd measured-type/skills/measured-typography
 npm install
 npx playwright install chromium
 ```
@@ -55,7 +55,7 @@ python3 -m venv ~/.venvs/measured-type
 export MT_PYTHON=~/.venvs/measured-type/bin/python
 ```
 
-Then run every test from `skills/measured-type/`:
+Then run every test from `skills/measured-typography/`:
 
 ```bash
 npm test
@@ -72,10 +72,10 @@ you.
 
 | Path | What it is |
 |---|---|
-| `skills/measured-type/SKILL.md` | What the agent reads first: workflows, rules and when to run which tool |
-| `skills/measured-type/references/` | The rules in depth, with Bringhurst section numbers and sources |
-| `skills/measured-type/scripts/` | The tools: `lint-css.js`, `page-audit.js`, `measure-line.js`, `estimate-measure.js`, `type-scale.js`, `font-features.py`, `fallback-metrics.py`, `apca.js` |
-| `skills/measured-type/scripts/test/` | Tests and fixtures, one file per spec |
+| `skills/measured-typography/SKILL.md` | What the agent reads first: workflows, rules and when to run which tool |
+| `skills/measured-typography/references/` | The rules in depth, with Bringhurst section numbers and sources |
+| `skills/measured-typography/scripts/` | The tools: `lint-css.js`, `page-audit.js`, `measure-line.js`, `estimate-measure.js`, `type-scale.js`, `font-features.py`, `fallback-metrics.py`, `apca.js` |
+| `skills/measured-typography/scripts/test/` | Tests and fixtures, one file per spec |
 | `specs/` | One numbered spec per change, with requirement IDs |
 | `evals/` | Eval cases, graders, analysis scripts and every committed result |
 | `examples/` | Before and after pages |

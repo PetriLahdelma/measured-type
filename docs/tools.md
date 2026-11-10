@@ -2,7 +2,7 @@
 
 Seven scripts, each written test first ([`specs/`](../specs/)), and one
 report format for all of them
-([`references/audit.md`](../skills/measured-type/references/audit.md)): rule
+([`references/audit.md`](../skills/measured-typography/references/audit.md)): rule
 id, severity, where, the measured value and the CSS fix, then a verdict and
 what could not be checked. Nothing is passed in silence.
 
@@ -10,14 +10,14 @@ what could not be checked. Nothing is passed in silence.
 
 | Script | What it does |
 |---|---|
-| [`page-audit.js`](../skills/measured-type/scripts/page-audit.js) | Audits a rendered page at 1280, 768 and 375px and at 200%, 400% and 500% zoom: reflow, characters per line, contrast in light and dark schemes, the WCAG 1.4.12 spacing override, fonts that fell back, zoom growth, leading against the measured line length, links told apart by colour alone, an x-height floor beside the pixel one and the screen and product UI checks. `--baseline 8px` also checks a strict baseline grid: where each block's baselines land, more than 1px off is reported, with the line-height that caused it. The unit can be a custom property the page sets (`--baseline --u`, so it may change per breakpoint or region), checked at 1280, 768 and 375px, in one region (`--baseline-scope`) and to any tolerance (`--baseline-tolerance`). `--lite` lints instead when there is no browser |
-| [`lint-css.js`](../skills/measured-type/scripts/lint-css.js) | Lints CSS, SCSS, Less, HTML, component style blocks and Tailwind classes (also inside `cn()`, `clsx()`, Vue `:class` and Svelte `class:`), or only what a branch changed (`--diff`). Fluid sizes are evaluated at zoom. No dependencies |
-| [`measure-line.js`](../skills/measured-type/scripts/measure-line.js) | Counts characters per line of one selector, graphemes and columns counted correctly, and prints the rendered leading against the house floor for that length; `--solve 66` finds the `em` width that gives 66 |
-| [`estimate-measure.js`](../skills/measured-type/scripts/estimate-measure.js) | Estimates characters per line without a browser, from a Chromium calibration of 30 faces |
-| [`font-features.py`](../skills/measured-type/scripts/font-features.py) | Reports which OpenType features a font file really covers, per file (roman and italic can differ); `--metrics` gives x-height, cap height, extenders and width per em, compared to the first file, for pairing |
-| [`fallback-metrics.py`](../skills/measured-type/scripts/fallback-metrics.py) | Builds a metric-matched fallback `@font-face`, so the web font swaps in without reflow |
-| [`type-scale.js`](../skills/measured-type/scripts/type-scale.js) | Prints fluid type tokens, each checked for range, zoom growth and step ratio; `--fit MIN:MAX` keeps two requested sizes and passes the zoom bar |
-| [`contrast-fix.js`](../skills/measured-type/scripts/contrast-fix.js) and [`apca.js`](../skills/measured-type/scripts/apca.js) | The nearest colour of the same hue that passes a ratio, and APCA Lc beside the WCAG ratio (advisory) |
+| [`page-audit.js`](../skills/measured-typography/scripts/page-audit.js) | Audits a rendered page at 1280, 768 and 375px and at 200%, 400% and 500% zoom: reflow, characters per line, contrast in light and dark schemes, the WCAG 1.4.12 spacing override, fonts that fell back, zoom growth, leading against the measured line length, links told apart by colour alone, an x-height floor beside the pixel one and the screen and product UI checks. `--baseline 8px` also checks a strict baseline grid: where each block's baselines land, more than 1px off is reported, with the line-height that caused it. The unit can be a custom property the page sets (`--baseline --u`, so it may change per breakpoint or region), checked at 1280, 768 and 375px, in one region (`--baseline-scope`) and to any tolerance (`--baseline-tolerance`). `--lite` lints instead when there is no browser |
+| [`lint-css.js`](../skills/measured-typography/scripts/lint-css.js) | Lints CSS, SCSS, Less, HTML, component style blocks and Tailwind classes (also inside `cn()`, `clsx()`, Vue `:class` and Svelte `class:`), or only what a branch changed (`--diff`). Fluid sizes are evaluated at zoom. No dependencies |
+| [`measure-line.js`](../skills/measured-typography/scripts/measure-line.js) | Counts characters per line of one selector, graphemes and columns counted correctly, and prints the rendered leading against the house floor for that length; `--solve 66` finds the `em` width that gives 66 |
+| [`estimate-measure.js`](../skills/measured-typography/scripts/estimate-measure.js) | Estimates characters per line without a browser, from a Chromium calibration of 30 faces |
+| [`font-features.py`](../skills/measured-typography/scripts/font-features.py) | Reports which OpenType features a font file really covers, per file (roman and italic can differ); `--metrics` gives x-height, cap height, extenders and width per em, compared to the first file, for pairing |
+| [`fallback-metrics.py`](../skills/measured-typography/scripts/fallback-metrics.py) | Builds a metric-matched fallback `@font-face`, so the web font swaps in without reflow |
+| [`type-scale.js`](../skills/measured-typography/scripts/type-scale.js) | Prints fluid type tokens, each checked for range, zoom growth and step ratio; `--fit MIN:MAX` keeps two requested sizes and passes the zoom bar |
+| [`contrast-fix.js`](../skills/measured-typography/scripts/contrast-fix.js) and [`apca.js`](../skills/measured-typography/scripts/apca.js) | The nearest colour of the same hue that passes a ratio, and APCA Lc beside the WCAG ratio (advisory) |
 
 ## One report format
 
@@ -54,7 +54,7 @@ and 80 011 end at different edges even in a column of their own:
 `lint-css.js` and `estimate-measure.js` need only Node, no `npm install`:
 
 ```bash
-node ~/.claude/skills/measured-type/scripts/estimate-measure.js "Verdana" 66ch
+node ~/.claude/skills/measured-typography/scripts/estimate-measure.js "Verdana" 66ch
 ```
 
 ```text
@@ -74,7 +74,7 @@ with no install. `--diff` limits it to what the branch changed, which lets an
 older codebase adopt it gradually:
 
 ```bash
-node path/to/measured-type/scripts/lint-css.js src --diff origin/main
+node path/to/measured-typography/scripts/lint-css.js src --diff origin/main
 ```
 
 The rendered audit needs Playwright and a page: point it at a preview

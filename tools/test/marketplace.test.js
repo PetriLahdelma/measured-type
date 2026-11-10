@@ -9,13 +9,13 @@ const ROOT = path.join(__dirname, '..', '..');
 const MANIFEST = path.join(ROOT, '.claude-plugin', 'marketplace.json');
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
 const manifest = () => JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
-const plugin = () => manifest().plugins.find((p) => p.name === 'measured-type');
+const plugin = () => manifest().plugins.find((p) => p.name === 'measured-typography');
 
-test('P1 the marketplace lists measured-type from a folder holding SKILL.md and its own manifest (spec 0026 Q2)', () => {
+test('P1 the marketplace lists measured-typography from a folder holding SKILL.md and its own manifest (spec 0026 Q2)', () => {
   const m = manifest();
   assert.equal(m.plugins.length, 1);
   const p = plugin();
-  assert.ok(p, 'no plugin named measured-type');
+  assert.ok(p, 'no plugin named measured-typography');
   assert.equal(typeof p.source, 'string', 'source should be a path in this repository');
   assert.ok(fs.existsSync(path.join(ROOT, p.source, 'SKILL.md')), `${p.source}/SKILL.md is missing`);
   assert.ok(fs.existsSync(path.join(ROOT, p.source, '.claude-plugin', 'plugin.json')), `${p.source}/.claude-plugin/plugin.json is missing`);
@@ -32,7 +32,7 @@ test('P2 the plugin version in plugin.json matches CITATION.cff and the newest C
 test('P3 the README gives the marketplace install lines', () => {
   const readme = read('README.md');
   assert.match(readme, /\/plugin marketplace add PetriLahdelma\/measured-type/);
-  assert.match(readme, /\/plugin install measured-type@measured-type/);
+  assert.match(readme, /\/plugin install measured-typography@measured-type/);
 });
 
 test('P4 the manifest names the owner without an email address', () => {

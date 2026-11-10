@@ -6,10 +6,10 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..', '..');
-const PLUGIN = path.join(ROOT, 'skills', 'measured-type');
+const PLUGIN = path.join(ROOT, 'skills', 'measured-typography');
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
-const manifest = () => JSON.parse(read(path.join('skills', 'measured-type', '.claude-plugin', 'plugin.json')));
-const entry = () => JSON.parse(read(path.join('.claude-plugin', 'marketplace.json'))).plugins.find((p) => p.name === 'measured-type');
+const manifest = () => JSON.parse(read(path.join('skills', 'measured-typography', '.claude-plugin', 'plugin.json')));
+const entry = () => JSON.parse(read(path.join('.claude-plugin', 'marketplace.json'))).plugins.find((p) => p.name === 'measured-typography');
 
 const hasClaude = () => {
   const probe = spawnSync('claude', ['--version'], { encoding: 'utf8' });
@@ -18,7 +18,7 @@ const hasClaude = () => {
 
 test('Q1 the plugin manifest names the plugin, its version, author and metadata, and the folder itself as the skill', () => {
   const m = manifest();
-  assert.equal(m.name, 'measured-type');
+  assert.equal(m.name, 'measured-typography');
   const cited = /^version:\s*(\S+)/m.exec(read('CITATION.cff'))[1];
   const logged = /^## (\d+\.\d+\.\d+)/m.exec(read('CHANGELOG.md'))[1];
   assert.equal(m.version, cited, 'plugin.json and CITATION.cff disagree');
@@ -38,12 +38,12 @@ test('Q2 the marketplace entry leaves components, strict and version to the mani
   for (const key of ['skills', 'commands', 'agents', 'hooks', 'strict', 'version']) {
     assert.equal(p[key], undefined, `the entry still sets ${key}`);
   }
-  assert.equal(p.source, './skills/measured-type');
+  assert.equal(p.source, './skills/measured-typography');
 });
 
 test('Q2 claude plugin validate --strict passes for the marketplace and for the plugin folder', (t) => {
   if (!hasClaude()) return t.skip('the claude CLI is not installed');
-  for (const target of ['.', './skills/measured-type']) {
+  for (const target of ['.', './skills/measured-typography']) {
     const r = spawnSync('claude', ['plugin', 'validate', target, '--strict'], { cwd: ROOT, encoding: 'utf8' });
     assert.equal(r.status, 0, `${target}: ${r.stdout}${r.stderr}`);
   }
@@ -53,10 +53,10 @@ const proseWords = (markdown) => markdown.replace(/```[\s\S]*?```/g, ' ').split(
 
 test('Q3 the plugin README says what the scripts open, download and read, and how to install', () => {
   const file = path.join(PLUGIN, 'README.md');
-  assert.ok(fs.existsSync(file), 'skills/measured-type/README.md is missing');
+  assert.ok(fs.existsSync(file), 'skills/measured-typography/README.md is missing');
   const readme = fs.readFileSync(file, 'utf8');
   assert.ok(proseWords(readme) >= 40, `${proseWords(readme)} words outside code blocks`);
-  for (const re of [/Chromium/, /fontTools/, /the page you name/i, /nothing is sent|no telemetry/i, /npx skills add/, /\/plugin install measured-type@measured-type/, /LICENSE/]) {
+  for (const re of [/Chromium/, /fontTools/, /the page you name/i, /nothing is sent|no telemetry/i, /npx skills add/, /\/plugin install measured-typography@measured-type/, /LICENSE/]) {
     assert.match(readme, re);
   }
 });
@@ -65,7 +65,7 @@ test('Q4 the description stays the measured wording; the searched words live in 
   // The plain-words opening was run through spec 0016 and compared with this wording on the same day
   // (evals/triggering/README.md, 5 November 2026): it loaded on near misses the measured wording never
   // loaded on, so the model-facing text stays as measured and discovery text goes where people read it.
-  const skill = read(path.join('skills', 'measured-type', 'SKILL.md'));
+  const skill = read(path.join('skills', 'measured-typography', 'SKILL.md'));
   const front = /^---\n([\s\S]*?)\n---/.exec(skill)[1];
   const description = /description: >-\n([\s\S]*?)\n[a-z]+:/.exec(front)[1].replace(/\s+/g, ' ').trim();
   assert.match(description, /^Web typesetting specialist\./, 'the description is not the measured wording');
@@ -81,8 +81,8 @@ test('Q4 the description stays the measured wording; the searched words live in 
 
 test('Q5 the README gives skills CLI install lines for Codex and Cursor', () => {
   const readme = read('README.md');
-  assert.match(readme, /npx skills add PetriLahdelma\/measured-type --skill measured-type --agent codex/);
-  assert.match(readme, /npx skills add PetriLahdelma\/measured-type --skill measured-type --agent cursor/);
+  assert.match(readme, /npx skills add PetriLahdelma\/measured-type --skill measured-typography --agent codex/);
+  assert.match(readme, /npx skills add PetriLahdelma\/measured-type --skill measured-typography --agent cursor/);
 });
 
 test('Q7 the repository root carries a Cursor manifest that mirrors the Claude one, and the skill sits where cursor.directory looks', () => {
@@ -95,7 +95,7 @@ test('Q7 the repository root carries a Cursor manifest that mirrors the Claude o
   assert.ok(cursor.author && cursor.author.name && !cursor.author.email, 'author with a name and no email');
   assert.ok(Array.isArray(cursor.keywords) && cursor.keywords.includes('typography'));
   assert.ok(fs.existsSync(path.join(ROOT, cursor.logo)), `logo ${cursor.logo} is missing`);
-  assert.ok(fs.existsSync(path.join(ROOT, 'skills', 'measured-type', 'SKILL.md')), 'skills/measured-type/SKILL.md is where cursor.directory detects a skill');
+  assert.ok(fs.existsSync(path.join(ROOT, 'skills', 'measured-typography', 'SKILL.md')), 'skills/measured-typography/SKILL.md is where cursor.directory detects a skill');
 });
 
 test('Q8 the Claude manifest carries https listing links for documentation and support', () => {

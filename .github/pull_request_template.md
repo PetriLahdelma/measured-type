@@ -9,7 +9,7 @@
 
 ## Gate
 
-Last lines of `npm test` from `skills/measured-type/`, with `MT_PYTHON` set:
+Last lines of `npm test` from `skills/measured-typography/`, with `MT_PYTHON` set:
 
 ```
 # tests

@@ -1,5 +1,5 @@
 ---
-name: measured-type
+name: measured-typography
 description: >-
   Web typesetting specialist. Use it whenever a request touches how words and
   numbers sit on a web page, even when "typography" is never said. It works

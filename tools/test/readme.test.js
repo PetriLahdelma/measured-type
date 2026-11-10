@@ -32,7 +32,7 @@ test('W2 Install is the first section, opens with the two commands, and the zoom
   const install = text.slice(text.indexOf('## Install'), text.indexOf(`## ${sections[1]}`));
   const firstBlock = /```bash\n([\s\S]*?)```/.exec(install);
   assert.ok(firstBlock, 'no bash block in Install');
-  assert.match(firstBlock[1], /npx skills add PetriLahdelma\/measured-type --skill measured-type --agent claude-code -g/);
+  assert.match(firstBlock[1], /npx skills add PetriLahdelma\/measured-type --skill measured-typography --agent claude-code -g/);
   assert.match(firstBlock[1], /npm install && npx playwright install chromium/);
   const next = text.slice(text.indexOf(`## ${sections[1]}`), text.indexOf(`## ${sections[2]}`));
   assert.match(next, /zoom-200-light\.png/, 'the zoom image is not in the section after Install');
@@ -64,5 +64,5 @@ test('W4 nothing moved out of the README is lost: the evidence, proofs, referenc
     assert.ok(all.includes(needle), `docs/ does not contain ${needle}`);
   }
   const text = readme();
-  for (const re of [/\/plugin install measured-type@measured-type/, /python3 -m venv/, /MT_PYTHON/, /--agent codex/, /--agent cursor/]) assert.match(text, re);
+  for (const re of [/\/plugin install measured-typography@measured-type/, /python3 -m venv/, /MT_PYTHON/, /--agent codex/, /--agent cursor/]) assert.match(text, re);
 });

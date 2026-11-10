@@ -55,15 +55,15 @@ test('T5 a subagent tool call is ignored and an answer without tools is a miss',
 test('T7 the working directory holds the site and the real skill, with a swapped description when tuning', () => {
   const fs = require('node:fs');
   const { workspace } = require(path.join(ROOT, 'evals', 'triggering', 'session.js'));
-  const dir = workspace(path.join(ROOT, 'skills', 'measured-type'), 'Line one of a new description.\nLine two.');
+  const dir = workspace(path.join(ROOT, 'skills', 'measured-typography'), 'Line one of a new description.\nLine two.');
   try {
-    const skill = fs.readFileSync(path.join(dir, '.claude', 'skills', 'measured-type', 'SKILL.md'), 'utf8');
+    const skill = fs.readFileSync(path.join(dir, '.claude', 'skills', 'measured-typography', 'SKILL.md'), 'utf8');
     const front = skill.split('---')[1];
-    assert.match(front, /^name: measured-type$/m);
+    assert.match(front, /^name: measured-typography$/m);
     assert.match(front, /description: >-\n {2}Line one of a new description\.\n {2}Line two\.\n/);
     assert.doesNotMatch(front, /Web typesetting specialist/);
     assert.ok(fs.existsSync(path.join(dir, 'prose.css')));
-    assert.ok(fs.existsSync(path.join(dir, '.claude', 'skills', 'measured-type', 'scripts', 'measure-line.js')));
+    assert.ok(fs.existsSync(path.join(dir, '.claude', 'skills', 'measured-typography', 'scripts', 'measure-line.js')));
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }

@@ -153,7 +153,7 @@ function runOne({ query, skillDir, description, model, maxTurns, timeout }) {
 }
 
 async function main() {
-  const opt = { runs: 3, model: 'claude-opus-5-5', workers: 4, maxTurns: 12, timeout: 300, skillDir: path.join(ROOT, 'skills', 'measured-type') };
+  const opt = { runs: 3, model: 'claude-opus-5-5', workers: 4, maxTurns: 12, timeout: 300, skillDir: path.join(ROOT, 'skills', 'measured-typography') };
   const argv = process.argv.slice(2);
   for (let i = 0; i < argv.length; i++) {
     const key = argv[i].replace(/^--/, '').replace(/-([a-z])/g, (_, c) => c.toUpperCase());

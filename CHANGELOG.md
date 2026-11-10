@@ -4,6 +4,21 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
+## Unreleased
+
+### Changed
+
+- The skill and the plugin are now named `measured-typography` (spec 0033),
+  so a search for "typography" matches the name; the repository, the brand
+  and the marketplace keep "measured-type". Install with
+  `npx skills add PetriLahdelma/measured-type --skill measured-typography`
+  or `/plugin install measured-typography@measured-type`. The marketplace maps
+  the old plugin name to the new one: Claude Code renames the plugin in your
+  settings, and running that install line once fetches it under the new name
+  (checked with a real install). A copy installed with the skills CLI is
+  reinstalled under the new name. The skill folder is `skills/measured-typography/`, and the old folder
+  keeps a README that points to it.
+
 ## 1.8.1 (9 November 2026)
 
 Documentation brought up to 1.8.0.

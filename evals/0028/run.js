@@ -7,7 +7,7 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..', '..');
-const SCRIPTS = path.join(ROOT, 'skills', 'measured-type', 'scripts');
+const SCRIPTS = path.join(ROOT, 'skills', 'measured-typography', 'scripts');
 const TOOL_TIMEOUT = 300 * 1000;
 const READING = 'main p, article p, [role=main] p';
 const MIN_FULL_LINES = 3;

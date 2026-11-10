@@ -4,7 +4,7 @@
  * committed before any head-to-head output was read. Every rendered check
  * runs in Chromium; the two audit-text checks are fixed patterns.
  *
- *   NODE_PATH=skills/measured-type/node_modules node evals/h2h-grade.js <case> <outputs-dir>
+ *   NODE_PATH=skills/measured-typography/node_modules node evals/h2h-grade.js <case> <outputs-dir>
  *
  * Prints grading.json (expectations with text, passed, evidence) to stdout.
  * Characters per line use scripts/measure-line.js, whose behaviour is pinned
@@ -16,7 +16,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { chromium } = require('playwright');
-const { measureLines } = require('../skills/measured-type/scripts/measure-line.js');
+const { measureLines } = require('../skills/measured-typography/scripts/measure-line.js');
 
 const ASSERTIONS = (name) => fs.readdirSync(path.join(__dirname, name, 'graders')).sort()
   .map((f) => fs.readFileSync(path.join(__dirname, name, 'graders', f), 'utf8').split('---\n')[2].trim());

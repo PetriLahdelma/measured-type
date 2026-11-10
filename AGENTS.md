@@ -5,7 +5,7 @@ Instructions for coding agents working in this repository. People should read
 
 ## Layout
 
-- `skills/measured-type/`: the skill (SKILL.md, `references/`) and its tools
+- `skills/measured-typography/`: the skill (SKILL.md, `references/`) and its tools
   (`scripts/`, tests in `scripts/test/`). Run commands from here.
 - `specs/`: one numbered spec per change, with requirement IDs.
 - `evals/`: eval cases, graders, analysis scripts and committed results.
@@ -13,7 +13,7 @@ Instructions for coding agents working in this repository. People should read
 ## Commands
 
 ```bash
-cd skills/measured-type
+cd skills/measured-typography
 npm install && npx playwright install chromium   # once
 npm test                                         # the whole suite
 node --test scripts/test/<name>.test.js          # one file

@@ -51,7 +51,7 @@ test('R5 the repository passes, and agent outputs are out of scope', () => {
   assert.equal(r.status, 0, r.stdout + r.stderr);
   const { files } = require(path.join(TOOLS, 'prose-check.js'));
   const list = files(ROOT).map((f) => path.relative(ROOT, f));
-  assert.ok(list.includes('README.md') && list.includes(path.join('skills', 'measured-type', 'SKILL.md')));
+  assert.ok(list.includes('README.md') && list.includes(path.join('skills', 'measured-typography', 'SKILL.md')));
   assert.ok(list.every((f) => !f.includes('node_modules') && !/evals[\\/]results[\\/][^\\/]+[\\/]runs[\\/]/.test(f)), list.filter((f) => /runs/.test(f)).join(', '));
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mt-prose-'));
   fs.writeFileSync(path.join(tmp, 'bad.md'), 'Zoom, contrast, and reflow — all three.\n');

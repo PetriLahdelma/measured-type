@@ -1,7 +1,7 @@
 {
   "name": "measured-type-scripts",
   "private": true,
-  "description": "Helper scripts for the measured-type skill: rendered line counts, page audits, CSS lint, font feature coverage, fallback metrics and type scales.",
+  "description": "Helper scripts for the measured-typography skill: rendered line counts, page audits, CSS lint, font feature coverage, fallback metrics and type scales.",
   "license": "MIT",
   "scripts": {
     "measure": "node scripts/measure-line.js",

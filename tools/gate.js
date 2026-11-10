@@ -30,7 +30,7 @@ function steps({ skillDir, inner }) {
 function run() {
   const args = process.argv.slice(2);
   const at = args.indexOf('--skill-dir');
-  const skillDir = at === -1 ? path.join(ROOT, 'skills', 'measured-type') : path.resolve(args[at + 1]);
+  const skillDir = at === -1 ? path.join(ROOT, 'skills', 'measured-typography') : path.resolve(args[at + 1]);
   if (!process.env.MT_PYTHON) {
     console.warn('warning: MT_PYTHON is not set, so the font tests will skip. Point it at a Python that has fontTools (CONTRIBUTING.md, "Set up").');
   }

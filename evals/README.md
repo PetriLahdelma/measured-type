@@ -26,14 +26,14 @@ loads.
 Count the lines of a run's output yourself:
 
 ```bash
-node skills/measured-type/scripts/measure-line.js --css evals/results/iteration-1/measure-wide-face/with_skill/run-1/outputs/prose.css
+node skills/measured-typography/scripts/measure-line.js --css evals/results/iteration-1/measure-wide-face/with_skill/run-1/outputs/prose.css
 ```
 
 Grade a head-to-head run again (the graders render each output in Chromium and
 print `grading.json`):
 
 ```bash
-NODE_PATH=skills/measured-type/node_modules node evals/h2h-grade.js h2h-dashboard evals/results/h2h-3/runs/h2h-dashboard/pkfafu/outputs
+NODE_PATH=skills/measured-typography/node_modules node evals/h2h-grade.js h2h-dashboard evals/results/h2h-3/runs/h2h-dashboard/pkfafu/outputs
 ```
 
 Run both from the repository root. The `ofl-feature-check` and
