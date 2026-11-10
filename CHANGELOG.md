@@ -4,7 +4,12 @@ Notable changes to Measured Type. Each release has full notes on the
 [releases page](https://github.com/PetriLahdelma/measured-type/releases), and
 each change has a spec in [`specs/`](specs/).
 
-## Unreleased
+## 1.9.0 (10 November 2026)
+
+The skill and the plugin are renamed `measured-typography`; the repository,
+the brand and the marketplace keep their names. If you installed the plugin
+as `measured-type`, run `/plugin install measured-typography@measured-type`
+once.
 
 ### Changed
 
